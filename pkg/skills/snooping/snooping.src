@@ -3,7 +3,8 @@ use os;
 
 include "include/client";
 include ":attributes:attributes";
-
+var mex;
+var mey;
 program snooping(who)
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
@@ -12,7 +13,8 @@ program snooping(who)
 	needgloves(who);
 
 	SendSysMessage(who, "Who would you like to snoop?");
-
+mex := who.x;
+mey := who.y;
 	var victim:=Target(who, TGTOPT_CHECK_LOS);
 		if (!victim)
     		SendSysMessage(who, "canceled");
@@ -22,10 +24,16 @@ program snooping(who)
 	if(Distance(who, victim)>1)
 		SendSysMessage(who, "You need to stay close to "+ victim.name+" !");
 	endif
-
+        if((who.x != mex) || (who.y != mey))
+            DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
+            return 1;
+        endif
 
     MoveItemToContainer(SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0), who.backpack, -1, -1,0);
-DestroyItem(victim);
+
+
+
+DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
 
 endprogram
 

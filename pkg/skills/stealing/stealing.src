@@ -5,73 +5,38 @@ include "include/client";
 include ":attributes:attributes";
 include "include/NPCBackpacks";
 include "include/storageAreas";
-
+var mex;
+var mey;
 program stealing(who)
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
-    SendSysMessage(who, "stealing", color := 66);
+    SendSysMessage(who, "Select target.");
 
 	freehands(who);
 	needgloves(who);
         var newitem;
-
+mex := who.x;
+mey := who.y;
 	SendSysMessage(who, "What item would you like to attempt to steal?");
 
 	var on  := Target(who);
 
-	if (!on)
+    if (!on)
 		SendSysMessage(who, "canceled");
 	endif
-  if(!CheckLineOfSight(who, on))
-    SendSysMessage(who, "You can't see that!");
-    return;
-  endif
-  if(Distance(who,on) > 2)
-     SendSysMessage(who, "You are not close enough to stealing that!");
-    return;
-  endif
+    if(!CheckLineOfSight(who, on))
+        SendSysMessage(who, "You can't see that!");
+        return;
+    endif
+    if(Distance(who,on) > 2)
+        SendSysMessage(who, "You are not close enough to stealing that!");
+        return;
+    endif
 
-SetObjProperty(who,"#Snoop",ReadGameClock() + 30);
-SetObjProperty(who,"#Snoop_pid",on.serial);
-
-    nearvictim(who);
-
-
-
-      var copyitem:=CreateItemAtLocation(2432, 166, 0, 0x0E75, 1, who.realm);
-
-      if (on.backpack.isA(POLCLASS_CONTAINER))
-        var items := EnumerateItemsInContainer(on.backpack);
-        foreach item in items
-          newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
-            SetObjProperty(newitem,"realitem",item.serial);
-          MoveItemToContainer(newitem, copyitem, item.x, item.y);
-
-        endforeach
-
-      endif
-
-
-//var cont2:=CreateItemAtLocation(who.x, who.y, who.z, 0x0E75, 1, who.realm);
-//cont2.invisible:=1;
-/*foreach item in EnumerateItemsInContainer(on.backpack)
-    if(item.newbie == 0)
-        var it:=CreateItemInInventory( cont2, GetItemDescriptor(item), item.amount);
-        SetObjProperty(it,"realitem",item.serial);
-    endif;
-endforeach*/
-sleep(3);
-if(SendViewContainer(who, copyitem))
-var container2:=SendOpenSpecialContainer( who, copyitem );
-print("container2"+container2);
-
-else
-print("Error open");
-endif;
-
-return;
-
-
+    if ((on.serial==who.serial) && ((on.graphic != 400) || (on.graphic != 401)))
+        SendSysMessage(who, "No need to steal this.");
+        return;
+    endif
 
 
 
@@ -86,35 +51,50 @@ return;
     var points := skill + 1;
 
 
-       // on.movable:= 1;
-        //MoveItemToContainer(who, on.backpack);
-       // MoveItemToContainer(on, who.backpack);
+
+
+    sleep(3);
+    if (CheckSkill(who, STEALING, 98, points))
 
 
 
-        /*var mypack := FindMyPack2(on.serial);
-        foreach item in EnumerateItemsInContainer(mypack)
-            item.movable:= 0;
-            if (item.container.serial == mypack.serial)
-                MoveItemToContainer(item, on.backpack);
-            endif
-        endforeach*/
-        on.movable:= 0;
+    PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
+    //horsebarn 5228 1182 0
+
+    var copyitem:=CreateItemAtLocation(2432, 166, 0, 0x0E75, 1, who.realm);
+
+        if (on.backpack.isA(POLCLASS_CONTAINER))
+            var items := EnumerateItemsInContainer(on.backpack);
+            foreach item in items
+                if(item.newbie == 0)
+                    newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
+                    SetObjProperty(newitem,"realitem",item.serial);
+                    MoveItemToContainer(newitem, copyitem, item.x, item.y);
+                endif
+            endforeach
+        endif
+
+        foreach item in EnumerateItemsInContainer(copyitem)
+            item.movable:=0;
+        endforeach
+
+        SetObjProperty(who,"#Snoop",ReadGameClock() + 30);
+        SetObjProperty(who,"#Snoop_pid",copyitem.serial);
+
+        if((who.x != mex) || (who.y != mey))
+            DestroyItem(copyitem);
+            return 1;
+        endif
+
+        if(SendViewContainer(who, copyitem))
+            SendOpenSpecialContainer( who, copyitem );
+
+        else
+            print("Error open");
+        endif;
 
 
 
-
-        SendSysMessage(who, "You have successfully stolen the item.");
-
-    if (CheckSkill(who, STEALING, 40, points))
-
-
-
-    return;
-
-        on.movable:= 1;
-        MoveItemToContainer(on, who.backpack);
-        SetObjProperty(on,"cansteal",0);
         SendSysMessage(who, "You have successfully stolen the item.");
 
 		/*var karma:=GetKarma(who);
@@ -139,7 +119,7 @@ return;
 	    tellplayers(who);
 	    callguard(who);
 	    who.setCriminal(1);
-        SendSysMessage(who, "sorry");
+
 	    /*var karma2:=GetKarma(who);
 		var losskarma2:=0;
 
@@ -155,7 +135,7 @@ return;
 			lossfame2:=0-(RandomInt(200)+1);
 		endif
 		Awardfame(who, lossfame2);*/
-
+        SendSysMessage(who, "fail.");
 		return;
     endif
 endprogram
@@ -220,26 +200,3 @@ function callguard(who)
 		endif
 	endforeach
 endfunction
-
-function nearvictim(who)
-
-    var close:= 0;
-    var posvictim:=ListMobilesNearLocation(who.x, who.y, who.z, 2,who.realm);
-
-	foreach mobile in posvictim
-		if ((mobile.serial!=who.serial) && ((mobile.graphic == 400) || (mobile.graphic == 401)))
-			close:= 1;
-		endif
-
-	endforeach
-
-	if (close == 1)
-		return 1;
-	endif
-
-	if (close == 0)
-	    SendSysMessage(who, "Your victim is too far away");
-	    exit;
-	endif
-endfunction
-
