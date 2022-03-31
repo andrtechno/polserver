@@ -1,24 +1,24 @@
 ### Изменения относительно Classic-dist
 
 
-##### Skills:
+### Skills:
 - Lumberjacking добавлена добычна видов дерева
 - Mining изменена добыча видов дерева (добавлены новые виды)
 - Hiding Изменены тексты на unicode RUS
 - Alchemy Добавлены новые виды дутылок(homeric,invisibility etc.)
 
 
-##### PKG:
-- Добавлен items/dangesgate - портыла в данжы
-- Добавлен items/plus - Плюс вещи на скилы
-- Изменено items/runebook - Исправлена руна бука (recall & gate).
-- Добавлен items/christmas - Новогодний пакет
-- Добавлен system/charclass - Классы персонажей
+### PKG:
+- Добавлен **items/dangesgate** - портыла в данжы
+- Добавлен **items/plus** - Плюс вещи на скилы
+- Изменено **items/runebook** - Исправлена руна бука (recall & gate).
+- Добавлен **items/christmas** - Новогодний пакет
+- Добавлен **system/charclass** - Классы персонажей (в разработке)
 
 
-##### Commands (textcmd)
+### Commands (textcmd)
 ##### player
-- .where
+- **.where** - показывает текущие место положение X Z Y
 ##### test
 - **.count [int]** - показывает количество вешей в радиусе [int]
 - **.refresh** - пополняет статы HP/MP/Stamina по таргету
