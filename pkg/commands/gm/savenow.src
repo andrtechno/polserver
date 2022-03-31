@@ -1,0 +1,8 @@
+use uo;
+use unicode;
+
+program textcmd_savenow()
+    BroadcastUC(CAscZ("Сохранение игрового мира..."), "RUS", 3, 0x25);
+    SaveWorldState();
+    BroadcastUC(CAscZ("Сохранение завершено."), "RUS", 3, 0x25);
+endprogram

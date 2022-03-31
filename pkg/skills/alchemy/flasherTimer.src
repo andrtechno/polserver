@@ -1,0 +1,12 @@
+use uo;
+use os;
+
+program flasher_timer(parms)
+
+  var i := 3;
+  for( i:=3; i>=1; i-=1 )
+    PrintTextAbove( parms[1], CStr( i ) );
+    Sleep( 1 );
+  endfor
+  start_script(":alchemy:flasher", parms);
+endprogram

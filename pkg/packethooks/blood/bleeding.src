@@ -1,0 +1,30 @@
+
+use uo;
+use os;
+use cfgfile;
+use polsys;
+
+CONST OFFSET_SERIAL_IN := 4;
+CONST OFFSET_SERIAL_OUT := 3;
+program Install()
+
+	 Print("INSTALLING: Combat blood PH...");
+	 return 1;
+
+endprogram
+
+exported function blood( who, byref packet )
+	if (who)
+	endif
+
+			print("blood");
+
+  var serial:=packet.GetInt32(1);
+  var object:=SystemFindObjectBySerial(serial);
+
+
+		//packet.SetInt32(0x01, serial);
+		print(packet);
+packet.SendPacket(object);
+	return 1;
+endfunction

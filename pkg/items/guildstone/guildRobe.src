@@ -1,0 +1,33 @@
+use uo;
+use os;
+use guilds;
+
+
+program guildRobe( character, item )
+    set_critical(1);
+    var gid := 0;
+    if(GetObjProperty(character,"guild_id"))
+        if(!GetObjProperty(item,"guild_id"))
+            SetObjProperty(item,"guild_id",GetObjProperty(character,"guild_id"));
+            gid:=CInt(GetObjProperty(character,"guild_id"));
+        endif
+    else
+        SendSysMessage(character, "you not a guild");
+        return 0;
+    endif;
+    if(GetObjProperty(item,"guild_id"))
+        gid:=CInt(GetObjProperty(item,"guild_id"));
+    endif;
+
+      //var guild := FindGuild(gid);
+      print(gid);
+
+    item.color:=1109;
+
+    item.name:="Guild robe of "+character.name;
+    //item.name_suffix:="("+robName+")";
+    item.newbie:=1;
+
+    return 1;
+    set_critical(0);
+endprogram

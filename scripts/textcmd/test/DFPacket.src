@@ -1,0 +1,54 @@
+// Manually turns on and off the STRENGTH icon in the buff/debuff gump.
+// Use:
+// .dfpacket 1 to show
+// .dfpacket 0 to remove
+
+
+use uo;
+use os;
+use polsys;
+
+program DFPacket(mobile, show)
+	if ( show )
+		show := CInt(show);
+	else
+		show := 0;
+	endif
+	var icon := 1047;
+	var cliloc1 := 1015014;
+	var cliloc2 := 1060485;
+	var duration := 20;
+	var str := " +20";	// the space at the start is important. Use cliloc parm rules for multiple parameters
+
+	// define the offsets to make it easier
+	var	OFFSET_SERIAL := 3;
+	var	OFFSET_ICONNUMBER1 := 7;
+	var	OFFSET_SHOW1 := 9;
+	var	OFFSET_ICONNUMBER2 := 15;
+	var	OFFSET_SHOW2 := 17;
+	var	OFFSET_TIME := 23;
+	var	OFFSET_CLILOC1 := 28;
+	var	OFFSET_CLILOC2 := 32;
+	var	OFFSET_CLILOC2PARMS := 42;
+
+//	var	BLANK_CLILOC := 1005007;	// a cliloc number with blank text
+//	var	ERROR_CLILOC := 500267;		// an cliloc showing an error
+
+
+	var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);
+	packet.setint32(OFFSET_SERIAL, mobile.serial);
+	packet.setint16(OFFSET_ICONNUMBER1, icon);
+	packet.setint16(OFFSET_SHOW1, show);
+	if ( show )
+		packet.setint16(OFFSET_ICONNUMBER2, icon);
+		packet.setint16(OFFSET_SHOW2, show);
+		packet.setint16(OFFSET_TIME, duration);
+		packet.setint32(OFFSET_CLILOC1, cliloc1);
+		packet.setint32(OFFSET_CLILOC2, cliloc2);
+		packet.SetUnicodeStringFlipped(OFFSET_CLILOC2PARMS, CAscZ(str), 1);
+		var Length_ID := packet.GetSize();
+		packet.setint16(Length_ID, 0x1);
+	endif
+	print(packet);
+	packet.sendpacket(mobile);
+endprogram

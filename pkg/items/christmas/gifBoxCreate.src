@@ -1,0 +1,11 @@
+use uo;
+use os;
+use basic;
+use cfgfile;
+
+include "include/client";
+
+program gifBoxCreate(who);
+    SendSysMessage(who, "You received a gift",3,67);
+    CreateItemInBackpack(who, "gifbox", 1);
+endprogram

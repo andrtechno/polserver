@@ -1,0 +1,57 @@
+use uo;
+use util;
+
+include "include/client";
+include ":attributes:attributes";
+include "include/trainingskill";
+
+
+var npccfgfile := ReadConfigFile("::npcdesc");
+
+
+program skill_stealth( who )
+        var data := {};
+        data[1] := "stealth";
+        data[2] := ReadGameClock();
+        data[3] := 47;
+        SetObjProperty(who, "LastUsedSkill", data );
+        TrainingSkill(who, data[3]);
+
+  EraseObjProperty(who, "IsMeditating");
+  EraseObjProperty(who, "HealTimer");
+  if(GetAttribute(who, HIDING) < 80)
+    PrintTextAbovePrivate( who, "You are not good enough at Hiding to do that", who );
+    return;
+  endif
+  if(!who.hidden)
+    PrintTextAbovePrivate( who, "You must be hidden to use stealth", who );
+    return;
+  endif
+  var mount := GetEquipmentByLayer(who, LAYER_MOUNT );
+  if(mount)
+
+
+	var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount, "serial")));
+    if(animal.npctemplate != "stealthhorse")
+       who.hidden := 0;
+       PrintTextAbovePrivate( who, "You cant stealth while riding a horse!", who );
+        return;
+    endif
+
+
+  endif
+  var skill := CInt(GetAttribute(who, STEALTH) / 10) + 10;
+
+
+  if(skill > 35)
+    skill := 35;
+  endif
+  if(SkillCheck(who, STEALTH, -1, skill))
+    skill := (skill + RandomInt(skill));
+    who.stealthsteps := skill;
+    PrintTextAbovePrivate( who, "You are now moving "+who.stealthsteps+" steps", who );
+  else
+    who.hidden := 0;
+    PrintTextAbovePrivate( who, "You have revealed yourself!", who );
+  endif
+endprogram

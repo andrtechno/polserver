@@ -1,0 +1,51 @@
+use uo;
+use sql;
+use unicode;
+use util;
+
+include "include/client";
+
+program unconcealme( who )
+    who.concealed := 0;
+
+ 	PlayStationaryEffect(who.x + 1, who.y + 1, who.z, 0x3709, 0, 0x1e);
+ 	PlayStationaryEffect(who.x - 1, who.y - 1, who.z, 0x3709, 0, 0x1e);
+
+    PlayStationaryEffect(who.x-1, who.y + 1, who.z, 0x3709, 0, 0x1e);
+    PlayStationaryEffect(who.x + 1, who.y - 1, who.z, 0x3709, 0, 0x1e);
+
+	PlaySoundEffect(who,0xf8);
+/*
+
+	var connect := mysql_connect("localhost","root","47228960");
+	if(connect)
+        var mysql_db := mysql_select_db(connect,"uo");
+
+       // var insert := mysql_query(connect,"INSERT INTO golden_multis (id,name) VALUES(15,'dsadsaads')","");
+       // print(insert);
+
+    var system := polcore();
+    print("    POL:" + system.systime );
+    print(StrFormatTime("%Y-%d-%m %H:%M:%S",system.systime));
+        var query := mysql_query(connect,"SELECT id,name FROM t3g4_forum__categories","");
+        var res := mysql_fetch_row(query);
+        var num := mysql_num_rows(query);
+        var fields := mysql_num_fields(query);
+        var name := mysql_field_name(query,1); //return "id"
+
+
+//var test := mysql_field_name(res,0);
+//var test;
+//while (test == res);
+//print(test);
+//endwhile;
+print(name);
+print(fields);
+print(num);
+SendSysMessage(who,"hello");
+//SendSysMessageUC(who, res[1], "RUS");
+    endif;
+    mysql_close(connect);
+*/
+
+endprogram

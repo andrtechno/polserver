@@ -1,0 +1,32 @@
+use uo;
+
+
+program textcmd_createnpc2( who, template )
+
+	if( !template )
+		SendSysMessage( who, "Usage is .createnpc2 <template>" );
+		return;
+	endif
+
+	var forbidden := GetGlobalProperty( "ForbiddenTemplates" );
+	if( !forbidden )
+		forbidden := array;
+	endif
+
+	foreach monstername in forbidden
+	if(lower(monstername)== lower(template))
+		SendSysMessage( who, "This npc type is forbidden, you aren't allowed to create it." );
+		return;
+	endif
+	endforeach
+
+	var props array;
+	props.+facing := who.facing;
+	var where := TargetCoordinates(who);
+
+	var result := CreateNpcFromTemplate( template, where.x, where.y, where.z, 1, who.realm );
+	if (!result)
+		SendSysMessage( who, "NPC Creation Failed: " + result.errortext );
+	endif
+
+endprogram

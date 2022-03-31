@@ -1,0 +1,22 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+
+program textcmd_refresh(who)
+
+	SendSysMessage( who, "Select a enemy." );
+	var on := Target(who,TGTOPT_CHECK_LOS);
+	if(!on)
+        SendSysMessage( who, "Cancelled." );
+	endif
+    if(on)
+        if(on.isa(POLCLASS_MOBILE) || on.isa(POLCLASS_NPC))
+            SetHp(on,5000);
+            SetMana(on,5000);
+            SetStamina(on,5000);
+        else
+        	SendSysMessage( who, "That not enemy" );
+        endif
+    endif
+endprogram

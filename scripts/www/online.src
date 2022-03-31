@@ -1,0 +1,37 @@
+use http;
+use uo;
+use basic;
+
+var players := {};
+
+  WriteHtml( "<html><head><title>POL On-Line Characters</title></head>" +
+             "<body>" +
+             "<div align=center>" +
+             "<table border=1 cellspacing=0 cellpadding=5>" +
+             "  <tr bgcolor=#99CCFF><td>Characters Currently On-Line</td></tr>"  );
+
+
+
+  foreach chr in EnumerateOnlineCharacters()
+
+        var prop := struct{};
+        prop.+"name" := chr.name;
+        prop.+"cmdlevel" := chr.cmdlevel;
+        prop.+"criminal" := chr.criminal;
+        prop.+"dead" := chr.dead;
+        prop.+"guildid" := chr.guildid;
+        prop.+"ip" := chr.ip;
+        prop.+"race" := chr.race;
+        prop.+"title_guild" := chr.title_guild;
+        prop.+"title_prefix" := chr.title_prefix;
+        prop.+"murderer" := chr.murderer;
+
+
+  players.append(prop);
+   // if(chr.cmdlevel < 2)
+      WriteHtml( "<tr><td>" + chr.name + "</td></tr>" );
+   // endif
+  endforeach
+    WriteHtml( PackJSON(players) );
+  WriteHtml( "</table></div>" );
+  WriteHtml( "</BODY></HTML>" );

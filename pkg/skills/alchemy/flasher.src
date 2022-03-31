@@ -1,0 +1,53 @@
+use uo;
+use os;
+use util;
+use polsys;
+
+include ":attributes:attributes";
+include "include/fixPacketLength";
+
+program flasher(parms)
+  var potion := parms[1];
+  var who := parms[2];
+  var thecenter := potion;
+  while(thecenter.container)
+    thecenter := thecenter.container;
+  endwhile
+  SetScriptController(who);
+
+
+  // creating a location variable to store the item data so we can destroy the item.
+  var location := struct;
+  location.+x := thecenter.x;
+  location.+y := thecenter.y;
+  location.+z := thecenter.z;
+  location.+objtype := potion.objtype;
+  
+  // and it goes out in a bang!
+  PlayStationaryEffect( potion.x, potion.y, potion.z, 0x3728, 7, 10, 1, potion.realm);
+  //PlaySoundEffect(potion, 0x25fd);
+  SubtractAmount( potion, 1 );
+    print(location);
+  // It damages everything near it.
+  foreach critter in ListMobilesNearLocation( location.x, location.y, location.z, 15, who.realm );
+    PlayObjectCenteredEffect( critter, 0x37c4, 7, 0x10 );
+    PlaySoundEffect( critter, 0x25fd);
+    //3 flash
+      SpecialEffect(critter,2);
+  endforeach
+
+endprogram
+
+
+
+function SpecialEffect( who, type:=2 )
+    var packetString := "70";
+    packetString := packetString + fixPacketLength(hex(4),1); //  0x04 = special effects
+    packetString := packetString + fixPacketLength(hex(0),4);
+    packetString := packetString + fixPacketLength(hex(0),4);
+    packetString := packetString + fixPacketLength(hex(type),2); // (for type = 0x04 use 0x00 - 0x04 values for different special flash effects
+    // 0 - Fade out, 1 - Fade in, 2 - Flash, 3 - Fade In&Out, 4 - very short Black Flash
+    packetString := packetString + fixPacketLength(hex(0),16);
+    print(packetString);
+    SendPacket( who, packetString );
+endfunction

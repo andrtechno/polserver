@@ -1,0 +1,16 @@
+include ":attributes:attributes";
+include ":attributes:skills";
+
+program plus_unequip(who, item)
+
+
+
+
+    if(GetObjProperty(item,"skillName") && GetObjProperty(item,"skillValue"))
+    var value:=CInt(GetObjProperty(item,"skillValue"));
+    print(value);
+        AP_SetSkillMod(who,GetObjProperty(item,"skillName"),AP_GetSkillMod(who,GetObjProperty(item,"skillName")) - value);
+    endif
+
+return 1;
+endprogram

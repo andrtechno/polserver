@@ -1,0 +1,13 @@
+use os;
+use uo;
+
+program unload( who, scriptname )
+
+    Unload_Scripts(scriptname);
+if(scriptname == "")
+SendSysMessage(who, "unloaded: All", 3, 33);
+else
+SendSysMessage(who, "unloaded: "+scriptname, 3, 33);
+endif
+
+endprogram

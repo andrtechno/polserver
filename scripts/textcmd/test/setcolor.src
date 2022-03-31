@@ -1,0 +1,13 @@
+use uo;
+use os;
+
+program setcolor(who, color)
+	SendSysMessage( who, "Select a target to color." );
+	var on := Target(who,TGTOPT_CHECK_LOS);
+	if (!on)
+		SendSysMessage(on, "Canceled.", 1, 33);
+		return;
+	endif
+	print(color);
+	on.color := CInt(color);
+endprogram

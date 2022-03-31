@@ -1,0 +1,156 @@
+use os;
+use uo;
+use polsys;
+
+program textcmd_spack(who)
+//traget
+/*
+var outp := CreatePacket(0x6C,19);
+outp.SetInt8(1, 0x6C);
+outp.SetInt8(1, 1);
+outp.SetInt8(1, 1);
+outp.SendPacket(who);*/
+
+
+
+//65 — это команда/идентификатор погодного пакета.
+//00 — это дождь в данном случае (тип погоды, также может быть, например, 02 для снега.
+//50 — серьезность погоды (количество частиц)
+//00 — последний неизвестный байт пакета погоды. Может быть температура.
+
+//var rainpacket := "65005000";
+var showpacket := "65025000";
+//SendPacket( who, showpacket );
+//SendAreaPacket(1354,1751,15,who.realm);
+
+var amount:=60;
+	var dmg_packet := CreatePacket(0x0B, 0x07);
+	if( amount <= 255 )
+		dmg_packet.SetInt8(0x06, amount);
+	else
+		dmg_packet.SetInt16(0x05, amount);
+	endif
+	dmg_packet.SetInt32(0x01, who.serial);
+
+	var outpkt := CreatePacket(0xE2, 10);
+  outpkt.SetInt32(1, who.serial);
+	outpkt.SetInt16(5, 4);
+	//outpkt.SetInt16(7, action);
+	//outpkt.SetInt8(9, subaction);
+	outpkt.SendAreaPacket(1354,1751, 18, who.realm);
+
+		dmg_packet.SendPacket(who);
+		var packs:=Packages();
+	       foreach p in packs
+           // print(p.npcdesc);
+          endforeach
+
+
+//set war
+//var war := CreatePacket(0x72, 0x05);
+//war.SetInt8(0x01, 1);
+//war.SendPacket(who);
+
+//Blood
+//var war := CreatePacket(0x1F, 0x08);
+//war.SetInt8(0x01, 1);
+//war.SendPacket(who);
+
+
+
+//
+//PlayCharAnim(who);
+//die 6E000000F6001500060001000000
+//cast 6E000000F6001000060001010000
+//SendPacket(who,"6E000000F6000900060001010000");
+
+//http://forums.polserver.com/viewtopic.php?f=51&t=3543&sid=e6fd51913bf75c476344c94516bd732a
+//.SendAreaPacket(x,y,range,realm) для отправки одного и того же пакета всем игрокам в области.
+
+
+
+
+
+//season
+var paquete := CreatePacket(0xBC, 3);
+paquete.SetInt8(1, 3); // season flag: 4 - desolation
+paquete.SetInt8(2, 1); // don´t play sound
+//SendPacket(who, "BC0301");
+
+//print(upper(paquete));
+//print(typeof(paquete));
+//BC0401
+
+
+
+
+//SendPacket(who, "BF0006002601"); // turns on boost
+
+//SendPacket(who, "BF0006002600"); // turns off boost
+
+//для кладов!!!
+//SendQuestArrow(who, 2459, 154, "arrow_id");
+
+//remove arrow
+//SendQuestArrow(who, -1, -1, "arrow_id");
+endprogram
+
+
+function fixPacketLength(packetString, byteLength)
+	if ( !packetString || packetString == error )
+		packetString := 0;
+	endif
+	packetString := CStr(packetString);
+
+	if ( packetString[1, 2] == "0x" )
+		packetString := CStr(packetString[3, len(packetString)]);
+	endif
+
+	if ( len(packetString) > byteLength * 2 )
+//		var extraBytes := (byteLength * 2) - len(packetString);
+		var extraBytes := len(packetString) - (byteLength * 2) + 1;
+		return CStr(packetString[extraBytes, len(packetString)]);
+	endif
+
+	while ( len(packetString) < byteLength * 2 )
+		packetString := "0" + packetString;
+	endwhile
+	return packetString;
+
+endfunction
+
+function PlayCharAnim(who)
+	var dir := 1;
+	var speed := 0;				//0 = fastest, 30 = way too  slow
+	var doesrepeat := 0;
+	var framecount := 6;		// seems to set the frame it uses?
+	var numrepeats := 1;
+
+	var packetString := "6E"; //6E
+	packetString := packetString + fixPacketLength(hex(who.serial), 4);
+	packetString := packetString + fixPacketLength(hex(21), 2);			// animation
+
+	packetString := packetString + fixPacketLength(hex(framecount), 2);		// frame count
+	packetString := packetString + fixPacketLength(hex(numrepeats), 2);		// Repetition times
+
+	packetString := packetString + fixPacketLength(hex(dir), 1);			// 00 == fwd, 01 == bkwd
+	packetString := packetString + fixPacketLength(hex(doesrepeat), 1);		// Does this animation repeat? 01 == yes
+	packetString := packetString + fixPacketLength(hex(speed), 1);			// frame delay
+
+	foreach chr in ListMobilesNearLocation(who.x, who.y, who.z, 16, who.realm);
+		SendPacket(chr, packetString);
+		print(packetString);
+	endforeach
+endfunction
+
+function SpecialEffect( who, type:=2 )
+var packetString := "70";
+packetString := packetString + fixPacketLength(hex(4),1); //  0x04 = special effects
+packetString := packetString + fixPacketLength(hex(0),4);
+packetString := packetString + fixPacketLength(hex(0),4);
+packetString := packetString + fixPacketLength(hex(type),2); // (for type = 0x04 use 0x00 - 0x04 values for different special flash effects
+// 0 - Fade out, 1 - Fade in, 2 - Flash, 3 - Fade In&Out, 4 - very short Black Flash
+packetString := packetString + fixPacketLength(hex(0),16);
+	print(packetString);
+SendPacket( who, packetString );
+endfunction

@@ -1,0 +1,23 @@
+use uo;
+use os;
+use basic;
+use cfgfile;
+
+include "include/client";
+
+program gifBoxScript(who, object);
+    SendSysMessage(object,"hello2");
+    SendSysMessage(who,"hello3");
+//PrintTextAbovePrivate( object, " is now frozen", who );
+    PlayObjectCenteredEffect( who, FX_BLESS_EFFECT, 10,10);
+
+    var cfg := ReadConfigFile(":christmas:items");
+
+    var items := GetConfigStringArray(cfg[1], "Name");
+    foreach it in items
+
+        SendSysMessage(who,it);
+    endforeach
+
+    DestroyItem(object);
+endprogram

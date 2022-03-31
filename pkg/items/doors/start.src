@@ -1,0 +1,6 @@
+use uo;
+
+include ":doors:createdoors";
+
+print("Initializing doors developing");
+CreateDoors();

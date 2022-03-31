@@ -1,0 +1,151 @@
+use uo;
+use os;
+use util;
+use attributes;
+
+include "include/client";
+include ":attributes:attributes";
+
+program picklockdoors(who, lockpick)
+  EraseObjProperty(who, "IsMeditating");
+  EraseObjProperty(who, "HealTimer");
+  SendSysMessage(who, "Select a target.");
+  var victim := Target(who);
+  if(!victim)
+    SendSysMessage(who, "Aborted.");
+    return;
+  endif
+  if(Distance(victim, who) > 1)
+    SendSysMessage(who, "That is too far away.");
+    return;
+  endif
+  if(!victim.locked)
+    SendSysMessage(who, "That is not locked.");
+    return;
+  endif
+
+  var difficulty := 150;
+
+  if ( SkillCheck(who, LOCKPICKING,difficulty,10) )
+
+
+      var diff := CInt(GetObjProperty(victim,"signserial"));
+      var lockid := CInt(GetObjProperty(victim,"lockid"));
+      if(diff)
+         victim.locked:=0;
+         PrintTextAbovePrivate(victim, "*Unlocked!*", who);
+         PrintTextAbovePrivate(victim, "60 seconds.", who);
+
+         DoTempModDoor(victim, 60);
+         SubtractAmount(lockpick, 1);
+        return;
+      else
+        SendSysMessage(who, "You cannot pick that");
+        return;
+      endif
+
+      else
+      SendSysMessage(who, "You fail to pick the lock.");
+      SubtractAmount(lockpick, 1);
+ endif
+
+endprogram
+
+
+function DoTempModDoor(who, duration)
+var mod;
+mod := "#hack_unlocked";
+  SetObjProperty(who,mod,1);
+  var parms := {};
+  parms[1] := who;
+  parms[2] := duration;
+  parms[3] := "#hack_unlocked";
+  parms[4] := who.serial;
+  start_script("::/misc/unmoddoor", parms);
+endfunction
+
+function PickMLockedItem(me, lockpick, chest, diff)
+  if(!chest.locked)
+    SendSysMessage(me,"That doesn't appear to be locked");
+    return;
+  endif
+  PlaySoundEffect(me, SFX_242);
+  sleep(1);
+  if(SkillCheck(me, LOCKPICKING, diff,(diff * 2)))
+    PrintTextAbovePrivate(chest,"*Unlocked!*",me);
+    EraseObjProperty(chest, "MLockPickDiff");
+    chest.locked := 0;
+  else
+    PrintTextAbovePrivate(chest,"You fail to pick the lock.",me);
+    if(diff < 10)
+      diff := 0;
+    else
+      diff := diff -10;
+    endif
+    if(!SkillCheck(me, LOCKPICKING,diff,0))
+      PlaySoundEffect(chest,0xef);
+      SendSysMessage(me,"Your pick breaks!");
+      SubtractAmount(lockpick,1);
+    endif
+    return;
+  endif
+endfunction
+
+function PickLockedItem(me, lockpick, chest, diff)
+  if(!chest.locked)
+    SendSysMessage(me,"That doesn't appear to be locked");
+    return;
+  endif
+  PlaySoundEffect(me, SFX_242);
+  sleep(1);
+  if(SkillCheck(me, LOCKPICKING, diff,(diff * 2)))
+    PrintTextAbovePrivate(chest,"*Unlocked!*",me);
+  else
+    PrintTextAbovePrivate(chest,"You fail to pick the lock.",me);
+    if(diff < 10)
+      diff := 0;
+    else
+      diff := diff -10;
+    endif
+    if(!SkillCheck(me, LOCKPICKING,diff,0))
+      PlaySoundEffect(chest,0xef);
+      SendSysMessage(me,"Your pick breaks!");
+      SubtractAmount(lockpick,1);
+    endif
+    return;
+  endif
+  chest.locked := 0;
+endfunction
+
+function PickTreasureChest(me, lockpick, chest)
+  var lvl := GetObjProperty(chest,"level");
+  if(!lvl)
+    SendSysMessage(me, "You cannot pick that.");
+    return;
+  endif
+  if(!chest.locked)
+    SendSysMessage(me,"That doesn't appear to be locked");
+    return;
+  endif
+  PlaySoundEffect(me, SFX_242);
+  sleep(1);
+  var diff :=(lvl * 20)+10;
+  if(SkillCheck(me, LOCKPICKING,diff,(diff * 2)))
+    PlaySoundEffect(chest,SFX_200);
+    PrintTextAbovePrivate(chest,"*Unlocked!*",me);
+    chest.locked := 0;
+  else
+    PrintTextAbovePrivate(chest,"You fail to pick the lock.",me);
+    if(diff < 10)
+      diff := 0;
+    else
+      diff := diff -10;
+    endif
+    if(!SkillCheck(me, LOCKPICKING,diff,0))
+      PlaySoundEffect(chest,0xef);
+      SendSysMessage(me,"Your pick breaks!");
+      SubtractAmount(lockpick,1);
+    endif
+    return;
+  endif
+endfunction

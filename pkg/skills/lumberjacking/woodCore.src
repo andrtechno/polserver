@@ -1,0 +1,76 @@
+use uo;
+use os;
+use util;
+
+const EVID_CHECK_SPOT := 0x123456;
+const OC_PID := "#woodcore";
+
+var woodTable := GetGlobalProperty("woodlist");
+if(!woodTable)
+  woodTable := dictionary;
+endif
+var ev;
+var ed := dictionary;
+var ttime := ReadGameClock();
+
+program logs_server()
+  print("Starting Wood Server.");
+  SetGlobalProperty(OC_PID, getpid());
+  while(1)
+	ev := wait_for_event(20);
+	case(ev.type)
+	  EVID_CHECK_SPOT: CheckSpot();
+	endcase
+	if(ttime + 300 < ReadGameClock())
+	  SetGlobalProperty("woodlist", woodTable);
+	  ttime := ReadGameClock();
+	endif
+  endwhile
+endprogram
+
+function CheckSpot()
+  var src := ev.source;
+  var x := CInt(ev.x/3);
+  var y := CInt(ev.y/3);
+  if(!woodTable.exists(x))
+    NewSpot(0,y);
+  elseif(!woodTable[x].exists(y))
+    NewSpot(x,y);
+  endif
+  src.sendevent(woodTable[x][y]);
+endfunction
+
+function NewSpot(x:=0,y)
+  if( x == 0)
+ 	woodTable.insert(CInt(ev.x/3),ed);
+  endif
+  var ore := GenerateNewOreType();
+  woodTable[CInt(ev.x/3)].insert(y,ore);
+    SetGlobalProperty("woodlist", woodTable); //add panic
+endfunction
+
+function GenerateNewOreType()
+  var val := RandomInt(999) + 1;
+
+  if((val >= 1) && (val <= 100))
+    return 1;  //"iron"
+  elseif((val >= 101) && (val <= 200))
+    return 2;  //"dull copper"
+  elseif((val >= 201) && (val <= 300))
+    return 3;  //"shadow"
+  elseif((val >= 301) && (val <= 400))
+    return 4;  //"copper"
+  elseif((val >= 401) && (val <= 500))
+    return 5;  //"bronze"
+  elseif((val >= 501) && (val <= 600))
+    return 6;  //"golden"
+  elseif((val >= 601) && (val <= 700))
+    return 7;  //"agapite"
+  elseif((val >= 701) && (val <= 800))
+    return 8;  //"verite"
+  elseif((val >= 801) && (val <= 900))
+      return 9;  //"valorite"
+  elseif((val >= 901) && (val <= 1000))
+     return 10;  //"azurite"
+  endif
+endfunction

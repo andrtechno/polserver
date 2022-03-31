@@ -1,0 +1,8 @@
+use os;
+use uo;
+
+program textcmd_count(who, text)
+    var range := CInt( text );
+    var items := ListItemsNearLocation(who.x, who.y, who.z, range, who.realm);
+    SendSysMessage( who, "Item count: " +len(items));
+endprogram

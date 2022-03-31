@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+program textcmd_mdestroy(who, text)
+    var range := CInt( text );
+    var items := ListItemsNearLocation(who.x, who.y, who.z, range, who.realm);
+    foreach item in items
+        DestroyItem(item);
+    endforeach
+    SendSysMessage( who, "Deleted item count: " +len(items));
+endprogram

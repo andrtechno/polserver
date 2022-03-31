@@ -1,0 +1,20 @@
+use os;
+use util;
+use uo;
+
+include ":attributes:attributes";
+include ":attributes:skills";
+
+program plus_equip(who, item)
+
+    if(!GetObjProperty(item,"lasttimeequip"))
+        SetObjProperty(item,"lasttimeequip",ReadGameClock());
+    endif
+    SetObjProperty(item,"timeofequip",ReadGameClock());
+
+    if(GetObjProperty(item,"skillName") && GetObjProperty(item,"skillValue"))
+        AP_SetSkillMod(who,GetObjProperty(item,"skillName"),AP_GetSkillMod(who,GetObjProperty(item,"skillName")) + GetObjProperty(item,"skillValue"));
+    endif
+
+    return 1;
+endprogram

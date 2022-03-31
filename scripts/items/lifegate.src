@@ -1,0 +1,75 @@
+use os;
+use uo;
+use unicode;
+
+include "include/client";
+include ":attributes:attributes";
+include "include/res";
+include "include/resPenalty";
+
+
+//include ":gumps:requestGump";
+
+
+program walkOnLifeGate(mobile)
+    if((mobile.npctemplate) && (mobile.script != "employed") && (mobile.script != "tamed") && (mobile.script != "escortee"))
+        return;
+    endif
+
+
+
+    if(mobile)
+        if(mobile.dead)
+
+        	/*var question := "Type in something that is on your mind. I will try to guess what it is!";
+        	var option := "Random 'urhgbvfs9' works too!";
+        	var pre_val := "Enter your text here";
+
+        	var input := RequestGump(mobile, question, option, pre_val, 1);
+        	if ( input == error )
+        		SendSysMessage(mobile, "You clicked 'CANCEL'");
+        	else
+        		SendSysMessage(mobile, "You typed ->"+input);
+        	endif*/
+            mobile.frozen:=1;
+            var lastRes:=CInt(GetObjProperty(mobile,"LastRes"));
+            if(lastRes)
+                if(lastres > ReadGameClock())
+                    var valueEntry:=RandomDiceRoll("10d10+99");
+
+                    var gump := CInt(SendTextEntryGump(mobile, "Entry code: "+valueEntry+"", 1,1, 3,"code:"));
+                    if(gump != valueEntry)
+                        SendSysMessageUC(mobile, "Неверный код.", "RUS",3,33);
+                        mobile.frozen:=0;
+                        return;
+                    endif;
+                    mobile.frozen:=0;
+                endif;
+            endif
+
+            sleep(1);
+            Resurrect(mobile);
+
+            mobile.frozen:=0;
+            SetObjProperty(mobile,"LastRes", ReadGameClock() + 60);
+            var robe := GetEquipmentByLayer( mobile, 22 );
+            if(robe)
+                DestroyItem(robe);
+            endif
+
+
+
+
+
+            ResPenalties(mobile);
+        else
+            SendSysMessage(mobile, "But that's not dead!");
+        endif
+    endif
+
+endprogram
+
+
+
+
+

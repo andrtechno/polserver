@@ -1,0 +1,6 @@
+use uo;
+
+include ":dangesgate:dangesgate";
+
+print("Initializing dangesgate");
+CreateDangesgates();

@@ -1,0 +1,83 @@
+use uo;
+use os;
+
+include "include/client";
+include "include/objtype";
+include "include/canAccess";
+include ":attributes:attributes";
+include "include/const";
+
+program smelt_that_ore (who, ore)
+  EraseObjProperty(who, "IsMeditating");
+  EraseObjProperty(who, "HealTimer");
+  if(!can_access(who, ore))
+    return;
+  endif
+  if(ore.movable == 0)
+    SendSysMessage(who, "You cannot smelt that.");
+    return;
+  endif
+  case(ore.objtype)
+    ORE_COPPER:     SmeltOre(who, ore, INGOT_COPPER, 0);	// copper
+    ORE_IRON:       SmeltOre(who, ore, INGOT_IRON, 60);	// icon
+    ORE_STEEL:      SmeltOre(who, ore, INGOT_STEEL, 70);	// Steel
+    ORE_ANRA:       SmeltOre(who, ore, INGOT_ANRA, 80);	// Anra
+    ORE_VALORITE:   SmeltOre(who, ore, INGOT_VALORITE, 90);	// Valorite
+    ORE_LAVAROCK:   SmeltOre(who, ore, INGOT_LAVAROCK, 95);	// Lavarock
+    ORE_ICEROCK:    SmeltOre(who, ore, INGOT_ICEROCK, 100);	// Icerock
+    ORE_SHADOW:     SmeltOre(who, ore, INGOT_SHADOW, 105);	// Shadow
+    ORE_AZURITE:    SmeltOre(who, ore, INGOT_AZURITE, 110);	// Azurite
+    ORE_DOOM:       SmeltOre(who, ore, INGOT_DOOM, 115);	// Doom
+    ORE_BLUESTEEL:  SmeltOre(who, ore, INGOT_BLUESTEEL, 120);	// BlueSteel
+    ORE_DARKRUBY:   SmeltOre(who, ore, INGOT_DARKRUBY, 128);	// darkruby
+    ORE_CRYSTALIT:  SmeltOre(who, ore, INGOT_CRYSTALIT, 135);	// crystalit
+    ORE_ONYX:       SmeltOre(who, ore, INGOT_ONYX, 140);	// onxy
+    ORE_MIFRIL:     SmeltOre(who, ore, INGOT_MIFRIL, 145);	// mifril
+    default: SendSysMessage(who,"You can't smelt that.");
+  endcase
+endprogram
+
+function SmeltOre(who, ore, ingot, difficulty)
+  if(!ReserveItem(ore))
+    return;
+  endif
+  if(!Accessible(who, ore))
+    SendSysMessage(who,"You can't reach that.");
+    return;
+  endif
+  var forge := Target(who);
+  if((forge.objtype == 0xfb1) || ((forge.objtype >= 0x197a) && (forge.objtype <= 0x19a9)))
+    if(!CheckLineOfSight(who, forge))
+      SendSysMessage(who,"you cant see that");
+      return;
+    endif
+    if(Distance(who, forge) > 2)
+      SendSysMessage(who,"that is too far away.");
+      return;
+    endif
+    if(Distance(who, ore) > 2)
+      SendSysMessage(who,"that is too far away.");
+      return;
+    endif
+    if(SkillCheck(who, MINING, difficulty, ((difficulty / 2) + 10)))
+      var ingots := CreateItemInBackpack(who, ingot, GetAmount(ore));
+      ReserveItem(ingots);
+      if(ingots)
+        if(DestroyItem(ore))
+          PlaySoundEffect(forge, 0x22);
+          sleep(2);
+          SendSysMessage(who,"You create some ingots and place them in your pack.");
+	      return;
+        else
+          DestroyItem(ingots);
+        endif
+      endif
+    else
+      SubtractAmount(ore, 1);
+	  SendSysMessage(who, "You destroy some ore.");
+      return;
+    endif
+  else
+    SendSysMessage(who, "That is not a forge.");
+  endif
+endfunction

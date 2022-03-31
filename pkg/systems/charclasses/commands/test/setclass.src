@@ -1,0 +1,80 @@
+use uo;
+use os;
+
+
+include ":charclasses:classes";
+include ":attributes:attributeConstants";
+include ":attributes:attributes";
+
+include ":attributes:skills";
+include "include/skillLists";
+program textcmd_setclass(who, text)
+
+	SendSysMessage( who, "Select a character." );
+	var on := Target(who,TGTOPT_CHECK_LOS);
+	if(!on)
+        SendSysMessage( who, "Cancelled." );
+	endif
+
+    var content:=SplitWords(text);
+	var classid;
+	var cname:=lower(content[1]);
+	var level:=CInt(content[2]);
+    var rate:=60;
+if(level > 6)
+    level:=1;
+endif
+
+	if(cname == "bard")
+	    classid:=CLASSEID_BARD;
+	elseif (cname == "mage")
+        classid:=CLASSEID_MAGE;
+    elseif (cname == "fighter")
+        classid:=CLASSEID_WARRIOR;
+    elseif (cname == "thief")
+        classid:=CLASSEID_THIEF;
+    elseif (cname == "crafter")
+        classid:=CLASSEID_CRAFTER;
+    elseif (cname == "ranger")
+        classid:=CLASSEID_RANGER;
+	endif
+
+	if(level == 6)
+	    rate:=150;
+	elseif (level == 5)
+        rate:=135;
+    elseif (level == 4)
+        rate:=120;
+    elseif (level == 3)
+        rate:=105;
+    elseif (level == 2)
+        rate:=90;
+    elseif (level == 1)
+        rate:=60;
+	endif
+
+
+
+    //set all skill to "0"
+	foreach classe in GetClasseIds()
+		foreach sid in GetClasseSkills( classe )
+		    if(classid != classe)
+    	        AP_SetTrueSkill( on, FindSkillName(sid), 0 );
+    	    endif
+    	endforeach
+	endforeach
+
+
+
+
+	foreach skillid in GetClasseSkills( classid )
+	    AP_SetTrueSkill( on, FindSkillName(skillid), rate );
+	endforeach
+
+
+
+
+
+
+
+endprogram
