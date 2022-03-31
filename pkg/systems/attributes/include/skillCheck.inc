@@ -49,11 +49,11 @@ function SkillCheck( mobile, attrib_name, difficulty, award_diff:="", advance_fl
 		SendSysMessage( mobile, "Your skills are disabled." );
 		return -100;
 	elseif( mobile.IsA( POLCLASS_NPC ))
-    if( GetObjProperty( mobile, "CanTrain" ))
-			advance_flags := ADV_STATS;
-    else
-			advance_flags := ADV_DISABLE;
-    endif
+        if( GetObjProperty( mobile, "CanTrain" ))
+                advance_flags := ADV_STATS;
+        else
+                advance_flags := ADV_DISABLE;
+        endif
 	endif
 
 	// Difficulty checks
@@ -65,15 +65,15 @@ function SkillCheck( mobile, attrib_name, difficulty, award_diff:="", advance_fl
 	    pass_chance := CalcSuccessPercent( mobile, attrib_name, difficulty, effective_skill ),
 	    check_roll := RandomDiceRoll( "1d100+1" );
 
-        if( !mobile.IsA( POLCLASS_NPC ) && !mobile.cmdlevel )
+        if( !mobile.IsA( POLCLASS_NPC ) ) // && !mobile.cmdlevel
                 var hunger := CInt( AP_GetVital( mobile, HUNGER ));
                 if( !hunger )
-                        hunger := 1;
+                   hunger := 1;
                 endif
 
-		var hc_settings := AP_GetSettingsCfgElem( "Hunger" ),
-                    hunger_setting := CInt( hc_settings.MaxHungerAffect ),
-                    hunger_value := CInt( pass_chance * CDbl( hunger_setting ));
+		        var hc_settings := AP_GetSettingsCfgElem( "Hunger" ),
+                hunger_setting := CInt( hc_settings.MaxHungerAffect ),
+                hunger_value := CInt( pass_chance * CDbl( hunger_setting ));
 
                 pass_chance -= CInt( hunger_value - CDbl( hunger_value * CDbl( hunger / 10 )));
         endif
@@ -126,7 +126,7 @@ function CalcSuccessPercent( mobile, attrib_name, difficulty, effective_skill )
             
 	if( difficulty == -1 )
 		var neg1chance := CInt( sc_settings.MaxNeg1Chance ),
-		percent := CInt( neg1chance * effective_skill / 150 );
+		percent := CInt( neg1chance * effective_skill / 100 );
   endif
 
 	if( percent < min_chance )
@@ -134,7 +134,7 @@ function CalcSuccessPercent( mobile, attrib_name, difficulty, effective_skill )
 	elseif( percent > max_chance )
 		percent := max_chance;
 	endif
-
+syslog("percent: "+percent);
 	return percent;
 endfunction
 

@@ -1,17 +1,15 @@
-include "include/client";
-
-function getskilllist(me)
+function GetSkillList( byref me )
   var mytemplate := lower(GetObjProperty(me, "MerchantType"));
   case(mytemplate)
-    "healer":           return { "spiritspeaking", "healing", "anatomy", "camping", "fishing", "forensic evaluation" };
+    "healer":           return { "spirit speak", "healing", "anatomy", "camping", "fishing", "forensic evaluation" };
     "stable":           return { "animal lore", "animal taming", "veterinary" };
-    "shipWright":       return { "wrestling", "tactics" };
+    "shipwright":       return { "wrestling", "tactics" };
     "fisherman":        return { "fishing", "fencing" };
     "innkeeper":        return { "fencing", "tactics" };
     "farmer":           return { "swordsmanship", "animal lore", "herding", "veterinary" };
     "weaponsmith":      return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
     "blacksmith":       return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
-    "Armorer":          return { "mace fighting", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
+    "armorer":          return { "mace fighting", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
     "barkeep":          return { "mace fighting", "tactics" };
     "barmaid":          return { "fencing", "tactics" };
     "baker":            return { "wrestling", "cooking" };
@@ -21,9 +19,9 @@ function getskilllist(me)
     "cobbler":          return { "swordsmanship", "tailoring" };
     "jeweler":          return { "fencing", "item identification" };
     "mage":             return { "mace fighting", "resisting spells", "inscription", "magery", "meditation", "wrestling" };
-    "wizard":           return { "mace fighting", "resisting spells", "inscription", "wizardry", "meditation", "wrestling" };
+    "wizard":           return { "mace fighting", "resisting spells", "inscription", "magery", "meditation", "wrestling" };
     "necromance":       return { "mace fighting", "resisting spells", "inscription", "necromancy", "meditation", "wrestling" };
-    "Alchemist":        return { "resisting spells", "taste identification", "alchemy", "wrestling" };
+    "alchemist":        return { "resisting spells", "taste identification", "alchemy", "wrestling" };
     "herbalist":        return { "resisting spells", "alchemy", "cooking", "taste identification", "wrestling" };
     "tailor":           return { "tailoring", "fencing" };
     "weaver":           return { "tailoring", "fencing" };
@@ -43,74 +41,73 @@ function getskilllist(me)
     "fighter3":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
     "fighter4":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
     "paladin":          return { "anatomy", "tactics", "swordsmanship", "detect hidden", "arms lore" };
-    "assassin":          return { "poisoning", "hiding", "stealth" };
-    "artist":           return {"tailoring", "fencing", "item identification"};
+    "assassin":         return { "poisoning", "hiding", "stealth" };
+    "artist":           return { "tailoring", "fencing", "item identification" };
   endcase
 endfunction
 
-function FindSkillId(name)
-  case(name)
-    "alchemy":                  return SKILLID_ALCHEMY;
-    "anatomy":                  return SKILLID_ANATOMY;
-    "animal lore":              return SKILLID_ANIMALLORE;
-    "item identification":      return SKILLID_ITEM_IDENTIFICATION;
-    "arms lore":                return SKILLID_ARMSLORE;
-    "parrying":                 return SKILLID_PARRYING;
-    "begging":                  return SKILLID_BEGGING;
-    "blacksmithy":              return SKILLID_BLACKSMITHY;
-    "bowcraft":                 return SKILLID_BOWCRAFT;
-    "peacemaking":              return SKILLID_PEACEMAKING;
-    "camping":                  return SKILLID_CAMPING;
-    "carpentry":                return SKILLID_CARPENTRY;
-    "cartography":              return SKILLID_CARTOGRAPHY;
-    "cooking":                  return SKILLID_COOKING;
-    "detect hidden":            return SKILLID_DETECTING_HIDDEN;
-    "discordance":              return SKILLID_DISCORDANCE;
-    "evaluating intelligence":  return SKILLID_EVALUATING_INTELLIGENCE;
-    "healing":                  return SKILLID_HEALING;
-    "fishing":                  return SKILLID_FISHING;
-    "forensic evaluation":      return SKILLID_FORENSIC_EVALUATION;
-    "herding":                  return SKILLID_HERDING;
-    "hiding":                   return SKILLID_HIDING;
-    "provocation":              return SKILLID_PROVOCATION;
-    "inscription":              return SKILLID_INSCRIPTION;
-    "lockpicking":              return SKILLID_LOCKPICKING;
-    "magery":                   return SKILLID_MAGERY;
-    "resisting spells":         return SKILLID_RESISTING_SPELLS;
-    "tactics":                  return SKILLID_TACTICS;
-    "snooping":                 return SKILLID_SNOOPING;
-    "musicianship":             return SKILLID_MUSICIANSHIP;
-    "poisoning":                return SKILLID_POISONING;
-    "archery":                  return SKILLID_ARCHERY;
-    "spiritspeaking":           return SKILLID_SPIRITSPEAK;
-    "stealing":                 return SKILLID_STEALING;
-    "tailoring":                return SKILLID_TAILORING;
-    "animal taming":            return SKILLID_TAMING;
-    "taste identification":     return SKILLID_TASTE_IDENTIFICATION;
-    "tinkering":                return SKILLID_TINKERING;
-    "tracking":                 return SKILLID_TRACKING;
-    "veterinary":               return SKILLID_VETERINARY;
-    "swordsmanship":            return SKILLID_SWORDSMANSHIP;
-    "mace fighting":            return SKILLID_MACEFIGHTING;
-    "fencing":                  return SKILLID_FENCING;
-    "wrestling":                return SKILLID_WRESTLING;
-    "lumberjacking":            return SKILLID_LUMBERJACKING;
-    "mining":                   return SKILLID_MINING;
-    "meditation":               return SKILLID_MEDITATION;
-    "stealth":                  return SKILLID_STEALTH;
-    "remove trap":              return SKILLID_REMOVETRAP;
-    "necromancy":               return SKILLID_NECROMANCY;
-    "focus":                    return SKILLID_FOCUS;
-    "chivalry":                 return SKILLID_CHIVALRY;
-    "bushido":                  return SKILLID_BUSHIDO;
-    "ninjitsu":                 return SKILLID_NINJITSU;
-    "spellweaving":             return SKILLID_SPELLWEAVING;
-    "mysticism":                return SKILLID_MYSTICISM;
-    "imbuing":                  return SKILLID_IMBUING;
-    "throwing":                 return SKILLID_THROWING;
+function FindSkillId( byref name )
+  case( name )
+    "alchemy":                  return  0;
+    "anatomy":                  return  1;
+    "animal lore":              return  2;
+    "item identification":      return  3;
+    "arms lore":                return  4;
+    "parrying":                 return  5;
+    "begging":                  return  6;
+    "blacksmithy":              return  7;
+    "bowcraft":                 return  8;
+    "peacemaking":              return  9;
+    "camping":                  return 10;
+    "carpentry":                return 11;
+    "cartography":              return 12;
+    "cooking":                  return 13;
+    "detect hidden":            return 14;
+    "discordance":               return 15;
+    "evaluating intelligence":  return 16;
+    "healing":                  return 17;
+    "fishing":                  return 18;
+    "forensic evaluation":      return 19;
+    "herding":                  return 20;
+    "hiding":                   return 21;
+    "provocation":              return 22;
+    "inscription":              return 23;
+    "lockpicking":              return 24;
+    "magery":                   return 25;
+    "resisting spells":         return 26;
+    "tactics":                  return 27;
+    "snooping":                 return 28;
+    "musicianship":             return 29;
+    "poisoning":                return 30;
+    "archery":                  return 31;
+    "spirit speak":           return 32;
+    "stealing":                 return 33;
+    "tailoring":                return 34;
+    "animal taming":            return 35;
+    "taste identification":     return 36;
+    "tinkering":                return 37;
+    "tracking":                 return 38;
+    "veterinary":               return 39;
+    "swordsmanship":            return 40;
+    "mace fighting":            return 41;
+    "fencing":                  return 42;
+    "wrestling":                return 43;
+    "lumberjacking":            return 44;
+    "mining":                   return 45;
+    "meditation":               return 46;
+    "stealth":                  return 47;
+    "remove trap":              return 48;
+    "necromancy":               return 49;
+    "focus":                    return 50;
+    "chivalry":                 return 51;
+    "bushido":                  return 52;
+    "ninjitsu":                 return 53;
+    "spellweaving":             return 54;
+    "mysticism":                return 55;
+    "imbuing":                  return 56;
+    "throwing":                 return 57;
   endcase
 endfunction
-
 function FindSkillName(id)
   case(id)
     SKILLID_ALCHEMY:                  return "alchemy";

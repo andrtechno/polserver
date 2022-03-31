@@ -2,6 +2,7 @@ use cfgfile;
 use uo;
 use os;
 use util;
+use unicode;
 
 include "include/client";
 include ":attributes:attributes";
@@ -21,6 +22,7 @@ var bowcraftconfigfile := ReadConfigFile("::bowcraft");
 var mex;
 var mey;
 var woodconfigfile := ReadConfigFile(":lumberjacking:itemdesc");
+var woodArray := GetConfigStringKeys(woodconfigfile);
 const EVID_CHECK_SPOT := 0x123456;
 const OC_PID := "#woodcore";
 
@@ -48,6 +50,7 @@ program use_axe(me, axe)
   mex := me.x;
   mey := me.y;
   var mount;
+  var test := RandomIntMinMax(1,4);
   repeat
     mount := GetEquipmentByLayer(me, 25);
       	if(!HasToolEquipped(me,axe))
@@ -64,22 +67,20 @@ program use_axe(me, axe)
     PerformAction(me, UACTION_CHOP);
     PlaySoundEffect(me, SFX_SKILL_LUMBERJACK);
     sleepms(2500);
-    checker := Do_Chops(me, axe, tree);
+    checker := Do_Chops(me, axe, tree, test);
   until(checker == 1);
 endprogram
 
-function Do_Chops(me, axe, tree)
+function Do_Chops(me, axe, tree, test)
 
-
-
-  var pid := 0;
+    var pid := 0;
     while(!pid)
-  	sleepms(50);
-  	pid := GetGlobalProperty(OC_PID);
+        sleepms(50);
+        pid := GetGlobalProperty(OC_PID);
     endwhile
     pid := getprocess(pid);
     if(!pid)
-  	return 1;
+  	    return 1;
     endif
     var k := struct;
     k.+x := tree.x;
@@ -93,7 +94,7 @@ function Do_Chops(me, axe, tree)
     var skill := AP_GetSkill(me, LUMBERJACKING);
     var points := skill + 1;
     var name;
-    var woodArray := GetConfigStringKeys(woodconfigfile);
+   // var woodArray := GetConfigStringKeys(woodconfigfile);
     //case(woodtype)
     //  1: diff :=  -1;   objtype := 0x1BDD;   name := "logs";
     //  2: diff :=  65;   objtype := 0x20001;   name := "jake";
@@ -109,12 +110,14 @@ function Do_Chops(me, axe, tree)
   //  endcase
 
     var elem := FindConfigElem(woodconfigfile, woodArray[woodtype]);
-var harvestAmount := GetConfigInt(elem,"HarvestAmount");
+    var harvestAmount := GetConfigInt(elem,"HarvestAmount");
 
     var cfgdiff := GetConfigInt(elem,"Difficulty");
     var Desc := CStr(GetConfigString(elem,"Name"));
     diff := cfgdiff;
-    objtype := woodArray[woodtype];
+
+    //print(woodtype);
+    objtype := woodArray[test];
     name := Trim(Desc,TRIM_BOTH);
     if(woodtype > 1)
         name:=name+" logs";
@@ -156,18 +159,22 @@ var harvestAmount := GetConfigInt(elem,"HarvestAmount");
         harvestAmount := GetConfigInt(defaultElem,"HarvestAmount");
       woodtype := 1;
       objtype := UOBJ_LOG;
-
           name := CStr(GetConfigString(defaultElem,"Name"));
-     // name := "logs";
+          //name := "logs";
     endif
   endif
 
 
 
 //print(harvestAmount);
- // var points := CInt((AP_GetSkill(me, LUMBERJACKING) * 2) + 10);
+ //points := CInt((AP_GetSkill(me, LUMBERJACKING) * 2) + 10);
+
+ print("diff: "+diff);
+ print("difficulty: "+difficulty);
+ print("points: "+points);
+     var wood_amount := HarvestResource( "wood", tree.x, tree.y, 1, 10 );
   if(SkillCheck(me, LUMBERJACKING, difficulty, points))
-    var wood_amount := HarvestResource( "wood", tree.x, tree.y, 1, 10 );
+
     if(wood_amount == 0)
       SendSysMessage(me, "There's not enough wood here to chop.");
       return 1;
@@ -367,13 +374,13 @@ endfunction
 
 
 function use_blade(who, blade, use_on)
-  if(!can_access(who,use_on))
-    return;
-  endif
-  if(!ReserveItem(use_on))
-    return;
-  endif
-  var checkme := use_on.objtype;
+    if(!can_access(who,use_on))
+        return;
+    endif
+    if(!ReserveItem(use_on))
+        return;
+    endif
+    var checkme := use_on.objtype;
 
     var is_log := 0;
     case(checkme)
@@ -395,32 +402,33 @@ function use_blade(who, blade, use_on)
       0x20016:  is_log := 1;
     endcase
 
-   /* var elem := FindConfigElem(woodconfigfile, woodArray[checkme]);
-    var harvestAmount := GetConfigInt(elem,"HarvestAmount");
-
+    var elem := FindConfigElem(woodconfigfile, checkme);
+    if(!elem)
+        SendSysMessage(who, elem.errortext);
+    endif
     var cfgdiff := GetConfigInt(elem,"Difficulty");
-    var Desc := CStr(GetConfigString(elem,"Name"));
-    diff := cfgdiff;
-    objtype := woodArray[woodtype];
-    name := Trim(Desc,TRIM_BOTH);
-    if(woodtype > 1)
-        name:=name+" logs";
-    endif;*/
+    if(!cfgdiff)
+        SendSysMessage(who, cfgdiff.errortext);
+    endif
 
 
-
-  if((checkme == UOBJ_LOG) || (checkme == 0x1bd7) || is_log)
-    CarveLogs(who, blade, use_on);
-  elseif(use_on.npctemplate == "sheep")
-    process_wool(who, blade, use_on);
-  elseif(use_on.objtype == UOBJ_CORPSE)
-    ReleaseItem(blade);
-    Carve_Corpse(who, use_on);
-  elseif(is_fish(checkme))
-    CarveFish(who, blade, use_on);
-  else
-    SendSysMessage(who, "I don't know how to use those items together.");
-  endif
+    if((checkme == UOBJ_LOG) || (checkme == 0x1bd7) || is_log)
+        if(AP_GetSkill( who, BOWCRAFT) < cfgdiff)
+            //SendSysMessageUC(who, "Не достаточно навыка", "RUS", 3, 0x25);
+            SendSysMessage(who, "You have no chance to successfully work with that logs.");
+            return;
+        endif
+        CarveLogs(who, blade, use_on);
+    elseif(use_on.npctemplate == "sheep")
+        process_wool(who, blade, use_on);
+    elseif(use_on.objtype == UOBJ_CORPSE)
+        ReleaseItem(blade);
+        Carve_Corpse(who, use_on);
+    elseif(is_fish(checkme))
+        CarveFish(who, blade, use_on);
+    else
+        SendSysMessage(who, "I don't know how to use those items together.");
+    endif
 endfunction
 
 
@@ -604,6 +612,10 @@ function CarveLogs(who, blade, logs)
   endif
   var difficulty := GetConfigInt(objectconfig, "Difficulty");
   var pointvalue := GetConfigInt(objectconfig, "PointValue");
+  var ExcepChance := GetConfigInt(objectconfig, "ExcepChance");
+  if(!ExcepChance)
+    ExcepChance:=10;
+  endif;
   var bow := 0;
   Detach();
   PlaySoundEffect(who, 0x5a);
@@ -615,35 +627,34 @@ function CarveLogs(who, blade, logs)
   PlaySoundEffect(who, 0x5a);
   PerformAction(who, 0x021);
   sleep(2);
-  PlaySoundEffect(who, 0x5a);
-  PerformAction(who, 0x021);
-  sleep(2);
-
-var ar_mod:=0;
-var dmg_mod:=0;
 
 
-  var itemName := woodconfigfile[logs.objtype].name;
+    var dmg_mod:=0;
+
+
+    var itemName := woodconfigfile[logs.objtype].name;
     var itemColor := woodconfigfile[logs.objtype].color;
-            case(logs.objtype)
-              0x20001:  ar_mod:=1; dmg_mod:=1;
-              0x20002:  ar_mod:=2; dmg_mod:=2;
-              0x20003:  ar_mod:=3; dmg_mod:=3;
-              0x20004:  ar_mod:=4; dmg_mod:=4;
-              0x20005:  ar_mod:=5; dmg_mod:=5;
-              0x20006:  ar_mod:=6; dmg_mod:=6;
-              0x20007:  ar_mod:=7; dmg_mod:=7;
-              0x20008:  ar_mod:=8; dmg_mod:=8;
-              0x20009:  ar_mod:=9; dmg_mod:=9;
-              0x20010:  ar_mod:=10; dmg_mod:=10;
-              0x20011:  ar_mod:=11; dmg_mod:=11;
-              0x20012:  ar_mod:=12; dmg_mod:=12;
-              0x20013:  ar_mod:=13; dmg_mod:=13;
-              0x20014:  ar_mod:=14; dmg_mod:=14;
-            endcase
+    case(logs.objtype)
+        0x20001:  dmg_mod:=1;
+        0x20002:  dmg_mod:=2;
+        0x20003:  dmg_mod:=3;
+        0x20004:  dmg_mod:=4;
+        0x20005:  dmg_mod:=5;
+        0x20006:  dmg_mod:=6;
+        0x20007:  dmg_mod:=7;
+        0x20008:  dmg_mod:=8;
+        0x20009:  dmg_mod:=9;
+        0x20010:  dmg_mod:=10;
+        0x20011:  dmg_mod:=11;
+        0x20012:  dmg_mod:=12;
+        0x20013:  dmg_mod:=13;
+        0x20014:  dmg_mod:=14;
+        0x20015:  dmg_mod:=14;
+        0x20016:  dmg_mod:=14;
+    endcase
 
 
-var fullName:="";
+    var fullName:="";
   if(SkillCheck(who, BOWCRAFT, difficulty, pointvalue))
     if(what == UOBJ_SHAFTS)
       var amt := logs.amount;
@@ -688,7 +699,7 @@ var fullName:="";
     endif
     var rint := RandomInt(100);
     //change exp.
-    if(rint <= 90)
+    if(rint <= ExcepChance)
       ExceptionalFameMod(who, myskill, difficulty, Cint(pointvalue / 2));
      // setquality(who, bow);
 
@@ -700,6 +711,7 @@ var fullName:="";
         bow.quality := bow.quality + 0.2;
         bow.hp := bow.maxhp;
         bow.dmg_mod := dmg_mod;
+        bow.speed_mod:=100;
         SendSysMessage(who, "You created an exceptional "+lower(fullName)+".");
 
     endif

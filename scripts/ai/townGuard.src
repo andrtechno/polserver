@@ -7,7 +7,6 @@ use math;
 include "include/speech";
 include "include/client";
 include "include/eventID";
-include "include/sysEvent";
 include "include/randName";
 include "include/dist";
 include "include/anchors";
@@ -52,7 +51,7 @@ program CastleGuard()
   EnableEvents( EVID_ENTEREDAREA + EVID_LEFTAREA, HALT_THRESHOLD );
   EnableEvents( EVID_OPPONENT_MOVED );
   EnableEvents( EVID_ITEM_GIVEN );
-  EnableEvents( SYSEVENT_SPEECH, 4);
+  EnableEvents( EVID_SPEECH, 4);
   SetWarMode( 0 );
   set_priority(100);
   var ev;
@@ -63,7 +62,7 @@ program CastleGuard()
     ev := os::wait_for_event(60);
 	if (ev)
 	  case (ev.type)
-          SYSEVENT_SPEECH:     wanders := 0;
+          EVID_SPEECH:     wanders := 0;
 		                 next_wander := ReadGameClock()+60;
 		                 evtext := lower(ev.text);
 		                 if ( (evtext["guards"]) || (evtext["guards!"]) )
@@ -73,7 +72,7 @@ program CastleGuard()
           EVID_ENGAGED:
           EVID_DAMAGED:     wanders := 0;
 		                  next_wander := ReadGameClock()+60;
-                          if ( (ev.source) && (!ev.source.dead) && (!ev.source.cmdlevel < 1) )
+                          if ( (ev.source) && (!ev.source.dead) )
 		                    say("Die " + ev.source.name + "!" );
 		                    AddToHateList( ev.source );
                             Fight( ev.source );
@@ -120,7 +119,7 @@ endfunction
 
 function look_around()
 	foreach critter in ListMobilesNearLocation(me.x, me.y, me.z, 15, me.realm)
-		if ((critter.npctemplate) && (critter.script != "tamed") && (critter.cmdlevel < 1))
+		if ((critter.npctemplate) && (critter.script != "tamed") )
 			if (critter.murderer)
 				Fight(critter);
 			endif
@@ -228,11 +227,11 @@ function CheckForCriminals(jerk)
 	if (jerk.dead)
 		return;
 	endif
-	if (jerk.criminal && (jerk.cmdlevel < 1))
+	if (jerk.criminal)
 		say("Stop Criminal!");
 		AddToHateList( jerk );
 		Fight(jerk);
-	elseif ( CheckHateList(jerk) && (jerk.cmdlevel < 1))
+	elseif ( CheckHateList(jerk) )
 		say("You're not welcome in this town, "+ jerk.name );
 		Fight(jerk);
 	endif
@@ -291,14 +290,14 @@ endfunction
 
 function EnableMainEvents()
     cleareventque();
-    DisableEvents( SYSEVENT_SPEECH + EVID_LEFTAREA + EVID_DISENGAGED + EVID_OPPONENT_MOVED );
-    EnableEvents( SYSEVENT_SPEECH + EVID_ENGAGED + EVID_DAMAGED, HALT_THRESHOLD );
+    DisableEvents( EVID_SPEECH + EVID_LEFTAREA + EVID_DISENGAGED + EVID_OPPONENT_MOVED );
+    EnableEvents( EVID_SPEECH + EVID_ENGAGED + EVID_DAMAGED, HALT_THRESHOLD );
     EnableEvents(EVID_ITEM_GIVEN);
 endfunction
 
 function DisableMainEvents()
     cleareventque();
-    DisableEvents( SYSEVENT_SPEECH + EVID_ENGAGED + EVID_DAMAGED );
+    DisableEvents( EVID_SPEECH + EVID_ENGAGED + EVID_DAMAGED );
     DisableEvents(EVID_ITEM_GIVEN);
 endfunction
 
