@@ -32,7 +32,7 @@ function AP_SkillIdToAttributeName( skill_number )
 	if( skills_cfg.errortext )
 		SysLog( "Error::AP_IDToAttributeName() - Unable to open :attributes:uoskills.cfg ->"+skills_cfg.errortext );
 	endif
-print("skill_number: "+skill_number);
+
 	var cfg_elem := skills_cfg[skill_number];
 	if( cfg_elem.errortext )
 		SysLog( "Error::AP_IDToAttributeName() - unable to find cfg elem ["+skill_number+"] ->"+cfg_elem.errortext );

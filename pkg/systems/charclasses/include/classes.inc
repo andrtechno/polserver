@@ -13,12 +13,60 @@ const CLASSEID_RANGER     := "IsRanger";
 const CLASSEID_THIEF      := "IsThief";
 const CLASSEID_WARRIOR    := "IsWarrior";
 
+
+
+const ID_MAGE       := 1;
+const ID_WARRIOR    := 2;
+const ID_CRAFTER    := 3;
+const ID_RANGER     := 4;
+const ID_THIEF      := 5;
+const ID_BARD       := 6;
+
 const EACH_MUST_REPRESENT := 7.5;
 const REPRESENT_LEVEL_MOD := 1;
 const AVERAGE_SKILL       := 75;
 const AVERAGE_LEVEL_MOD   := 15;
 const BONUS_PER_LEVEL     := 0.25;
 
+function GetSkillListName()
+    var data := array;
+    var bard := array{"Begging", "Peacemaking","Musicianship","TasteIdentification","Provocation","Herding","Cartography","Discordance"};
+    var crafter := array{"ArmsLore", "Blacksmithy", "BowcraftFletching", "Lumberjacking", "Mining", "Tinkering", "Tailoring","Carpentry"};
+    var mage := array{"Alchemy","ItemIdentification","SpiritSpeak","ResistingSpells","Magery","Meditation","EvaluatingIntelligence","Inscription"};
+    var ranger := array{"AnimalLore","Camping","Cooking","Fishing","Archery","Tracking", "Veterinary","AnimalTaming"};
+    var thief := array{"DetectingHidden","Hiding","Lockpicking","Snooping","Stealth","Stealing","Poisoning","RemoveTrap"};
+    var warrior := array{"Anatomy","Parry", "Healing","Tactics", "Swordsmanship", "MaceFighting", "Fencing", "Wrestling"};
+
+    data[ID_BARD] := bard;
+    data[ID_CRAFTER] := crafter;
+    data[ID_MAGE] := mage;
+    data[ID_RANGER] := ranger;
+    data[ID_THIEF] := thief;
+    data[ID_WARRIOR] := warrior;
+
+    return data;
+
+endfunction
+
+function GetSkillListId( )
+    var data := array;
+    var bard := array{SKILLID_BEGGING, SKILLID_PEACEMAKING,SKILLID_MUSICIANSHIP,SKILLID_TASTE_IDENTIFICATION,SKILLID_PROVOCATION,SKILLID_HERDING,SKILLID_CARTOGRAPHY,SKILLID_DISCORDANCE};
+    var crafter := array{SKILLID_ARMSLORE, SKILLID_BLACKSMITHY, SKILLID_BOWCRAFT, SKILLID_LUMBERJACKING, SKILLID_MINING, SKILLID_TINKERING, SKILLID_TAILORING,SKILLID_CARPENTRY};
+    var mage := array{SKILLID_ALCHEMY,SKILLID_ITEM_IDENTIFICATION,SKILLID_SPIRITSPEAK,SKILLID_RESISTING_SPELLS,SKILLID_MAGERY,SKILLID_MEDITATION,SKILLID_EVALUATING_INTELLIGENCE,SKILLID_INSCRIPTION};
+    var ranger := array{SKILLID_ANIMALLORE,SKILLID_CAMPING,SKILLID_COOKING,SKILLID_FISHING,SKILLID_ARCHERY,SKILLID_TRACKING, SKILLID_VETERINARY,SKILLID_TAMING};
+    var thief := array{SKILLID_DETECTING_HIDDEN,SKILLID_HIDING,SKILLID_LOCKPICKING,SKILLID_SNOOPING,SKILLID_STEALTH,SKILLID_STEALING,SKILLID_POISONING,SKILLID_REMOVETRAP};
+    var warrior := array{SKILLID_ANATOMY,SKILLID_PARRYING, SKILLID_HEALING,SKILLID_TACTICS, SKILLID_SWORDSMANSHIP, SKILLID_MACEFIGHTING, SKILLID_FENCING, SKILLID_WRESTLING};
+
+    data[ID_BARD] := bard;
+    data[ID_CRAFTER] := crafter;
+    data[ID_MAGE] := mage;
+    data[ID_RANGER] := ranger;
+    data[ID_THIEF] := thief;
+    data[ID_WARRIOR] := warrior;
+
+    return data;
+
+endfunction
 
 function ClasseBonus( who, classeid )
 

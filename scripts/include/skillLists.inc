@@ -158,7 +158,7 @@ function FindSkillName(id)
     SKILLID_MINING:                   return "mining";
     SKILLID_MEDITATION:               return "meditation";
     SKILLID_STEALTH:                  return "stealth";
-    SKILLID_REMOVETRAP:               return "remove trap";
+    SKILLID_REMOVETRAP:               return "RemoveTrap";
     SKILLID_NECROMANCY:               return "necromancy";
     SKILLID_FOCUS:                    return "focus";
     SKILLID_CHIVALRY:                 return "chivalry";

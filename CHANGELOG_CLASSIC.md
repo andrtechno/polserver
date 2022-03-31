@@ -6,7 +6,8 @@
 - Mining изменена добыча видов дерева (добавлены новые виды)
 - Hiding Изменены тексты на unicode RUS
 - Alchemy Добавлены новые виды дутылок(homeric,invisibility etc.)
-
+- Carpentry добавлена анимация исготовки предметов.
+- ДОБАВЛЕН СКИЛЛ Stooping & Stealing пока в разработке.
 
 ### PKG:
 - Добавлен **items/dangesgate** - портыла в данжы

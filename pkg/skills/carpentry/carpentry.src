@@ -345,12 +345,14 @@ function MakeCarpentryItems(who, tool, objtype, cont, item1, item2)
       return 0;
     endif
   endif
+  Detach();
   PlaySoundEffect(who, 0x23e);
-  sleep(2);
+  PerformAction(who, 0x021);
+  sleep(3);
   PlaySoundEffect(who, 0x23e);
+  PerformAction(who, 0x021);
   sleep(2);
-  PlaySoundEffect(who, 0x23e);
-  sleep(2);
+
   var chk := 0;
   if(SkillCheck(who, CARPENTRY, skill, (skill * 2)))
     if(skillid)

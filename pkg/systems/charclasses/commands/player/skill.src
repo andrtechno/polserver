@@ -1,12 +1,3 @@
-////////////////////////////////////////////////////////////////////////////
-//
-// scripts/misc/skillwin.src: skill-window request hook script
-//
-//   if this script is not present, this functionality will be executed
-//   internally.
-//
-////////////////////////////////////////////////////////////////////////////
-
 use uo;
 use os;
 use cfgfile;
@@ -18,147 +9,123 @@ include ":gumps:gumps";
 include ":gumps:gumps_ex";
 
 
-//include "include/attributes_old";
+
 include "include/client";
+//include ":attributes:attributes";
 include ":attributes:advanceCheck";
 
 const SKILL_START	:= 71;
 const PERFORM_SKILL	:= 500;
 
-program skillwindow( who )
 
-	SendSkillWindow( who, who );
+var skill_layout := {
+		"page 0",
+        "GumpPic 0 0 500 420 250"
+		};
+var skill_data := {};
+var total := 0.0;
+program textcmd_skill( who )
 
-	var total	:= 0.0;
-	var bard	:= 0.0;
-	var crafter	:= 0.0;
-	var mage	:= 0.0;
-	var ranger	:= 0.0;
-	var thief	:= 0.0;
-	var warrior	:= 0.0;
+	//SendSkillWindow( who, who );
 
-
-
-		var gump := GFCreateGump ( 420, 250 );
-
-		GFPage ( gump, 0);
-		GFGumpPic ( gump, 0, 0, 500, 0);
-
-				//GFAddButton ( gump, 113, 230, 5222, 5222, "sad", 2 );
-        		//GFTextLine ( gump, 108, 228, 0, "<" );
+	total	:= getTotalSkill(who);
 
   var g, h, xOffset;
-  var ttop := 35;
+  var ttop := 33;
   for ( g:=0; g<2; g+=1 )
     xOffset := 35 + ( g * 190 );
-    GFGumpPic ( gump, xOffset, ttop, 57 );
+    skill_layout.append ("GumpPic "+xOffset+" "+ttop+", 57 ");
     xOffset += 20;
     for ( h:=0; h<8; h+=1 )
-      GFGumpPic ( gump, xOffset, ttop, 58 );
+      skill_layout.append ("GumpPic "+xOffset+" "+ttop+", 58 ");
       xOffset += 15;
     endfor
-    GFGumpPic ( gump, xOffset - 5, ttop, 59 );
+    skill_layout.append ("GumpPic "+(xOffset - 5)+" "+ttop+", 59 ");
   endfor
 
 
-
-
-
-//print(GetBaseSkillBaseValue(who, SKILLID_MUSICIANSHIP));
-//print(CStr(GetBaseSkillBaseValue(who,  SKILLID_MUSICIANSHIP )));
-
-
-
-	for i := 1 to 9
-		GFPage( gump, i );
-		if( i > 1 )
-		    GFAddButton( gump, 0, 0, 501, 501, GF_PAGE_BTN, ( i-1 ));
+	for page_id := 1 to 4
+		skill_layout.append ("Page "+page_id);
+		if( page_id > 1 )
+		    skill_layout.append ("Button 0 0 501 501 0 "+( page_id-1 )+" 0");
 		endif;
-		if( i != 9 )
-			GFAddButton( gump, 356, 0, 502, 502, GF_PAGE_BTN, ( i+1 ));
+		if( page_id != 4 )
+		    skill_layout.append ("Button 356 0 502 502 0 "+( page_id+1 )+" 0");
 		endif
 
-
-
-//GetAttribute( character, attrname, precision := ATTRIBUTE_PRECISION_NORMAL );
-//GetAttributeBaseValue( character, attrname );
-//GetAttributeIntrinsicMod( character, attrname );
-//GetAttributeTemporaryMod( character, attrname );
-
-//GetAttributeLock( character, attrname );
-//SetAttributeLock( character, attrname, lockstate );
-//CheckStatsForSkill(who,"Alchemy");
-
-				GFPage( gump, i);
-				//GFAddButton( gump, 190, 65, 2103, 2104, GF_CLOSE_BTN, 123 );
-
-
-//mage
-if(i == 1)
-
-    GFTextLine( gump, 40, 60, 0, "Alchemy" );
-    GFTextLine( gump, 150, 60, 0, GetBaseSkill(who, SKILLID_MUSICIANSHIP));
-//GFRadioButton(gump, 160, 60, 2092, 2435);
-//GFRadioButton(gump, 170, 60, 2092, 2435, 0, 3);
-
-
-//print("statelock2: "+GetAttributeLock(who, "Alchemy"));
-print("statelock: "+CheckStatsForSkill(who,"Alchemy"));
-
-GFAddButton(gump, 175, 60, 2092, 2435, 1, 5);
-
-
-
-//GetAttributeLock(who, ATTRIBUTE_LOCK_UP). With new constants: ATTRIBUTE_LOCK_UP,
-//ATTRIBUTE_LOCK_DOWN, ATTRIBUTE_LOCK_LOCKED. This works for any attribute.
-
-//GFRadioButton(gump, 160, 60, 0xA96, 0xA97);
-
-var z;
-if( z in GetClasseSkills( CLASSEID_CRAFTER ))
-//print(z);
-endif
-
-
-
-    //GFTextLine( gump, 100, 80, 0, "Eval. Intelligence" );
-
-    //GFTextCrop( gump, 105, 60, 115, 17, (SKILL_START+SKILLID_EVALUATING_INTELLIGENCE) , "SKILLID_EVALUATING_INTELLIGENCE" );
-elseif (i == 2)
-    GFTextCrop( gump, 105, 60, 115, 17, (SKILL_START+SKILLID_ALCHEMY) , "SKILLID_EVALUATING_INTELLIGENCE" );
-endif
-
-
-
+        if(page_id == 1)
+            test2(who, ID_MAGE, "Маг", "right");
+        elseif(page_id==2)
+            test2(who, ID_WARRIOR, "Воин","left");
+            test2(who, ID_CRAFTER, "Крафтер","right");
+        elseif(page_id==3)
+            test2(who, ID_RANGER, "Лучник","left");
+            test2(who, ID_THIEF, "Вор","right");
+        elseif(page_id==4)
+            test2(who, ID_BARD, "Бард","left");
+        endif
 
     endfor
 
+SendDialogGump( who, skill_layout, skill_data, 420,250);
 
-
-		var input := GFSendGump ( who, gump );
-				input := CInt( input[0] );
-print("input: "+input);
+return;
 
 endprogram
 
 
-function FillInArrays( who, byref layout, byref data )
+function test2(who, classid, title, side)
+    var start_padding:=50;
+    var p:=0;
+    var tp:=0;
+    var pb:=0;
+    if(side == "left")
+        p:=38;
+        tp:=38;
+                pb:=38;
+    else
+        p:=228;
+        tp:=228;
+        pb:=228;
+    endif
+    var getSkillList := GetSkillListId()[classid];
+    var getSkillName := GetSkillListName()[classid];
+    var i;
 
-	var state_array   := GetObjProperty( who, "SkillsState" );
-	if( !state_array )
-		state_array := {};
-	endif
 
-	var total	:= 0.0;
+    skill_data.Append(title);
+    skill_layout.Append("Text "+(tp + 30)+" 15 3 "+(skill_data.Size()-1));
+    var skill:=0;
+
+    for(i:=1; i<=getSkillList.Size(); i:=i+1)
+        skill_data.Append(getSkillName[i]);
+        skill_layout.Append("Text "+p+" "+start_padding+" 0 "+(skill_data.Size()-1));
+        skill_data.Append(GetBaseSkill(who, getSkillList[i]));
+        skill_layout.Append("Text "+(p + 122)+" "+start_padding+" 0 "+(skill_data.Size()-1));
+        skill_layout.append ("Button "+(p + 148)+" "+(start_padding + 2)+" 2092 2435 1 5");
+        start_padding += 17;
+
+
+    endfor
+
+    skill_data.Append("Процент "+GivePercent( total[classid+1], total[1] ) + "%");
+    skill_layout.Append("Text "+p+" 190 25 "+(skill_data.Size()-1));
+endfunction
+
+
+
+function getTotalSkill(who)
+
+    var i;
+    var total:=0.0;
 	var bard	:= 0.0;
 	var crafter	:= 0.0;
 	var mage	:= 0.0;
 	var ranger	:= 0.0;
 	var thief	:= 0.0;
 	var warrior	:= 0.0;
-var i;
 	for(i:=0; i<=SKILLID__HIGHEST; i:=i+1)
-		var skill := GetEffectiveSkill(who,i);
+		var skill := 0;//GetEffectiveSkill(who,i);
 		var effec := CInt( skill );
 		var deci  := CInt( CDbl( (skill / 10.0 ) - CInt( CInt(skill) / 10 )) * 10 );
 		total	    := total + skill;
@@ -175,83 +142,10 @@ var i;
 		elseif( i in GetClasseSkills( CLASSEID_WARRIOR ) )
 			warrior := warrior + skill;
 		endif
-	
-		var suffix;
-		case( state_array[i+1] )
-			"r":	 suffix := "2435 2436 1 0 " + (i+1);	break;
-			"d":	 suffix := "2437 2438 1 0 " + (i+101);	break;
-			"l":	 suffix := "2092 2092 1 0 " + (i+201);	break;
-			default: suffix := "2435 2436 1 0 " + (i+1);	break;
-		endcase
 
-
-		case( i )
-			SKILLID_ALCHEMY:	 layout[234] := "button 315 125 " + suffix;	break;
-			SKILLID_ANATOMY:	 layout[391] := "button 315 125 " + suffix;	break;
-			SKILLID_ANIMALLORE:	 layout[287] := "button 315 125 " + suffix;	break;
-			SKILLID_ITEM_IDENTIFICATION:		 layout[240] := "button 315 185 " + suffix;	break;
-			SKILLID_ARMSLORE:	 layout[186] := "button 315 125 " + suffix;	break;
-			SKILLID_PARRYING:		 layout[395] := "button 315 205 " + suffix;	break;
-			SKILLID_BEGGING:	 layout[134] := "button 315 125 " + suffix;	break;
-			SKILLID_BLACKSMITHY:	 layout[187] := "button 315 145 " + suffix;	break;
-			SKILLID_BOWCRAFT:	 layout[188] := "button 315 165 " + suffix;	break;
-			SKILLID_PEACEMAKING:	 layout[141] := "button 315 225 " + suffix;	break;
-			SKILLID_CAMPING:	 layout[291] := "button 315 185 " + suffix;	break;
-			SKILLID_CARPENTRY:	 layout[189] := "button 315 185 " + suffix;	break;
-			SKILLID_CARTOGRAPHY:	 layout[135] := "button 315 145 " + suffix;	break;
-			SKILLID_COOKING:	 layout[292] := "button 315 205 " + suffix;	break;
-			SKILLID_DETECTING_HIDDEN: layout[338] := "button 315 125 " + suffix;	break;
-			SKILLID_DISCORDANCE:	 layout[137] := "button 315 165 " + suffix;	break;
-			SKILLID_EVALUATING_INTELLIGENCE:	 layout[236] := "button 315 145 " + suffix;	break;
-			SKILLID_HEALING:	 layout[393] := "button 315 165 " + suffix;	break;
-			SKILLID_FISHING:	 layout[293] := "button 315 225 " + suffix;	break;
-			SKILLID_FORENSIC_EVALUATION:	 layout[423] := "button 315 125 " + suffix;	break;
-			SKILLID_HERDING:	 layout[138] := "button 315 185 " + suffix;	break;
-			SKILLID_HIDING:		 layout[340] := "button 315 145 " + suffix;	break;
-			SKILLID_PROVOCATION:	 layout[143] := "button 315 245 " + suffix;	break;
-			SKILLID_INSCRIPTION:	 layout[238] := "button 315 165 " + suffix;	break;
-			SKILLID_LOCKPICKING:	 layout[341] := "button 315 165 " + suffix;	break;
-			SKILLID_MAGERY:		 layout[241] := "button 315 205 " + suffix;	break;
-			SKILLID_RESISTING_SPELLS: layout[244] := "button 315 245 " + suffix;	break;
-			SKILLID_TACTICS:	 layout[397] := "button 315 245 " + suffix;	break;
-			SKILLID_SNOOPING:	 layout[347] := "button 315 225 " + suffix;	break;
-			SKILLID_MUSICIANSHIP:	 layout[139] := "button 315 205 " + suffix;	break;
-			SKILLID_POISONING:	 layout[343] := "button 315 185 " + suffix;	break;
-			SKILLID_ARCHERY:	 layout[290] := "button 315 165 " + suffix;	break;
-			SKILLID_SPIRITSPEAK:	 layout[246] := "button 315 265 " + suffix;	break;
-			SKILLID_STEALING:	 layout[349] := "button 315 245 " + suffix;	break;
-			SKILLID_TAILORING:	 layout[192] := "button 315 245 " + suffix;	break;
-			SKILLID_TAMING:		 layout[289] := "button 315 145 " + suffix;	break;
-			SKILLID_TASTE_IDENTIFICATION:	 layout[145] := "button 315 265 " + suffix;	break;
-			SKILLID_TINKERING:	 layout[193] := "button 315 265 " + suffix;	break;
-			SKILLID_TRACKING:	 layout[295] := "button 315 245 " + suffix;	break;
-			SKILLID_VETERINARY:	 layout[296] := "button 315 265 " + suffix;	break;
-			SKILLID_SWORDSMANSHIP:	 layout[396] := "button 315 225 " + suffix;	break;
-			SKILLID_MACEFIGHTING:	 layout[394] := "button 315 185 " + suffix;	break;
-			SKILLID_FENCING:	 layout[392] := "button 315 145 " + suffix;	break;
-			SKILLID_WRESTLING:	 layout[398] := "button 315 265 " + suffix;	break;
-			SKILLID_LUMBERJACKING:	 layout[190] := "button 315 205 " + suffix;	break;
-			SKILLID_MINING:		 layout[191] := "button 315 225 " + suffix;	break;
-			SKILLID_MEDITATION:	 layout[243] := "button 315 225 " + suffix;	break;
-			SKILLID_STEALTH:	 layout[351] := "button 315 265 " + suffix;	break;
-			SKILLID_REMOVETRAP:	 layout[345] := "button 315 205 " + suffix;	break;
-		endcase
-
-		data[SKILL_START+i+1] := effec + "." + deci;
 	endfor
-
-	var effective	:= CInt( total / 10 );
-	var decimal	:= CInt( CDbl( (total / 10.0 ) - CInt( CInt(total) / 10 )) * 10 );
-	data[3]	 := effective + "." + decimal;
-	data[20] := GivePercent( bard, total ) + "%";
-	data[30] := GivePercent( crafter, total ) + "%";
-	data[40] := GivePercent( mage, total ) + "%";
-	data[50] := GivePercent( ranger, total ) + "%";
-	data[60] := GivePercent( thief, total ) + "%";
-	data[70] := GivePercent( warrior, total ) + "%";
-
+return array{total,mage,warrior,crafter,ranger,thief,bard};
 endfunction
-
 
 function GivePercent( skill, total )
 
