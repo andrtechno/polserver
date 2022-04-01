@@ -119,7 +119,7 @@ endprogram
 
 		var selection := SelectMenuItem2 (who, npcmenu);
 		if (!selection)
-			SendSysmessage (who, "Canceled.", color := 33);
+			SendSysmessage (who, "Cancelled.", color := 33);
 			return;
 		endif
 
@@ -149,7 +149,7 @@ endprogram
 
 		var selection2 := SelectMenuItem2 (who, npcmenu2);
 		if (!selection2)
-			SendSysmessage (who, "Canceled.", color := 33);
+			SendSysmessage (who, "Cancelled.", color := 33);
 			return;
 		endif
 

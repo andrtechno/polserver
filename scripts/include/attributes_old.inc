@@ -1230,7 +1230,7 @@ function AP_ListAttributesByType(type:="")
 endfunction
 
 function SkillCheck(who, attribid, difficulty, points)
-
+print("SkillCheck ex");
     var always_gain_until;
     var min_chance;
     var max_chance, skillid;

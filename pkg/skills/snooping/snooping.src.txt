@@ -1,0 +1,111 @@
+use uo;
+use os;
+
+include "include/client";
+include ":attributes:attributes";
+var mex;
+var mey;
+program snooping(who)
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+
+	freehands(who);
+	needgloves(who);
+
+	SendSysMessage(who, "Who would you like to snoop?");
+mex := who.x;
+mey := who.y;
+	var victim:=Target(who, TGTOPT_CHECK_LOS);
+		if (!victim)
+    		SendSysMessage(who, "canceled");
+    		return;
+    	endif
+
+	if(Distance(who, victim)>1)
+		SendSysMessage(who, "You need to stay close to "+ victim.name+" !");
+	endif
+        if((who.x != mex) || (who.y != mey))
+            DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
+            return 1;
+        endif
+
+    MoveItemToContainer(SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0), who.backpack, -1, -1,0);
+
+
+
+DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
+
+endprogram
+
+
+
+function freehands(who)
+
+	if(GetEquipmentByLayer(who, LAYER_HAND1) || GetEquipmentByLayer(who, LAYER_HAND2))
+		SendSysMessage(who, "You need empty hands to perform this action!");
+	exit;
+	endif
+
+	return 1;
+
+endfunction
+
+function isaplayer(who, victim)
+
+	if (victim.serial == who.serial)
+		SendSysMessage(who, "You dont need to snoop in your own backpack!");
+		exit;
+	endif
+
+	if (victim.acct)
+		SendSysMessage(who, "Snooping other players is forbidden.");
+		exit;
+	endif;
+
+
+
+
+	if (GetObjProperty(victim, "snoopme"))
+		var newdiff:= GetObjProperty(victim, "snoopme");
+		return newdiff;
+	else
+		SendSysMessage(who, "You are unable to snoop this target");
+		exit;
+	endif
+
+endfunction
+
+function needgloves(who)
+
+	var weargloves:= 0;
+
+    	foreach item in ListEquippedItems(who)
+
+    		if (item.objtype == 0x1300a || item.objtype == 0x1300b)
+			weargloves:= 1;
+		endif
+
+	endforeach
+
+	if(weargloves == 0)
+		SendSysMessage(who,"You need to equip thief gloves to do that");
+		exit;
+	endif
+
+	return 1;
+
+endfunction
+
+function tellplayers(who, victim)
+
+	var targets:=ListMobilesNearLocation(who.x, who.y, who.z, 10,who.realm);
+
+	foreach mobile in targets
+		if ((mobile.serial!=who.serial) && (mobile.dead==0) && (!mobile.criminal))
+			SendSysMessage(mobile, "You notice "+who.name+" snooping "+victim.name+"'s backpack!");
+		elseif(mobile.serial==who.serial)
+			SendSysMessage(who, "You are noticed snooping in the backpack!");
+		endif
+	endforeach
+
+endfunction

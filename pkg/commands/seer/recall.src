@@ -10,7 +10,7 @@ program textcmd_recall( caster )
 	SendSysMessage( caster, "Select a target to recall from." );
 	var cast_on := Target(caster);
 	if (!cast_on)
-		SendSysMessage(caster, "Canceled.", 1, 33);
+		SendSysMessage(caster, "Cancelled.", 1, 33);
 		return;
 	endif
 	

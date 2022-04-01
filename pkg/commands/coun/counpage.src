@@ -201,7 +201,7 @@ function maintainaccountgump(who, chr)
     endif
     testdata[23] := mail;
     if(!trg)
-      SendSysMessage(who,"canceled");
+      SendSysMessage(who,"Cancelled.");
       return;
     endif
     SetNotes(trg.name); // Modified by Shinigami

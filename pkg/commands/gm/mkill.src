@@ -10,7 +10,7 @@ program textcmd_kill( who )
 
 	var mob := Target( who, TGTOPT_NOCHECK_LOS );
 	if (!mob)
-		SendSysMessage( who, "Canceled!" );
+		SendSysMessage( who, "Cancelled." );
 		return;
 	endif
 

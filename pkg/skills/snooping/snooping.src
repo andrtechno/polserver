@@ -1,111 +1,172 @@
 use uo;
 use os;
+use storage;
 
 include "include/client";
 include ":attributes:attributes";
+include ":snooping:thief";
+include "include/trainingskill";
+include "include/utility";
+
+
 var mex;
 var mey;
+
 program snooping(who)
+    var newitem;
+    mex := who.x;
+    mey := who.y;
+
+    var data := {};
+    data[1] := "snooping";
+    data[2] := ReadGameClock();
+    data[3] := SKILLID_SNOOPING;
+    SetObjProperty(who, "LastUsedSkill", data );
+    TrainingSkill(who, data[3]);
+
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
+    SendSysMessage(who, "Select target.");
 
-	freehands(who);
-	needgloves(who);
+	freeHands(who);
+	needGloves(who);
 
-	SendSysMessage(who, "Who would you like to snoop?");
-mex := who.x;
-mey := who.y;
-	var victim:=Target(who, TGTOPT_CHECK_LOS);
-		if (!victim)
-    		SendSysMessage(who, "canceled");
-    		return;
-    	endif
+	var storage:= FindStorageArea("Merchant Storage");
 
-	if(Distance(who, victim)>1)
-		SendSysMessage(who, "You need to stay close to "+ victim.name+" !");
+	var newpack:=find_or_create_item(storage, "temp "+who.serial,0xe75);
+	if (!storage)
+		SendSysMessage(who,"unable to find merchant storage");
+		return;
 	endif
-        if((who.x != mex) || (who.y != mey))
-            DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
-            return 1;
+
+	if (!newpack)
+		SendSysMessage(who,"unable to create temporary backpack");
+		return;
+	endif
+
+	var victim  := Target(who);
+
+
+
+    if (!victim)
+		SendSysMessage(who, "Cancelled.");
+		return;
+	endif
+    if(!CheckLineOfSight(who, victim))
+        SendSysMessage(who, "You can't see that!");
+        return;
+    endif
+    if(Distance(who,victim) > 2)
+        SendSysMessage(who, "You are not close enough to stealing that!");
+        return;
+    endif
+
+    if ((victim.serial==who.serial) && ((victim.graphic != 400) || (victim.graphic != 401)))
+        SendSysMessage(who, "No need to steal this.");
+        return;
+    endif
+	if(GetObjProperty(victim, "snooped"))
+		SendSysMessage(who, "You must wait some time before snooping this victim again");
+		return;
+	endif;
+    var pts := CInt(GetAttribute(who, SNOOPING)) + 15;
+
+    sleep(3);
+
+    if(Distance(victim,who) > 2)
+        SendSysMessage(who, "target location 2");
+        return;
+    endif
+
+
+    if((who.x != mex) || (who.y != mey))
+        SendSysMessage(who, "you location!!!");
+        return;
+    endif
+print("pts: "+pts);
+print("diff: "+GetDiff(who, victim));
+    if (SkillCheck(who, SNOOPING, GetDiff(who, victim), pts))
+        PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
+
+		SetObjProperty(victim, "snooped", 1);
+		SetObjProperty(who, "snooping", 1);
+
+
+        /*var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
+
+        if (on.backpack.isA(POLCLASS_CONTAINER))
+            var items := EnumerateItemsInContainer(on.backpack);
+            foreach item in items
+                if(item.newbie == 0)
+                    newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
+                    SetObjProperty(newitem,"realitem",item.serial);
+                    MoveItemToContainer(newitem, copyitem, item.x, item.y);
+                endif
+            endforeach
         endif
 
-    MoveItemToContainer(SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0), who.backpack, -1, -1,0);
+        foreach item in EnumerateItemsInContainer(copyitem)
+            item.movable:=0;
+        endforeach
+
+        SetObjProperty(who,"#Snoop",ReadGameClock() + TIME_OPEN_CONTAINER);
+        SetObjProperty(who,"#Snoop_pid",copyitem.serial);*/
+
+      //  if((who.x != mex) || (who.y != mey))
+       //     DestroyItem(copyitem);
+       //     return 1;
+      //  endif
+
+
+var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
+
+       // if (victim.backpack.isA(POLCLASS_CONTAINER))
+            var items := EnumerateItemsInContainer(victim.backpack);
+            foreach item in items
+                if(item.newbie == 0)
+                    newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
+                    SetObjProperty(newitem,"realitem",item.serial);
+                    MoveItemToContainer(newitem, newpack, item.x, item.y);
+                endif
+            endforeach
+                    foreach item2 in EnumerateItemsInContainer(newpack)
+                        item2.movable:=0;
+                    endforeach
+        //endif
 
 
 
-DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
 
+
+
+        if(!SendViewContainer(who, newpack))
+            print("Error view container");
+            return;
+        endif;
+        SendOpenSpecialContainer( who, newpack );
+        Detach();
+        sleep(TIME_OPEN_CONTAINER);
+
+        CloseWindow( who, 12, newpack );
+		foreach item in EnumerateItemsInContainer(newpack)
+      		DestroyItem(item);
+		endforeach
+
+				DestroyRootItemInStorageArea(storage, "temp " + who.serial);
+
+        		EraseObjProperty(victim, "snooped");
+        		EraseObjProperty(who, "snooping");
+
+        		return;
+      //Start_Script(":snooping:containerTimer", { who, on, copyitem.serial});
+
+
+    else
+	    tellplayers(who);
+	    callguard(who);
+	    who.setCriminal(1);
+        SendSysMessage(who, "fail.");
+		return;
+    endif
 endprogram
 
-
-
-function freehands(who)
-
-	if(GetEquipmentByLayer(who, LAYER_HAND1) || GetEquipmentByLayer(who, LAYER_HAND2))
-		SendSysMessage(who, "You need empty hands to perform this action!");
-	exit;
-	endif
-
-	return 1;
-
-endfunction
-
-function isaplayer(who, victim)
-
-	if (victim.serial == who.serial)
-		SendSysMessage(who, "You dont need to snoop in your own backpack!");
-		exit;
-	endif
-
-	if (victim.acct)
-		SendSysMessage(who, "Snooping other players is forbidden.");
-		exit;
-	endif;
-
-
-
-
-	if (GetObjProperty(victim, "snoopme"))
-		var newdiff:= GetObjProperty(victim, "snoopme");
-		return newdiff;
-	else
-		SendSysMessage(who, "You are unable to snoop this target");
-		exit;
-	endif
-
-endfunction
-
-function needgloves(who)
-
-	var weargloves:= 0;
-
-    	foreach item in ListEquippedItems(who)
-
-    		if (item.objtype == 0x1300a || item.objtype == 0x1300b)
-			weargloves:= 1;
-		endif
-
-	endforeach
-
-	if(weargloves == 0)
-		SendSysMessage(who,"You need to equip thief gloves to do that");
-		exit;
-	endif
-
-	return 1;
-
-endfunction
-
-function tellplayers(who, victim)
-
-	var targets:=ListMobilesNearLocation(who.x, who.y, who.z, 10,who.realm);
-
-	foreach mobile in targets
-		if ((mobile.serial!=who.serial) && (mobile.dead==0) && (!mobile.criminal))
-			SendSysMessage(mobile, "You notice "+who.name+" snooping "+victim.name+"'s backpack!");
-		elseif(mobile.serial==who.serial)
-			SendSysMessage(who, "You are noticed snooping in the backpack!");
-		endif
-	endforeach
-
-endfunction

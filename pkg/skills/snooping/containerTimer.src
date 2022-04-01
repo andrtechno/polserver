@@ -1,0 +1,27 @@
+use uo;
+use os;
+
+include "include/client";
+include ":attributes:attributes";
+
+program snooping_timer(parms)
+    var who := parms[1];
+    var on := parms[2];
+    var item := parms[3];
+    SendSysMessage(who, "snooping_timer");
+    SetScriptController(who);
+    var	cycles := 1;
+    var tempitem := SystemFindObjectBySerial(item,0);
+    while(cycles)
+        sleep(1);
+        SendSysMessage(who, "cycles");
+        if(GetObjProperty(who,"#Snoop") < ReadGameClock())
+            cycles := 0;
+            DestroyItem(tempitem);
+            SendSysMessage(who, "Del container");
+        endif;
+    endwhile
+
+
+endprogram
+

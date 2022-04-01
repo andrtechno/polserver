@@ -182,11 +182,11 @@ function GetDifficultySkill( true_skill )
         elseif( true_skill < 20 )
             level_diff := 30.0;
         elseif( true_skill < 70 )
-            level_diff := 200.0;
+            level_diff := 50.0;
         elseif( true_skill < 90 )
-            level_diff := 400.0;
-        elseif( true_skill < 110 )
             level_diff := 100.0;
+        elseif( true_skill < 110 )
+            level_diff := 200.0;
         elseif( true_skill < 115 )
             level_diff := 300.0;
         elseif( true_skill < 120 )

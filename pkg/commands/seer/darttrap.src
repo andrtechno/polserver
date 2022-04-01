@@ -8,7 +8,7 @@ program explosiontrap(who, strngth)
   SendSysMessage(who,"select the container you wish to place a trap on");
   var chest := Target(who);
   if (!chest)
-    SendSysMessage(who,"canceled");
+    SendSysMessage(who,"Cancelled.");
     return;
   endif
     SetObjProperty(chest, "trap_type", "1");

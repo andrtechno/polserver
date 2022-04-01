@@ -1,0 +1,5 @@
+use os;
+program Start_WoodCore()
+  //print("Starting wood core");
+  //start_script("woodCore");
+endprogram

@@ -9,7 +9,7 @@ program skill_hide(who)
         var data := {};
         data[1] := "hiding";
         data[2] := ReadGameClock();
-        data[3] := 21;
+        data[3] := SKILLID_HIDING;
         SetObjProperty(who, "LastUsedSkill", data );
         TrainingSkill(who, data[3]);
 
@@ -22,7 +22,7 @@ program skill_hide(who)
 //  endif
   if(who.warmode)
     //PrintTextAbovePrivate(who, "You cannot hide while in War Mode.", who);
-    PrintTextAbovePrivateUC(who, CAscZ("Выйдите из режима боя"), "RUS", who, 3, 33);
+    PrintTextAbovePrivateUC(who, CAscZ("Выйдите из режима боя"), "RUS", who, 3, MESSAGE_COLOR_BAD);
 
     return 0;
   endif
@@ -39,7 +39,7 @@ program skill_hide(who)
     PrintTextAbovePrivateUC(who, CAscZ("Вы успешно спрятались!"), "RUS", who, 3, 67);
   else
     //PrintTextAbovePrivate(who, "You can't seem to hide here", who);
-    PrintTextAbovePrivateUC(who, CAscZ("У вас не получилось спрятаться"), "RUS", who, 3, 33);
+    PrintTextAbovePrivateUC(who, CAscZ("У вас не получилось спрятаться"), "RUS", who, 3, MESSAGE_COLOR_BAD);
     who.hidden := 0;
   endif
 endprogram
