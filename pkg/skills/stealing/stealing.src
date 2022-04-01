@@ -39,10 +39,17 @@ program skill_stealing(who)
 
     var realitem := SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0);
 
+    var pts := CInt(GetAttribute(who, STEALING)) + 15;
+	if (SkillCheck(who, STEALING, GetDiff(who, victim), pts))
+        victim.movable:= 1;
+        MoveItemToContainer(realitem, who.backpack);
+        DestroyItem(victim);
+        SendSysMessage(who, "You have successfully stolen the item.");
 
-    MoveItemToContainer(realitem, who.backpack, -1, -1, 0);
 
+    else
+            SendSysMessage(who, "fail stealing.");
 
+	endif
 
-//DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
 endprogram

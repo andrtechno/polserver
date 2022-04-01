@@ -116,6 +116,9 @@ endfunction
  */
 function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
 
+
+
+
         var true_skill := AP_GetTrueSkill( mobile, attrib_name ),
             skill_value := AP_GetTrueSkill( mobile, attrib_name ),
             skill_id := AP_AttributeNameToSkillId( attrib_name ),
@@ -128,7 +131,7 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
 
         var csa_settings := AP_GetSettingsCfgElem( "Skills" ),
             skill_cap := AP_GetSkillCap( mobile, attrib_name );
-     
+
         if( !DifficultyTooEasy( skill_value, difficulty ))
                 award_diff *= CDbl( csa_settings.GainSpeed );
         else
@@ -137,14 +140,13 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
         
         var level_diff := GetDifficultySkill( true_skill ),
             limit_left := CDbl( skill_cap - true_skill ),
-            skills_left := CDbl( 100.0 - true_skill ),
+            skills_left := CDbl( skill_cap - true_skill ), //100.0 to skill_cap
             random := CDbl( RandomFloat( level_diff )),
             chance := CDbl(( skills_left * award_diff ) / 100 );
 
             if( chance < 0.5 )
                     chance := 0.5;
             endif
-        
     if( true_skill < CDbl( csa_settings.FreeGainUntil ))
 		//Passed advance check.
 	elseif( random > chance )
@@ -162,7 +164,7 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
 	elseif( advance < 0.1 )
 		advance := 0.1;
 	endif
- 
+
   if( skill_lock_state == 1 ) //Skill lock state is set to raise.
     var temp := CDbl( true_skill - advance );
     AP_SetTrueSkill( mobile, attrib_name, temp );
@@ -175,39 +177,33 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
 endfunction
 
 function GetDifficultySkill( true_skill )
-
         var level_diff;
-        if( true_skill < 10 )
-            level_diff := 20.0;
-        elseif( true_skill < 20 )
-            level_diff := 30.0;
-        elseif( true_skill < 70 )
-            level_diff := 50.0;
+//return CDbl( 10.0 ); //for test
+        if( true_skill < 70 )
+                level_diff := 20.0;
         elseif( true_skill < 90 )
-            level_diff := 100.0;
+                level_diff := 40.0;
         elseif( true_skill < 110 )
-            level_diff := 200.0;
+                level_diff := 100.0;
         elseif( true_skill < 115 )
-            level_diff := 300.0;
+                level_diff := 300.0;
         elseif( true_skill < 120 )
-            level_diff := 800.0;
+                level_diff := 800.0;
         elseif( true_skill < 130 )
-            level_diff := 1500.0;
+                level_diff := 1500.0;
         elseif( true_skill < 140 )
-            level_diff := 3000.0;
+                level_diff := 3000.0;
         elseif( true_skill < 145 )
-            level_diff := 6000.0;
+                level_diff := 6000.0;
         else
-            level_diff := 20000.0;
+                level_diff := 20000.0;
         endif
-        
+
         return CDbl( level_diff );
 endfunction
 
 function GetDifficultyStat( true_stat )
-
         var level_diff;
-
         if( true_stat < 100 )
                 level_diff := 100.0;
         elseif( true_stat < 110 )
@@ -219,6 +215,5 @@ function GetDifficultyStat( true_stat )
         else
                 level_diff := 5000.0;
         endif
-
         return CDbl( level_diff );
 endfunction

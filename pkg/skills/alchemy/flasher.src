@@ -4,7 +4,7 @@ use util;
 use polsys;
 
 include ":attributes:attributes";
-include "include/fixPacketLength";
+include "include/packets";
 
 program flasher(parms)
   var potion := parms[1];

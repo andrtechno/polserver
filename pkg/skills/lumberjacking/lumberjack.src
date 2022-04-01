@@ -88,7 +88,10 @@ function Do_Chops(me, axe, tree, test)
     k.+type := EVID_CHECK_SPOT;
     k.+source := getprocess(getpid());
     pid.sendevent(k);
-    var woodtype := wait_for_event(17); //count woods
+    var woodtype := wait_for_event(17);
+
+    //var woodtype := RandomInt(17) + 1; //count woods
+    print("woodtype: "+woodtype);
     var diff := 0;
     var objtype := 0;
     var skill := AP_GetSkill(me, LUMBERJACKING);
@@ -116,18 +119,11 @@ function Do_Chops(me, axe, tree, test)
     var Desc := CStr(GetConfigString(elem,"Name"));
     diff := cfgdiff;
 
-    //print(woodtype);
     objtype := woodArray[test];
     name := Trim(Desc,TRIM_BOTH);
     if(woodtype > 1)
         name:=name+" logs";
     endif;
-
-   // foreach wood in woodArray
-      //  var obj := FindConfigElem(woodconfigfile, wood);
-       // print(obj.color);
-   // endforeach;
-
 
 
 
@@ -413,11 +409,11 @@ function use_blade(who, blade, use_on)
 
 
     if((checkme == UOBJ_LOG) || (checkme == 0x1bd7) || is_log)
-        if(AP_GetSkill( who, BOWCRAFT) < cfgdiff)
-            //SendSysMessageUC(who, "Не достаточно навыка", "RUS", 3, 0x25);
-            SendSysMessage(who, "You have no chance to successfully work with that logs.");
-            return;
-        endif
+        //if(AP_GetSkill( who, BOWCRAFT) < cfgdiff)
+        //    //SendSysMessageUC(who, "Не достаточно навыка", "RUS", 3, 0x25);
+        //    SendSysMessage(who, "You have no chance to successfully work with that logs.");
+        //    return;
+        //endif
         CarveLogs(who, blade, use_on);
     elseif(use_on.npctemplate == "sheep")
         process_wool(who, blade, use_on);
@@ -612,12 +608,16 @@ function CarveLogs(who, blade, logs)
   endif
   var difficulty := GetConfigInt(objectconfig, "Difficulty");
   var pointvalue := GetConfigInt(objectconfig, "PointValue");
-  var ExcepChance := GetConfigInt(objectconfig, "ExcepChance");
-  if(!ExcepChance)
-    ExcepChance:=10;
-  endif;
+  //var ExcepChance := GetConfigInt(objectconfig, "ExcepChance");
+  //if(!ExcepChance)
+  //  ExcepChance:=10;
+  //endif;
+  var ExcepChance:=10;
   var bow := 0;
   Detach();
+  PlaySoundEffect(who, 0x5a);
+  PerformAction(who, 0x021);
+  sleep(2);
   PlaySoundEffect(who, 0x5a);
   PerformAction(who, 0x021);
   sleep(2);

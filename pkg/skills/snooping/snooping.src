@@ -16,7 +16,7 @@ program snooping(who)
     var newitem;
     mex := who.x;
     mey := who.y;
-
+    SendSysMessage(who, "snooping");
     var data := {};
     data[1] := "snooping";
     data[2] := ReadGameClock();
@@ -65,10 +65,10 @@ program snooping(who)
         SendSysMessage(who, "No need to steal this.");
         return;
     endif
-	if(GetObjProperty(victim, "snooped"))
-		SendSysMessage(who, "You must wait some time before snooping this victim again");
-		return;
-	endif;
+	//if(GetObjProperty(victim, "snooped"))
+	//	SendSysMessage(who, "You must wait some time before snooping this victim again");
+	//	return;
+	//endif;
     var pts := CInt(GetAttribute(who, SNOOPING)) + 15;
 
     sleep(3);
@@ -91,34 +91,13 @@ print("diff: "+GetDiff(who, victim));
 		SetObjProperty(victim, "snooped", 1);
 		SetObjProperty(who, "snooping", 1);
 
+var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
 
-        /*var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
-
-        if (on.backpack.isA(POLCLASS_CONTAINER))
-            var items := EnumerateItemsInContainer(on.backpack);
-            foreach item in items
-                if(item.newbie == 0)
-                    newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
-                    SetObjProperty(newitem,"realitem",item.serial);
-                    MoveItemToContainer(newitem, copyitem, item.x, item.y);
-                endif
-            endforeach
-        endif
-
-        foreach item in EnumerateItemsInContainer(copyitem)
-            item.movable:=0;
-        endforeach
 
         SetObjProperty(who,"#Snoop",ReadGameClock() + TIME_OPEN_CONTAINER);
-        SetObjProperty(who,"#Snoop_pid",copyitem.serial);*/
-
-      //  if((who.x != mex) || (who.y != mey))
-       //     DestroyItem(copyitem);
-       //     return 1;
-      //  endif
+        SetObjProperty(who,"#Snoop_pid",copyitem.serial);
 
 
-var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
 
        // if (victim.backpack.isA(POLCLASS_CONTAINER))
             var items := EnumerateItemsInContainer(victim.backpack);
@@ -158,7 +137,6 @@ var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPA
         		EraseObjProperty(who, "snooping");
 
         		return;
-      //Start_Script(":snooping:containerTimer", { who, on, copyitem.serial});
 
 
     else
