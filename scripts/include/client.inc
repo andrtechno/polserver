@@ -1104,7 +1104,7 @@ const TERMUR_REALM              := "termur";
 //////////////////////////////////////
 // Canned colours
 //////////////////////////////////////
-const MESSAGE_COLOR_GOOD	:= 268;
+const MESSAGE_COLOR_GOOD	:= 366; // default 268
 const MESSAGE_COLOR_WARNING	:= 54;
 const MESSAGE_COLOR_BAD		:= 34;
 const MESSAGE_COLOR_MESSAGE	:= 1320;

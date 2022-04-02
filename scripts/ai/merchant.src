@@ -155,14 +155,14 @@ program merchant()
 
       endcase
     endif
-	if(ReadGameClock() >= next_wander)
+	/*if(ReadGameClock() >= next_wander)
 	  begpurse(me);
       wander();
       if(coordist(me.x, me.y, myanchor[1], myanchor[2]) > 5)
         MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
       endif
       next_wander := ReadGameClock() + 30;
-    endif
+    endif*/
   endwhile
 endprogram
 

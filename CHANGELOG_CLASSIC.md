@@ -1,24 +1,45 @@
-### Изменения относительно Classic-dist
+## Изменения относительно Classic-dist
 
 
-### Skills:
-- Lumberjacking добавлена добычна видов дерева
-- Mining изменена добыча видов дерева (добавлены новые виды)
-- Hiding Изменены тексты на unicode RUS
-- Alchemy Добавлены новые виды дутылок(homeric,invisibility etc.)
-- Carpentry добавлена анимация исготовки предметов.
-- ДОБАВЛЕН СКИЛЛ Stooping & Stealing пока в разработке.
+#### Изменение скиллов:
+* **Lumberjacking**
+    * добавлена добычна видов дерева
+* **Mining**
+    * изменена добыча видов дерева (добавлены новые виды)
+    * добавлена функция одевание кирки.
+* **Blacksmith**
+    * добавлена функция одевание молотка.
+* **Hiding**
+    * Изменены тексты на unicode "RUS"
+* **Alchemy**
+    * Добавлены новые виды дутылок(homeric,invisibility etc.)
+* **Carpentry**
+    * добавлена анимация изготовки предметов.
+* **ДОБАВЛЕН СКИЛЛ Stooping & Stealing.**
+* **Detect hidden**
+    * изменен радиус под скилл 150.
+    * убрана активация скила по таргиту.
+    * изменены тексты на unicode "RUS"
+* **Hiding**
+    * изменены тексты на unicode "RUS"
+* **Stealth**
+    * Разрешение ходить в стелсе на коне: (stealthhorse - npcdesc.cfg)
+* **Begging**
+    * изменены тексты на unicode "RUS"
 
-### PKG:
+
+
+#### PKG:
 - Добавлен **items/dangesgate** - портыла в данжы
 - Добавлен **items/plus** - Плюс вещи на скилы
 - Изменено **items/runebook** - Исправлена руна бука (recall & gate).
 - Добавлен **items/christmas** - Новогодний пакет
 - Добавлен **system/charclass** - Классы персонажей (в разработке)
 - Добавлен **items/staffrobe** - Стафф роба (при одевании меняет цвет робы see: cmds.cfg, при клики на робу concealed)
+- Добавлен **items/nodamageweapon** - в разработке
 
 
-### Commands (textcmd)
+#### Commands (textcmd)
 ##### player
 - **.where** - показывает текущие место положение X Z Y
 ##### test

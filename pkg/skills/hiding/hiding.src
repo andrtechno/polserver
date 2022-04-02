@@ -6,12 +6,12 @@ include ":attributes:attributes";
 include "include/trainingskill";
 
 program skill_hide(who)
-        var data := {};
-        data[1] := "hiding";
-        data[2] := ReadGameClock();
-        data[3] := SKILLID_HIDING;
-        SetObjProperty(who, "LastUsedSkill", data );
-        TrainingSkill(who, data[3]);
+    var data := {};
+    data[1] := "hiding";
+    data[2] := ReadGameClock();
+    data[3] := SKILLID_HIDING;
+    SetObjProperty(who, "LastUsedSkill", data );
+    TrainingSkill(who, data[3]);
 
   EraseObjProperty(who, "IsMeditating");
   EraseObjProperty(who, "HealTimer");
@@ -21,24 +21,19 @@ program skill_hide(who)
 //    pts := 35;
 //  endif
   if(who.warmode)
-    //PrintTextAbovePrivate(who, "You cannot hide while in War Mode.", who);
     PrintTextAbovePrivateUC(who, CAscZ("Выйдите из режима боя"), "RUS", who, 3, MESSAGE_COLOR_BAD);
-
     return 0;
   endif
   var range := getwhorange(GetAttribute(who, HIDING));
   var bystanders := ListHostiles(who, range, LH_FLAG_LOS);
   if(len(bystanders) > 0)
-    //PrintTextAbovePrivate(who, "You cannot hide as there are hostiles in view!", who);
     PrintTextAbovePrivateUC(who, CAscZ("Вас атакуют"), "RUS", who, 3, 31);
     return 0;
   endif
   if(SkillCheck(who,HIDING, -1, pts/3))
     who.hidden := 1;
-    //PrintTextAbovePrivate(who, "You have hidden yourself well", who);
     PrintTextAbovePrivateUC(who, CAscZ("Вы успешно спрятались!"), "RUS", who, 3, 67);
   else
-    //PrintTextAbovePrivate(who, "You can't seem to hide here", who);
     PrintTextAbovePrivateUC(who, CAscZ("У вас не получилось спрятаться"), "RUS", who, 3, MESSAGE_COLOR_BAD);
     who.hidden := 0;
   endif

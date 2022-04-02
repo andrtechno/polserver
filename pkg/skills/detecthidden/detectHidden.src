@@ -20,19 +20,19 @@ const TRAP := "hiddentrap";
 const CRITICAL_FAILURE := 1;
 
 program detect_hidden ( who )
-        var data1 := {};
-        data1[1] := "detectinghidden";
-        data1[2] := ReadGameClock();
-        data1[3] := 14;
-        SetObjProperty(who, "LastUsedSkill", data1 );
-        TrainingSkill(who, data1[3]);
+    var data1 := {};
+    data1[1] := "detectinghidden";
+    data1[2] := ReadGameClock();
+    data1[3] := 14;
+    SetObjProperty(who, "LastUsedSkill", data1 );
+    TrainingSkill(who, data1[3]);
 
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
     thepoints := 30;
     item_cfg := ReadConfigFile( "::itemdesc" );
-    SendSysMessage(who,"target the location to search");
-    var targ := TargetCoordinates( who );
+    //SendSysMessage(who,"target the location to search");
+    var targ := who; //TargetCoordinates( who );
     var range := getDetectRange( GetAttribute( who, DETECTING_HIDDEN  ) );
     var hiders := ListMobilesNearLocationEx( cint(targ.x), cint(targ.y), cint(targ.z), range, LISTEX_FLAG_HIDDEN, who.realm );
     var items  := ListItemsNearLocation( cint(targ.x), cint(targ.y), cint(targ.z), range, who.realm );
@@ -45,11 +45,8 @@ program detect_hidden ( who )
       if( Found( who,  mobile) )
         mobile.hidden := 0;
         foundany := 1;
-        //PrintTextAbovePrivate( mobile, "You have been discovered!", mobile );
-        //PrintTextAbovePrivate( mobile, "You have found someone!!", who );
         PrintTextAbovePrivateUC(mobile, CAscZ("Вы обнанужены!"), "RUS", mobile, 6, 33, journal_print := JOURNAL_UC_PRINT_NAME);
         PrintTextAbovePrivateUC(mobile, CAscZ("Обнанужены!"), "RUS", who, 6, 67, journal_print := JOURNAL_UC_PRINT_NAME);
-
       endif
     endforeach
     if (!foundany)
@@ -188,7 +185,17 @@ function Found( finder, hider ) //FIXME: should not be 100% certain to find a hi
 endfunction
 
 function getDetectRange( skill )
-    if( skill >= 100 )
+    if( skill >= 150 )
+        return 15;
+    elseif( skill >= 140 )
+        return 14;
+    elseif( skill >= 130 )
+        return 13;
+    elseif( skill >= 120 )
+        return 12;
+    elseif( skill >= 110 )
+        return 11;
+    elseif( skill >= 100 )
         return 10;
     elseif( skill >= 90 )
         return 9;

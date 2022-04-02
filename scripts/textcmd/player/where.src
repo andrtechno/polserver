@@ -1,19 +1,18 @@
 use os;
 use uo;
+use file;
 
 program textcmd_where(who)
-SendSysMessage(who, "You here: "+who.x+" "+who.y+" "+who.z);
+    SendSysMessage(who, "You here: "+who.x+" "+who.y+" "+who.z);
 
-var gflayout := {
-		"page 0",
-		"GumpPic 100 100 100",
-        "text 130 120 20 0",
-        "text 130 140 20 1",
-        "text 130 160 20 2"
-		};
+    var gflayout := {
+            "page 0",
+            "GumpPic 100 100 100",
+            "text 130 120 20 0",
+            "text 130 140 20 1",
+            "text 130 160 20 2"
+            };
 
-var gfdata := {"X "+who.x,"Y "+who.y,"Z "+who.z};
-
-SendDialogGump( who, gflayout, gfdata );
-
+    var gfdata := {"X "+who.x, "Y "+who.y, "Z "+who.z};
+    SendDialogGump( who, gflayout, gfdata );
 endprogram

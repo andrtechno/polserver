@@ -10,12 +10,12 @@ var npccfgfile := ReadConfigFile("::npcdesc");
 
 
 program skill_stealth( who )
-        var data := {};
-        data[1] := "stealth";
-        data[2] := ReadGameClock();
-        data[3] := 47;
-        SetObjProperty(who, "LastUsedSkill", data );
-        TrainingSkill(who, data[3]);
+    var data := {};
+    data[1] := "stealth";
+    data[2] := ReadGameClock();
+    data[3] := 47;
+    SetObjProperty(who, "LastUsedSkill", data );
+    TrainingSkill(who, data[3]);
 
   EraseObjProperty(who, "IsMeditating");
   EraseObjProperty(who, "HealTimer");
