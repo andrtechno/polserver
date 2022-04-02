@@ -178,7 +178,7 @@ endfunction
 
 function GetDifficultySkill( true_skill )
         var level_diff;
-//return CDbl( 10.0 ); //for test
+return CDbl( 10.0 ); //for test
         if( true_skill < 70 )
                 level_diff := 20.0;
         elseif( true_skill < 90 )

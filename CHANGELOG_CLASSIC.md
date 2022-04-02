@@ -15,6 +15,7 @@
 - Изменено **items/runebook** - Исправлена руна бука (recall & gate).
 - Добавлен **items/christmas** - Новогодний пакет
 - Добавлен **system/charclass** - Классы персонажей (в разработке)
+- Добавлен **items/staffrobe** - Стафф роба (при одевании меняет цвет робы see: cmds.cfg, при клики на робу concealed)
 
 
 ### Commands (textcmd)

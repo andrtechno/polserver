@@ -46,8 +46,6 @@ program snooping(who)
 
 	var victim  := Target(who);
 
-
-
     if (!victim)
 		SendSysMessage(who, "Cancelled.");
 		return;
@@ -78,44 +76,34 @@ program snooping(who)
         return;
     endif
 
-
     if((who.x != mex) || (who.y != mey))
         SendSysMessage(who, "you location!!!");
         return;
     endif
-print("pts: "+pts);
-print("diff: "+GetDiff(who, victim));
+
     if (SkillCheck(who, SNOOPING, GetDiff(who, victim), pts))
         PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
 
 		SetObjProperty(victim, "snooped", 1);
 		SetObjProperty(who, "snooping", 1);
 
-var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
+        var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
 
 
         SetObjProperty(who,"#Snoop",ReadGameClock() + TIME_OPEN_CONTAINER);
         SetObjProperty(who,"#Snoop_pid",copyitem.serial);
 
-
-
-       // if (victim.backpack.isA(POLCLASS_CONTAINER))
-            var items := EnumerateItemsInContainer(victim.backpack);
-            foreach item in items
-                if(item.newbie == 0)
-                    newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
-                    SetObjProperty(newitem,"realitem",item.serial);
-                    MoveItemToContainer(newitem, newpack, item.x, item.y);
-                endif
-            endforeach
-                    foreach item2 in EnumerateItemsInContainer(newpack)
-                        item2.movable:=0;
-                    endforeach
-        //endif
-
-
-
-
+        var items := EnumerateItemsInContainer(victim.backpack);
+        foreach item in items
+            if(item.newbie == 0)
+                newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
+                SetObjProperty(newitem,"realitem",item.serial);
+                MoveItemToContainer(newitem, newpack, item.x, item.y);
+            endif
+        endforeach
+        foreach item2 in EnumerateItemsInContainer(newpack)
+            item2.movable:=0;
+        endforeach
 
 
         if(!SendViewContainer(who, newpack))
@@ -131,14 +119,12 @@ var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPA
       		DestroyItem(item);
 		endforeach
 
-				DestroyRootItemInStorageArea(storage, "temp " + who.serial);
+        DestroyRootItemInStorageArea(storage, "temp " + who.serial);
 
-        		EraseObjProperty(victim, "snooped");
-        		EraseObjProperty(who, "snooping");
+        EraseObjProperty(victim, "snooped");
+        EraseObjProperty(who, "snooping");
 
-        		return;
-
-
+        return;
     else
 	    tellplayers(who);
 	    callguard(who);

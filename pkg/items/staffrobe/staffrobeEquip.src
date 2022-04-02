@@ -1,0 +1,37 @@
+use uo;
+use os;
+use cfgfile;
+use vitals;
+use attributes;
+
+include ":attributes:stats";
+
+var cmdscfg := ReadConfigFile("::cmds");
+
+program staffRobeEquip( character, item )
+    //set_critical(1);
+
+    var cmdElem := FindConfigElem(cmdscfg, character.cmdlevelstr);
+    if(!cmdElem)
+      SendSysMessage(character, "Error elem: "+cmdElem.errortext);
+    endif
+    var col := GetConfigInt(cmdElem, "Color");
+    if(!col)
+        SendSysMessage(character, "Error color: "+col.errortext);
+    endif
+    var robName := GetConfigString(cmdElem, "RobeName");
+
+    item.color:=col;
+    item.name:="Staff robe of "+character.name;
+    if(robName)
+    item.name_suffix:="("+robName+")";
+    endif
+    //item.no_drop:=1;
+    if(!item.newbie)
+        item.newbie:=1;
+    endif
+//SetStrength(character,1000);
+//AP_ModifyStatMod(character, "strength", 111);
+    return 1;
+    //set_critical(0);
+endprogram

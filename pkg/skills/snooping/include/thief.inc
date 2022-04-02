@@ -4,7 +4,7 @@ const COPY_BACKPACK_X := 5858;
 const COPY_BACKPACK_Y := 1158;
 const COPY_BACKPACK_Z := 0;
 
-const TIME_OPEN_CONTAINER := 30;
+const TIME_OPEN_CONTAINER := 60;
 
 function freeHands(who)
 	if(GetEquipmentByLayer(who, LAYER_HAND1) || GetEquipmentByLayer(who, LAYER_HAND2))

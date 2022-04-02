@@ -23,7 +23,7 @@ const REACT_THRESHOLD := 4;
 
 var me := Self();
 //me.hidden := 1;
-me.freeze := 1;
+//me.freeze := 1;
 var inv_fs, inv_pb, inv_1c, inv_rs;
 var merchant_type := GetObjProperty(me,"MerchantType");
 var equipt        := GetObjProperty(me, "Equipt");
@@ -41,7 +41,7 @@ program merchant()
   if(myanchor)
     MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
   endif
-  drop_anchor();
+ // drop_anchor();
   myanchor     := GetObjProperty(me, "Anchor");
   var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
 
@@ -59,7 +59,7 @@ program merchant()
     inv_1c := FindRootItemInStorageArea(storage, spawnname + " 1C");
     inv_rs := FindRootItemInStorageArea(storage, spawnname + " RS");
   endwhile
-  me.hidden := 0;
+
   EnableEvents(SYSEVENT_SPEECH, REACT_THRESHOLD);
   EnableEvents(SYSEVENT_ITEM_GIVEN);
 

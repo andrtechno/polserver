@@ -1,0 +1,10 @@
+use uo;
+use os;
+
+program staffRobe( who )
+    if(who.concealed >= 1)
+        who.concealed := 0;
+    else
+        who.concealed := who.cmdlevel;
+    endif
+endprogram

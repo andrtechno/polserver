@@ -53,7 +53,7 @@ program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 		endif
 	endif
 
-        var x := CheckTempProtections(attacker, defender, rawdamage);
+    var x := CheckTempProtections(attacker, defender, rawdamage);
 	if (x == 0)
 		return 0;
 	else

@@ -17,9 +17,9 @@ include "include/begging";
 include ":attributes:attributes";
 
 const MAX_SKILLS      := 48;
+const REACT_THRESHOLD := 4;
 
 var me := Self();
-me.hidden := 1;
 var inv_fs, inv_pb, inv_1c, inv_rs;
 var merchant_type := GetObjProperty(me,"MerchantType");
 var equipt        := GetObjProperty(me, "Equipt");
@@ -40,6 +40,7 @@ program barber()
   drop_anchor();
   myanchor     := GetObjProperty(me, "Anchor");
   var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
+    create_node_merc(merchant_type, spawnname);
   inv_fs := FindRootItemInStorageArea(storage, spawnname + " FS");
   inv_pb := FindRootItemInStorageArea(storage, spawnname + " PB");
   inv_1c := FindRootItemInStorageArea(storage, spawnname + " 1C");
@@ -51,9 +52,11 @@ program barber()
     inv_1c := FindRootItemInStorageArea(storage, spawnname + " 1C");
     inv_rs := FindRootItemInStorageArea(storage, spawnname + " RS");
   endwhile
-  me.hidden := 0;
+
   EnableEvents(SYSEVENT_ITEM_GIVEN);
-  DisableEvents(SYSEVENT_SPEECH);
+  EnableEvents(SYSEVENT_SPEECH, REACT_THRESHOLD);
+
+  DisableEvents(EVID_SPEECH + SYSEVENT_SPEECH);
   if(GetObjProperty(me, "frozen"))
     me.frozen := 1;
   endif
@@ -64,7 +67,7 @@ program barber()
     ev := os::wait_for_event(120);
     if(ev)
       case(ev.type)
-        EVID_NODE:                var txt := lower(ev.text);
+        SYSEVENT_SPEECH:                var txt := lower(ev.text);
                                   if((ev.source.cmdlevel > 2) && (txt["showinventory"]))
                                     SendOpenSpecialContainer(ev.source, inv_fs);
                                   else

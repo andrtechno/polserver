@@ -147,66 +147,43 @@ endprogram
 function heal(who, patient, counter, healing)
 	var healamt := Cint(healing / 2) + Cint(anatomy / 5) + 10;  // amount to be considered for healing
 	var basehealamt := healamt;
-	var cycles;
+
 	var count := 0;
 	// Determine how many attempts are made to heal.
-	if(patient == who)
-		var dexcheck := (GetBaseDexterity(who) / 20);
-		cycles := (15 - dexcheck);
-	else
-		if(GetDexterity(who) <= 33)
-			cycles := 5;
-		elseif(GetDexterity(who) <= 67)
-			cycles := 4;
-		else
-			cycles := 3;
-		endif
-	endif
-				cycles := 0;
-	// This loop has two functions:
-	//	1- provide wait-states for healing, during which, if it's interrupted, no healing occurs.
-	//	2- test for fumbles during the healing process and lower the amount of healing
-	// All healing occurs in the last pass of the loop.
-	while(counter <= cycles)
+
 		var chp := GetHP(who);
 		sleep(5);
-		/*if (counter%4 == 0)
-		    if(who==patient)
-			SendSysMessage(who, "You continue to heal yourself.", color := 56);
-		    else
-			SendSysMessage(patient, who.name + " continues to heal you.", color := 56);
-		    endif
-		endif*/
-		
+
 		// break out if anyone does anything that should cause heal to stop.
 		if(!GetObjProperty(who, "HealTimer"))
 		    if(who==patient)
-			SendSysMessage(who, "You stop healing yourself.", color := 33);
-			break;
+			    SendSysMessage(who, "You stop healing yourself.", color := 33);
+			    return;
 		    else
-			SendSysMessage(who, "You stop healing your patient.", color := 33);
-			break;
+			    SendSysMessage(who, "You stop healing your patient.", color := 33);
+			    return;
 		    endif
 		elseif(clock != GetObjProperty(who, "HealTimer"))
-			break;
+		    SendSysMessage(who, "test", color := 33);
+			return;
 		elseif(dist(who, patient) > 1)
 		    SendSysMessage(who,"Your patient isn't close enough.", color := 33);
 		    SendSysMessage(patient, who.name + "has stopped healing you.", color := 33);
-		    break;
+		    return;
 		elseif(GetHP(patient) >= GetMaxHP(patient))
 		    if(who==patient)
-			SendSysMessage(who, "You are at full health.", color := 66);
-			break;
+			    SendSysMessage(who, "You are at full health.", color := 66);
+			    return;
 		    else
-			SendSysMessage(who, "Your patient is at full health.", color := 56);
-			SendSysMessage(patient, who.name + " has stopped healing you.", color := 56);
-			break;
+			    SendSysMessage(who, "Your patient is at full health.", color := 56);
+			    SendSysMessage(patient, who.name + " has stopped healing you.", color := 56);
+			    return;
 		    endif
 		elseif((patient.dead) and (patient != who))
 		    SendSysMessage(who, "You start to resurrect " + patient.name + ".", color := 56);
 		    SendSysMessage(patient, who.name + " starts to resurrect you.", color := 56);
 		    resurrect_pc(who, patient, counter);
-		    break;
+		    return;
 		elseif(ListPoisonsByType(patient, "defaultPoison").size() > 0)
 		// can't heal a patient who is poisoned.
 		    if((healing < 60) or (anatomy < 60))
@@ -227,58 +204,33 @@ function heal(who, patient, counter, healing)
 			    endif
 			    cure(who, patient, counter, healing);
 		    endif
-		    break;
-
-		// Testing to see if things are fumbled.  If they fumble too badly, 
-		elseif(GetHP(who) < chp)
-		    if((RandomInt(basehealamt) + 1) >= GetDexterity(who))
-			    SendSysMessage(who, "Your fingers slip.", color := 33);
-			    if(count >= 5)
-				    healamt := -1;
-			    else
-				    healamt := (healamt * 0.90);
-				    count := count + 1;
-			    endif
-		    endif
-		
-		// The last cycle of the loop.  All actual healing is done here.
-		elseif(counter >= cycles)
-
+		    return;
+        else
 		    var diff := 100 - Cint((GetHP(patient) * 100.0) / GetMaxHP(patient));
 		    if((SkillCheck(who, HEALING, diff, 100)) and (healamt != -1))
 			    var chkamt := Cint(GetMaxHP(patient) - GetHP(patient));
-			    //if(healamt > chkamt)
+			    if(healamt > chkamt)
 				    healamt := chkamt;
-
 				    if(who==patient)
-				    SendSysMessage(who, "You successfully heal yourself on "+healamt+" points.", color := 67);
-					//SendSysMessage(who, "You have healed yourself completely.", color := 67);
+					    SendSysMessage(who, "You have healed yourself " + healamt +" completely.", color := 66);
 				    else
-					SendSysMessage(who, "You have healed your patient completely.", color := 67);
-					SendSysMessage(patient, who.name + " has healed you completely.", color := 67);
+					    SendSysMessage(who, "You have healed your patient completely.", color := 66);
+					    SendSysMessage(patient, who.name + " has healed you completely.", color := 66);
 				    endif
-			    //else
-				//    SendSysMessage(who, "You successfully heal111111 " + patient.name +".", color := 66);
-				//    SendSysMessage(patient, who.name + " has healed you.", color := 66);
-			    //  endif
-			    HealDamage(patient, healamt);
-			    //AwardPoints(who, SKILLID_HEALING, (healamt * 2));
-			    break;
-		    else
-		        SendSysMessage(patient, "You could not heal yourself.");
-		        var hdmg := RandomInt(6)+1;
-			    // Throw 'em a bone.  No chance of gain, though.
-			    //SendSysMessage(who,"You finish applying the bandages, but they barely help. "+CStr(healamt), color := 67);
-			    if(who != patient)
-				//SendSysMessage(patient, who.name + " has tried to heal you but had little effect.");
+			    else
+				    SendSysMessage(who, "You successfully heal " + patient.name +".", color := 66);
+				    SendSysMessage(patient, who.name + " has healed you.", color := 66);
 			    endif
-			    //HealDamage(patient, healamt);
-			    break;
+			    HealDamage(patient, healamt);
+			    AwardPoints(who, SKILLID_HEALING, (healamt * 2));
+
+		    else
+			    // Throw 'em a bone.  No chance of gain, though.
+			    SendSysMessage(who, "You could not heal yourself.", color := 56);
+
 		    endif
+			    return;
 		endif
-		
-		counter := counter + 1;
-	endwhile
 endfunction
 
 function cure(who, patient, counter, healing)

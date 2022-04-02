@@ -2,6 +2,8 @@ use uo;
 use util;
 use os;
 include ":attributes:attributes";
+include ":combat:hitScriptInc";
+include ":damage:damage";
 
 program macehit(param)
   var attacker := param[1];
