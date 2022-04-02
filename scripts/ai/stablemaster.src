@@ -51,15 +51,16 @@ program stablemaster()
   parms[2] := time;
 
   start_script(":taming:stableCounter", parms);
+  drop_anchor();
   var myanchor := GetObjProperty(me, "Anchor");
 
   if(myanchor)
     MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
   endif
-  drop_anchor();
-  myanchor     := GetObjProperty(me, "Anchor");
+
   var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
-    create_node_merc(merchant_type, spawnname);
+  create_node_merc(merchant_type, spawnname);
+
   inv_fs := FindRootItemInStorageArea(storage, spawnname + " FS");
   inv_pb := FindRootItemInStorageArea(storage, spawnname + " PB");
   inv_1c := FindRootItemInStorageArea(storage, spawnname + " 1C");

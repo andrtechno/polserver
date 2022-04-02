@@ -20,7 +20,6 @@ if (!storage)
 	return;
 endif
 
-print(playermerchantlist);
 foreach merchantserial in playermerchantlist
 	var merchant := SystemFindObjectBySerial (merchantserial);
 	if (merchant)

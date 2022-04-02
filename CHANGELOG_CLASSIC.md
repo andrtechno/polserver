@@ -37,6 +37,7 @@
 - Добавлен **system/charclass** - Классы персонажей (в разработке)
 - Добавлен **items/staffrobe** - Стафф роба (при одевании меняет цвет робы see: cmds.cfg, при клики на робу concealed)
 - Добавлен **items/nodamageweapon** - в разработке
+- Добавлен **items/shirinkpotion**
 
 
 #### Commands (textcmd)
@@ -48,7 +49,7 @@
 - **.unload [scriptname]** - перезагрузка скрипта
 - **.mdestroy [int]** - удаление вещей в радиусе [int]
 
-
-#### Изменение include's
-* vetement.inc
+#### Изменение include's/scripts
+* **vetement.inc**
     * доюавлена возможность делать вещь newbie
+* **death.src** добавлена функция удаление destroy_node_merc если это продавец

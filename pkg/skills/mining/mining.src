@@ -283,15 +283,15 @@ endprogram
 
 function GetRange( who );
   var skill := AP_GetSkill( who, MINING );
-  if( skill >= 100 )
+  if( skill >= 150 )
     return 5;
-  elseif( skill >= 80 )
+  elseif( skill >= 135 )
     return 4;
-  elseif( skill >= 60 )
+  elseif( skill >= 105 )
     return 3;
-  elseif( skill >= 40 )
+  elseif( skill >= 90 )
     return 2;;
-  elseif( skill >= 20 )
+  elseif( skill >= 60 )
     return 1;
   else
     return 0;

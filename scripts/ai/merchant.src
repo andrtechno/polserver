@@ -19,10 +19,10 @@ include "include/trainSkill";
 include "include/objtype";
 
 const MAX_SKILLS      := 48;
-const REACT_THRESHOLD := 4;
+const REACT_THRESHOLD := 2;
 
 var me := Self();
-//me.hidden := 1;
+me.hidden := 0;
 //me.freeze := 1;
 var inv_fs, inv_pb, inv_1c, inv_rs;
 var merchant_type := GetObjProperty(me,"MerchantType");
@@ -32,17 +32,18 @@ var npccfg        := ReadConfigFile("npcdesc");
 set_priority(50);
 
 program merchant()
-  if(!merchant_type)
-    SetObjProperty(me, "MerchantType", "Mage");
-    merchant_type := "Mage";
-  endif
+    if(!merchant_type)
+      SetObjProperty(me, "MerchantType", "Mage");
+      merchant_type := "Mage";
+    endif
   start_script("NPCKeeper", me);
+  drop_anchor();
   var myanchor := GetObjProperty(me, "Anchor");
+
   if(myanchor)
     MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
   endif
- // drop_anchor();
-  myanchor     := GetObjProperty(me, "Anchor");
+
   var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
 
   create_node_merc(merchant_type, spawnname);

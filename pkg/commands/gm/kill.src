@@ -3,6 +3,7 @@ use uo;
 use boat;
 include ":attributes:attributes";
 
+
 program textcmd_kill( who )
     var tgt := TargetCoordinates( who );
     if (tgt.mobile)

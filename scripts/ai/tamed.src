@@ -197,7 +197,7 @@ function HoldLoop(type)
     endif
     case(ev.type)
       EVID_WAKEUP:
-                print("HoldLoop EVID_WAKEUP");
+                //print("HoldLoop EVID_WAKEUP");
       EraseObjProperty(me, type);
     endcase
   endwhile

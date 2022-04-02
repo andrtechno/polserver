@@ -49,13 +49,15 @@ program track(who)
       AddMenuItem(track_list, 0x2106, "People");
     endif
     var thetarget := SelectMenuItem2(who, track_list);
+
     var listtype := {};
-    case(thetarget[1])
+    case(thetarget.graphic)
       8454: listtype := "Person";
       8399: listtype := "Animal";
       8409: listtype := "Monster";
     endcase
     var ttype;
+
     foreach mobile in nearby
       if((mobile != who) && (!mobile.dead))
         var elem := FindConfigElem(config, mobile.graphic);
@@ -70,6 +72,7 @@ program track(who)
         endif
       endif
     endforeach
+
     if(menucount > 0)
       thetarget := SelectMenuItem2(who, track_menu);
       if(!thetarget)
@@ -77,6 +80,7 @@ program track(who)
         return;
       endif
       var critter := critter_ids[thetarget.index];
+
       SetObjProperty( who, "#trackingtimeout", ReadGameClock()+40 );
       Detach();
       var timer := 0;
