@@ -47,6 +47,10 @@ function EquipItemString(who, str, lastcolor)
   if(CInt(objname))
     objname := CInt(objname);
   endif
+    var newbie := 0;
+    if(CInt(params[5]))
+        newbie := 1;
+    endif
   if(CInt(params[2]))
     color := CInt(params[2]);
   else
@@ -117,6 +121,8 @@ function EquipItemString(who, str, lastcolor)
       endif
     endif
     item.color := color;
+    item.newbie := newbie;
+
     if(CInt(params[4]) == 1)
       MoveItemToContainer(item, who.backpack);
     else

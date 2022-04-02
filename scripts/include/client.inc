@@ -1089,7 +1089,7 @@ const SKILLID_SPELLWEAVING      := 54;
 const SKILLID_MYSTICISM         := 55;
 const SKILLID_IMBUING           := 56;
 const SKILLID_THROWING          := 57;
-const SKILLID__HIGHEST          := 57;
+const SKILLID__HIGHEST          := 48;
 
 //////////////////////////////////////
 // Realm constants                  //

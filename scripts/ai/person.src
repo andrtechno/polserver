@@ -26,7 +26,7 @@ include "include/begging";
 const HALT_THRESHOLD := 2; // how close before he barks?
 
 var me := Self();
-  start_script("NPCKeeper", me);
+start_script("NPCKeeper", me);
 
 program Person()
   drop_anchor();
@@ -35,13 +35,15 @@ program Person()
   EnableEvents( SYSEVENT_ENTEREDAREA + SYSEVENT_LEFTAREA, HALT_THRESHOLD );
   EnableEvents( SYSEVENT_OPPONENT_MOVED );
   if (GetObjProperty(me, "frozen"))
-        me.frozen := 1;
+          me.frozen := 1;
   endif
+
   SetWarMode( 0 );
   set_priority(10);
   var ev;
   var looter := GetObjProperty( me, "looter" );
   var next_wander := ReadGameClock() + 10;
+
   while (1)
     ev := os::wait_for_event( 120 );
     case (ev.type)

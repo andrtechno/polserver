@@ -47,3 +47,8 @@
 - **.setcolor [color]** - устанавливает цвет вещи
 - **.unload [scriptname]** - перезагрузка скрипта
 - **.mdestroy [int]** - удаление вещей в радиусе [int]
+
+
+#### Изменение include's
+* vetement.inc
+    * доюавлена возможность делать вещь newbie

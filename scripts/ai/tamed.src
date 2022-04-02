@@ -148,8 +148,6 @@ function MainAILoop()
                                   PlaySoundEffect(me,dmgsound);
                                 endif
         SYSEVENT_DOUBLECLICKED: if((ev.source == master) or (ev.source.cmdlevel > 2))
-                        print("SYSEVENT_DOUBLECLICKED 1zzz");
-
                                   OpenMyPack(ev);
 
                                 else
@@ -578,11 +576,7 @@ endfunction
 
 function OpenMyPack(ev)
   var mounttype;
-
-    print("OpenMyPack");
-
-
-  if((me.graphic == 0x123)||(me.graphic == 0x124)) 
+  if((me.graphic == 0x123)||(me.graphic == 0x124))
     if(Distance(me, master)> 2) 
       return; 
     endif
