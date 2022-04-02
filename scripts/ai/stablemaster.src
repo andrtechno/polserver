@@ -75,7 +75,7 @@ program stablemaster()
   //EnableEvents(EVID_NODE);
  // EnableEvents(SYSEVENT_ITEM_GIVEN);
  // DisableEvents(SYSEVENT_SPEECH);
-    EnableEvents(EVID_SPEECH,SYSEVENT_SPEECH, REACT_THRESHOLD);
+    EnableEvents(SYSEVENT_SPEECH, REACT_THRESHOLD);
   var next_wander := ReadGameClock() + 10;
   if(GetObjProperty(me, "frozen"))
     me.frozen := 1;
@@ -183,14 +183,14 @@ program stablemaster()
 		                          endif
       endcase
     endif
-	if(ReadGameClock() >= next_wander)
+	/*if(ReadGameClock() >= next_wander)
 	  begpurse(me);
       wander();
       if(coordist(me.x, me.y, myanchor[1], myanchor[2]) > 5)
         MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
       endif
       next_wander := ReadGameClock() + 30;
-    endif
+    endif*/
     Lookiehere(me);
   endwhile
 endprogram
