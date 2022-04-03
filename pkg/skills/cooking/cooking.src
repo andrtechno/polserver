@@ -79,11 +79,83 @@ function cookit(who,item);
   if(!points)
     points := AP_GetSkill(who, COOKING) * 2;
   endif
+
+    var count := 1;
+    var requireMinSkill := 30;
+    var cookName := "cooked fishsteak";
+    var smenu := {};
+    var counter := 1;
+    var currentSkill := AP_GetSkill(who, COOKING);
+    if(currentSkill >= requireMinSkill)
+        var cook_menu := CreateMenu("What do you want to make?");
+        if(currentSkill >= 30)
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 30)
+            counter:=3;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 50)
+            counter:=4;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 70)
+            counter:=6;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 90)
+            counter:=9;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 105)
+            counter:=12;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        if(currentSkill >= 120)
+            counter:=15;
+            cookName:= "cooked fishsteak ("+counter+")";
+            AddMenuItem(cook_menu, 0x097b, cookName);
+        endif
+        smenu := SelectMenuItem2(who, cook_menu);
+
+        case(smenu.index)
+          1: count := 1;
+          2: count := 3; requireMinSkill:=30;
+          3: count := 4; requireMinSkill:=50;
+          4: count := 6; requireMinSkill:=70;
+          5: count := 9; requireMinSkill:=90;
+          6: count := 12; requireMinSkill:=105;
+          7: count := 15; requireMinSkill:=120;
+        endcase
+    endif
+
+    if(!smenu)
+        SendSysMessage(who, "Cancelled.");
+        return;
+    endif
+
+
+    var textC:="a";
+    if(counter > 1)
+        textC:=counter;
+    endif
   if(skill_needed)
+    SendSysMessage(who, "Making: "+cookName);
+    SendSysMessage(who, "Requires: "+requireMinSkill+" skill");
+    SendSysMessage(who, ""+textC+" raw fishsteak");
+    SendSysMessage(who, "That's beginning to smell good!");
+    sleep(5);
+    SendSysMessage(who, "Almost done...");
+
     if(SkillCheck( who, COOKING, skill_needed, points));
       var amt := item.amount;
-      if(DestroyItem(item))
-        newitem := CreateItemInBackpack(who, product, amt);
+      if(SubtractAmount(item,count))
+        newitem := CreateItemInBackpack(who, product, count);
         if(newitem)
 	      SendSysMessage(who, "You put the item in your pack");
 	      AwardRawSkillPoints(who, SKILLID_COOKING, GetPoints(who, skill_needed, points));
@@ -95,12 +167,15 @@ function cookit(who,item);
       SendSysMessage(who, "You burnt it!");
       SubtractAmount(item, 1);
     endif
+
     foreach thing in theIngredients
       DestroyItem(thing);
     endforeach
+    sleep(5);
   else
     SendSysMessage(who, "You cannot cook that.");
   endif
+
 endfunction
 
 function GetPoints(who, diff, pts)

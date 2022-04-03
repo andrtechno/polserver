@@ -26,7 +26,8 @@
     * Разрешение ходить в стелсе на коне: (stealthhorse - npcdesc.cfg)
 * **Begging**
     * изменены тексты на unicode "RUS"
-
+* **Cooking**
+    * Изменена логика работы скила
 
 
 #### PKG:

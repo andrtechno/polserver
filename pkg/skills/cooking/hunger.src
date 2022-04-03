@@ -5,7 +5,7 @@ use util;
 include ":attributes:attributes";
 
 program Hunger(chr)
- if(chr.cmdlevel == 0)
+ //if(chr.cmdlevel == 0)
   var hunger;
   while(chr)
     hunger := CInt(GetObjProperty(chr, "hunger"));
@@ -43,5 +43,5 @@ program Hunger(chr)
     endcase
     sleep(60 * 60);
   endwhile
- endif
+ //endif
 endprogram
