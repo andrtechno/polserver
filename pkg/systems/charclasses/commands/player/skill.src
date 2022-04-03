@@ -1,14 +1,51 @@
 use uo;
 use os;
 use cfgfile;
-
-
+use polsys;
 
 include ":charclasses:classes";
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
 
 
+CONST MODE_FULL_LIST		:= 0;
+CONST MODE_SINGLE_SKILL		:= 255;
+CONST MODE_FULL_LIST_CAP	:= 2;
+CONST MODE_SINGLE_SKILL_CAP	:= 223;
+
+CONST OFFSET_SEND_MODE		:= 3;
+CONST OFFSET_SEND_SKILL_ID	:= 4;
+CONST OFFSET_SEND_SKILLLOCK	:= 10;
+CONST OFFSET_SEND_CAP		:= 11;
+
+CONST OFFSET_RECEIVE_SKILL	:= 3;
+CONST OFFSET_RECEIVE_MODE	:= 5;
+
+CONST DEBUG := 1;
+
+function UpdateSkillWindow2( character, attribute_id2 )
+var packet := CreatePacket( 0x3A, 0x06 );
+packet.SetInt8( 2, 6 );
+packet.SetInt8( 3, 223 );
+packet.SetInt16( 4, attribute_id2);
+packet.SetInt8( 5, 2);
+packet.SendPacket(character);
+SendPacket(character,"3a0006000100");
+
+
+
+    //work after re-login
+	/*var data_elem := SLPH_GetDataElem(character.serial);
+	var skill_id := attribute_id2+1;
+	var state := 2;
+	if ( state == 0 )
+		data_elem.EraseProp(skill_id);
+	else
+		data_elem.SetProp(skill_id, state);
+	endif*/
+
+print("ppp: "+packet);
+endfunction
 
 include "include/client";
 //include ":attributes:attributes";
@@ -24,9 +61,13 @@ var skill_layout := {
 		};
 var skill_data := {};
 var total := 0.0;
+
+
+
 program textcmd_skill( who )
 
 	//SendSkillWindow( who, who );
+UpdateSkillWindow2(who,SKILLID_HIDING);
 
 	total	:= getTotalSkill(who);
 

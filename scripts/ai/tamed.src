@@ -589,8 +589,7 @@ function OpenMyPack(ev)
     if(alreadymounted)
       return;
     endif
-  //  addbonus(ev.source,me);
-  npcbonus(ev.source,me);
+
     mounttype := 0;
     case(me.graphic)
 		0xCC: mounttype := 0x3EA2;  // Horse1
@@ -685,7 +684,7 @@ function OpenMyPack(ev)
         if (GetObjProperty(me, "totemcolor"))
             SetObjProperty(mount, "totemcolor", GetObjProperty(me, "totemcolor"));
 	endif
-
+  npcbonus(ev.source,me);
         guarding := 0;
         following := 0;
       endif

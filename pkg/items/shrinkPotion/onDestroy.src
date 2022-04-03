@@ -7,8 +7,10 @@ program shrinkOnDestroy(item)
     var serial := GetObjProperty(item, "horseserial");
 	var animal := SystemFindObjectBySerial(CInt(serial));
 
+
     RevokePrivilege( animal, "invul" );
     SetObjProperty(animal, "guardkill", 1);
     ApplyRawDamage( animal, CInt(AP_GetVital(animal, HITS)) + 1000 );
+
 
 endprogram

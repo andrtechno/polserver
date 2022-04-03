@@ -23,20 +23,22 @@ program shrinkOnCreate(who, item)
     ev.type := EVID_WAKEUP;
     ev.source := who;
     SendEvent(animal, ev);
-    npcbonus(who,animal);
+
 
     var mymount := CreateItemAtLocation(5288,1176,0,0x1F021,1, "britannia");
     mymount.color:=animal.color;
     mymount.graphic:=mounted2(animal);
-    MoveObjectToLocation(animal, 5228, 1182, 0, "britannia", MOVEOBJECT_FORCELOCATION); // newmap problem
-    EquipItem(who, mymount);
-    RestartScript(animal);
-
+    //MoveObjectToLocation(animal, 5228, 1182, 0, "britannia", MOVEOBJECT_FORCELOCATION); // newmap problem
     SetObjProperty(mymount,"serial", animal.serial);
     SetObjProperty(animal,"mounted", 1);
     SetObjProperty(animal,"mounted_on", who.serial);
+    EquipItem(who, mymount);
+    RestartScript(animal);
 
-    DestroyItem( item );
+
+    //npcbonus(who,animal);
+    //DestroyItem( item );
+    MoveObjectToLocation(item, 5228, 1182, 0, "britannia", MOVEOBJECT_FORCELOCATION);
 
 endprogram
 

@@ -39,6 +39,7 @@ program doSkillLock()
 endprogram
 
 exported function HandleSendSkillLock(character, byref packet)
+
 	var mode := packet.GetInt8(OFFSET_SEND_MODE);
 	var state := 0;
 
@@ -78,12 +79,13 @@ exported function HandleSendSkillLock(character, byref packet)
 			Print("Unknown send skill mode: "+mode);
 		endif
 	endif
-
+print(packet);
 	// Give packet back to POL
 	return 0;
 endfunction
 
 exported function HandleReceiveSkillLock(character, byref packet)
+
 	if ( DEBUG )
 		Print("HandleReceiveSkillLock - character: "+character.name+" packet: "+packet);
 	endif
