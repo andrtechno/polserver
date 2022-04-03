@@ -684,7 +684,7 @@ function OpenMyPack(ev)
         if (GetObjProperty(me, "totemcolor"))
             SetObjProperty(mount, "totemcolor", GetObjProperty(me, "totemcolor"));
 	endif
-  npcbonus(ev.source,me);
+        npcbonus(ev.source,me);
         guarding := 0;
         following := 0;
       endif

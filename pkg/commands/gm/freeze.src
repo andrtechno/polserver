@@ -4,9 +4,16 @@ program hideme( gm )
     SendSysMessage( gm, "Who do you wish to freeze?" );
     var res := TargetCoordinates( gm );
     if (res.mobile)
-        res.mobile.frozen := 1;
-	SetObjProperty(res.mobile,"frozen",1);
-        PrintTextAbovePrivate( res.mobile, res.mobile.name + " is now frozen", gm );
+        if(res.mobile.frozen)
+            res.mobile.frozen := 0;
+	        EraseObjProperty(res.mobile,"frozen");
+            PrintTextAbovePrivate( res.mobile, res.mobile.name + " is un frozen", gm );
+        else
+            res.mobile.frozen := 1;
+	        SetObjProperty(res.mobile,"frozen",1);
+            PrintTextAbovePrivate( res.mobile, res.mobile.name + " is now frozen", gm );
+        endif
+
     else
         SendSysMessage( gm, "Cancelled" );
     endif

@@ -49,6 +49,7 @@ function Fight(opponent)
 			              sleep(1);
 			              DisableCombatEvents();
 			              EnableMainEvents();
+
 			              return;
         EVID_HERDING:     Herd(f_ev);
 	  endcase
@@ -91,7 +92,7 @@ function flee(opponent)
 					        opponent := f_f_ev.source;
 			  		        SetOpponent(opponent);
 			              endif
-        EVID_PEACEMADE:   chk := 1;
+        EVID_PEACEMADE:   chk := 1;Say("i am dazzled by beautiful music22222222");
         EVID_HERDING:     Herd(f_f_ev);
 	  endcase
 	  if(chk)

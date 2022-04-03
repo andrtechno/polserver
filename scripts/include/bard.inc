@@ -15,7 +15,9 @@ function play(character, theskill, item, attrib)
     0x0e9d:  success := 0x53;  fail := 0x54;
     0x0e9e:  success := 0x53;  fail := 0x54;
   endcase
-  var thepoints := GetAttribute(character, MUSICIANSHIP);
+  var thepoints := AP_GetSkill(character, MUSICIANSHIP);
+print("Bard.inc thepoints: "+thepoints);
+print("Bard.inc theskill: "+theskill);
   if(SkillCheck(character, MUSICIANSHIP, theskill, thepoints))
     if(SkillCheck(character, attrib, theskill, thepoints * 2))
       PlaySoundEffect( character, success);
