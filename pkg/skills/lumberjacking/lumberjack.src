@@ -15,6 +15,8 @@ include ":itemutils:toolWear";
 include "include/noto";
 include "include/bowcraft";
 include ":damage:damage";
+include ":lumberjacking:lumber";
+
 
 const UACTION_CHOP := 0x0d;
 const FX_POISON_GAS := 0x113a;
@@ -50,7 +52,13 @@ program use_axe(me, axe)
   mex := me.x;
   mey := me.y;
   var mount;
-  var test := RandomIntMinMax(1,4);
+
+  var skillValue := GetWoodTypeBySkill(AP_GetSkill( me, LUMBERJACKING));
+  var woodtype := GenerateNewWoodType();
+  if(woodtype > skillValue)
+    woodtype:=skillValue;
+  endif
+  print("woodTYPE: "+woodtype);
   repeat
     mount := GetEquipmentByLayer(me, 25);
       	if(!HasToolEquipped(me,axe))
@@ -67,13 +75,13 @@ program use_axe(me, axe)
     PerformAction(me, UACTION_CHOP);
     PlaySoundEffect(me, SFX_SKILL_LUMBERJACK);
     sleepms(2500);
-    checker := Do_Chops(me, axe, tree, test);
+    checker := Do_Chops(me, axe, tree, woodtype);
   until(checker == 1);
 endprogram
 
-function Do_Chops(me, axe, tree, test)
+function Do_Chops(me, axe, tree, woodtype)
 
-    var pid := 0;
+    /*var pid := 0;
     while(!pid)
         sleepms(50);
         pid := GetGlobalProperty(OC_PID);
@@ -88,10 +96,10 @@ function Do_Chops(me, axe, tree, test)
     k.+type := EVID_CHECK_SPOT;
     k.+source := getprocess(getpid());
     pid.sendevent(k);
-    var woodtype := wait_for_event(17);
+    var woodtype := wait_for_event(17);*/
 
-    //var woodtype := RandomInt(17) + 1; //count woods
-    print("woodtype: "+woodtype);
+   // var woodtype := RandomInt(17) + 1; //count woods
+   // print("woodtype: "+woodtype);
     var diff := 0;
     var objtype := 0;
     var skill := AP_GetSkill(me, LUMBERJACKING);
@@ -119,7 +127,7 @@ function Do_Chops(me, axe, tree, test)
     var Desc := CStr(GetConfigString(elem,"Name"));
     diff := cfgdiff;
 
-    objtype := woodArray[test];
+    objtype := woodArray[woodtype];
     name := Trim(Desc,TRIM_BOTH);
     if(woodtype > 1)
         name:=name+" logs";

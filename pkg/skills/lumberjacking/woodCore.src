@@ -44,33 +44,33 @@ function NewSpot(x:=0,y)
   if( x == 0)
  	woodTable.insert(CInt(ev.x/3),ed);
   endif
-  var ore := GenerateNewOreType();
+  var ore := GenerateNewWoodType();
   woodTable[CInt(ev.x/3)].insert(y,ore);
-    SetGlobalProperty("woodlist", woodTable); //add panic
+  //SetGlobalProperty("woodlist", woodTable); //add panic
 endfunction
 
-function GenerateNewOreType()
+function GenerateNewWoodType()
   var val := RandomInt(999) + 1;
 
   if((val >= 1) && (val <= 100))
-    return 1;  //"iron"
-  elseif((val >= 101) && (val <= 200))
-    return 2;  //"dull copper"
-  elseif((val >= 201) && (val <= 300))
+    return 1;  //"log"
+  elseif((val >= 101) && (val <= 150))
+    return 2;  //"Jake"
+  /*elseif((val >= 151) && (val <= 200))
     return 3;  //"shadow"
-  elseif((val >= 301) && (val <= 400))
+  elseif((val >= 251) && (val <= 300))
     return 4;  //"copper"
-  elseif((val >= 401) && (val <= 500))
+  elseif((val >= 351) && (val <= 400))
     return 5;  //"bronze"
-  elseif((val >= 501) && (val <= 600))
+  elseif((val >= 451) && (val <= 500))
     return 6;  //"golden"
-  elseif((val >= 601) && (val <= 700))
+  elseif((val >= 551) && (val <= 600))
     return 7;  //"agapite"
-  elseif((val >= 701) && (val <= 800))
+  elseif((val >= 651) && (val <= 700))
     return 8;  //"verite"
-  elseif((val >= 801) && (val <= 900))
+  elseif((val >= 751) && (val <= 800))
       return 9;  //"valorite"
-  elseif((val >= 901) && (val <= 1000))
-     return 10;  //"azurite"
+  elseif((val >= 851) && (val <= 900))
+     return 10;  //"azurite"*/
   endif
 endfunction
