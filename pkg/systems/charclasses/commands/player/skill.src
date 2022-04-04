@@ -6,7 +6,7 @@ use polsys;
 include ":charclasses:classes";
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
-
+include ":skilllocks:common";
 
 CONST MODE_FULL_LIST		:= 0;
 CONST MODE_SINGLE_SKILL		:= 255;
@@ -63,12 +63,31 @@ var skill_data := {};
 var total := 0.0;
 
 
+function attr_CanAdvanceAttribute(byref chr, byref attrname, byref attrbase)
+    case(GetAttributeLock(chr, attrname))
+        ATTRIBUTE_LOCK_UP:
+            if(attrbase < GetAttributeCap(chr, attrname))
+                return ATTRIBUTE_LOCK_UP;
+            else
+                SetAttributeLock(chr, attrname, ATTRIBUTE_LOCK_LOCKED);
+            endif
+        ATTRIBUTE_LOCK_DOWN:
+            if(attrbase > 0)
+                return ATTRIBUTE_LOCK_DOWN;
+            else
+                SetAttributeLock(chr, attrname, ATTRIBUTE_LOCK_LOCKED);
+            endif
+    endcase
+    return ATTRIBUTE_LOCK_LOCKED;
+endfunction
 
 program textcmd_skill( who )
 
 	//SendSkillWindow( who, who );
-UpdateSkillWindow2(who,SKILLID_HIDING);
+//UpdateSkillWindow2(who,SKILLID_HIDING);
 
+//SLPH_GetLockState(who, SKILLID_HIDING)
+SLPH_SaveLockState(who, SKILLID_HIDING, 2);
 	total	:= getTotalSkill(who);
 
   var g, h, xOffset;

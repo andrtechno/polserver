@@ -2,36 +2,48 @@ include ":attributes:attributes";
 include ":poisonwatcher:poisons";
 include ":damage:damage";
 
+
+
 function process_combat_event(opponent)
-  if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 5))
-Say("process_combat_event greaterHeal");
-    CastSpell(me, me, "greaterHeal");
-  elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 5))
-    CastSpell(me, me, "cure");
-  else
-    spellattack(opponent);
-  endif
-  if(((GetHp(me) * 100) / GetMaxHp(me)) < flee_point)
-    EraseObjProperty(me,"#flees");
-    flee(opponent);
-  endif
+
+    var guardnpcs := GetConfigStringArray(npccfgfile[me.npctemplate], "guardnpc");
+    if(!GetObjProperty(me, "summon_guards"))
+        foreach thing in guardnpcs
+            print(thing);
+            CreateNpcFromTemplate(thing, me.x + RandomInt(2), me.y + RandomInt(2), me.z, 0);
+            sleepms(200);
+        endforeach
+        SetObjProperty(me, "summon_guards",1);
+    endif
+
+
+    if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 5))
+        CastSpell(me, me, "greaterHeal");
+    elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 5))
+        CastSpell(me, me, "cure");
+    else
+        spellattack(opponent);
+    endif
+    if(((GetHp(me) * 100) / GetMaxHp(me)) < flee_point)
+        EraseObjProperty(me,"#flees");
+        flee(opponent);
+    endif
 endfunction
 
 function process_flee_event(opponent)
-  if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 3))
-Say("process_flee_event greaterHeal");
-    CastSpell(me, me, "greaterHeal");
-    return 0;
-  elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 3))
-    CastSpell(me, me, "cure");
-    return 0;
-  else
-    spellattack(opponent);
-    return 0;
-  endif
-  if(((GetHp(me) * 100) / GetMaxHp(me)) >= flee_point)
-    return 1;
-  endif
+    if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 3))
+        CastSpell(me, me, "greaterHeal");
+        return 0;
+    elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 3))
+        CastSpell(me, me, "cure");
+        return 0;
+    else
+        spellattack(opponent);
+        return 0;
+    endif
+    if(((GetHp(me) * 100) / GetMaxHp(me)) >= flee_point)
+        return 1;
+    endif
 endfunction
 
 function spellattack(opponent)
@@ -86,6 +98,5 @@ Say("post_combat greaterHeal");
   SetWarMode( 0 );
   SetOpponent( 0 );
   summons := 1;
-  sleep(1);
   look_around();
 endfunction

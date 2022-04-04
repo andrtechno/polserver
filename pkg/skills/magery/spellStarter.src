@@ -114,7 +114,7 @@ program SpellStarter(params)
 
 	// might want to send events to this script
 	SetObjProperty(mobile, "#Casting", GetPid());
-	mobile.frozen := 1;
+	//mobile.frozen := 1;
 	mobile.hidden := 0;
 	EraseObjProperty(mobile, "#Medding");
 	SpeakPowerWords(mobile, spell_id);
