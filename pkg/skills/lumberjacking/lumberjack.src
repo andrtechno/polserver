@@ -431,7 +431,7 @@ endfunction
 function process_wool(who, blade, sheep)
   if(sheep.graphic == 207)
     sheep.graphic := 223;
-    CreateItemInContainer(who.backpack, 0x1f125, 3);
+    CreateItemInContainer(who.backpack, UOBJ_WOOL, 3);
     CheckToolWear (who, blade, TAILORING);
   else
     SendSysMessage(who,"That sheep is not yet ready to be shorn.");
@@ -635,22 +635,22 @@ function CarveLogs(who, blade, logs)
     var itemName := woodconfigfile[logs.objtype].name;
     var itemColor := woodconfigfile[logs.objtype].color;
     case(logs.objtype)
-        0x20001:  dmg_mod:=1;
-        0x20002:  dmg_mod:=2;
-        0x20003:  dmg_mod:=3;
-        0x20004:  dmg_mod:=4;
-        0x20005:  dmg_mod:=5;
-        0x20006:  dmg_mod:=6;
-        0x20007:  dmg_mod:=7;
-        0x20008:  dmg_mod:=8;
-        0x20009:  dmg_mod:=9;
-        0x20010:  dmg_mod:=10;
-        0x20011:  dmg_mod:=11;
-        0x20012:  dmg_mod:=12;
-        0x20013:  dmg_mod:=13;
-        0x20014:  dmg_mod:=14;
-        0x20015:  dmg_mod:=14;
-        0x20016:  dmg_mod:=14;
+        0x20001:  dmg_mod:=5;
+        0x20002:  dmg_mod:=10;
+        0x20003:  dmg_mod:=15;
+        0x20004:  dmg_mod:=20;
+        0x20005:  dmg_mod:=25;
+        0x20006:  dmg_mod:=30;
+        0x20007:  dmg_mod:=35;
+        0x20008:  dmg_mod:=40;
+        0x20009:  dmg_mod:=45;
+        0x20010:  dmg_mod:=50;
+        0x20011:  dmg_mod:=55;
+        0x20012:  dmg_mod:=60;
+        0x20013:  dmg_mod:=65;
+        0x20014:  dmg_mod:=70;
+        0x20015:  dmg_mod:=75;
+        0x20016:  dmg_mod:=80;
     endcase
 
 

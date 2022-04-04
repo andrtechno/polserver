@@ -91,11 +91,11 @@ endfunction
 
 function CreateStartingEquipment(who, skillids)
   making_starting_equipment := 1;
-  //starteqp_cfg := ReadConfigFile("starteqp");
-  //foreach skillid in skillids
-  //  var skillname := GetSkillName(CInt(skillid));
-  //  CreateFromGroup(who.backpack, skillname);
-  //endforeach
+  starteqp_cfg := ReadConfigFile("starteqp");
+  foreach skillid in skillids
+    var skillname := GetSkillName(CInt(skillid));
+    CreateFromGroup(who.backpack, skillname);
+  endforeach
   CreateFromGroup(who.backpack, "all");
 endfunction
 

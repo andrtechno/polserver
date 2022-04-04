@@ -73,6 +73,7 @@ program HookHitScript(hookParam)
 		endif
 	endif
 
+
 	var gloves := GetEquipmentByLayer(attacker, 0x07);
 	var gloveshit := 0;
 	if (gloves)
@@ -94,6 +95,15 @@ program HookHitScript(hookParam)
 		  return;
 		endif
 	endif
+var dmg_mod := 0;
+    /*var dmg_mod := weapon.dmg_mod;
+    if(dmg_mod > 0)
+        var per := dmg_mod;
+        dmg_mod := (rawdamage / 100) * per;
+        dmg_mod := dmg_mod + per;
+
+        dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
+    endif*/
 
 	if (!weaponhit)
 		if (!gloveshit)
@@ -109,7 +119,7 @@ program HookHitScript(hookParam)
 			if (rawdamage < 1)
         		rawdamage := 1;
 			endif
-			DealDamage(defender, attacker, rawdamage);
+			DealDamage(defender, attacker, rawdamage + dmg_mod);
 			return;
 		endif
 	else
@@ -126,7 +136,7 @@ program HookHitScript(hookParam)
             rawdamage := 1;
 		endif
 	    if (!gloveshit)
-			DealDamage(defender, attacker, rawdamage);
+			DealDamage(defender, attacker, rawdamage + dmg_mod);
 			return;
 		else
 			foreach x in gloveshit
@@ -139,7 +149,8 @@ program HookHitScript(hookParam)
 				rawdamage := 1;
 			endif
 		endif
-		DealDamage(defender, attacker, rawdamage);
+
+		DealDamage(defender, attacker, rawdamage + dmg_mod);
 		return;
 	endif
 endprogram

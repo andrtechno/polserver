@@ -61,11 +61,12 @@ program use_sewing_kit(who, sewing_kit)
     SendSysMessage(who, "You cannot use that.");
     return;
   endif
+
   var obj_type := use_on.objtype;
   if(((obj_type >= UOBJ_BOLT_START)  && (obj_type <= UOBJ_BOLT_END)) || ((obj_type >= UOBJ_CLOTH_START) && (obj_type <= UOBJ_CLOTH_END)) )  // stacks of cloth
     MakeClothItems(who, use_on, sewing_kit);
     return;
-  elseif((obj_type == 0x1078) || (obj_type == 0x1079) || (obj_type == 0x1067))
+  elseif((obj_type == 0x1078) || (obj_type == 0x1079) || (obj_type == 0x1067) || ((obj_type >= 0x1150) && (obj_type <= 0x1164)))
     MakeLeatherItems(who, use_on, sewing_kit);
   else
     SendSysMessage(who, "You can only use that on cloth or leather!");
@@ -441,6 +442,33 @@ function MakeLeatherItems(who, cloth, kit)
   var x := who.x;
   var y := who.y;
   var tname, dif, theitem, hisskill, rint, totalcloth;
+  var nme;
+
+var ar_mod :=0;
+
+            case(cloth.objtype)
+              0x1150:   nme := ""              + itemname;
+	          0x1151:   nme := "iron "         + itemname; ar_mod:=5;
+              0x1152:   nme := "steel "        + itemname; ar_mod:=10;
+              0x1153:   nme := "anra "         + itemname; ar_mod:=15;
+              0x1154:   nme := "valorite "     + itemname; ar_mod:=20;
+              0x1155:   nme := "lavarock "     + itemname; ar_mod:=25;
+              0x1156:   nme := "icerock "      + itemname; ar_mod:=30;
+              0x1157:   nme := "shadow "       + itemname; ar_mod:=35;
+              0x1158:   nme := "azurite "      + itemname; ar_mod:=40;
+              0x1159:   nme := "doom "         + itemname; ar_mod:=45;
+              0x1160:   nme := "bluesteel "    + itemname; ar_mod:=50;
+              0x1161:   nme := "darkruby "     + itemname; ar_mod:=55;
+              0x1162:   nme := "crystalit "    + itemname; ar_mod:=60;
+              0x1163:   nme := "onyx "         + itemname; ar_mod:=65;
+              0x1164:   nme := "mifril "       + itemname; ar_mod:=70;
+            endcase
+
+
+
+
+
+
   while(counter < amt)
     if((who.x != x) || (who.y != y))
       SendSysMessage(who, "You stop leatherworking.");
@@ -461,6 +489,7 @@ function MakeLeatherItems(who, cloth, kit)
       if(SkillCheck(who, TAILORING, skill, skill*6))
         if(SubtractAmount(cloth, material))
           theitem := CreateItemInContainer(cont, objtype, 1);
+          theitem.color := cloth.color;
           CheckToolWear (who, kit, TAILORING);
           if(!theitem)
             counter := 100;
@@ -480,6 +509,9 @@ function MakeLeatherItems(who, cloth, kit)
             else
               tname := "an exceptional " + itemname;
             endif
+            theitem.quality := 1.2;
+            theitem.hp      := theitem.maxhp*5;
+            theitem.ar_mod      := ar_mod;
             SetName(theitem, tname);
             SendSysMessage(who, "You create an exceptional " + itemname +  " and place it in your backpack.");
           else

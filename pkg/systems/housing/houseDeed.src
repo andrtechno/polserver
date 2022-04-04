@@ -25,10 +25,10 @@ program usehousedeed(who, deed)
   if(!can_access(who, deed))
     return;
   endif
-  if(!CanBuildHere(who)&& !who.cmdlevel)
-      SendSysMessage(who, "You are not authorized to build a house here.", color := 33);
-      return 0;
-  endif
+  //if(!CanBuildHere(who)&& !who.cmdlevel)
+  //    SendSysMessage(who, "You are not authorized to build a house here.", color := 33);
+  //    return 0;
+  //endif
   EraseObjProperty(who, "IsMeditating");
   if(deed.movable == 0)
     SendSysMessage(who, "You cannot use that.");

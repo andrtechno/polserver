@@ -32,21 +32,32 @@ endif
 	PlayMovingEffect(attacker, defender, weaponElement.ProjectileAnim, 10);
 
 	if (!CheckToHit(attacker, defender) )
-	    print(CheckToHit(attacker, defender));
 	    PlaySoundEffect(attacker, CInt(weaponElement.MissSound) );
 		return 1;
 	endif
 	var damageRoll;
 	damageRoll := FindDamage(attacker, weapon, defender);
+
+	var rawdamage:=CInt(damageRoll[3]);
+	    var dmg_mod := weapon.dmg_mod;
+        if(dmg_mod > 0)
+            var per := dmg_mod;
+            dmg_mod := (rawdamage / 100) * per;
+            dmg_mod := dmg_mod + per;
+
+            dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
+        endif
+
+
 	var hitParams := {
 		attacker,
 		defender,
 		weapon,
 		CInt(damageRoll[1]),	// armor
 		CInt(damageRoll[2]),	// basedamage
-		CInt(damageRoll[3])		// rawdamage
+		rawdamage		// rawdamage
 	};
-	print(hitParams);
+
 	Start_Script(":combat:archeryHitScript", hitParams);
 	return 1;
 
@@ -220,6 +231,17 @@ function FindDamage(attacker, weapon, defender)
 		PrintTextAbove(defender, "The missile tears through " + CStr(defender.name) + "'s body!");
 		dRoll := CInt(dRoll * 1.25);
 	endif
+
+
+    var dmg_mod := weapon.dmg_mod;
+    if(dmg_mod > 0)
+        var per := dmg_mod;
+        dmg_mod := (dRoll / 100) * per;
+        dmg_mod := dmg_mod + per;
+
+        dRoll:=dmg_mod;
+    endif
+
 
 print("dRoll: "+dRoll);
 print("aRoll: "+aRoll);

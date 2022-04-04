@@ -177,29 +177,32 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
 endfunction
 
 function GetDifficultySkill( true_skill )
-        var level_diff;
-return CDbl( 10.0 ); //for test
-        if( true_skill < 70 )
-                level_diff := 20.0;
-        elseif( true_skill < 90 )
-                level_diff := 40.0;
-        elseif( true_skill < 110 )
-                level_diff := 100.0;
-        elseif( true_skill < 115 )
-                level_diff := 300.0;
-        elseif( true_skill < 120 )
-                level_diff := 800.0;
-        elseif( true_skill < 130 )
-                level_diff := 1500.0;
-        elseif( true_skill < 140 )
-                level_diff := 3000.0;
-        elseif( true_skill < 145 )
-                level_diff := 6000.0;
-        else
-                level_diff := 20000.0;
-        endif
+    var level_diff;
+//return CDbl( 10.0 ); //for test
 
-        return CDbl( level_diff );
+    if( true_skill < 30 )
+        level_diff := 20.0;
+    elseif( true_skill < 50 )
+        level_diff := 50.0;
+    elseif( true_skill < 90 )
+        level_diff := 100.0;
+    elseif( true_skill < 110 )
+        level_diff := 150.0;
+    elseif( true_skill < 115 )
+        level_diff := 300.0;
+    elseif( true_skill < 120 )
+        level_diff := 800.0;
+    elseif( true_skill < 130 )
+        level_diff := 1500.0;
+    elseif( true_skill < 140 )
+        level_diff := 3000.0;
+    elseif( true_skill < 145 )
+        level_diff := 6000.0;
+    else
+        level_diff := 20000.0;
+    endif
+
+    return CDbl( level_diff );
 endfunction
 
 function GetDifficultyStat( true_stat )
