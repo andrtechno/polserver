@@ -79,7 +79,7 @@ exported function HandleSendSkillLock(character, byref packet)
 			Print("Unknown send skill mode: "+mode);
 		endif
 	endif
-print(packet);
+print("HandleSendSkillLock "+packet);
 	// Give packet back to POL
 	return 0;
 endfunction
@@ -93,7 +93,7 @@ exported function HandleReceiveSkillLock(character, byref packet)
 	var skill_id := packet.GetInt16(OFFSET_RECEIVE_SKILL);	// skill ID
 	var mode := packet.GetInt8(OFFSET_RECEIVE_MODE);	// lock state, 0=raise/1=lower/2=lock
 	SLPH_SaveLockState(character, skill_id, mode);
-	
+	print("HandleReceiveSkillLock2 "+packet);
 	// POL skips this packet anyway
 	return 1;
 endfunction

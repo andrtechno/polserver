@@ -82,12 +82,51 @@ function attr_CanAdvanceAttribute(byref chr, byref attrname, byref attrbase)
 endfunction
 
 program textcmd_skill( who )
-
-	//SendSkillWindow( who, who );
+//SendSkillWindow( who, who );
 //UpdateSkillWindow2(who,SKILLID_HIDING);
 
-//SLPH_GetLockState(who, SKILLID_HIDING)
+
+    var packet := CreatePacket(0x3A, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    packet.SetInt16(1, packet.getSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt8(2, 0xDF);
+    packet.SetInt16(4, SKILLID_HIDING + 1); //7 BYTE[2] Icon Number to show
+
+    packet.SetInt16(6, CInt(AP_GetSkillCapByName(AP_SkillIdToAttributeName(SKILLID_HIDING))) * 10);
+    //packet.SetInt16(8, 0);
+    //packet.SetInt16(6, CInt(AP_GetSkillCapByName(AP_SkillIdToAttributeName(SKILLID_HIDING))) * 10);
+    packet.SetInt8(7, 2);
+
+
+
+
+
+print(packet);
+packet.sendpacket(who);
 SLPH_SaveLockState(who, SKILLID_HIDING, 2);
+/*var packet := CreatePacket( 0x3A, 0xb );
+
+packet.SetInt8( 2, 223 );
+
+packet.SetInt16( 4, SKILLID_HIDING);
+packet.SetInt16( 11, CInt(AP_GetSkillCapByName(AP_SkillIdToAttributeName(SKILLID_HIDING)) * 10));
+
+packet.SetInt8( 10, 0x2);
+print(packet);
+print("need:");
+print("3a000bff00150000000002");
+
+
+
+
+
+
+//packet.SendPacket(who);*/
+//
+//SendPacket(who,"3a000bff00150000000002");
+//SLPH_SaveLockState(who, SKILLID_HIDING, 2);
+
+//SLPH_GetLockState(who, SKILLID_HIDING);
+
 	total	:= getTotalSkill(who);
 
   var g, h, xOffset;
@@ -114,27 +153,50 @@ SLPH_SaveLockState(who, SKILLID_HIDING, 2);
 		endif
 
         if(page_id == 1)
-            test2(who, ID_MAGE, "Маг", "right");
+            test2(who, ID_MAGE, "Маг", "right",page_id);
         elseif(page_id==2)
-            test2(who, ID_WARRIOR, "Воин","left");
-            test2(who, ID_CRAFTER, "Крафтер","right");
+            test2(who, ID_WARRIOR, "Воин","left",page_id);
+            test2(who, ID_CRAFTER, "Крафтер","right",page_id);
         elseif(page_id==3)
-            test2(who, ID_RANGER, "Лучник","left");
-            test2(who, ID_THIEF, "Вор","right");
+            test2(who, ID_RANGER, "Лучник","left",page_id);
+            test2(who, ID_THIEF, "Вор","right",page_id);
         elseif(page_id==4)
-            test2(who, ID_BARD, "Бард","left");
+            test2(who, ID_BARD, "Бард","left",page_id);
         endif
 
     endfor
 
-SendDialogGump( who, skill_layout, skill_data, 420,250);
+var res := SendDialogGump( who, skill_layout, skill_data, 420,250);
+
+		//print(res);
+
+		res := CInt( res[0] );
+
+		if( res )
+			// Set the skill to decrease
+			if( res > 200 )
+    print("DSAADS");
+				//state_array[ res ] := "d";
+				//TakeCurrentSkillLevelInNote( who, res );
+				//SetObjProperty( who, "SkillsState", state_array );
+				SendPacket(who,"3a000bff00150000000000");
+		    elseif( res > 100 )
+                print("DSAADS22222");
+				//state_array[ res ] := "d";
+				//TakeCurrentSkillLevelInNote( who, res );
+				//SetObjProperty( who, "SkillsState", state_array );
+
+				SendPacket(who,"3a000bff00150000000002");
+		    endif
+		endif
+
 
 return;
 
 endprogram
 
 
-function test2(who, classid, title, side)
+function test2(who, classid, title, side, page_id)
     var start_padding:=50;
     var p:=0;
     var tp:=0;
@@ -162,7 +224,13 @@ function test2(who, classid, title, side)
         skill_layout.Append("Text "+p+" "+start_padding+" 0 "+(skill_data.Size()-1));
         skill_data.Append(GetBaseSkill(who, getSkillList[i]));
         skill_layout.Append("Text "+(p + 122)+" "+start_padding+" 0 "+(skill_data.Size()-1));
-        skill_layout.append ("Button "+(p + 148)+" "+(start_padding + 2)+" 2092 2435 1 5");
+        if(SLPH_GetLockState(who, getSkillList[i]))
+            skill_layout.append ("Button "+(p + 148)+" "+(start_padding + 2)+" 2092 2435 1 "+page_id+" "+(getSkillList[i]+101));
+
+
+        else
+            skill_layout.append ("Button "+(p + 148)+" "+(start_padding + 2)+" 2435 2436  1 "+page_id+" "+(getSkillList[i]+201));
+        endif
         start_padding += 17;
 
 

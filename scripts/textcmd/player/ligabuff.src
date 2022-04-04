@@ -1,0 +1,2147 @@
+Use attributes;
+Use basic;
+Use boat;
+Use cfgfile;
+Use cliloc;
+Use datafile;
+Use file;
+Use guilds;
+Use http;
+Use math;
+Use npc;
+Use os;
+Use polsys;
+Use storage;
+Use unicode;
+Use uo;
+Use util;
+Use vitals;
+
+
+
+
+program MD5(mobile)
+
+
+print("liga");
+    var total := 0;
+    //var j;
+    //for(j:=0;j<=10;j:=j+1)
+        var i;
+        for(i:=0;i<=1000000;i:=i+1)
+            BuffDebuff_adicionaIcone(mobile,i,100);
+            total := total + 1;
+            sleepms(10);
+        endfor
+     //   for(i:=1048;i>=1001;i:=i-1)
+     //       BuffDebuff_removeIcone(mobile,i);
+     //       total := total + 1;
+     //       sleepms(100);
+     //   endfor
+      //  print(total);
+    //endfor
+print("Fim");
+print("Fim");
+print("Fim");
+print("Fim");
+print("Fim");
+print("Fim");
+endprogram
+
+
+
+
+
+
+//add icon
+function BuffDebuff_adicionaIcone(character,icone,tempo)
+    var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    //packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt32(3, character.serial);//3 BYTE[4] Serial of player
+    packet.setint16(7, icone);//7 BYTE[2] Icon Number to show
+    packet.setint16(9, 0x1);//9 BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+    packet.SetInt32(11, 0x0);//11 BYTE[4] 0x00000000
+    packet.SetInt16(15, icone);//15 BYTE[2] Icon Number to show.
+    packet.SetInt16(17, 0x1);//17 BYTE[2] 0x1 = Show
+    packet.SetInt32(19, 0x0);//19 BYTE[4] 0x00000000
+    packet.SetInt16(23, tempo);//23 BYTE[2] Time in seconds (simple countdown without automatic remove)
+    packet.SetInt16(25, 0x0);//25 BYTE[2] 0x0000
+    packet.SetInt8(27, 0x0);//27 BYTE[1] 0x00
+    packet.SetInt32(28, 1005007);//28 BYTE[4] Cliloc message ID1 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(32, 1042971);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
+    packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
+    var msg := " ";// tem que ter esse " " para ele concatenar!
+    /*
+    case(icone)
+        1001://1001: Dismount
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Dismount</BASEFONT>";
+        break;
+        1002://1002: Disarm
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Disarm</BASEFONT>";
+        break;
+        1005://1005: Nightsight
+             msg := msg+"<BASEFONT COLOR=#ff00ff>Nightsight</BASEFONT>";
+        break;
+        1006://1006: Death Strike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Death Strike</BASEFONT>";
+        break;
+        1007://1007: Evil Omen
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Evil Omen</BASEFONT>";
+        break;
+        1008://1008: unknown? (GumpID 0x7556)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>unknown 1?</BASEFONT>";
+        break;
+        1009://1009: Regeneration (cliloc1=1044106,cliloc2=1075106)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>unknown 2?</BASEFONT>";
+        break;
+        1010://1010: Divine Fury
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Divine Fury</BASEFONT>";
+        break;
+        1011://1011: Enemy Of One
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Enemy Of One</BASEFONT>";
+        break;
+        1012://1012: Stealth (cliloc1=1044107,cliloc2=1075655)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Stealth</BASEFONT>";
+        break;
+        1013://1013: Active Meditation (cliloc1=1044106,cliloc2=1075106)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Active Meditation</BASEFONT>";
+        break;
+        1014://1014: Blood Oath caster
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Blood Oath caster</BASEFONT>";
+        break;
+        1015://1015: Blood Oath curse
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Blood Oath curse</BASEFONT>";
+        break;
+        1016://1016: Corpse Skin
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Corpse Skin</BASEFONT>";
+        break;
+        1017://1017: Mindrot
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mindrot</BASEFONT>";
+        break;
+        1018://1018: Pain Spike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Pain Spike</BASEFONT>";
+        break;
+        1019://1019: Strangle
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Strangle</BASEFONT>";
+        break;
+        1020://1020: Gift of Renewal
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Gift of Renewal</BASEFONT>";
+        break;
+        1021://1021: Attune Weapon
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Attune Weapon</BASEFONT>";
+        break;
+        1022://1022: Thunderstorm
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Thunderstorm</BASEFONT>";
+        break;
+        1023://1023: Essence of Wind
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Essence of Wind</BASEFONT>";
+        break;
+        1024://1024: Ethereal Voyage
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Ethereal Voyage</BASEFONT>";
+        break;
+        1025://1025: Gift Of Life
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Gift Of Life</BASEFONT>";
+        break;
+        1026://1026: Arcane Empowerment
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Arcane Empowerment</BASEFONT>";
+        break;
+        1027://1027: Mortal Strike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mortal Strike</BASEFONT>";
+        break;
+        1028://1028: Reactive Armor (cliloc1=1075812,cliloc2=1075813)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Reactive Armor</BASEFONT>";
+        break;
+        1029://1029: Protection (cliloc1=1075814,cliloc2=1075815)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Protection</BASEFONT>";
+        break;
+        1030://1030: Arch Protection (cliloc1=1075816,cliloc2=1075816)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Arch Protection</BASEFONT>";
+        break;
+        1031://1031: Magic Reflection (cliloc1=1075817,cliloc2=1075818)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Magic Reflection</BASEFONT>";
+        break;
+        1032://1032: Incognito (cliloc1=1075819,cliloc2=1075820)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Incognito</BASEFONT>";
+        break;
+        1033://1033: Disguised
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Disguised</BASEFONT>";
+        break;
+        1034://1034: Animal Form
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Animal Form</BASEFONT>";
+        break;
+        1035://1035: Polymorph (cliloc1=1075824,cliloc2=1075820)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Polymorph</BASEFONT>";
+        break;
+        1036://1036: Invisibility (cliloc1=1075825,cliloc2=1075826)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Invisibility</BASEFONT>";
+        break;
+        1037://1037: Paralyze (cliloc1=1075827,cliloc2=1075828)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Paralyze</BASEFONT>";
+        break;
+        1038://1038: Poison (cliloc1=0x0F8627, cliloc2=0x1069B1)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Poison</BASEFONT>";
+        break;
+        1039://1039: Bleed (cliloc1=0x106a75,cliloc2=0x106a76)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Bleed</BASEFONT>";
+        break;
+        1040://1040: Clumsy (cliloc1=0x106a77,cliloc2=0x106a78)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Clumsy</BASEFONT>";
+        break;
+        1041://1041: Feeble Mind (cliloc1=0x106a79,cliloc2=0x106a7a)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Feeble Mind</BASEFONT>";
+        break;
+        1042://1042: Weaken (cliloc1=1075837,cliloc2=1075838)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Weaken</BASEFONT>";
+        break;
+        1043://1043: Curse (cliloc1=1075835,cliloc2=1075836)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Curse</BASEFONT>";
+        break;
+        1044://1044: Mass Curse (cliloc1=0x106a7f,cliloc2=0x106a80)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mass</BASEFONT>";
+        break;
+        1045://1045: Agility (cliloc1=0x106a81,cliloc2=0x106a82)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Agility</BASEFONT>";
+        break;
+        1046://1046: Cunning (cliloc1=0x106a83,cliloc2=0x106a84)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Cunning</BASEFONT>";
+        break;
+        1047://1047: Strength (cliloc1=0x106a85,cliloc2=0x106a86)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Strength</BASEFONT>";
+        break;
+        1048://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Bless</BASEFONT>";
+        break;
+        1049://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>ZzZzZ</BASEFONT>";
+        break;
+        1050://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>homem de pedra </BASEFONT>";
+        break;
+        1051://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>cavera de fogo</BASEFONT>";
+        break;
+        1052://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>furia do gargola</BASEFONT>";
+        break;
+        1054://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>gargola fly</BASEFONT>";
+        break;
+        default:
+            return 0;
+        break;
+    endcase
+    */
+    msg := msg+"<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT>";
+    packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
+    //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
+    packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length
+    packet.sendpacket(character);
+    return 1;
+endfunction
+//remove icon
+function BuffDebuff_removeIcone(character,icone)
+    var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    //packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt32(3, character.serial);//3 BYTE[4] Serial of player
+    packet.setint16(7, icone);//7 BYTE[2] Icon Number to show
+    packet.setint16(9, 0x0);//9 BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+    packet.SetInt32(11, 0x0);//11 BYTE[4] 0x00000000
+    packet.SetInt16(15, icone);//15 BYTE[2] Icon Number to show.
+    packet.SetInt16(17, 0x0);//17 BYTE[2] 0x1 = Show
+    packet.SetInt32(19, 0x0);//19 BYTE[4] 0x00000000
+    packet.SetInt16(23, 0x0);//23 BYTE[2] Time in seconds (simple countdown without automatic remove)
+    packet.SetInt16(25, 0x0);//25 BYTE[2] 0x0000
+    packet.SetInt8(27, 0x0);//27 BYTE[1] 0x00
+    packet.SetInt32(28, 1005007);//28 BYTE[4] Cliloc message ID1 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(32, 1005007);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
+    packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
+    var msg := "";// tem que ter esse " " para ele concatenar!
+    packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
+    //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
+    packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length
+    packet.sendpacket(character);
+    return 1;
+endfunction
+
+
+
+
+/*
+Use attributes;
+Use basic;
+Use boat;
+Use cfgfile;
+Use cliloc;
+Use datafile;
+Use file;
+Use guilds;
+Use http;
+Use math;
+Use npc;
+Use os;
+Use polsys;
+Use storage;
+Use unicode;
+Use uo;
+Use util;
+Use vitals;
+
+
+*/
+
+
+
+
+//program teste(character)
+
+//character.paralyzed:=1;
+//var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+//character.paralyzed:=0;
+/*
+var valor := struct;
+valor.+fisica :=100;
+valor.+magicaar :=90;
+valor.+magicaterra :=80;
+valor.+magicafogo :=70;
+valor.+magicaagua :=60;
+valor.+magicanecro :=50;
+valor.+magicaholy :=40;
+valor.+poison :=30;
+valor.+critica :=20;
+SendSysMessage(character,cstr(valor));
+SetGlobalProperty( "testeprops", valor);
+*/
+/*
+d9:
+S7:criticai20
+S6:fisicai100
+S10:magicaaguai60
+S8:magicaari90
+S10:magicafogoi70
+S10:magicaholyi40
+S11:magicanecroi50
+S11:magicaterrai80
+S6:poisoni30
+*/
+ 
+ 
+//endprogram
+/*
+
+
+
+
+
+       var gflayout := {
+        "page 0",
+        "ResizePic 0 0 2620 250 530",
+        "text 65 10 50 0",
+        "page 1",
+        "text 45 40 50 1",
+        "button 20 45 2224 2224 1 0 1",
+        "text 45 60 50 2",
+        "button 20 65 2224 2224 1 0 2",
+        "text 45 80 50 3",
+        "button 20 85 2224 2224 1 0 3",
+        "text 45 100 50 4",
+        "button 20 105 2224 2224 1 0 4",
+        "text 45 120 50 5",
+        "button 20 125 2224 2224 1 0 5",
+        "text 45 140 50 6",
+        "button 20 145 2224 2224 1 0 6",
+        "text 45 160 50 7",
+        "button 20 165 2224 2224 1 0 7",
+        "text 45 180 50 8",
+        "button 20 185 2224 2224 1 0 8",
+        "text 45 200 50 9",
+        "button 20 205 2224 2224 1 0 9",
+        "text 45 220 50 10",
+        "button 20 225 2224 2224 1 0 10",
+        "text 45 240 50 11",
+        "button 20 245 2224 2224 1 0 11",
+        "text 45 260 50 12",
+        "button 20 265 2224 2224 1 0 12",
+        "text 45 280 50 13",
+        "button 20 285 2224 2224 1 0 13",
+        "text 45 300 50 14",
+        "button 20 305 2224 2224 1 0 14",
+        "text 45 320 50 15",
+        "button 20 325 2224 2224 1 0 15",
+        "text 45 340 50 16",
+        "button 20 345 2224 2224 1 0 16",
+        "text 45 360 50 17",
+        "button 20 365 2224 2224 1 0 17",
+        "text 45 380 50 18",
+        "button 20 385 2224 2224 1 0 18",
+        "text 45 400 50 19",
+        "button 20 405 2224 2224 1 0 19",
+        "text 45 420 50 20",
+        "button 20 425 2224 2224 1 0 20",
+        "text 45 440 50 21",
+        "button 20 445 2224 2224 1 0 21",
+        "text 45 460 50 22",
+        "button 20 465 2224 2224 1 0 22",
+        "text 45 480 50 23",
+        "button 20 485 2224 2224 1 0 23"
+        };
+
+        var gfdata := {
+        "Edit Skills",
+        "Tactics",
+        "Tracking",
+        "Stealth",
+        "Anatomy",
+        "EvaluatingIntelligence",
+        "Healing",
+        "Inscription",
+        "Magery",
+        "Fencing",
+        "Swordsmanship",
+        "Macefighting",
+        "Archery",
+        "Wrestling",
+        "Parry",
+        "Lumberjacking",
+        "Hiding",
+        "DetectingHidden",
+        "AnimalTaming",
+        "Animallore",
+        "MagicResistance",
+        "Meditation",
+        "Carpentry",
+        "Blacksmithy"
+        };
+        var rst := SendDialogGump( character, gflayout, gfdata ,130,60);
+        if(rst[0] == 0)// se o jogador cancelar o gump ele sai
+            return 0;
+        endif
+        var quantidade;
+        if(rst[0] == 20) // se o valor for 20 ou seja MagicResistance ele so pode colocar no max...80
+            quantidade := SendTextEntryGump( character, line1 :="Modificar Skill "+gfdata[cint(rst[0])+1], cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NUMERICAL, maximum := 80, line2 := "Intervalo 0-80" );
+        else// se for diferente de 20 ele pode colocar ate 100
+            quantidade:= SendTextEntryGump( character, line1 :="Modificar Skill "+gfdata[cint(rst[0])+1], cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NUMERICAL, maximum := 100, line2 := "Intervalo 0-100" );
+        endif
+
+        var total :=
+            getAttributeBaseValue(character,"Tactics")+
+            getAttributeBaseValue(character,"Tracking")+
+            getAttributeBaseValue(character,"Stealth")+
+            getAttributeBaseValue(character,"Anatomy")+
+            getAttributeBaseValue(character,"EvaluatingIntelligence")+
+            getAttributeBaseValue(character,"Healing")+
+            getAttributeBaseValue(character,"Inscription")+
+            getAttributeBaseValue(character,"Magery")+
+            getAttributeBaseValue(character,"Fencing")+
+            getAttributeBaseValue(character,"Swordsmanship")+
+            getAttributeBaseValue(character,"Macefighting")+
+            getAttributeBaseValue(character,"Archery")+
+            getAttributeBaseValue(character,"Wrestling")+
+            getAttributeBaseValue(character,"Parry")+
+            getAttributeBaseValue(character,"Lumberjacking")+
+            getAttributeBaseValue(character,"Hiding")+
+            getAttributeBaseValue(character,"DetectingHidden")+
+            getAttributeBaseValue(character,"AnimalTaming")+
+            getAttributeBaseValue(character,"animallore")+
+            getAttributeBaseValue(character,"MagicResistance")+
+            getAttributeBaseValue(character,"Meditation")+
+            getAttributeBaseValue(character,"carpentry")+
+            getAttributeBaseValue(character,"Blacksmithy");
+
+        case ( rst[0] )
+            1:
+            SetAttributeBaseValue(character,"Tactics", quantidade*10);
+            break;
+            2:
+            SetAttributeBaseValue(character,"Tracking", quantidade*10);
+            break;
+            3:
+            SetAttributeBaseValue(character,"Stealth", quantidade*10);
+            break;
+            4:
+            SetAttributeBaseValue(character,"Anatomy", quantidade*10);
+            break;
+            5:
+            SetAttributeBaseValue(character,"EvaluatingIntelligence", quantidade*10);
+            break;
+            6:
+            SetAttributeBaseValue(character,"Healing", quantidade*10);
+            break;
+            7:
+            SetAttributeBaseValue(character,"Inscription",quantidade*10);
+            break;
+            8:
+            SetAttributeBaseValue(character,"Magery", quantidade*10);
+            break;
+            9:
+            SetAttributeBaseValue(character,"Fencing", quantidade*10);
+            break;
+            10:
+            SetAttributeBaseValue(character,"Swordsmanship", quantidade*10);
+            break;
+            11:
+            SetAttributeBaseValue(character,"Macefighting", quantidade*10);
+            break;
+            12:
+            SetAttributeBaseValue(character,"Archery", quantidade*10);
+            break;
+            13:
+            SetAttributeBaseValue(character,"Wrestling", quantidade*10);
+            break;
+            14:
+            SetAttributeBaseValue(character,"Parry", quantidade*10);
+            break;
+            15:
+            SetAttributeBaseValue(character,"Lumberjacking", quantidade*10);
+            break;
+            16:
+            SetAttributeBaseValue(character,"Hiding", quantidade*10);
+            break;
+            17:
+            SetAttributeBaseValue(character,"DetectingHidden", quantidade*10);
+            break;
+            18:
+            SetAttributeBaseValue(character,"AnimalTaming", quantidade*10);
+            break;
+            19:
+            SetAttributeBaseValue(character,"animallore", quantidade*10);
+            break;
+            20:
+            SetAttributeBaseValue(character,"MagicResistance", quantidade*10);
+            break;
+            21:
+            SetAttributeBaseValue(character,"Meditation", quantidade*10);
+            break;
+            22:
+            SetAttributeBaseValue(character,"carpentry", quantidade*10);
+            break;
+            23:
+            SetAttributeBaseValue(character,"Blacksmithy",quantidade*10);
+            break;
+            default:
+                return 0;
+            break;
+        endcase
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var j;
+    for(j:=1;j<=100;j:=j+1)
+        sleepms(1);
+
+    endfor
+
+
+var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+var bag := tgt.backpack;
+var rst := SendViewContainer(character,bag);
+//var rst := SendOpenSpecialContainer( character, bag);
+//SendSysMessage(character ,cstr(bag.invisible));
+
+*/
+
+/*
+var acum:=0;
+var j;
+for(j:=1;j<=100;j:=j+1)
+    var contador := 0;
+    var probabilidade := 1;
+    while(probabilidade != 0)
+        sleepms(1);
+        contador := contador+1;
+        probabilidade := RandomInt(5000);
+        if(probabilidade == 0)
+            acum := acum + contador;
+        endif
+    endwhile
+endfor
+
+SendSysMessage(character ,cstr((acum/100)));
+
+*/
+
+
+
+//                       C heckSkill( character, skillid, difficulty, points )
+//SendSysMessage(character ,cstr(CheckSkill( character, 3, 0, 100 )));
+//exit;
+//var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+//EquipItem( character, tgt);
+//var bag := tgt.backpack;
+//var rst := SendViewContainer(character,bag);
+//var rst := SendOpenSpecialContainer( character, bag);
+//SendSysMessage(character ,cstr(bag.invisible));
+//bag.invisible:=0;
+//sleep(100);
+//SendSysMessage(character ,cstr("cabo"));
+//bag.invisible:=0;
+//SendSysMessage(character ,cstr(character.acct.usernamepasswordhash));
+/*
+var d := dictionary;
+d["apple"] := "one";
+d["banana"] := "two";
+d["cookie"] := "three";
+
+print("exists: "+d.exists("apple"));
+print("exists: "+d.exists("banana"));
+print("exists: "+d.exists("cookie"));
+print("exists: "+d.exists("dogfood"));
+
+
+
+*/
+
+
+
+
+/*
+    var i;
+    var teste := struct;
+    for(i:=0;i<=999999;i:=i+1)
+        teste.Insert(cstr(i) , i);
+    endfor
+
+
+    var tempo := Polcore().systime;
+
+
+    var j;
+    for(j:=0;j<=999999;j:=j+1)
+        sleepms(1);
+        if(cstr(teste[cstr(j)]) != cstr(j))
+            SendSysMessage(character ,cstr("erro"));
+        endif
+    endfor
+
+    
+    SendSysMessage(character ,cstr((Polcore().systime-tempo)));
+*/
+  /*
+    var i;
+    var teste := dictionary;
+    for(i:=0;i<=999999;i:=i+1)
+        teste.Insert(cstr(i) , i);
+    endfor
+
+
+    var tempo := Polcore().systime;
+
+
+    var j;
+    for(j:=0;j<=999999;j:=j+1)
+        sleepms(1);
+        if(cstr(teste[cstr(j)]) != cstr(j))
+            SendSysMessage(character ,cstr("erro"));
+        endif
+    endfor
+
+
+    SendSysMessage(character ,cstr((Polcore().systime-tempo)));
+  */
+    
+/*
+     var i;
+   var count:=0;
+    for(i:= 15000;i <= 20479 ;i:=i+1)
+        var item := CreateItemAtLocation( character.x, character.y, character.z, i, amount := 1, realm := character.realm);
+        sleepms(20);
+        item.movable:=1;
+        EquipItem( character, item);
+        var equip := GetEquipmentByLayer( character, 25 );
+        if(equip)
+            sleepms(100);
+            count:=count+1;
+            print(cstr(hex(equip.objtype)));
+            //SendSysMessage(mobile ,count+" "+cstr(equip.objtype)+" "+cstr(hex(equip)) );
+            MoveItemToContainer( equip, character.backpack, x := -1, y := -1 );
+            item:=0;
+        endif
+        DestroyItem(item);
+    endfor
+   */
+//var bags := dictionary;
+
+//bags.insert("um",character);
+//bags.insert("dois",character);
+//SendSysMessage(character,cstr(bags.keys()));
+
+
+//SendSysMessage(character,cstr(bags["um"]));
+//BuffDebuff_adicionaIcone(character,1001,100);
+
+
+
+
+
+
+/*
+    var menu := CreateMenu( "Todos os itens" );
+    AddMenuItem( menu, 2603, "Moveis", color:=0 );
+    AddMenuItem( menu, 3215, "Plantas", color:=0 );
+    var rst := SelectMenuItem2( character, menu );
+    case(rst.objtype)
+        2603:// moveis
+            menu := CreateMenu( "Moveis" );
+            AddMenuItem( menu, 2604, "comoda", color:=0 );
+            AddMenuItem( menu, 2612, "comoda", color:=0 );
+            AddMenuItem( menu, 2608, "comoda", color:=0 );
+            AddMenuItem( menu, 2616, "comoda", color:=0 );
+        break;
+        3215:
+            menu := CreateMenu( "Plantas" );
+            AddMenuItem( menu, 3215, "planta quadrada", color:=0 );
+            AddMenuItem( menu, 3383, "seila oq e isso", color:=0 );
+        break;
+        default:
+            SendSysMessage(character,cstr(" Exit"));
+        break;
+    endcase
+
+    rst := SelectMenuItem2( character, menu );
+    SendSysMessage(character,cstr(rst));
+    */
+    
+    
+
+/*
+   // var s:="12345678";
+  // SendSysMessage(mobile,cstr( abs(-2.3) ));
+
+
+    var packet := CreatePacket(0xd2, MSGLEN_VARIABLE);
+   // var msg := Packet_CreatePacket(0xd2, 4);
+  // CAscZ(string)
+   packet.SetString(2, "12348", 1);
+    SendSysMessage(mobile,cstr(packet));
+    //SendSysMessage(mobile,cstr(msg));
+
+    //SendSysMessage(mobile,cstr("oi"+packet.SetSize(0)));
+
+
+    SendSysMessage(mobile,cstr(packet.GetSize()));
+   // SendSysMessage(mobile,cstr(Packet_GetSize(msg)));
+   // msg:="FF";
+   //Packet_SetInt32Flipped(msg, 3, 0x12345678);
+
+    //SendSysMessage(mobile,cstr(packet.GetInt32Flipped(0)));
+    //SendSysMessage(mobile,cstr(Packet_GetInt32Flipped(msg,0)));
+    //SendSysMessage(mobile,cstr(packet));
+  //  SendSysMessage(mobile,cstr(msg));
+  // Packet_SetSize(msg , 10);
+//SendSysMessage(mobile,cstr(msg));
+
+  ///MSGLEN_VARIABLE
+
+
+*/
+
+
+//ok
+function Packet_CreatePacket(type, size)
+    type := Hex(type);
+    size := cint(size);
+    if( (TypeOf(type)!="String") or (TypeOf(size)!="Integer") or (len(type)> 4) )
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    var rst := type[3,2];// ele despreza o 0x do Hexadecimal e pega 2 casas depois
+    if(len(rst)<2)
+        rst := "0"+rst;
+    endif
+    var i;
+    for(i:=2;i<=size;i:=i+1)
+        rst := rst+"00";
+    endfor
+    return rst;
+endfunction
+
+//ok
+function Packet_SendPacket(ByRef character,ByRef packet)
+    return SendPacket( character, packet );
+endfunction
+
+
+//function Packet_SendAreaPacket(int x, int y, int range, string realm)
+//endfunction
+
+//ok
+function Packet_GetSize( ByRef packet )
+    if( TypeOf(packet)!="String" )
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    return ( len(packet)/2 );
+endfunction
+
+//ok
+function Packet_GetInt8(ByRef packet , index)
+    if( TypeOf(packet)!="String" or TypeOf(index)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)) < ((index*2)+2) )
+        return error{ "errortext":="Offset too high." };
+    endif
+    index := ((index*2)+1);
+    return  cint("0x"+packet[index]+packet[(index+1)]);
+endfunction
+
+//ok
+function Packet_GetInt16(ByRef packet , index)
+    if( TypeOf(packet)!="String" or TypeOf(index)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)) < ((index*2)+4) )
+        return error{ "errortext":="Offset too high." };
+    endif
+    index := ((index*2)+1);
+    return  cint("0x"+packet[index]+packet[(index+1)]+packet[(index+2)]+packet[(index+3)]);
+endfunction
+
+//ok
+function Packet_GetInt32(ByRef packet , index)
+    if( TypeOf(packet)!="String" or TypeOf(index)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)) < ((index*2)+8) )
+        return error{ "errortext":="Offset too high." };
+    endif
+    index := ((index*2)+1);
+    return  cint("0x"+packet[index]+packet[(index+1)]+packet[(index+2)]+packet[(index+3)]+packet[(index+4)]+packet[(index+5)]+packet[(index+6)]+packet[(index+7)]);
+endfunction
+
+//ok
+function Packet_GetInt16Flipped(ByRef packet , index)
+    if( TypeOf(packet)!="String" or TypeOf(index)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)) < ((index*2)+4) )
+        return error{ "errortext":="Offset too high." };
+    endif
+    index := ((index*2)+1);
+    return  cint("0x"+packet[index+2]+packet[(index+3)]+packet[(index)]+packet[(index+1)]);
+endfunction
+
+//ok
+function Packet_GetInt32Flipped(ByRef packet , index)
+    if( TypeOf(packet)!="String" or TypeOf(index)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)) < ((index*2)+8) )
+        return error{ "errortext":="Offset too high." };
+    endif
+    index := ((index*2)+1);
+    return  cint("0x"+packet[index+6]+packet[(index+7)]+packet[(index+4)]+packet[(index+5)]+packet[(index+2)]+packet[(index+3)]+packet[(index)]+packet[(index+1)]);
+endfunction
+
+
+//function Packet_GetString(ByRef packet , index , length)
+//endfunction
+
+//function Packet_GetUnicodeString(int offset, int length)
+//endfunction
+
+//function Packet_GetUnicodeStringFlipped(int offset, int length)
+//endfunction
+
+
+
+//ok
+function Packet_SetSize(ByRef packet , newsize)
+    if( TypeOf(packet)!="String" or TypeOf(newsize)!="Integer")
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if( (len(packet)/2) <  newsize )
+        var i;
+        for(i:=(len(packet)/2);i<newsize;i:=i+1)
+            packet := packet+"00";
+        endfor
+        return packet;
+    elseif( (len(packet)/2) > newsize )
+        if( newsize == 0 )
+            return packet:="";
+        else
+            return packet := packet[1,(newsize*2)];
+        endif
+    endif
+    return packet;
+endfunction
+
+//ok
+function Packet_SetInt8(ByRef packet, index, value)
+    if( TypeOf(packet)!="String" or TypeOf(value)!="Integer" or index < 0 or value > 0xff)
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if((len(packet))<((index*2)+2))
+        var add := cint((((index*2)+2)-(len(packet)))/2);
+        var i;
+        for(i:=0;i<add;i:=i+1)
+            packet := packet+"00";
+        endfor
+    endif
+    value := Hex(value);
+    value := value[3,2];// ele despreza o 0x do Hexadecimal e pega 2 casas depois
+    value := "0"+value;
+    var size := len(value);
+    packet[((index*2)+1)] := value[size-1];
+    packet[((index*2)+2)] := value[size];
+    return packet;
+endfunction
+
+//ok
+function Packet_SetInt16(ByRef packet, index, value)
+    if( TypeOf(packet)!="String" or TypeOf(value)!="Integer" or index < 0 or value > 0xffff)
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if((len(packet))<((index*2)+4))
+        var add := cint((((index*2)+4)-(len(packet)))/2);
+        var i;
+        for(i:=0;i<add;i:=i+1)
+            packet := packet+"00";
+        endfor
+    endif
+    value := Hex(value);
+    value := value[3,4];// ele despreza o 0x do Hexadecimal e pega 4 casas depois
+    value := "000"+value;
+    var size := len(value);
+    packet[((index*2)+1)] := value[size-3];
+    packet[((index*2)+2)] := value[size-2];
+    packet[((index*2)+3)] := value[size-1];
+    packet[((index*2)+4)] := value[size];
+    return packet;
+endfunction
+
+//ok
+function Packet_SetInt32(ByRef packet, index, value)
+    if( TypeOf(packet)!="String" or TypeOf(value)!="Integer" or index < 0 or value > 0xffffffff)
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if((len(packet))<((index*2)+8))
+        var add := cint((((index*2)+8)-(len(packet)))/2);
+        var i;
+        for(i:=0;i<add;i:=i+1)
+            packet := packet+"00";
+        endfor
+    endif
+    value := Hex(value);
+    value := value[3,8];// ele despreza o 0x do Hexadecimal e pega 4 casas depois
+    value := "0000000"+value;
+    var size := len(value);
+    packet[((index*2)+1)] := value[size-7];
+    packet[((index*2)+2)] := value[size-6];
+    packet[((index*2)+3)] := value[size-5];
+    packet[((index*2)+4)] := value[size-4];
+    packet[((index*2)+5)] := value[size-3];
+    packet[((index*2)+6)] := value[size-2];
+    packet[((index*2)+7)] := value[size-1];
+    packet[((index*2)+8)] := value[size];
+    return packet;
+endfunction
+
+//ok
+function Packet_SetInt16Flipped(ByRef packet, index, value)
+    if( TypeOf(packet)!="String" or TypeOf(value)!="Integer" or index < 0 or value > 0xffff)
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if((len(packet))<((index*2)+4))
+        var add := cint((((index*2)+4)-(len(packet)))/2);
+        var i;
+        for(i:=0;i<add;i:=i+1)
+            packet := packet+"00";
+        endfor
+    endif
+    value := Hex(value);
+    value := value[3,4];// ele despreza o 0x do Hexadecimal e pega 4 casas depois
+    value := "000"+value;
+    var size := len(value);
+    packet[((index*2)+1)] := value[size-1];
+    packet[((index*2)+2)] := value[size];
+    packet[((index*2)+3)] := value[size-3];
+    packet[((index*2)+4)] := value[size-2];
+    return packet;
+endfunction
+
+//ok
+function Packet_SetInt32Flipped(ByRef packet, index, value)
+    if( TypeOf(packet)!="String" or TypeOf(value)!="Integer" or index < 0 or value > 0xffffffff)
+        return error{ "errortext":="Invalid parameter type." };
+    endif
+    if((len(packet))<((index*2)+8))
+        var add := cint((((index*2)+8)-(len(packet)))/2);
+        var i;
+        for(i:=0;i<add;i:=i+1)
+            packet := packet+"00";
+        endfor
+    endif
+    value := Hex(value);
+    value := value[3,8];// ele despreza o 0x do Hexadecimal e pega 4 casas depois
+    value := "0000000"+value;
+    var size := len(value);
+    packet[((index*2)+1)] := value[size-1];
+    packet[((index*2)+2)] := value[size];
+    packet[((index*2)+3)] := value[size-3];
+    packet[((index*2)+4)] := value[size-2];
+    packet[((index*2)+5)] := value[size-5];
+    packet[((index*2)+6)] := value[size-4];
+    packet[((index*2)+7)] := value[size-7];
+    packet[((index*2)+8)] := value[size-6];
+    return packet;
+endfunction
+
+
+
+
+//function Packet_SetString(int offset, string string, int nullterminate)
+//endfunction
+
+//function Packet_SetUnicodeString(int offset, array unicode character, int nullterminate)
+//endfunction
+
+//function Packet_SetUnicodeStringFlipped(int offset, array unicode character, int nullterminate)	true/error
+//endfunction
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+
+
+
+
+var i;
+for(i:=0;i<=40000;i:=i+1)
+SendPacket( mobile,"df002c000004d204d200000000000004d20000000000000000000000000f55cf000f55cf0000000000000000");
+pack("a").;
+    sleepms(1);
+
+    //packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt32(3, 1234);//3 BYTE[4] Serial of player
+    packet.setint16(7, 1234);//7 BYTE[2] Icon Number to show
+    packet.setint16(9, 0x0);//9 BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+    packet.SetInt32(11, 0x0);//11 BYTE[4] 0x00000000
+    packet.SetInt16(15, 1234);//15 BYTE[2] Icon Number to show.
+    packet.SetInt16(17, 0x0);//17 BYTE[2] 0x1 = Show
+    packet.SetInt32(19, 0x0);//19 BYTE[4] 0x00000000
+    packet.SetInt16(23, 0x0);//23 BYTE[2] Time in seconds (simple countdown without automatic remove)
+    packet.SetInt16(25, 0x0);//25 BYTE[2] 0x0000
+    packet.SetInt8(27, 0x0);//27 BYTE[1] 0x00
+    packet.SetInt32(28, 1005007);//28 BYTE[4] Cliloc message ID1 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(32, 1005007);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
+    packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
+    var msg := "";// tem que ter esse " " para ele concatenar!
+    packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
+    //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
+    packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length
+    print("->");
+    print(packet);
+    print("<-");
+
+    //packet.sendpacket(character);
+    packet:=0;
+
+endfor
+
+    exit;
+
+var i;
+var j;
+for(i:=1;i<=20;i:=i+1)
+    for(j:=0;j<=1000;j:=j+1)
+        Start_Script( "empilhaev", param := {mobile} );
+    endfor
+    print("i == "+i);
+    sleepms(1);
+endfor
+
+exit;
+
+
+    var contt := 0;
+    var iii := 0;
+    while(iii < 4000)
+        var ii := 1001;
+        while(ii<1049)
+            BuffDebuff_adicionaIcone(mobile,ii,100);
+            ii := ii +1;
+            sleepms(1);
+        endwhile
+        while(ii>1000)
+            BuffDebuff_removeIcone(mobile,ii);
+            ii := ii - 1;
+            sleepms(1);
+        endwhile
+        sleepms(10);
+        contt := contt+46+46;
+        print(contt);
+    endwhile
+
+
+
+    var pid := GetObjProperty(mobile, "#processoDoScript" );
+    var processo;
+    if(pid)
+        processo := GetProcess(pid);
+        if(processo)
+            processo.kill();
+        endif
+    endif
+    SetObjProperty( mobile, "#processoDoScript", Getpid() );
+    var evento;
+    while(1)
+        evento := Wait_For_Event( 10 );
+        if(evento)
+            SendSysMessage(mobile,cstr(evento.id));
+        else
+            SendSysMessage(mobile,cstr("sem evento"));
+            sleep(10);
+        endif
+    endwhile
+//endprogram
+
+
+SetAttributeTemporaryMod( mobile, "AnimalLore", -10 );
+exit;
+var i;
+var j;
+for(i:=0;i<=100;i:=i+1)
+sleepms(1);
+AlterAttributeTemporaryMod( mobile, "AnimalLore", 10 );
+endfor
+
+for(j:=0;j<=100;j:=j+1)
+sleepms(1);
+AlterAttributeTemporaryMod( mobile, "AnimalLore", -10 );
+endfor
+
+
+
+//SendSysMessage(mobile,cstr(ReadGameClock()));
+//exit;
+
+
+
+
+
+
+
+
+
+//exit;
+
+//Const SKILLID_ALCHEMY         := "0";
+//var v := struct{Budega3:= struct{"point" := 0, "maxpoint" := 5}};
+//  SendSysMessage( mobile,cstr(v.keys()));
+ //   SendSysMessage( mobile,cstr(typeof(v)));
+//var mount := CreateItemAtLocation( mobile.x, mobile.y, mobile.z, "0x190", amount := 1, realm := mobile.realm);
+//SendSysMessage(mobile,cstr(mount.xixi()));
+//character.setcmdlevel(5);
+//SendSysMessage( character,cstr(CreateAccount( "gui1","gui1", 1)));
+//var mount := CreateItemAtLocation( mobile.x, mobile.y, mobile.z, monts[22], amount := 1, realm := mobile.realm);
+//mount.movable:=1;
+ //EquipItem (master, mount);
+//exit;
+
+//if(master.realm != "britannia")
+
+
+var Packet := CreatePacket(0x2E, 15);
+Packet.SetInt32(1, mount);
+Packet.SetInt16(5, mount.graphic);
+Packet.SetInt8(7, 0);
+Packet.SetInt8(8, 25);
+Packet.SetInt32(9, mobile.serial);
+Packet.SetInt16(13, mount.color);
+
+foreach Obj in ListObjectsInBox(mobile.x-18, mobile.y-18, -127, mobile.x+18, mobile.y+18, 127, mobile.realm)
+if(Obj.acctname)
+Packet.SendPacket(Obj);
+endif
+endforeach
+
+//endif
+//	Tiles  0x3ea2 0x3e98 0x3e9f 0x3ea0 0x3ea1 0x3ea6 0x3ea3 0x3ea4 0x3ea5 0x3ea7 0x3ea8 0x3ea9 0x3eb0 0x3eb2 0x3eb3 0x3eb4 0x3eb8 0x3eaa 0x3eab 0x3eac 0x3ead 0x3eba 0x3ebb 0x3ebc 0x3ebd 0x3ebe 0x3eb3 0x3e90 0x3e91 0x3e92 0x3e94
+
+     var i;
+   var count:=0;
+    for(i:= 15000;i <= 20479 ;i:=i+1)
+        var item := CreateItemAtLocation( mobile.x, mobile.y, mobile.z, i, amount := 1, realm := mobile.realm);
+        sleepms(15);
+        item.movable:=1;
+        EquipItem( mobile, item);
+        var equip := GetEquipmentByLayer( mobile, 25 );
+        if(equip)
+            sleep(10);
+            count:=count+1;
+            print(cstr(hex(equip.objtype)));
+            //SendSysMessage(mobile ,count+" "+cstr(equip.objtype)+" "+cstr(hex(equip)) );
+            MoveItemToContainer( equip, mobile.backpack, x := -1, y := -1 );
+            item:=0;
+        endif
+        DestroyItem(item);
+    endfor
+exit;
+
+//mobile.frozen:=0;
+
+var icon := 1001;
+while(icon <= 1048)
+   if ( show )
+      show := CInt(show);
+   else
+      show := 0;
+   endif
+   var cliloc1 := 1005007;
+   var cliloc2 := 1042971;
+   var duration :=300;
+
+   var str := " "+"<BASEFONT COLOR=#ff00ff> fudeu </BASEFONT>";   // the space at the start is important. Use cliloc parm rules for multiple parameters
+   var   OFFSET_SERIAL := 3;
+   var   OFFSET_ICONNUMBER1 := 7;
+   var   OFFSET_SHOW1 := 9;
+   var   OFFSET_ICONNUMBER2 := 15;
+   var   OFFSET_SHOW2 := 17;
+   var   OFFSET_TIME := 23;
+   var   OFFSET_CLILOC1 := 28;
+   var   OFFSET_CLILOC2 := 32;
+   var   OFFSET_CLILOC2PARMS := 42;
+
+//   var   BLANK_CLILOC := 1005007;   // a cliloc number with blank text
+//   var   ERROR_CLILOC := 500267;      // an cliloc showing an error
+
+
+   var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);
+   packet.setint32(OFFSET_SERIAL, mobile.serial+1);
+   packet.setint16(OFFSET_ICONNUMBER1, icon);
+   packet.setint16(OFFSET_SHOW1, show);
+   if ( show )
+      packet.setint16(OFFSET_ICONNUMBER2, icon);
+      packet.setint16(OFFSET_SHOW2, show);
+      packet.setint16(OFFSET_TIME, duration);
+      packet.setint32(OFFSET_CLILOC1, cliloc1);
+      packet.setint32(OFFSET_CLILOC2, cliloc2);
+      packet.SetUnicodeStringFlipped(OFFSET_CLILOC2PARMS, CAscZ(str), 1);
+
+      //packet.setint16(Length_ID, 0x1);
+      packet.setint16(1,  packet.GetSize());
+   endif
+   packet.sendpacket(mobile);
+   icon:=icon+1;
+endwhile
+
+//0xDF
+
+//var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+//SendSysMessage(character , cstr("->"+tgt.graphic) );
+//tgt.graphic:=3918;
+//SendPacket(character, "D7000f00000002001900000000070A");
+//SendPacket(mobile, "BF00050021");
+	//var ability_reset := CreatePacket(0xBF,5);
+	//ability_reset.SetInt8(2,0x05);
+	//ability_reset.SetInt8(4,0x21);
+	//ability_reset.SendPacket(character);
+
+var Packet1 := GetGlobalProperty( "#Packet" );
+if(Packet1)
+SendSysMessage(character , cstr("tem") );
+endif
+SendSysMessage(character ,TypeOf( Packet1 ) );
+print(Packet1);
+SendSysMessage(character , cstr(pack(Packet1)) );
+print(Packet1.GetSize());
+
+
+
+
+
+program teste(character,TextoErrado, TextoCorreto)
+    TextoErrado := TextoErrado;
+    if(!TextoCorreto)
+        SendSysMessage(character , " O comando é .z <stextss> ");
+    else
+        TextoCorreto := CAscZ("<" + character.name + "> ")+TextoCorreto;
+        BroadcastUC(TextoCorreto, "ENG", font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
+        //OR
+        //foreach listaDeCharacter in EnumerateOnlineCharacters()
+        //    if(listaDeCharacter.cmdlevel > 0)
+        //        SendSysMessage(listaDeCharacter, CChrZ(TextoCorreto), font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
+        //    endif
+        //endforeach
+    endif
+endprogram
+
+
+
+              // SendSysMessage(listaDeCharacter, cstr(TextoCorreto), font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
+
+
+program teste(character,TextoErrado TextoCorreto)//ByRef ByteRef
+    TextoErrado := TextoErrado;
+    if(!TextoCorreto)
+        SendSysMessage(character , " O comando é .z <stextss> ");
+    else
+        TextoCorreto := CAscZ("<" + character.name + "> ")+TextoCorreto;
+        foreach listaDeCharacter in EnumerateOnlineCharacters()
+            if(listaDeCharacter.cmdlevel > 0)
+                SendSysMessageUC(character, TextoCorreto , "ENG", font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
+            endif
+        endforeach
+    endif
+endprogram
+
+
+
+
+
+//SendPacket(character, "BF0006002600");
+ // SendPacket(character, "BF0006002601");
+//character.color := 0;
+//character.graphic:= 244;
+
+
+    var i:=800;
+    var color := character.color;
+    character.color := 0;
+    var graficoInicial := character.graphic;
+    while(character.warmode == 1)
+        character.graphic := i;
+        PrintTextAbove(character,"O Graphic: "+cstr(i), font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR );
+        sleep(2);
+        i := i+1;
+    endwhile
+    character.graphic := graficoInicial;
+    character.color := color;
+
+
+    var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+    //SendSysMessage( character,cstr(tgt.decayat));
+    //tgt.decayat:=10000;
+    var xNext;
+    var yNext;
+    var i;
+
+    for(i:=0;i<=30;i:=i+1)
+        xNext := character.x;
+        yNext := character.y;
+        sleepms(1000);
+        xNext := abs(xNext - character.x);
+        yNext := abs(yNext - character.y);
+        print(xNext+" "+yNext);
+
+
+    endfor
+
+//PlayLightningBoltEffect( character);
+
+
+ //var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+ //tgt.graphic := 400;
+    //SendSysMessageUC(character, CAscZ("é?"), "ENU",font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
+    //SendSysMessage( character,cstr(CAscZ("õ")));
+    ///SendSysMessage( character,cstr(CAscZ("é")));
+    //SendSysMessage( character,cstr(CAscZ(txt)));
+    //var MatrizDeIpsDuplicados := EnumeraIpsDuplicados();
+    //ImprimeMatrizDeIpsDuplicados(character,MatrizDeIpsDuplicados);
+
+
+function EnumeraIpsDuplicados()
+    var Jogadores := EnumerateOnlineCharacters();
+    var ListaDeJogadores := Array;
+    var MatrizDeIpsDuplicados := Array;
+    var i;
+    while(Jogadores.size())
+        SleepMS(1);
+        ListaDeJogadores.Append(Jogadores[1]);
+        Jogadores.Erase(1);
+        for(i:=1;i<=Jogadores.size();i:=i+1)
+            SleepMS(1);
+            if(ListaDeJogadores[1].ip == Jogadores[i].ip)
+                ListaDeJogadores.Append(Jogadores[i]);
+                Jogadores.Erase(i);
+                i := i-1;
+            endif
+        endfor
+        if(ListaDeJogadores.size() > 1)
+            MatrizDeIpsDuplicados.Append(ListaDeJogadores);
+        endif
+        ListaDeJogadores := Array;
+    endwhile
+    return MatrizDeIpsDuplicados;//MatriZ !!
+endfunction
+
+function ImprimeMatrizDeIpsDuplicados(character,MatrizDeIpsDuplicados)
+    var i;
+    var j;
+    if(!MatrizDeIpsDuplicados.size())
+        SendSysMessage( character,cstr(" Nao tem Ips Duplicados"));
+    endif
+    for(i:=1;i<=MatrizDeIpsDuplicados.size();i:=i+1)
+        SendSysMessage( character,cstr(" Lista Numero: "+i));
+        for(j:=1;j<=MatrizDeIpsDuplicados[i].size();j:=j+1)
+            SleepMS(1);
+            SendSysMessage( character,cstr(" "+j+" Nome: "+MatrizDeIpsDuplicados[i][j].name+" Ip: "+MatrizDeIpsDuplicados[i][j].ip));
+        endfor
+        SendSysMessage( character,cstr(" ---------------"));
+    endfor
+    return 1;
+endfunction
+
+
+
+
+function EnumerateCharacters()
+    var listAccs := ListAccounts();
+    var ListPlayers := array;
+    var account;
+    var character;
+    var i;
+    var j;
+    for(i:=1;i<=listAccs .size();i:=i+1)
+        account := FindAccount( listAccs [i] );
+        for(j:=1;j<=5;j:=j+1)
+            character := account.getcharacter(j);
+            if(character)
+		sleepms(1);
+                ListPlayers.append(character);
+            endif
+       endfor
+    endfor
+    return ListPlayers;
+endfunction
+
+
+
+
+
+var pid := GetObjProperty(character,"#pidgump");
+var processo := GetProcess(pid);
+processo.kill();
+sleep(2);
+SetObjProperty(character,"#pidgump",Getpid());
+
+
+var gflayout := {   "page 0",
+                    "resizepic 0 0 2620 200 200",
+                    "checkertrans 5 7 190 186",
+                    "text 40 20 2101 0"
+		};
+
+
+var gfdata := {"hora: "+ Polcore().systime};
+var result := SendDialogGump( character, gflayout, gfdata ,100,100);
+
+
+
+ var listStruct := array;
+
+
+    var i;
+
+    for(i:=1;i<=100000;i:=i+1)
+        sleepms(1);
+        listStruct.Append(struct{"int":=RandomInt(50)});
+    endfor
+    SendSysMessage( character,cstr(" "));
+    //listStruct := array{struct{"int":=5},struct{"int":=5},struct{"int":=4},struct{"int":=4},struct{"int":=3},struct{"int":=2}};
+    var tempo := Polcore().systime;
+    ordenaStruct(listStruct);
+    SendSysMessage( character,cstr(Polcore().systime - tempo));
+
+
+    //Quicksort(vet, 1 , vet.size());
+    //SendSysMessage( character,cstr(vet));
+    //print("fim");
+    //muda( vet);
+
+
+
+
+function ordenaStruct(ByRef listStruct)// para 10000 deu 292 segundos 300
+    var i;
+    var j;
+    var k;
+    var indiceMenor;
+    var auxiliar;
+    for(i:=1;i<=listStruct.size();i:=i+1)
+        indiceMenor:= array;
+        indiceMenor.Append(i);
+        for(j:=i+1;j<=listStruct.size();j:=j+1)
+            sleepms(1);
+            if( listStruct[indiceMenor[1]].int > listStruct[j].int )
+                indiceMenor:= array;
+                indiceMenor.Append(j);
+            elseif( listStruct[indiceMenor[1]].int == listStruct[j].int )
+                indiceMenor.Append(j);
+            endif
+        endfor
+        for(k:=1;k<=indiceMenor.size();k:=k+1)
+            auxiliar := listStruct[i];
+            listStruct[i] := listStruct[indiceMenor[k]];
+            listStruct[indiceMenor[k]] := auxiliar;
+            i:=i+1;
+        endfor
+        i:=i-1;
+    endfor
+   //var r;for(r:=1;r<=listStruct.size();r:=r+1)print(cstr((r+" "+listStruct[r].int)));endfor
+endfunction
+
+function ordenaStruct2(ByRef listStruct)// para 10000 deu 292 segundos 326
+    var i;
+    var j;
+    var indiceMenor := array;
+    var auxiliar;
+    for(i:=1;i<=listStruct.size();i:=i+1)
+        indiceMenor := i;
+        for(j:=i;j<=listStruct.size();j:=j+1)
+            sleepms(1);
+            if( listStruct[indiceMenor].int > listStruct[j].int )
+                indiceMenor:=j;
+            endif
+        endfor
+        auxiliar:=listStruct[i];
+        listStruct[i] := listStruct[indiceMenor];
+        listStruct[indiceMenor]:= auxiliar;
+    endfor
+endfunction
+
+
+function Quicksort(ByRef vetor,inicio, fim)
+print("chamada");
+    if (fim - inicio > 0)
+        var pivo := vetor[inicio];
+        var l := inicio + 1;
+        var r := fim;
+        var troca;
+        while(l < r)
+            print("1");
+            sleepms(10);
+            if (vetor[l] <= pivo)
+                l:=l+1;
+            else
+                troca := vetor[l];
+                vetor[l] := vetor[r];
+                vetor[r] := troca;
+                r := r-1;
+            endif
+        endwhile
+        if(vetor[l] > pivo)
+            l:=l-1;
+        endif
+        troca:=vetor[inicio];
+        vetor[inicio]:= vetor[l];
+        vetor[l]:=troca;
+        quickSort(vetor, inicio, l);
+        quickSort(vetor, r, fim);
+   endif
+endfunction
+
+
+
+
+
+
+
+
+//     ByVal      ByRef
+
+
+
+
+
+
+
+
+
+
+//var rst := CreateNpcFromTemplate( ":mobiles:um", character.x, character.y, character.z, override_properties := 0, realm := character.realm );
+
+SendSysMessage( character,cstr(Start_Script( ":AnteCS:AnteCS/ScriptAnteCS", param := struct{"character":=character,"tempo":=2} )));
+
+    var xNext := character.x;
+    var yNext := character.y;
+    var penalidade;
+    var i;
+    for(i:=0;i<=200;i:=i+1)
+        if(GetEquipmentByLayer( character, 0x19 ))
+            penalidade := PENALIDADE_MONTADO;
+            sleepms(SLEEPMS_DO_SCRIPT_MONTADO);
+        else
+            penalidade := PENALIDADE_DESMONTADO;
+            sleepms(SLEEPMS_DO_SCRIPT_DESMONTADO);
+        endif
+        xNext := abs(xNext - character.x);
+        yNext := abs(yNext - character.y);
+        if(xNext > CASAS)
+            character.frozen := 1;
+            sleepms(abs(xNext-CASAS)*penalidade);
+            character.frozen := 0;
+        elseif(yNext > CASAS)
+            character.frozen := 1;
+            sleepms(abs(yNext-CASAS)*penalidade);
+            character.frozen := 0;
+        endif
+        xNext := character.x;
+        yNext := character.y;
+    endfor
+                                              ":gumps:autoClose
+
+// INFO o player anda 100 casas em 10 segundos logo 100 MS 1 casa
+//function diferenca()
+
+//endfunction
+
+var x := character.x;
+var y := character.y;
+var tempo := Polcore().systime;
+sleep(1);
+SendSysMessage( character, cstr(" x "+Abs(x-character.x)+" y "+Abs(y-character.y)));
+
+var loop := 1;
+while(loop)
+sleepms(1);
+if(Polcore().systime == tempo+1 )
+SendSysMessage( character, cstr(" x "+Abs(x-character.x)+" y "+Abs(y-character.y)));
+loop:=0;
+endif
+endwhile
+
+
+//EraseGlobalProperty( "gameclock" );
+//SendSysMessage( character,cstr(getGlobalProperty( "gameclock")));
+//SendSysMessage( character, cstr(Polcore().systime));
+//SendSysMessage( character, cstr(readGameClock( )));
+//SendSysMessage( character, cstr(Polcore().uptime));
+//var refConfigFile  := ReadConfigFile(":mobiles:npcdesc");
+//var elemento := FindConfigElem( refConfigFile ,"ControladorDoBomberman");
+//var rst := CreateNpcFromTemplate( ":mobiles:um", character.x, character.y, character.z, override_properties := 0, realm := character.realm );
+////SendSysMessage( character, cstr(elemento));
+//SendSysMessage( character, cstr(GetConfigIntKeys( refConfigFile )));
+
+///SendSysMessage( character, cstr(rst));
+//const SYSEVENT_SPEECH        := 0x00000001;
+
+var pid := GetPID();
+SetGlobalProperty("pid_evento", pid);
+SendSysMessage( character, cstr("inicio do programa "));
+var ev := wait_for_event(20);
+if(ev)
+SendSysMessage( character, cstr(" evento !!!"));
+endif
+SendSysMessage( character, cstr(" fim do programa "));
+
+
+
+
+ //SendSysMessage( character, cstr(Unload_Scripts(scriptname := "")));
+ //SendSysMessage( character,cstr(Start_Script( "../scripts/textcmd/player/aqui", param := character )));
+ //sleep(5);
+ //SendEvent( character, SYSEVENT_SPEECH  );
+    var loop := 1;
+    while(loop)
+        var ev;
+        ev := wait_for_event(120);
+        SendSysMessage( character, cstr(" keys -> "+ev.keys()));
+        SendSysMessage( character, cstr(" text -> "+ev.text));
+        case(ev.type)
+            SYSEVENT_SPEECH:
+                if(ev.text == "oi")
+                    SendSysMessage( character, cstr("falo oi"));
+                elseif(ev.text == "1")
+                    SendSysMessage( character, cstr("falo 1"));
+                elseif(ev.text == "2")
+                    SendSysMessage( character, cstr("falo 2"));
+                endif
+                loop := 0;
+            SYSEVENT_ITEM_GIVEN:
+            SendSysMessage( character, cstr(" esse case tem que ter break ..."));
+        endcase
+    endwhile
+SendSysMessage( character, cstr(" fim do programa "));
+
+
+
+
+
+
+
+
+//var region := GetRegionNameAtLocation( character.x, character.y, character.realm );
+//SendSysMessage( character,cstr(region));
+//PlaySoundEffect( struct{"x":=character.x,"y":=character.y,"z":=character.z}, 0x208 );
+//Number: 1307 (0x51B)  inicio do jogo
+//Lookup: 5C6E1E6
+//Length: 122232
+//Unknown: 0
+
+//Number: 1469 (0x5BD)
+//Lookup: 69B4FD0
+//Length: 133592
+//Unknown: 0
+
+//Number: 1307 (0x51B)
+//Lookup: 5C6E1E6
+//Length: 122232
+//Unknown: 0
+
+//Number: 1476 (0x5C4)
+//Lookup: 6A68C64
+//Length: 133388
+//Unknown: 0
+
+//Number: 488 (0x1E8)
+//Lookup: 25DE8C8
+//Length: 125992
+//Unknown: 0
+//SendSysMessageUC(character,CAscZ( "Você é feião2!!"),  "ENG", _DEFAULT_TEXT_FONT, _DEFAULT_TEXT_COLOR);
+// SendSysMessage(character, "Você é feião1!!");
+ //SendMessage(character, "Você é feião!!");
+
+
+//SendSysMessage(character, cstr( FONTS));
+
+
+
+
+
+
+//character.graphic:=3;
+//PerformAction( character, cint(56) );
+//character.name:="player um";
+
+var i;
+for(i:=0;i<=100;i:=i+1)
+SendSysMessage( character,cstr(" PerformAction: "+ i));
+PerformAction( character, cint(i) );
+sleepms(500);
+endfor
+
+//SendCharacterRaceChanger( character );
+//var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+//var serial := tgt.serial;
+//SendSysMessage( character,cstr(tgt.cmdlevel:=3));
+//var i;
+ //   for(i:=0;i<=1000;i:=i+1)
+ //      SendSysMessage( character,cstr(i));
+ //      sleep(1);
+ //      tgt.graphic:=i;
+ //   endfor
+//var text_color := "000000";
+//var text_name := "Guilherme";
+//var novoNome := "<basefont color=#XXXXXX><C> nome" ;
+//setName(character, novoNome);
+
+//setName(character, "gui");
+//sleep(15);CAscZ("<BASEFONT COLOR=#" + text_color + "><C>" + object_name);
+
+//var player  := SystemFindObjectBySerial( 7, sysfind_flags := 0 );
+//var rst := MoveObjectToLocation( player,character.x, character.y, character.z, realm := character.realm, flags := MOVEOBJECT_FORCELOCATION );
+//SendSysMessage( character,cstr("player"));
+//if(SystemFindObjectBySerial( 7, sysfind_flags := 0 ))
+//SendSysMessage( character,cstr("on"));
+//else
+//SendSysMessage( character,cstr("off"));
+//endif
+//if(!rst)
+//SendSysMessage( character,cstr("erro"));
+//tgt.x := character.x;
+//tgt.y := character.y;
+//tgt.y := character.z;
+//tgt.realm := character.realm;
+//endif
+//SendSysMessage( character," foi ");
+
+
+//Syslog( "olaaaa" );
+//SendSysMessage( character," Clock  "+date.hour+":"+date.minute+":"+date.second, 3, 33 );
+//SendSysMessage( character," Date "+date.month+"/"+date.day+"/"+date.year, 3, 33 );
+
+//var a := GetMapInfo( character.x, character.y, realm := character.realm);
+//character.frozen:=0;
+
+var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+var i;
+
+    for(i:=0;i<=2;i:=i+1)
+    SendSysMessage( tgt," frozen true " );
+    tgt.frozen:=1;
+    sleepms(2000);
+    SendSysMessage( tgt," frozen false " );
+    tgt.frozen:=0;
+    sleepms(3000);
+    endfor
+
+//tgt.newbie:=1;
+//SendSysMessage( character,"   "+RandomInt(101) );
+
+*/
+/*
+function BuffDebuff_adicionaIcone(character,icone,tempo)
+    var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    //packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt32(3, character.serial);//3 BYTE[4] Serial of player
+    packet.setint16(7, icone);//7 BYTE[2] Icon Number to show
+    packet.setint16(9, 0x1);//9 BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+    packet.SetInt32(11, 0x0);//11 BYTE[4] 0x00000000
+    packet.SetInt16(15, icone);//15 BYTE[2] Icon Number to show.
+    packet.SetInt16(17, 0x1);//17 BYTE[2] 0x1 = Show
+    packet.SetInt32(19, 0x0);//19 BYTE[4] 0x00000000
+    packet.SetInt16(23, tempo);//23 BYTE[2] Time in seconds (simple countdown without automatic remove)
+    packet.SetInt16(25, 0x0);//25 BYTE[2] 0x0000
+    packet.SetInt8(27, 0x0);//27 BYTE[1] 0x00
+    packet.SetInt32(28, 1005007);//28 BYTE[4] Cliloc message ID1 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(32, 1042971);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
+    packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
+    var msg := " ";// tem que ter esse " " para ele concatenar!
+    case(icone)
+        1001://1001: Dismount
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Dismount</BASEFONT>";
+        break;
+        1002://1002: Disarm
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Disarm</BASEFONT>";
+        break;
+        1005://1005: Nightsight
+             msg := msg+"<BASEFONT COLOR=#ff00ff>Nightsight</BASEFONT>";
+        break;
+        1006://1006: Death Strike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Death Strike</BASEFONT>";
+        break;
+        1007://1007: Evil Omen
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Evil Omen</BASEFONT>";
+        break;
+        1008://1008: unknown? (GumpID 0x7556)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>unknown 1?</BASEFONT>";
+        break;
+        1009://1009: Regeneration (cliloc1=1044106,cliloc2=1075106)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>unknown 2?</BASEFONT>";
+        break;
+        1010://1010: Divine Fury
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Divine Fury</BASEFONT>";
+        break;
+        1011://1011: Enemy Of One
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Enemy Of One</BASEFONT>";
+        break;
+        1012://1012: Stealth (cliloc1=1044107,cliloc2=1075655)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Stealth</BASEFONT>";
+        break;
+        1013://1013: Active Meditation (cliloc1=1044106,cliloc2=1075106)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Active Meditation</BASEFONT>";
+        break;
+        1014://1014: Blood Oath caster
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Blood Oath caster</BASEFONT>";
+        break;
+        1015://1015: Blood Oath curse
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Blood Oath curse</BASEFONT>";
+        break;
+        1016://1016: Corpse Skin
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Corpse Skin</BASEFONT>";
+        break;
+        1017://1017: Mindrot
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mindrot</BASEFONT>";
+        break;
+        1018://1018: Pain Spike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Pain Spike</BASEFONT>";
+        break;
+        1019://1019: Strangle
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Strangle</BASEFONT>";
+        break;
+        1020://1020: Gift of Renewal
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Gift of Renewal</BASEFONT>";
+        break;
+        1021://1021: Attune Weapon
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Attune Weapon</BASEFONT>";
+        break;
+        1022://1022: Thunderstorm
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Thunderstorm</BASEFONT>";
+        break;
+        1023://1023: Essence of Wind
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Essence of Wind</BASEFONT>";
+        break;
+        1024://1024: Ethereal Voyage
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Ethereal Voyage</BASEFONT>";
+        break;
+        1025://1025: Gift Of Life
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Gift Of Life</BASEFONT>";
+        break;
+        1026://1026: Arcane Empowerment
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Arcane Empowerment</BASEFONT>";
+        break;
+        1027://1027: Mortal Strike
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mortal Strike</BASEFONT>";
+        break;
+        1028://1028: Reactive Armor (cliloc1=1075812,cliloc2=1075813)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Reactive Armor</BASEFONT>";
+        break;
+        1029://1029: Protection (cliloc1=1075814,cliloc2=1075815)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Protection</BASEFONT>";
+        break;
+        1030://1030: Arch Protection (cliloc1=1075816,cliloc2=1075816)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Arch Protection</BASEFONT>";
+        break;
+        1031://1031: Magic Reflection (cliloc1=1075817,cliloc2=1075818)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Magic Reflection</BASEFONT>";
+        break;
+        1032://1032: Incognito (cliloc1=1075819,cliloc2=1075820)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Incognito</BASEFONT>";
+        break;
+        1033://1033: Disguised
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Disguised</BASEFONT>";
+        break;
+        1034://1034: Animal Form
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Animal Form</BASEFONT>";
+        break;
+        1035://1035: Polymorph (cliloc1=1075824,cliloc2=1075820)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Polymorph</BASEFONT>";
+        break;
+        1036://1036: Invisibility (cliloc1=1075825,cliloc2=1075826)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Invisibility</BASEFONT>";
+        break;
+        1037://1037: Paralyze (cliloc1=1075827,cliloc2=1075828)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Paralyze</BASEFONT>";
+        break;
+        1038://1038: Poison (cliloc1=0x0F8627, cliloc2=0x1069B1)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Poison</BASEFONT>";
+        break;
+        1039://1039: Bleed (cliloc1=0x106a75,cliloc2=0x106a76)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Bleed</BASEFONT>";
+        break;
+        1040://1040: Clumsy (cliloc1=0x106a77,cliloc2=0x106a78)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Clumsy</BASEFONT>";
+        break;
+        1041://1041: Feeble Mind (cliloc1=0x106a79,cliloc2=0x106a7a)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Feeble Mind</BASEFONT>";
+        break;
+        1042://1042: Weaken (cliloc1=1075837,cliloc2=1075838)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Weaken</BASEFONT>";
+        break;
+        1043://1043: Curse (cliloc1=1075835,cliloc2=1075836)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Curse</BASEFONT>";
+        break;
+        1044://1044: Mass Curse (cliloc1=0x106a7f,cliloc2=0x106a80)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Mass</BASEFONT>";
+        break;
+        1045://1045: Agility (cliloc1=0x106a81,cliloc2=0x106a82)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Agility</BASEFONT>";
+        break;
+        1046://1046: Cunning (cliloc1=0x106a83,cliloc2=0x106a84)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Cunning</BASEFONT>";
+        break;
+        1047://1047: Strength (cliloc1=0x106a85,cliloc2=0x106a86)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Strength</BASEFONT>";
+        break;
+        1048://1048: Bless (cliloc1=0x106a87,cliloc2=0x106a88)
+            msg := msg+"<BASEFONT COLOR=#ff00ff>Bless</BASEFONT>";
+        break;
+        default:
+            return 0;
+        break;
+    endcase
+    packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
+    //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
+    packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length
+    packet.sendpacket(character);
+    return 1;
+endfunction
+
+
+function BuffDebuff_removeIcone(character,icone)
+    var packet := CreatePacket(0xDF, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    //packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length "tem que ser no fim"
+    packet.SetInt32(3, character.serial);//3 BYTE[4] Serial of player
+    packet.setint16(7, icone);//7 BYTE[2] Icon Number to show
+    packet.setint16(9, 0x0);//9 BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+    packet.SetInt32(11, 0x0);//11 BYTE[4] 0x00000000
+    packet.SetInt16(15, icone);//15 BYTE[2] Icon Number to show.
+    packet.SetInt16(17, 0x0);//17 BYTE[2] 0x1 = Show
+    packet.SetInt32(19, 0x0);//19 BYTE[4] 0x00000000
+    packet.SetInt16(23, 0x0);//23 BYTE[2] Time in seconds (simple countdown without automatic remove)
+    packet.SetInt16(25, 0x0);//25 BYTE[2] 0x0000
+    packet.SetInt8(27, 0x0);//27 BYTE[1] 0x00
+    packet.SetInt32(28, 1005007);//28 BYTE[4] Cliloc message ID1 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(32, 1005007);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
+    packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
+    packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
+    var msg := "";// tem que ter esse " " para ele concatenar!
+    packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
+    //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
+    packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length
+    packet.sendpacket(character);
+    return 1;
+endfunction
+*/
+/*
+function PlayStationaryParticleEffect( source, zmod, effect, exploeffect:=0, particle, speed, duration:=0, explode:=0, hue:=0,trans:=0, layer := "0xFF")
+
+  var packetString := "C7";
+  packetString := packetString + "02";
+  packetString := packetString + fixPacketLength(source.serial,4);
+  packetString := packetString + fixPacketLength(hex(0),4);
+  packetString := packetString + fixPacketLength(hex(effect),2);
+  packetString := packetString + fixPacketLength(hex(source.x),2);
+  packetString := packetString + fixPacketLength(hex(source.y),2);
+  packetString := packetString + fixPacketLength(hex((source.z+zmod)),1);
+  packetString := packetString + fixPacketLength(hex(0),5);
+  packetString := packetString + fixPacketLength(hex(speed),1);    // Speed of Animation
+  packetString := packetString + fixPacketLength(hex(duration),1); // Duration
+  packetString := packetString + "000000";                         // This is in place of the
+                                                                   // Unknown and Fixed Direction portion
+  packetString := packetString + fixPacketLength(hex(explode),1);  // Explode
+  packetString := packetString + fixPacketLength(hex(hue),4);      // Color
+  packetString := packetString + fixPacketLength(hex(trans),4);    // Transparency Level
+  packetString := packetString + fixPacketLength(hex(particle),2); // effect (see particleffect subdir!)
+  packetString := packetString + fixPacketLength(hex(exploeffect),2);  // Explode Effect ID
+  // additional effect #, only used for moving effects, 0 otherwise
+  // and since this is the non-moving type, tis 0 here.
+  packetString := packetString + "0000";
+  packetString := packetString + fixPacketLength(source.serial,4);
+  // layer (of the character, e.g left hand, right hand, 0-4, 0xff: moving effect or target is no char)
+  packetString := packetString + fixPacketLength(layer,2);
+  packetString := packetString + "0000";
+  foreach chr in ListMobilesNearLocation( source.x, source.y, source.z, 16 );
+    SendPacket( chr, packetString );
+  endforeach
+
+endfunction
+
+
+BYTE[1] cmd
+BYTE[2] length
+BYTE[2] subcmd
+BYTE[length-5] submessage/commands
+
+1 byte pro comando BF
+2 bytes pro length: 0006
+2 bytes pro subcomand 0026
+1 byte pro on/off: 00 ou 01
+SendPacket(character, "BF0006002600");
+SendPacket(character, "BF0006002601");
+
+paralyzed
+
+
+BYTE[1] cmd D7
+BYTE[2] size 000f
+BYTE[4] PlayerID 00000000
+BYTE[2] SubCommand message 0019
+
+SubCommand 0x19: Combat Book Abilities
+BYTE[4] 00 00 00 00 = Unknown. Always like this in all my testing 00000000
+BYTE[1] The ability "number" used 00
+BYTE[1] 0A 00
+
+
+
+
+
+Packet Build: DF
+0BYTE[1] Cmd   00
+2BYTE[2] Length  0000
+4BYTE[4] Serial of player  00000000
+8BYTE[2] Icon Number to show
+BYTE[2] 0x1 = Show, 0x0 = Remove. On remove byte, packet ends here.
+BYTE[4] 0x00000000
+BYTE[2] Icon Number to show.
+BYTE[2] 0x1 = Show
+BYTE[4] 0x00000000
+BYTE[2] Time in seconds (simple countdown without automatic remove)
+BYTE[2] 0x0000
+BYTE[1] 0x00
+BYTE[4] Cliloc ID of title of icon.
+BYTE[4] Cliloc ID for the Description of the icon. If no arguments for cliloc, then add 10 more bytes 0x00000000000000000000 and end packet
+BYTE[4] 0x00000000
+BYTE[2] 0x01
+BYTE[2] 0x0000
+BYTE[len(str)*2] Flipped Unicode String ("\t"+str) (To seperate the entrys add "\t")
+BYTE[2] 0x01
+BYTE[2] 0x0000
+
+//var monts := {0x3ea0, 0x3ea1, 0x3ea2, 0x3ea3, 0x3ea4, 0x3ea5, 0x3ea6, 0x3ea8, 0x3ea9, 0x3eb0, 0x3eb2, 0x3eb3, 0x3e9f};
+
+var monts := {0x3e90,
+              0x3e91,
+              0x3e92
+              0x3e94
+
+
+var monts := {
+0x3E90,
+0x3E91,
+0x3E92,
+0x3E94,
+0x3E98,
+0x3E9F,
+0x3EA0,
+0x3EA1,
+0x3EA2,
+0x3EA3,
+0x3EA4,
+0x3EA5,
+0x3EA6,
+0x3EA7,
+0x3EA8,
+0x3EA9,
+0x3EAA,
+0x3EAB,
+0x3EAC,
+0x3EAD,
+0x3EB0,
+0x3EB2,
+0x3EB3,
+0x3EB4,
+0x3EB8,
+0x3EBA,
+0x3EBB,
+0x3EBC,
+0x3EBD,
+0x3EBE
+};
+
+
+*/
+
+/*use uo;
+use os;
+
+program textcmd_ident( character )
+
+    var cont:=0;
+    print(cstr(cont));
+    var lugar := character.realm;
+    var i;
+    var j;
+    sleep(20);
+    for(i:=1;i<=7168;i:=i+1)
+        for(j:=1;j<=4096;j:=j+1)
+        sleepms(1);
+        //print("i: "+i+" j: "+j);
+                
+               CreateItemAtLocation(i,j,GetMapInfo( i, j, realm := _DEFAULT_REALM ).z,0xe75, amount := 1, realm := lugar );
+               cont := cont+1;
+               print(cstr(cont));
+        endfor
+    endfor
+
+endprogram
+
+*/
