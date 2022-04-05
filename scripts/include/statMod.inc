@@ -1,6 +1,7 @@
 use uo;
 use util;
 include ":attributes:attributes";
+include "include/buff";
 
 function GetModAmount(magery)
   var mod_amount := CInt(RandomInt(3) +(magery/10));
@@ -45,6 +46,7 @@ if(CanMod(who,mod))
     "#cast_cunning":
     "#intbonus":
         SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+
     "#p" :  who.setParalyzed(0);
     "#cast_bless":
         SetStrengthMod(who, GetStrengthMod(who) - amt);
@@ -68,6 +70,10 @@ if(CanMod(who,mod))
         who.ar_mod := who.ar_mod - amt;
   endcase
 
+    var modd := GetObjProperty( who, mod );
+    if(modd.buff_id)
+        BuffDebuff_removeIcon(who,modd.buff_id);
+    endif
 
   EraseObjProperty(who, mod);
   PlaySoundEffect(who, 0x01eb);

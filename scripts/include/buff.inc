@@ -18,7 +18,8 @@ function BuffDebuff_AddIcon(character,icone,tempo)
     packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
     packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
     var msg := " ";// tem que ter esse " " para ele concatenar!
-/*
+    msg := msg+"<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT>";
+
     case(icone)
         1001://1001: Dismount
             msg := msg+"<BASEFONT COLOR=#ff00ff>Dismount</BASEFONT>";
@@ -176,9 +177,9 @@ function BuffDebuff_AddIcon(character,icone,tempo)
         default:
             return 0;
         break;
-    endcase*/
+    endcase
 
-    msg := msg+"<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT>";
+
     packet.SetUnicodeStringFlipped(42,CAscZ(msg),1);//42 BYTE[len(str)*2] Flipped Unicode String (" "+str) (To seperate the entrys add " ")
     //? BYTE[2] 0x0000 , o valor "1" do terceiro parametro da funcao ".SetUnicodeString(,,1)" indica que ele ja coloca um duplo zero no fim.
     packet.SetInt16(1, packet.GetSize());//1 BYTE[2] Length

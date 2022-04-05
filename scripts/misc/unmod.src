@@ -79,6 +79,7 @@ program demod(parms)
     prop.+value := amt;
     prop.+duration := duration;
     prop.+timeleft := ReadGameClock() + duration;
+    prop.+buff_id := buff_id;
     SetObjProperty(who,mod,prop);
     sleep(duration);
     var modd := GetObjProperty( who, mod );
