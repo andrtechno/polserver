@@ -56,9 +56,9 @@ program dispel ( parms )
         var dex := GetObjProperty(cast_on, "#cast_agility");
         undo_mod(cast_on, "#cast_agility", dex.value);
     endif
-    if (CanMod(cast_on, "#cast_strangth"))
-        var str := GetObjProperty(cast_on, "#cast_strangth");
-        undo_mod(cast_on, "#cast_strangth", str.value);
+    if (CanMod(cast_on, "#cast_strength"))
+        var str := GetObjProperty(cast_on, "#cast_strength");
+        undo_mod(cast_on, "#cast_strength", str.value);
     endif
     if (CanMod(cast_on, "#cast_protection"))
         var ar := GetObjProperty(cast_on, "#cast_protection");
