@@ -18,7 +18,7 @@ function BuffDebuff_AddIcon(character,icone,tempo)
     packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
     packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
     var msg := " ";// tem que ter esse " " para ele concatenar!
-    msg := msg+"<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT>";
+
 
     case(icone)
         1001://1001: Dismount
@@ -175,7 +175,8 @@ function BuffDebuff_AddIcon(character,icone,tempo)
             msg := msg+"<BASEFONT COLOR=#ff00ff>gargola fly</BASEFONT>";
         break;
         default:
-            return 0;
+            //return 0;
+            msg := msg+"<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT>";
         break;
     endcase
 

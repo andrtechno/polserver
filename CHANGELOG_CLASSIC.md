@@ -65,7 +65,7 @@ bless,cunning,agility,protection,strength,
 incognito,polymorph,magic reflection,paralyze,reactive armor
 clumsy, weaken ,feeblemind
 poison,cure => system/poisonwatcher/poison.inc
-
+light - проверить на удаление.
 -  сделать еще нужно
 
 1043 curse
