@@ -63,6 +63,7 @@ exported function HandleSendStats( character, byref packet )
 	// Easiest method to decide which way to handle the packet. We could do this based on
 	// a Client version check too, but that would not be recommended since versions can be
 	// spoofed with software.
+	print("mode: "+MODE);
 	case ( MODE )
 		0: return 0;
 		3: HandleStatPet(character, packet); if ( STATLOCK ) SendStatLock(character); endif
@@ -223,7 +224,7 @@ function HandleExtended(character, byref packet)
 		// If negative, it's 65536 plus the resistance. -10 would be 65536 + -10
 		// tekproxy: It would be nice if a few packet guides actually mentioned this...
 		var resistances := GetResistance(character);
-		
+		print(resistances);
 		if ( CInt(resistances[DMG_FIRE]) > 0 )
 			packet.SetInt16(70, CInt(resistances[DMG_FIRE])); 
 		else

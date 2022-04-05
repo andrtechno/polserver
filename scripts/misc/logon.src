@@ -40,8 +40,10 @@ program onlogon(who)
   if(mount)
     var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount,"serial")));
     if(animal)
-      npcbonus(who,animal);
-      EraseObjProperty(animal,"onhold");
+       //if(GetObjProperty(who,"bonusstats"))
+        npcbonus(who,animal);
+        EraseObjProperty(animal,"onhold");
+      //endif
     else
       DestroyItem(mount);
     endif
