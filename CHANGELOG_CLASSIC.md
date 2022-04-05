@@ -63,13 +63,12 @@
 +добавлены баффы/дебафы
 bless,cunning,agility,protection,strength,
 incognito,polymorph,magic reflection,paralyze,reactive armor
+clumsy, weaken ,feeblemind
 poison,cure => system/poisonwatcher/poison.inc
 
 -  сделать еще нужно
-feeblemind
+
 1043 curse
-1042 weaken
-clumsy
 
 
  - проверить

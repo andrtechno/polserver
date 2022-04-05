@@ -49,11 +49,25 @@ program demod(parms)
     endcase
 
     var buff_id;
+    var debuff:=1;
     case(mod)
         "#cast_bless":          buff_id:=1048;
-        "#cast_cunning":        buff_id:=1046;
-        "#cast_strength":       buff_id:=1047;
-        "#cast_agility":        buff_id:=1045;
+        "#cast_cunning":
+            buff_id:=1046;
+            if(amt<0)
+                buff_id:=1041;
+            endif
+        "#cast_strength":
+            buff_id:=1047;
+            if(amt<0)
+                buff_id:=1042;
+            endif
+        "#cast_agility":
+            buff_id:=1045;
+            if(amt<0)
+                buff_id:=1040;
+            endif
+
         "#cast_poly":           buff_id:=1035;
         "#cast_protection":     buff_id:=1029;
         "#p":                   buff_id:=1037;
