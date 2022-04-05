@@ -607,7 +607,7 @@ const UOBJ_PARAFIELD_NS := 0x3967;
 const UOBJ_PARAFIELD_EW := 0x3979;
 const UOBJ_POISONFIELD_NS   := 0x3914;
 const UOBJ_POISONFIELD_EW   := 0x3920;
-const UOBJ_EFIELD_NS        := 0x3947;
+const UOBJ_EFIELD_NS        := 0x3946;
 const UOBJ_EFIELD_EW        := 0x3956;
 
 const GID_PLANK_EXTENDED_FACING_WEST   := 0x3ed5;

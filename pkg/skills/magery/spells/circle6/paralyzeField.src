@@ -38,11 +38,15 @@ program parafield( parms )
   endif
   var i;
 
-  for (i := 1; i <= 5; i := i + 1)
+  /*for (i := 1; i <= 5; i := i + 1)
     SetObjProperty(fields[i], "f", 1);
     PlaySoundEffect(fields[i], SFX_20C);
 	sleep(duration/2);
-  endfor
+	print("paralis dura: "+(duration/2));
+  endfor*/
+  sleep(duration/2);
+  print("paralis fields: "+fields);
+
   foreach fieldpart in fields
     DestroyItem(fieldpart);
   endforeach

@@ -7,6 +7,7 @@ include "include/client";
 //include "include/spellAttack";
 include ":magery:spells";
 include ":damage:damage";
+include "include/fields";
 
 const EFFECT_SPARKLE := 0x373a;
 const SOUND_EFFECT_RES := 0x215;

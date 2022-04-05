@@ -4,7 +4,6 @@ include ":damage:damage";
 
 function process_combat_event(opponent)
   if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 5))
-Say("process_combat_event greaterHeal");
     CastSpell(me, me, "greaterHeal");
   elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 5))
     CastSpell(me, me, "cure");
@@ -19,7 +18,6 @@ endfunction
 
 function process_flee_event(opponent)
   if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 3))
-Say("process_flee_event greaterHeal");
     CastSpell(me, me, "greaterHeal");
     return 0;
   elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 3))
@@ -71,9 +69,7 @@ function prepare_for_fight(opponent)
 endfunction
 
 function post_combat()
-Say("post_combat");
   if ( GetHp(me) < (GetStrength(me)-10))
-Say("post_combat greaterHeal");
 	CastSpell(me,me,"greaterHeal");
   endif
   if (ListPoisonsByType(me, "defaultPoison").size() > 0)

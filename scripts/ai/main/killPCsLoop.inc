@@ -27,7 +27,7 @@ function main_AI_loop()
     endif
     if(ev)
       case(ev.type)
-        SYSEVENT_ENTEREDAREA:   if((!ev.source.npctemplate) or (ev.source.script == "employed") || (ev.source.script == "tamed"))
+        SYSEVENT_ENTEREDAREA:   if((!ev.source.npctemplate) || (ev.source.script == "employed") || (ev.source.script == "tamed"))
                                   Fight(ev.source);
                                 endif
         SYSEVENT_ENGAGED:       Fight(ev.source);

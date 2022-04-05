@@ -82,6 +82,17 @@ function attr_CanAdvanceAttribute(byref chr, byref attrname, byref attrbase)
 endfunction
 
 program textcmd_skill( who )
+
+
+
+var packet := CreatePacket( 0x75, 35 );
+packet.SetInt16( 1, who.serial);
+packet.SetInt64( 6, "logo");
+SendSysMessage( who, "p:"+ packet);
+packet.SendPacket(who);
+
+
+
 //SendSkillWindow( who, who );
 //UpdateSkillWindow2(who,SKILLID_HIDING);
 

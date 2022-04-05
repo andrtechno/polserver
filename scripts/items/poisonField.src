@@ -10,8 +10,8 @@ include ":poisonwatcher:poisons";
 program mpoisonfield(character, item)
   if(character.dead)
     return;
-  elseif(character.cmdlevel)
-    return;
+  //elseif(character.cmdlevel)
+  //  return;
   endif
   var npccfg := ReadConfigFile("::npcdesc");
   var boss := SystemFindObjectBySerial(GetObjProperty(item, "creater"), SYSFIND_SEARCH_OFFLINE_MOBILES);

@@ -1,0 +1,6 @@
+use uo;
+use os;
+
+program questButton(who)
+SendSysMessage(who, "Virtue in developer (c) panic", 3, 40);
+endprogram
