@@ -5,10 +5,11 @@ use cfgfile;
 
 include ":attributes:attributes";
 include ":magery:spells";
+include "include/buff";
 
 program cast_incognito(parms)
   var caster := parms[1];
-  
+    var duration:= 60 * CInt(GetAttribute( caster, MAGERY )/10 );
   
   if (!GetObjProperty( caster, "realname"))
 	SetObjProperty( caster, "realname", caster.name );
@@ -16,11 +17,13 @@ program cast_incognito(parms)
   var newname := AssignName(caster);
   SetName( caster, newname );
   PlaySoundEffect(caster, 0x1e1);
+  BuffDebuff_AddIcon(caster,1032,duration);
   Detach();
   set_critical(1);
-  sleep( 60 * CInt(GetAttribute( caster, MAGERY )/10 ) );
+  sleep( duration );
   SetName( caster, GetObjProperty( caster, "realname" ) );
   EraseObjProperty( caster, "realname" );
+  BuffDebuff_removeIcon(caster,1032);
 endprogram
 
 function AssignName( me )

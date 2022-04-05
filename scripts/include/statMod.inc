@@ -40,20 +40,12 @@ endfunction
 function undo_mod(who, mod, amt)
 if(CanMod(who,mod))
   case(mod)
-    //"str": SetStrengthMod(who, GetStrengthMod(who) - amt);
-    //"p_str": SetStrengthMod(who, GetStrengthMod(who) - amt);
-    //"dex": SetDexterityMod(who, GetDexterityMod(who) - amt);
-    //"p_dex": SetDexterityMod(who, GetDexterityMod(who) - amt);
     "#int":
     "#p_int":
     "#cast_cunning":
+    "#intbonus":
         SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-    //"p_int": SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-    //"ar":  who.ar_mod := who.ar_mod - amt;
     "#p" :  who.setParalyzed(0);
-    //"strbonus": SetStrengthMod(who, GetStrengthMod(who) - amt);
-    //"dexbonus": SetDexterityMod(who, GetDexterityMod(who) - amt);
-    "#intbonus": SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
     "#cast_bless":
         SetStrengthMod(who, GetStrengthMod(who) - amt);
         SetDexterityMod(who, GetDexterityMod(who) - amt);
@@ -76,38 +68,12 @@ if(CanMod(who,mod))
         who.ar_mod := who.ar_mod - amt;
   endcase
 
-  EraseModFlags(who, mod);
+
+  EraseObjProperty(who, mod);
   PlaySoundEffect(who, 0x01eb);
   PlayObjectCenteredEffect(who, 0x373a, 10,10);
 endif
 endfunction
-
-function EraseModFlags(who, stat)
-  var mod;
-  case(stat)
-    "#str":              mod := "#ss";
-    "#p_str":            mod := "#p_str";
-    "#p_dex":            mod := "#p_dex";
-    "#p_int":            mod := "#p_int";
-    "#dex":              mod := "#dd";
-    "#int":              mod := "#ii";
-    "#ar":               mod := "#ar";
-    "#p":                mod := "#pp";
-    "#strbonus":         mod := "#strbonus";
-    "#dexbonus":         mod := "#dexbonus";
-    "#intbonus":         mod := "#intbonus";
-    "#cast_bless":       mod := "#cast_bless";
-    "#cast_agility":     mod := "#cast_agility";
-    "#cast_strength":    mod := "#cast_strength";
-    "#cast_protection":  mod := "#cast_protection";
-    "#cast_cunning":     mod := "#cast_cunning";
-  endcase
-  if(who)
-    EraseObjProperty(who, mod);
-  endif
-endfunction
-
-
 
 
 function SpellCheck(who, modType, effect, duration, value, description)

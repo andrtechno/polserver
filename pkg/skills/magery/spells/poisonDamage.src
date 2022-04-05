@@ -19,8 +19,8 @@ program poisondamage (passparms)
     if(who.npctemplate == "bladespirit")
       return;
     endif
-  elseif(who.cmdlevel > 1)
-    return;
+  //elseif(who.cmdlevel > 1)
+  //  return;
   endif
   AddPoison(who, "defaultPoison", 120, attacker, level);
   if(pfield == 1)

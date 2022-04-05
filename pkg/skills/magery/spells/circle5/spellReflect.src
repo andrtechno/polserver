@@ -3,6 +3,7 @@ use os;
 
 include ":magery:spells";
 include ":damage:damage";
+include "include/buff";
 
 program cast_reflect( parms )
   var caster := parms[1];
@@ -15,28 +16,36 @@ program cast_reflect( parms )
 /////////////////////////////////////
 // New system from POL 0.97 Distro //
 /////////////////////////////////////
-/*	if ( GetObjProperty(caster, "MagicReflection") )
+	if ( GetObjProperty(caster, "MagicReflection") )
 		RemoveMagicReflection(caster);
+		BuffDebuff_removeIcon(caster,1031);
+	PlaySoundEffect(caster, 0x1ea);
+	PlayObjectCenteredEffect( caster, FX_SPARK_EFFECT, 10,10);
 	else
 		var points := 25 - (AP_GetSkill(caster, INSCRIPTION) / 20);
 		ApplyMagicReflection(caster, points);
+		BuffDebuff_AddIcon(caster,1031,points);
+    PlaySoundEffect(caster,0x005d);
+    PlayObjectCenteredEffect(caster, 0x3735,0x0a, 0x1e);
 	endif
-*/
+
 /////////////////////////////////////
 
 /////////////////////////////////////
 // Original system from POL 0.95   //
 /////////////////////////////////////
-  if (!(GetObjProperty(caster, "mr") == "1") )
+/*  if (!(GetObjProperty(caster, "mr") == "1") )
 	PlaySoundEffect(caster, 0x1ea);
 	PlayObjectCenteredEffect( caster, FX_SPARK_EFFECT, 10,10);
 	SetObjProperty(caster, "mr","1");
+	BuffDebuff_AddIcon(caster,1031,duration);
   else
     PlaySoundEffect(caster,0x005d);
     PlayObjectCenteredEffect(caster, 0x3735,0x0a, 0x1e);
     SendSysMessage(caster,"Removing protection.", color := 33);
     EraseObjProperty (caster, "mr");
-  endif
+    BuffDebuff_removeIcon(caster,1031);
+  endif*/
 //////////////////////////////////////
 endprogram
 

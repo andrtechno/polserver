@@ -49,17 +49,27 @@ program dispel ( parms )
         undo_mod(cast_on, "#cast_bless", bless.value);
     endif
     if (CanMod(cast_on, "#cast_cunning"))
-        var cunning := GetObjProperty(cast_on, "#cast_cunning");
-        undo_mod(cast_on, "#cast_cunning", cunning.value);
+        var int := GetObjProperty(cast_on, "#cast_cunning");
+        undo_mod(cast_on, "#cast_cunning", int.value);
     endif
     if (CanMod(cast_on, "#cast_agility"))
-        var agility := GetObjProperty(cast_on, "#cast_agility");
-        undo_mod(cast_on, "#cast_agility", agility.value);
+        var dex := GetObjProperty(cast_on, "#cast_agility");
+        undo_mod(cast_on, "#cast_agility", dex.value);
     endif
-
-
+    if (CanMod(cast_on, "#cast_strangth"))
+        var str := GetObjProperty(cast_on, "#cast_strangth");
+        undo_mod(cast_on, "#cast_strangth", str.value);
+    endif
+    if (CanMod(cast_on, "#cast_protection"))
+        var ar := GetObjProperty(cast_on, "#cast_protection");
+        undo_mod(cast_on, "#cast_protection", ar.value);
+    endif
+    if (CanMod(cast_on, "#cast_poly"))
+        var poly := GetObjProperty(cast_on, "#cast_poly");
+        undo_mod(cast_on, "#cast_poly", poly.value);
+    endif
   	SendSysMessage(cast_on,"All the magical effects active on this creature have been wiped.");
-  	return;
+
     if(cast_on.isA(POLCLASS_NPC))
       var element := npccfg[cast_on.npctemplate].elemental;
       if(element == "undead")

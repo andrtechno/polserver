@@ -32,5 +32,5 @@ program cast_AGILITY( parms )
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
 
-  DoTempMod(cast_on, "#cast_agility", mod_amount, 20);
+  DoTempMod(cast_on, "#cast_agility", mod_amount, duration);
 endprogram

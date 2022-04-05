@@ -3,6 +3,7 @@ use os;
 
 include ":attributes:attributes";
 include ":magery:spells";
+include "include/buff";
 
 program cast_paralyze( parms )
     var caster := parms[1];
@@ -35,7 +36,7 @@ program cast_paralyze( parms )
 	var duration := CInt((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 10) * 1500);
         duration := pararesist(2, caster, cast_on, amt, info);
 	cast_on.SetParalyzed(1);
-
+    BuffDebuff_AddIcon(cast_on,1037,5000);
 	Detach();
 	
 	while ( duration )
@@ -53,7 +54,7 @@ program cast_paralyze( parms )
 	endwhile
 	
 	cast_on.SetParalyzed(0);
-	
+	BuffDebuff_removeIcon(cast_on,1037);
 	return 1;
 /*        
   if (Reflected(cast_on))

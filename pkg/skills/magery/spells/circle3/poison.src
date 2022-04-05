@@ -62,6 +62,7 @@ program cast_poison(parms)
         SendSysMessage(cast_on, "You have been poisoned by " + caster.name +"!");
         Detach();
         passparms := {cast_on, caster, "poison spell", newamt};
+
         start_script(":spells:poisonDamage", passparms);
         SetObjProperty(cast_on, "LastHit", {caster.name, caster.serial, "poison spell" });
       else

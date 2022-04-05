@@ -32,5 +32,5 @@ program cast_CUNNING( parms )
   var magery := GetAttribute(caster, MAGERY);
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
-  DoTempMod(cast_on, "#cast_cunning", mod_amount, 30);
+  DoTempMod(cast_on, "#cast_cunning", mod_amount, duration);
 endprogram

@@ -2,6 +2,8 @@ use os;
 use cfgfile;
 use uo;
 
+include "include/buff";
+
 const EVENT_ADD_POISON			:= 0x1;
 const EVENT_CURE_POISON			:= 0x2;
 const EVENT_CURE_SPECIFIC_POISON	:= 0x3;
@@ -66,6 +68,7 @@ function AddPoison(mobile, poison_name, amount, attacker, level := 1)
 	event.level := level;
 	
 	GetScript(mobile).SendEvent(event);
+    BuffDebuff_AddIcon(mobile,1038,amount);
 endfunction
 
 //
@@ -93,6 +96,7 @@ function CurePoison(mobile, amount, poisontype := "", level := 1)
 	event.level := level;
 	
 	GetScript(mobile).SendEvent(event);
+    BuffDebuff_removeIcon(mobile,1038);
 endfunction
 
 // 

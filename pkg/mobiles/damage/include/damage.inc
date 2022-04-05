@@ -523,7 +523,7 @@ function ModifyResistance(mobile, name, value)
 	value := cur_value + CDbl(value);
 
 	resistances[name] := value;
-  SendSysMessage(mobile, "Your " + name + " resistance has changed by " + CStr(adjustment)+ ".", 2, 88);
+      SendSysMessage(mobile, "Your " + name + " resistance has changed by " + CStr(adjustment)+ ".", 0, 88);
 	return SetObjProperty(mobile, "%Resistances%", resistances);
 endfunction
 
@@ -656,7 +656,7 @@ function LifeDrain(source, damage, percent)
     percent := percent / 100;
     var amt := CInt(CDbl(damage) * percent);
     HealDamage(source, amt);
-    SendSysMessage(source, amt + " life force from your opponent was applied to heal you.", 2, 66);
+    SendSysMessage(source, amt + " life force from your opponent was applied to heal you.", 0, 66);
     
     return amt;
     

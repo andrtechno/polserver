@@ -34,6 +34,6 @@ program cast_bless( parms )
     var mod_amount := GetModAmount(magery);
     var duration := GetModDuration(magery);
 
-    DoTempMod(cast_on, "#cast_bless", mod_amount, 30);
+    DoTempMod(cast_on, "#cast_bless", mod_amount, duration);
 
 endprogram

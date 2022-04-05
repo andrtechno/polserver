@@ -2,6 +2,7 @@ use uo;
 use os;
 include ":attributes:attributes";
 include "include/statMod";
+include "include/buff";
 
 program demod(parms)
     var mod := lower(parms[1]);
@@ -40,8 +41,26 @@ program demod(parms)
         "#int":
         "#p_int":
             SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
+        "#cast_poly":
+            SetStrengthMod(who, GetStrengthMod(who) + amt);
+            SetDexterityMod(who, GetDexterityMod(who) + amt);
+            SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
+            who.ar_mod := who.ar_mod + amt;
     endcase
 
+    var buff_id;
+    case(mod)
+        "#cast_bless":          buff_id:=1048;
+        "#cast_cunning":        buff_id:=1046;
+        "#cast_strength":       buff_id:=1047;
+        "#cast_agility":        buff_id:=1045;
+        "#cast_poly":           buff_id:=1035;
+        "#cast_protection":     buff_id:=1029;
+        "#p":                   buff_id:=1037;
+    endcase
+
+
+    BuffDebuff_AddIcon(who,buff_id,duration);
     var prop:=struct;
     prop.+value := amt;
     prop.+duration := duration;
@@ -51,6 +70,7 @@ program demod(parms)
     var modd := GetObjProperty( who, mod );
     if(ReadGameClock() >= modd.timeleft)
         undo_mod(who, mod, amt);
+        BuffDebuff_removeIcon(who,buff_id);
     endif;
 endprogram
 

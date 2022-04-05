@@ -46,5 +46,5 @@ program cast_protection(parms)
   else
     mod_amount := 0;
   endif
-  DoTempMod(cast_on, "#cast_protection", mod_amount, 20);
+  DoTempMod(cast_on, "#cast_protection", mod_amount, duration);
 endprogram

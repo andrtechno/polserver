@@ -79,6 +79,19 @@ program cast_poly( parms )
   var magerydur := magery/2;
   var meditadur := magerydur + meditation/10;
   var duration  := meditadur + evalint/10;
+
+      if (CanMod(caster, "#cast_poly"))
+    	SendSysMessage(caster,"Already under the influence!");
+    	return;
+      endif
+
+
+      var mod_amount := GetModAmount(magery);
+
+      DoTempMod(caster, "#cast_poly", mod_amount, duration);
+
+
+
   Detach();
   sleep(duration);
   caster.graphic := caster.objtype;
