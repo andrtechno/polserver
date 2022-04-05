@@ -28,6 +28,16 @@ const AVERAGE_SKILL       := 75;
 const AVERAGE_LEVEL_MOD   := 15;
 const BONUS_PER_LEVEL     := 0.25;
 
+
+var skillid_bard := array{SKILLID_BEGGING, SKILLID_PEACEMAKING,SKILLID_MUSICIANSHIP,SKILLID_TASTE_IDENTIFICATION,SKILLID_PROVOCATION,SKILLID_HERDING,SKILLID_CARTOGRAPHY,SKILLID_DISCORDANCE};
+var skillid_crafter := array{SKILLID_ARMSLORE, SKILLID_BLACKSMITHY, SKILLID_BOWCRAFT, SKILLID_LUMBERJACKING, SKILLID_MINING, SKILLID_TINKERING, SKILLID_TAILORING,SKILLID_CARPENTRY};
+var skillid_mage := array{SKILLID_ALCHEMY,SKILLID_ITEM_IDENTIFICATION,SKILLID_SPIRITSPEAK,SKILLID_RESISTING_SPELLS,SKILLID_MAGERY,SKILLID_MEDITATION,SKILLID_EVALUATING_INTELLIGENCE,SKILLID_INSCRIPTION};
+var skillid_ranger := array{SKILLID_ANIMALLORE,SKILLID_CAMPING,SKILLID_COOKING,SKILLID_FISHING,SKILLID_ARCHERY,SKILLID_TRACKING, SKILLID_VETERINARY,SKILLID_TAMING};
+var skillid_thief := array{SKILLID_DETECTING_HIDDEN,SKILLID_HIDING,SKILLID_LOCKPICKING,SKILLID_SNOOPING,SKILLID_STEALTH,SKILLID_STEALING,SKILLID_POISONING,SKILLID_REMOVETRAP};
+var skillid_warrior := array{SKILLID_ANATOMY,SKILLID_PARRYING, SKILLID_HEALING,SKILLID_TACTICS, SKILLID_SWORDSMANSHIP, SKILLID_MACEFIGHTING, SKILLID_FENCING, SKILLID_WRESTLING};
+
+
+
 function GetSkillListName()
     var data := array;
     var bard := array{"Begging", "Peacemaking","Musicianship","TasteIdentification","Provocation","Herding","Cartography","Discordance"};
@@ -45,6 +55,63 @@ function GetSkillListName()
     data[ID_WARRIOR] := warrior;
 
     return data;
+
+endfunction
+
+
+function VitalClassCharacter(who, skill_id)
+
+//print("GetClasseIdForSkill: classid: "+GetClasseIdForSkill(skill_id));
+//print("GetClasseSkills: skillist: "+GetClasseSkills(GetClasseIdForSkill(skill_id)));
+
+//print("test: "+GetSkillCapClass(who, skill_id));
+
+
+SetClass(who, skill_id);
+endfunction
+
+
+
+function GetSkillCapClass(who, skill_id)
+    var classid := GetClasseIdForSkill(skill_id);
+    var list := GetClasseSkills(classid);
+    var skill	:= 0.0;
+    var result := 0.0;
+    foreach s in ( GetClasseSkills( classid ) )
+        skill := GetEffectiveSkill(who,s);
+        result := result + skill;
+    endforeach
+
+    return result;
+
+endfunction
+
+
+function SetClass(who, skill_id)
+    var classid := GetClasseIdForSkill(skill_id);
+    var capskill := GetSkillCapClass(who, skill_id);
+    var level := 0;
+    if(capskill >= 1200)
+        level:=6;
+    elseif(capskill >= 1080)
+        level:=5;
+    elseif(capskill >= 960)
+        level:=4;
+    elseif(capskill >= 840)
+        level:=6;
+    elseif(capskill >= 720)
+        level:=2;
+    elseif(capskill >= 600)
+        level:=1;
+    endif
+
+    if(level >= 1)
+        SetObjProperty(who,"classlevel",level);
+        SetObjProperty(who,"classid",classid);
+    else
+        //EraseObjProperty(who,"classlevel");
+        //EraseObjProperty(who,"classid");
+    endif
 
 endfunction
 
@@ -161,12 +228,7 @@ endfunction
 
 function GetClasseIds()
 
-	return { CLASSEID_BARD,
-		 CLASSEID_CRAFTER,
-		 CLASSEID_MAGE,
-		 CLASSEID_RANGER,
-		 CLASSEID_THIEF,
-		 CLASSEID_WARRIOR };
+	return { ID_BARD,ID_CRAFTER,ID_MAGE,ID_RANGER,ID_THIEF,ID_WARRIOR };
 
 endfunction
 
@@ -175,13 +237,13 @@ function GetClasseName( classeid )
 
         case( classeid )
 
-                CLASSEID_BARD:		return( "Bard" );
-                CLASSEID_CRAFTER:	return( "Crafter" );
-                CLASSEID_MAGE:		return( "Mage" );
-                CLASSEID_RANGER:	return( "Ranger" );
-                CLASSEID_THIEF:		return( "Thief" );
-                CLASSEID_WARRIOR:	return( "Warrior" );
-                default:		return( "INVALID" );
+                ID_BARD:		return( "Bard" );
+                ID_CRAFTER:	    return( "Crafter" );
+                ID_MAGE:		return( "Mage" );
+                ID_RANGER:	    return( "Ranger" );
+                ID_THIEF:		return( "Thief" );
+                ID_WARRIOR:	    return( "Warrior" );
+                default:		return( "None" );
 
         endcase
 
@@ -192,7 +254,7 @@ function GetClasseSkills( classeid )
 
 	case( classeid )
 
-		CLASSEID_BARD:		return { SKILLID_BEGGING,
+		ID_BARD:		return { SKILLID_BEGGING,
 						 SKILLID_CARTOGRAPHY,
                          SKILLID_DISCORDANCE,
 						 SKILLID_HERDING,
@@ -201,7 +263,7 @@ function GetClasseSkills( classeid )
 						 SKILLID_PROVOCATION,
 						 SKILLID_TASTE_IDENTIFICATION	};
 
-		CLASSEID_CRAFTER:	return { SKILLID_ARMSLORE,
+		ID_CRAFTER:	return { SKILLID_ARMSLORE,
 						 SKILLID_BLACKSMITHY,
 						 SKILLID_BOWCRAFT,
 						 SKILLID_CARPENTRY,
@@ -210,7 +272,7 @@ function GetClasseSkills( classeid )
 						 SKILLID_TAILORING,
 						 SKILLID_TINKERING	};
 
-		CLASSEID_MAGE:		return { SKILLID_ALCHEMY,
+		ID_MAGE:		return { SKILLID_ALCHEMY,
 						 SKILLID_EVALUATING_INTELLIGENCE,
 						 SKILLID_INSCRIPTION,
 						 SKILLID_ITEM_IDENTIFICATION,
@@ -219,49 +281,41 @@ function GetClasseSkills( classeid )
                          SKILLID_RESISTING_SPELLS,
 						 SKILLID_SPIRITSPEAK	};
 
-		CLASSEID_RANGER:	return { SKILLID_ANIMALLORE,
+		ID_RANGER:	return { SKILLID_ANIMALLORE,
 						 SKILLID_TAMING,
 						 SKILLID_ARCHERY,
 						 SKILLID_CAMPING,
 						 SKILLID_COOKING,
 						 SKILLID_FISHING,
 						 SKILLID_TRACKING,
-						 SKILLID_VETERINARY	};
+						 SKILLID_VETERINARY };
 
-		CLASSEID_THIEF:		return { SKILLID_DETECTING_HIDDEN,
+		ID_THIEF:		return { SKILLID_DETECTING_HIDDEN,
 						 SKILLID_HIDING,
 						 SKILLID_LOCKPICKING,
 						 SKILLID_POISONING,
 						 SKILLID_REMOVETRAP,
 						 SKILLID_SNOOPING,
 						 SKILLID_STEALING,
-						 SKILLID_STEALTH	};
+						 SKILLID_STEALTH };
 
-		CLASSEID_WARRIOR:	return { SKILLID_ANATOMY,
+		ID_WARRIOR:	return { SKILLID_ANATOMY,
 						 SKILLID_FENCING,
 						 SKILLID_HEALING,
 						 SKILLID_MACEFIGHTING,
                          SKILLID_PARRYING,
 						 SKILLID_SWORDSMANSHIP,
 						 SKILLID_TACTICS,
-						 SKILLID_WRESTLING	};
+						 SKILLID_WRESTLING };
 
 		default:		return {};
 
 	endcase
-
 endfunction
 
 
 function GetGeneralSkills()
-
-	return { SKILLID_BEGGING,
-		 SKILLID_ARMSLORE,
-         SKILLID_RESISTING_SPELLS,
-		 SKILLID_ARCHERY,
-		 SKILLID_HIDING,
-		 SKILLID_TACTICS	};
-
+	return { SKILLID_BEGGING, SKILLID_ARMSLORE, SKILLID_RESISTING_SPELLS, SKILLID_ARCHERY, SKILLID_HIDING, SKILLID_TACTICS };
 endfunction
 
 
@@ -281,21 +335,13 @@ endfunction
 function GetMaxCircleForClasse( classeid )
 
 	case( classeid )
-
-		CLASSEID_BARD:		return 10;
-
-		CLASSEID_CRAFTER:	return 6;
-
-		CLASSEID_MAGE:		return 0;
-
-		CLASSEID_RANGER:	return 8;
-
-		CLASSEID_THIEF:		return 0;
-
-		CLASSEID_WARRIOR:	return 4;
-
+		ID_BARD:		return 10;
+		ID_CRAFTER:	return 6;
+		ID_MAGE:		return 0;
+		ID_RANGER:	return 8;
+		ID_THIEF:		return 0;
+		ID_WARRIOR:	return 4;
 		default:		return 0;
-
 	endcase
 
 endfunction
@@ -347,18 +393,12 @@ function HaveRestrictedModEnchantmentForClasse( who, item, classeid )
 	var ret := 0;
 
 	case( classeid )
-
-		CLASSEID_BARD:		break;
-
-		CLASSEID_CRAFTER:	break;
-
-		CLASSEID_MAGE:		break;
-
-		CLASSEID_RANGER:	break;
-
-		CLASSEID_THIEF:		break;
-
-		CLASSEID_WARRIOR:	if( GetObjProperty( item, "MagicImmunity" ) )
+		ID_BARD:		break;
+		ID_CRAFTER:	break;
+		ID_MAGE:		break;
+		ID_RANGER:	break;
+		ID_THIEF:		break;
+		ID_WARRIOR:	if( GetObjProperty( item, "MagicImmunity" ) )
 						ret := 1;
 					elseif( GetObjProperty( item, "SpellReflect" ) )
 						ret := 1;
@@ -381,15 +421,15 @@ function HaveStatAffinity( who, stat )
 	var classeids;
 
 	case( stat )
-		"str":	classeids := {  CLASSEID_CRAFTER,
-					CLASSEID_WARRIOR };	break;
-
-		"dex":	classeids := {  CLASSEID_BARD,
-					CLASSEID_THIEF   };	break;
-
-		"int":	classeids := {  CLASSEID_BARD,
-					CLASSEID_MAGE    };	break;
-
+		"str":
+            classeids := { ID_CRAFTER,ID_WARRIOR };
+            break;
+		"dex":
+            classeids := {  ID_BARD, ID_THIEF };
+            break;
+		"int":
+            classeids := { ID_BARD, ID_MAGE };
+            break;
 		default:	classeids := {};
 	endcase
 
@@ -412,16 +452,16 @@ function HaveStatDifficulty( who, stat )
 	case( stat )
 		"str":
 			classeids := {
-				CLASSEID_BARD,
-				CLASSEID_MAGE
+				ID_BARD,
+				ID_MAGE
 			}; break;
 		"dex":
 			classeids := {
 			};	break;
 		"int":
 			classeids := {
-				CLASSEID_CRAFTER,
-				CLASSEID_WARRIOR
+				ID_CRAFTER,
+				ID_WARRIOR
 			};	break;
 		default:
 			classeids := {
@@ -451,22 +491,22 @@ endfunction
 
 
 function IsBard( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_BARD ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_BARD ) );
 endfunction
 function IsCrafter( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_CRAFTER ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_CRAFTER ) );
 endfunction
 function IsMage( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_MAGE ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_MAGE ) );
 endfunction
 function IsRanger( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_RANGER ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_RANGER ) );
 endfunction
 function IsThief( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_THIEF ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_THIEF ) );
 endfunction
 function IsWarrior( who )
-	return IsFromThatClasse( who, GetClasseSkills( CLASSEID_WARRIOR ) );
+	return IsFromThatClasse( who, GetClasseSkills( ID_WARRIOR ) );
 endfunction
 
 
@@ -510,55 +550,55 @@ function IsProhibitedByClasse( who, item )
 
 	var ret := 0;
 
-	if( GetObjProperty( who, CLASSEID_BARD	) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_BARD ) )
+	if( GetObjProperty( who, ID_BARD	) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_BARD ) )
 			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_BARD ) )
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_BARD ) )
 			ret := 1;
 		endif
 
-	elseif( GetObjProperty( who, CLASSEID_CRAFTER ) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_CRAFTER ) )
+	elseif( GetObjProperty( who, ID_CRAFTER ) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_CRAFTER ) )
 			ret := 1;
 		elseif( GetObjProperty( item, "str" ) )
 			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_CRAFTER ) )
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_CRAFTER ) )
 			ret := 1;
 		endif
 
-	elseif( GetObjProperty( who, CLASSEID_MAGE ) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_MAGE ) )
+	elseif( GetObjProperty( who, ID_MAGE ) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_MAGE ) )
 			ret := 1;
 		elseif( GetObjProperty( item, "str" ) )
 			ret := 1;
 		elseif( GetObjProperty( item, "ArBonus" ) )
 			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_MAGE ) )
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_MAGE ) )
 			ret := 1;
 		endif
 
-	elseif( GetObjProperty( who, CLASSEID_RANGER ) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_RANGER ) )
+	elseif( GetObjProperty( who, ID_RANGER ) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_RANGER ) )
 			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_RANGER ) )
-			ret := 1;
-		endif
-
-	elseif( GetObjProperty( who, CLASSEID_THIEF ) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_THIEF ) )
-			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_THIEF ) )
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_RANGER ) )
 			ret := 1;
 		endif
 
-	elseif( GetObjProperty( who, CLASSEID_WARRIOR ) )
-		if( HaveInvalidSkillEnchantmentForClasse( item, CLASSEID_WARRIOR ) )
+	elseif( GetObjProperty( who, ID_THIEF ) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_THIEF ) )
+			ret := 1;
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_THIEF ) )
+			ret := 1;
+		endif
+
+	elseif( GetObjProperty( who, ID_WARRIOR ) )
+		if( HaveInvalidSkillEnchantmentForClasse( item, ID_WARRIOR ) )
 			ret := 1;
 		elseif( GetObjProperty( item, "int" ) )
 			ret := 1;
-		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( CLASSEID_WARRIOR ) )
+		elseif( item.graphic in EnumerateRestrictedItemTypesFromClasse( ID_WARRIOR ) )
 			ret := 1;
-		elseif( HaveRestrictedModEnchantmentForClasse( who, item, CLASSEID_WARRIOR ) )
+		elseif( HaveRestrictedModEnchantmentForClasse( who, item, ID_WARRIOR ) )
 			ret := 1;
 		endif
 	endif
@@ -567,17 +607,17 @@ function IsProhibitedByClasse( who, item )
 
 endfunction
 
-
+/*
 function AssignClasse( character )
 
 	var t;
 
 	foreach classe in GetClasseIds()
-		EraseObjProperty( character, CLASSEID_BARD );
+		EraseObjProperty( character, ID_BARD );
 		t := IsFromThatClasse( character, GetClasseSkills( classe ) );
 		if( t )
 			SetObjProperty( character, classe, t );
 		endif
 	endforeach
 
-endfunction
+endfunction*/

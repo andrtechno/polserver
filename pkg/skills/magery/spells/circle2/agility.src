@@ -24,12 +24,13 @@ program cast_AGILITY( parms )
     endif
   PlaySoundEffect(caster, 0x1e8);
   PlayObjectCenteredEffect(caster, 0x373a, 7,7);
-  if(!CanMod(cast_on, "dex"))
+  if(CanMod(cast_on, "#cast_agility"))
     SendSysMessage(caster,"Another existing effect negates your spell!");
     return;
   endif
   var magery := GetAttribute(caster, MAGERY);
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
-  DoTempMod(cast_on, "dex", mod_amount, duration);
+
+  DoTempMod(cast_on, "#cast_agility", mod_amount, 20);
 endprogram

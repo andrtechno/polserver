@@ -6,6 +6,7 @@ include "include/eventID";
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/spellAttack";
+//include "include/statMod";
 
 var npccfg := ReadConfigFile("npcdesc");
 
@@ -42,6 +43,23 @@ program dispel ( parms )
       send_attack(caster, cast_on, 41);
     endif
   else
+
+    if (CanMod(cast_on, "#cast_bless"))
+        var bless := GetObjProperty(cast_on, "#cast_bless");
+        undo_mod(cast_on, "#cast_bless", bless.value);
+    endif
+    if (CanMod(cast_on, "#cast_cunning"))
+        var cunning := GetObjProperty(cast_on, "#cast_cunning");
+        undo_mod(cast_on, "#cast_cunning", cunning.value);
+    endif
+    if (CanMod(cast_on, "#cast_agility"))
+        var agility := GetObjProperty(cast_on, "#cast_agility");
+        undo_mod(cast_on, "#cast_agility", agility.value);
+    endif
+
+
+  	SendSysMessage(cast_on,"All the magical effects active on this creature have been wiped.");
+  	return;
     if(cast_on.isA(POLCLASS_NPC))
       var element := npccfg[cast_on.npctemplate].elemental;
       if(element == "undead")

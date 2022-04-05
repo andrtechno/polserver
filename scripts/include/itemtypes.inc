@@ -1160,7 +1160,7 @@ function IsSteedContainer(item)
 		return 1;
 	elseif (item.objtype == 0x09b1)                  //SmallBasket
 		return 1;
-	elseif (item.objtype == 0x26100)                  //Runebook
+	elseif (item.objtype == UOBJ_RUNEBOOK)                  //Runebook
 		return 1;
 	elseif (item.objtype == 0x09aa)                  //WoodenBox
 		return 1;

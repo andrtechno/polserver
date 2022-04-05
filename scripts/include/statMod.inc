@@ -15,52 +15,100 @@ function GetModDuration(magery)
   return(duration);
 endfunction
 
-function CanMod(who, stat)
+function CanMod(who, mod)
+    if(GetObjProperty(who, mod))
+        return 1;
+    else
+        return 0;
+    endif
+endfunction
+
+function DoTempMod(who, mod, amt, duration)
+
+  var parms := {};
+  parms[2] := who;
+  parms[1] := mod;
+  parms[3] := amt;
+  parms[4] := duration;
+  parms[5] := ReadGameClock() + duration;
+
+  start_script("::/misc/unmod", parms);
+
+endfunction
+
+
+function undo_mod(who, mod, amt)
+if(CanMod(who,mod))
+  case(mod)
+    //"str": SetStrengthMod(who, GetStrengthMod(who) - amt);
+    //"p_str": SetStrengthMod(who, GetStrengthMod(who) - amt);
+    //"dex": SetDexterityMod(who, GetDexterityMod(who) - amt);
+    //"p_dex": SetDexterityMod(who, GetDexterityMod(who) - amt);
+    "#int":
+    "#p_int":
+    "#cast_cunning":
+        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+    //"p_int": SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+    //"ar":  who.ar_mod := who.ar_mod - amt;
+    "#p" :  who.setParalyzed(0);
+    //"strbonus": SetStrengthMod(who, GetStrengthMod(who) - amt);
+    //"dexbonus": SetDexterityMod(who, GetDexterityMod(who) - amt);
+    "#intbonus": SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+    "#cast_bless":
+        SetStrengthMod(who, GetStrengthMod(who) - amt);
+        SetDexterityMod(who, GetDexterityMod(who) - amt);
+        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+
+    "#cast_agility":
+    "#dexbonus":
+    "#p_dex":
+    "#dex":
+        SetDexterityMod(who, GetDexterityMod(who) - amt);
+
+    "#cast_strength":
+    "#str":
+    "#p_str":
+    "#strbonus":
+        SetStrengthMod(who, GetStrengthMod(who) - amt);
+
+    "#cast_protection":
+    "#ar":
+        who.ar_mod := who.ar_mod - amt;
+  endcase
+
+  EraseModFlags(who, mod);
+  PlaySoundEffect(who, 0x01eb);
+  PlayObjectCenteredEffect(who, 0x373a, 10,10);
+endif
+endfunction
+
+function EraseModFlags(who, stat)
   var mod;
   case(stat)
-    "str": mod := "#ss";
-    "p_str": mod := "#p_str";
-    "dex": mod := "#dd";
-    "p_dex": mod := "#p_dex";
-    "int": mod := "#ii";
-    "p_int": mod := "#p_int";
-    "p"  : mod := "#pp";
-    "ar" : mod := "#ar";
-    "strbonus": mod := "#strbonus";
-    "dexbonus": mod := "#dexbonus";
-    "intbonus": mod := "#intbonus";
+    "#str":              mod := "#ss";
+    "#p_str":            mod := "#p_str";
+    "#p_dex":            mod := "#p_dex";
+    "#p_int":            mod := "#p_int";
+    "#dex":              mod := "#dd";
+    "#int":              mod := "#ii";
+    "#ar":               mod := "#ar";
+    "#p":                mod := "#pp";
+    "#strbonus":         mod := "#strbonus";
+    "#dexbonus":         mod := "#dexbonus";
+    "#intbonus":         mod := "#intbonus";
+    "#cast_bless":       mod := "#cast_bless";
+    "#cast_agility":     mod := "#cast_agility";
+    "#cast_strength":    mod := "#cast_strength";
+    "#cast_protection":  mod := "#cast_protection";
+    "#cast_cunning":     mod := "#cast_cunning";
   endcase
-  if(GetObjProperty(who, mod))
-    return 0;
-  else
-    return 1;
+  if(who)
+    EraseObjProperty(who, mod);
   endif
 endfunction
 
-function DoTempMod(who, stat, amt, duration)
-  var mod;
-  case(stat)
-    "str":          mod := "#ss";           SetStrengthMod(who, GetStrengthMod(who) + amt);
-    "p_str":        mod := "#p_str";        SetStrengthMod(who, GetStrengthMod(who) + amt);
-    "dex":          mod := "#dd";           SetDexterityMod(who, GetDexterityMod(who) + amt);
-    "p_dex":        mod := "#p_dex";        SetDexterityMod(who, GetDexterityMod(who) + amt);
-    "int":          mod := "#ii";           SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
-    "p_int":          mod := "#p_int";           SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
-    "ar" :          mod := "#ar";           who.ar_mod := who.ar_mod + amt;
-	"p"  :          mod := "#pp";           who.setParalyzed(1);
-    "strbonus":          mod := "#strbonus";           SetStrengthMod(who, GetStrengthMod(who) + amt);
-    "dexbonus":          mod := "#dexbonus";           SetDexterityMod(who, GetDexterityMod(who) + amt);
-    "intbonus":          mod := "#intbonus";           SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
-  endcase
-  SetObjProperty(who,mod,1);
-  var parms := {};
-  parms[2] := who;
-  parms[1] := stat;
-  parms[3] := amt;
-  parms[4] := duration;
-  parms[5] := who.serial;
-  start_script("::/misc/unmod", parms);
-endfunction
+
+
 
 function SpellCheck(who, modType, effect, duration, value, description)
 

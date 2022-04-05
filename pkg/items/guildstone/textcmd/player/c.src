@@ -5,33 +5,39 @@ use uo;
 use os;
 use guilds;
 
+include "include/utility";
+
 var chatlayout :=
 {
 "nomove",
 "nodispose",
 "page 0",
-"resizepic 160 35 5054 320 200",
-"text 200 45 5 0",
+"resizepic 160 35 5054 320 300",
+"text 200 45 0 0",
 "text 200 70 300 1",
 "text 200 90 300 2",
 "text 200 110 300 3",
+"text 200 130 300 4",
 
-"text 200 150 300 4",
 "text 200 170 300 5",
-"text 220 200 0 6",
+"text 200 190 300 6",
+"text 220 210 0 7",
 "button 350 108 4023 4024 1 0 2000",
 "button 350 168 4023 4024 1 0 3000",
+"button 350 128 4023 4024 1 0 4000",
 "radio 170 70 210 211 0 1",
 "radio 170 90 210 211 0 2",
 "radio 170 110 210 211 0 3",
-"radio 170 150 210 211 0 1",
-"radio 170 170 210 211 0 2"
+
+"radio 170 170 210 211 0 1",
+"radio 170 190 210 211 0 2"
 };
 var chatdata :={
 "Select your option and click okay",
 "Hear own guild",
 "Hear all guilds",
 "Hear no guilds",
+"make guild uniform",
 "Talk to own guild",
 "Talk to all guilds",
 "use .c <message> to chat"
@@ -62,6 +68,22 @@ elseif(box[0]==3000)
     endif
   endforeach
 SetObjProperty(who,"talkchat",choose);
+elseif(box[0]==4000)
+
+    var guild_id := GetObjProperty(who,"guild_id");
+    var storage := find_or_create_storage("GuildUniform "+guild_id);
+    var item := FindRootItemInStorageArea(storage, "heat");
+    if(!item)
+     SendSysMessage(who, "error item.");
+    endif
+    var test:=CreateItemInBackpack(who, item.objtype, 1);
+    test.color:=1109;
+    if(!test)
+     SendSysMessage(who, "error CreateItemInBackpack.");
+    endif
+
+
+  SendSysMessage(who,"uni",3,70);
 else
 return;
 endif

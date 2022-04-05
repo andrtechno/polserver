@@ -231,7 +231,7 @@ function Carve_Corpse(who, cadaver, craftingbag)
       corpseitm := SplitWords(corpseitm);
       corpseamt := SplitWords(corpseamt);
       foreach thing in corpseitm
-        CreateItemInContainer(cadaver, thing, Cint(corpseamt[i]));
+        CreateItemInContainer(cadaver, thing, Cint(RandomDiceRoll(corpseamt[i])));
         i := i + 1;
       endforeach
       SendSysMessage(who, "You place the items on the corpse.");

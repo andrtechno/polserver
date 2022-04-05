@@ -606,6 +606,7 @@ function AttributeEdit(who, targ, input_info)
 	change := SplitWords(change, " ");
 	SetAttributeBaseValue(targ, input_info.name, CInt(CDbl(change[1]) * 10.0));
 	SetAttributeTemporaryMod(targ, input_info.name, CInt(CDbl(change[2]) * 10.0));
+	VitalClassCharacter(targ, AP_AttributeNameToSkillId(input_info.name));
         RecalcVitals(targ);
 	return 1;
 endfunction

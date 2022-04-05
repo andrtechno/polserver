@@ -25,12 +25,12 @@ program cast_CUNNING( parms )
   PlaySoundEffect(cast_on, SFX_SPELL_CUNNING);
   PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
     
-  if (!CanMod(cast_on, "int"))
+  if (CanMod(cast_on, "#cast_cunning"))
 	SendSysMessage(caster,"Already under the influence!");
 	return;
   endif
   var magery := GetAttribute(caster, MAGERY);
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
-  DoTempMod(cast_on, "int", mod_amount, duration);
+  DoTempMod(cast_on, "#cast_cunning", mod_amount, 30);
 endprogram

@@ -86,8 +86,8 @@ program textcmd_skill( who )
 //UpdateSkillWindow2(who,SKILLID_HIDING);
 
 
-    var packet := CreatePacket(0x3A, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
-    packet.SetInt16(1, packet.getSize());//1 BYTE[2] Length "tem que ser no fim"
+   /* var packet := CreatePacket(0x3A, MSGLEN_VARIABLE);//0 BYTE[1] Cmd
+    //packet.SetInt16(1, packet.getSize());//1 BYTE[2] Length "tem que ser no fim"
     packet.SetInt8(2, 0xDF);
     packet.SetInt16(4, SKILLID_HIDING + 1); //7 BYTE[2] Icon Number to show
 
@@ -102,7 +102,7 @@ program textcmd_skill( who )
 
 print(packet);
 packet.sendpacket(who);
-SLPH_SaveLockState(who, SKILLID_HIDING, 2);
+SLPH_SaveLockState(who, SKILLID_HIDING, 2);*/
 /*var packet := CreatePacket( 0x3A, 0xb );
 
 packet.SetInt8( 2, 223 );
@@ -218,7 +218,8 @@ function test2(who, classid, title, side, page_id)
     skill_data.Append(title);
     skill_layout.Append("Text "+(tp + 30)+" 15 3 "+(skill_data.Size()-1));
     var skill:=0;
-
+    var skillData := getTotalSkill(who);
+    print(skillData);
     for(i:=1; i<=getSkillList.Size(); i:=i+1)
         skill_data.Append(getSkillName[i]);
         skill_layout.Append("Text "+p+" "+start_padding+" 0 "+(skill_data.Size()-1));
@@ -236,7 +237,7 @@ function test2(who, classid, title, side, page_id)
 
     endfor
 
-    skill_data.Append("Процент "+GivePercent( total[classid+1], total[1] ) + "%");
+    skill_data.Append("Процент "+GivePercent( skillData[classid+1], skillData[1] ) + "%");
     skill_layout.Append("Text "+p+" 190 25 "+(skill_data.Size()-1));
 endfunction
 
@@ -245,7 +246,7 @@ endfunction
 function getTotalSkill(who)
 
     var i;
-    var total:=0.0;
+    var total   := 0.0;
 	var bard	:= 0.0;
 	var crafter	:= 0.0;
 	var mage	:= 0.0;
@@ -253,9 +254,7 @@ function getTotalSkill(who)
 	var thief	:= 0.0;
 	var warrior	:= 0.0;
 	for(i:=0; i<=SKILLID__HIGHEST; i:=i+1)
-		var skill := 0;//GetEffectiveSkill(who,i);
-		var effec := CInt( skill );
-		var deci  := CInt( CDbl( (skill / 10.0 ) - CInt( CInt(skill) / 10 )) * 10 );
+		var skill := GetEffectiveSkill(who,i);
 		total	    := total + skill;
 		if( i in GetClasseSkills( CLASSEID_BARD ) )
 			bard := bard + skill;
@@ -270,13 +269,13 @@ function getTotalSkill(who)
 		elseif( i in GetClasseSkills( CLASSEID_WARRIOR ) )
 			warrior := warrior + skill;
 		endif
-
 	endfor
 return array{total,mage,warrior,crafter,ranger,thief,bard};
 endfunction
 
 function GivePercent( skill, total )
-
+print("GivePercent total: "+total);
+print("GivePercent skill: "+skill);
 	var percent	:= CDbl( skill / total * 100.0 );
 	var floating	:= CInt( percent * 10 );
 	var cuted	:= CInt( percent ) * 10;

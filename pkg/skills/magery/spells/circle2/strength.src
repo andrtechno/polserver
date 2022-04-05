@@ -25,12 +25,12 @@ program cast_strength( parms )
   PlaySoundEffect(cast_on, SFX_SPELL_STRENGTH);
   PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
     
-  if (!CanMod(cast_on, "str"))
+  if (CanMod(cast_on, "#cast_strength"))
 	SendSysMessage(caster,"Already under the influence!");
 	return;
   endif
   var magery := AP_GetSkill(caster, MAGERY);
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
-  DoTempMod(cast_on, "str", mod_amount, duration);
+  DoTempMod(cast_on, "#cast_strength", mod_amount, 20);
 endprogram

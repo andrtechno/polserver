@@ -2,11 +2,13 @@ use uo;
 use os;
 use guilds;
 
+
 include "include/yesNo";
 include "include/canAccess";
 include "guildData";
 include ":gumps:old/old-gumps";
 include "include/webPage";
+include "include/utility";
 
 var guildstone;
 var gm, guild, guild_id;
@@ -216,6 +218,7 @@ function gm_menu(who)
   GFTextLine(165, 375, 0, "Transport this guildstone.");
   GFTextLine(165, 395, 0, "Set the guild uniform");
   GFTextLine(165, 415, 0, "Return to the main menu.");
+  GFTextLine(165, 435, 0, "Get the guild uniform");
   GFSetRadioGroup(1);
   GFRadioButton(140,  95, 210, 211, 0);
   GFRadioButton(140, 115, 210, 211, 0);
@@ -234,6 +237,7 @@ function gm_menu(who)
   GFRadioButton(140, 375, 210, 211, 0);
   GFRadioButton(140, 395, 210, 211, 0);
   GFRadioButton(140, 415, 210, 211, 0);
+  GFRadioButton(140, 435, 210, 211, 0); //get uniform
   var box := GFSendGump(who);
   var choose := 0;
   if(box[cancel.keyid])
@@ -273,11 +277,64 @@ function gm_menu(who)
     2063: Teleport(who);
           return;
     2064: //set guild uniform
-        SendSysMessage(who, "in dev panic", 3, 40);
+
+        SetUniform(who);
         return;
 
     2065: buildgump(who); //return back
+      2066: //set guild uniform
+
+            GetUniform(who);
+            return;
   endcase
+endfunction
+
+function GetUniform(who);
+    var storage := find_or_create_storage("GuildUniform "+guild_id);
+    var item := FindRootItemInStorageArea(storage, "heat");
+    if(!item)
+     SendSysMessage(who, "error item.");
+    endif
+    var test:=CreateItemInBackpack(who, item.objtype, 1);
+    test.color:=1109;
+    if(!test)
+     SendSysMessage(who, "error CreateItemInBackpack.");
+    endif
+endfunction
+
+
+function SetUniform(who);
+    var inv;
+    var res;
+    var storage := find_or_create_storage("GuildUniform "+guild_id);
+
+  var inv_fs := FindRootItemInStorageArea(storage, "heat");
+
+
+//print(test.errortext);
+ // print(inv_fs);
+
+  //return;
+
+    var item := Target(who);
+    if(!item)
+        SendSysMessage(who, "Cancelled.");
+    endif
+	DestroyRootItemInStorageArea(storage, "heat");
+
+    	inv := find_or_create_item(storage, "heat",item.objtype);
+    	if(!inv)
+    	            SendSysMessage(who, "e: "+inv.errortext, 3, 40);
+    	endif
+    //if(item in {0x1718})
+
+	    res := CreateItemInInventory(inv, item, 1);
+	    res.color:=1109;
+   // endif
+    print("guildid: "+guild_id);
+            SendSysMessage(who, "in dev panic", 3, 40);
+
+
 endfunction
 
 function ToggleVirtue(who);

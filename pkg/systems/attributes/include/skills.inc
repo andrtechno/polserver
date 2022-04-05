@@ -95,7 +95,7 @@ function AP_SetTrueSkill( mobile, skill_name, points )
 	else
 		result := SetAttributeBaseValue( mobile, skill_name, CInt( CDbl( points ) * 10.0 - 0.1 ));
 	endif
- 
+    VitalClassCharacter(mobile, AP_AttributeNameToSkillId(skill_name));
 	RecalcVitals( mobile );
 	return result;
 endfunction

@@ -740,10 +740,12 @@ function makeBlacksmithItems(who, what, amt, cont, hammer)
 
             ExceptionalFameMod(who, skchk, skil, CInt(points / 2));
             SendSysMessage(who, "You make an exceptional item and put it in your pack");
+            tname := "an exceptional " + nme;
             if(AP_GetSkill(who, BLACKSMITHY) >= 99)
-              tname := "an exceptional " + nme + " [Crafted by " + who.name + "]";
-            else
-              tname := "an exceptional " + nme;
+             // tname := "an exceptional " + nme + " [Crafted by " + who.name + "]";
+              SetObjProperty(theitem,"craftername",who.name);
+            //else
+
             endif
           else
             theitem.dmg_mod := dmg_mod;

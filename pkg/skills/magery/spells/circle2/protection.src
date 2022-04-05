@@ -29,7 +29,7 @@ program cast_protection(parms)
 
   PlaySoundEffect(cast_on, SFX_SPELL_PROTECTION);
   PlayObjectCenteredEffect(cast_on, FX_BLESS_EFFECT, 7,7);
-  if (!CanMod(cast_on, "ar"))
+  if (CanMod(cast_on, "#cast_protection"))
 	SendSysMessage(caster,"Already under the influence!");
 	return;
   endif
@@ -46,5 +46,5 @@ program cast_protection(parms)
   else
     mod_amount := 0;
   endif
-  DoTempMod(cast_on, "ar", mod_amount, duration);
+  DoTempMod(cast_on, "#cast_protection", mod_amount, 20);
 endprogram

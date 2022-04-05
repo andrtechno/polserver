@@ -17,6 +17,7 @@ use math;
 
 include ":attributes:attributes_ex";
 include ":skilllocks:common";
+include ":charclasses:classes";
 
 /*
  * CheckStatsForSkill(mobile, skill_name)
@@ -172,13 +173,13 @@ function CheckSkillAdvance( mobile, attrib_name, difficulty, award_diff )
     var temp := CDbl( true_skill + advance );
     AP_SetTrueSkill( mobile, attrib_name, temp );
   endif
-  
   return 1;
 endfunction
 
+
 function GetDifficultySkill( true_skill )
     var level_diff;
-//return CDbl( 10.0 ); //for test
+return CDbl( 10.0 ); //for test
 
     if( true_skill < 30 )
         level_diff := 20.0;

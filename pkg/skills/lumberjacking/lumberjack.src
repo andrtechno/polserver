@@ -701,17 +701,19 @@ function CarveLogs(who, blade, logs)
     //change exp.
     if(rint <= ExcepChance)
       ExceptionalFameMod(who, myskill, difficulty, Cint(pointvalue / 2));
-     // setquality(who, bow);
 
+        bow.name := "an exceptional " + fullName;
         if(myskill >= 99)
-            bow.name := "an exceptional " + fullName + " [crafted by " + who.name + "]";
-        else
-            bow.name := "an exceptional " + fullName;
+            //bow.name := "an exceptional " + fullName + " [crafted by " + who.name + "]";
+            SetObjProperty(bow,"craftername",who.name);
+        //else
+           // bow.name := "an exceptional " + fullName;
         endif
         bow.quality := bow.quality + 0.2;
         bow.hp := bow.maxhp;
         bow.dmg_mod := dmg_mod;
         bow.speed_mod:=100;
+
         SendSysMessage(who, "You created an exceptional "+lower(fullName)+".");
 
     endif
