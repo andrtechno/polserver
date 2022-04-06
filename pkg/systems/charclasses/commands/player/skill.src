@@ -84,6 +84,27 @@ endfunction
 program textcmd_skill( who )
 
 
+    var cap_array := {};
+    foreach class in ({ID_MAGE,ID_BARD,ID_WARRIOR,ID_RANGER,ID_CRAFTER,ID_THIEF})
+            foreach s in ( GetClasseSkills( class ) )
+                var skill_id := AP_AttributeNameToSkillId( AP_SkillIdToAttributeName(s) );
+                if(class != 2)
+		            cap_array[skill_id+1] := 100;
+		        else
+		            cap_array[skill_id+1] := AP_GetSkillsCap();
+		        endif
+            endforeach
+    endforeach
+
+    SetObjProperty( who, "SkillCaps", cap_array );
+print(cap_array);
+
+
+
+
+
+
+return;
 
 var packet := CreatePacket( 0x75, 35 );
 packet.SetInt16( 1, who.serial);

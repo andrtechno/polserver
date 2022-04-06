@@ -120,7 +120,7 @@ program SpellStarter(params)
 	SpeakPowerWords(mobile, spell_id);
 
 	// Perform casting animation
-        var circ := spell_elem.Circle + 1; // adding one to circle to get cast repetitions.
+        var circ := spell_elem.Circle; // adding one to circle to get cast repetitions.
         var rep;
         circ := CInt(circ/2);
 
@@ -296,7 +296,7 @@ endfunction
 
 function FailSpell(mobile)
 	if(GetObjProperty(mobile, "#Casting"));
-		mobile.frozen := 1;
+		mobile.frozen := 0;
 	endif
 	EraseObjProperty(mobile, "#Medding");
 	EraseObjProperty(mobile, "#Casting");

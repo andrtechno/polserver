@@ -50,7 +50,7 @@
 - **.setcolor [color]** - устанавливает цвет вещи
 - **.unload [scriptname]** - перезагрузка скрипта
 - **.mdestroy [int]** - удаление вещей в радиусе [int]
-
+- **.necrobook [int]** - добавлена создание болной некробук [int]
 #### Изменение include's/scripts
 * **vetement.inc**
     * доюавлена возможность делать вещь newbie

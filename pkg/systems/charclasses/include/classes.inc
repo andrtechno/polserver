@@ -4,6 +4,7 @@ use uo;
 //include "include/attributes";
 //include "include/itemutil";
 include "include/client";
+include ":attributes:caps";
 
 const CLASSE_BONUS        := 1.5;
 const CLASSEID_BARD       := "IsBard";
@@ -60,16 +61,23 @@ endfunction
 
 
 function VitalClassCharacter(who, skill_id)
+    //print("GetClasseIdForSkill: classid: "+GetClasseIdForSkill(skill_id));
+    //print("GetClasseSkills: skillist: "+GetClasseSkills(GetClasseIdForSkill(skill_id)));
 
-//print("GetClasseIdForSkill: classid: "+GetClasseIdForSkill(skill_id));
-//print("GetClasseSkills: skillist: "+GetClasseSkills(GetClasseIdForSkill(skill_id)));
+    //print("test: "+GetSkillCapClass(who, skill_id));
 
-//print("test: "+GetSkillCapClass(who, skill_id));
-
-
-SetClass(who, skill_id);
+    SetSkillsCaps(who, 2);
+    SetClass(who, skill_id);
 endfunction
 
+function SetSkillsCaps(who, classid);
+    print("SetSkillsCaps: "+classid);
+    foreach class in ({ID_MAGE,ID_BARD,ID_WARRIOR,ID_RANGER,ID_CRAFTER,ID_THIEF})
+    //AP_SetSkillCap
+    print(class);
+    endforeach
+
+endfunction
 
 
 function GetSkillCapClass(who, skill_id)
@@ -108,12 +116,17 @@ function SetClass(who, skill_id)
     if(level >= 1)
         SetObjProperty(who,"classlevel",level);
         SetObjProperty(who,"classid",classid);
+        SetSkillsCaps(who,classid);
     else
         //EraseObjProperty(who,"classlevel");
         //EraseObjProperty(who,"classid");
     endif
 
 endfunction
+
+
+
+
 
 function GetSkillListId( )
     var data := array;

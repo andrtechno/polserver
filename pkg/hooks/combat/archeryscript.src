@@ -108,10 +108,10 @@ function CheckToHit(attacker, defender);
 	endif
 
 	if (GetAttribute(defender, "Dexterity") > GetAttribute(attacker, "Tactics") )
-		AwardPoints(attacker, AP_AttributeNameToSkillId(TACTICS), CInt(GetAttribute(defender, "Dexterity")) );
+		AwardPoints(attacker, SKILLID_TACTICS, CInt(GetAttribute(defender, "Dexterity")) );
 		success := success * 0.80;
 	else
-		AwardPoints(attacker, AP_AttributeNameToSkillId(TACTICS), CInt(GetAttribute(defender, "Dexterity") / 2) );
+		AwardPoints(attacker, SKILLID_TACTICS, CInt(GetAttribute(defender, "Dexterity") / 2) );
 	endif
 
 	if (success < 1)
@@ -135,16 +135,17 @@ function CheckToHit(attacker, defender);
 			endif
 			var parryRoll := RandomDiceRoll("1d100");
 			if (parryRoll <= parrySuccess)
-				AwardPoints(defender, AP_AttributeNameToSkillId(PARRYING), (110 - parrySuccess) );
+				AwardPoints(defender, SKILLID_PARRYING, (110 - parrySuccess) );
 				PlaySoundEffect(defender, 0x141);
 				return 0;
 			endif
 		endif
-		AwardPoints(attacker, AP_AttributeNameToSkillId(ARCHERY), CInt(120 - success) );
+		AwardPoints(attacker, SKILLID_ARCHERY, CInt(120 - success) );
 		PlaySoundEffect(defender, weaponElement.ProjectileSound);
+		SkillCheck(attacker, ARCHERY, 10, 10);
 		return 1;
 	else
-		AwardPoints(attacker, AP_AttributeNameToSkillId(ARCHERY), 15 );
+		AwardPoints(attacker, SKILLID_ARCHERY, 15 );
 		return 0;
 	endif
 

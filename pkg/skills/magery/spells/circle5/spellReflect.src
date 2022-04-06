@@ -12,21 +12,21 @@ program cast_reflect( parms )
 // I am going to add the new system here and  leave the old one in place //
 // as well until I can implement the new system in all scripts.          //
 ///////////////////////////////////////////////////////////////////////////
-print(parms);
+
 /////////////////////////////////////
 // New system from POL 0.97 Distro //
 /////////////////////////////////////
 	if ( GetObjProperty(caster, "MagicReflection") )
 		RemoveMagicReflection(caster);
 		BuffDebuff_removeIcon(caster,1031);
-        PlaySoundEffect(caster, 0x1ea);
-        PlayObjectCenteredEffect( caster, FX_SPARK_EFFECT, 10,10);
+        PlaySoundEffect(caster, 0x01eb);
+        PlayObjectCenteredEffect(caster, 0x373a, 10,10);
 	else
 		var points := 25 - (AP_GetSkill(caster, INSCRIPTION) / 20);
 		ApplyMagicReflection(caster, points);
 		BuffDebuff_AddIcon(caster,1031,points);
-        PlaySoundEffect(caster,0x005d);
-        PlayObjectCenteredEffect(caster, 0x3735,0x0a, 0x1e);
+        PlaySoundEffect(caster, 0x1ea);
+        PlayObjectCenteredEffect( caster, FX_SPARK_EFFECT, 10,10);
 	endif
 
 /////////////////////////////////////

@@ -11,6 +11,8 @@ include ":poisonwatcher:poisons";
 include "include/utility";
 include "include/itemtypes";
 include "include/npcstats";
+include ":damage:damage";
+include "include/buff";
 
 var allmyjunk := {};
 var stackstuff := 0;
@@ -63,9 +65,35 @@ program chrdeath(corpse,ghost)
     endforeach
   DestroyItem(corpse);
   MoveObjectToLocation(marker, ghost.x, ghost.y, ghost.z, ghost.realm, MOVEOBJECT_FORCELOCATION);
-
-
 */
+
+
+	var mr := GetObjProperty(ghost, "MagicReflection");
+	var resistances := GetObjProperty(ghost, "%Resistances%");
+	if(mr)
+		ModifyResistance(ghost, DMG_PHYSICAL, mr);
+		BuffDebuff_removeIcon(ghost,1031);
+		EraseObjProperty(ghost, "MagicReflection");
+	endif
+    if(resistances)
+        if(resistances[DMG_FIRE])
+            ModifyResistance(ghost, DMG_FIRE, resistances[DMG_FIRE]);
+        endif
+        if(resistances[DMG_COLD])
+            ModifyResistance(ghost, DMG_COLD, resistances[DMG_COLD]);
+        endif
+        if(resistances[DMG_POISON])
+            ModifyResistance(ghost, DMG_POISON, resistances[DMG_POISON]);
+        endif
+        if(resistances[DMG_ENERGY])
+            ModifyResistance(ghost, DMG_ENERGY, resistances[DMG_ENERGY]);
+        endif
+    endif
+
+
+
+
+
   if(len(ghost.reportables)>0)
 	SendReportGump(ghost);
   endif
