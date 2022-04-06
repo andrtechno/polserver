@@ -4,6 +4,7 @@ use uo;
 use vitals;
 
 include ":attributes:attributes";
+include "include/buff";
 
 program horrific_beast( params )
 	var caster := params[1];
@@ -43,6 +44,7 @@ program horrific_beast( params )
 			EraseObjProperty (caster, "oldrace");
 			EraseObjProperty (caster, "oldmurderer");
 			EraseObjProperty (caster, "poly");
+			BuffDebuff_removeIcon(caster,1085);
 			return 0;
 		endif
 		if(getobjproperty(caster, "wraith") && !caster.cmdlevel)
@@ -72,7 +74,7 @@ program horrific_beast( params )
 	setobjproperty(caster, "poly", 2);
 	setobjproperty(caster, "NewRegenRateForLife", 15000);
 	RecalcVitals(caster);
-
+    BuffDebuff_AddIcon(caster,1085,0);
 
 
 endprogram

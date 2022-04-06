@@ -5,6 +5,7 @@ use vitals;
 
 include ":attributes:attributes";
 include ":damage:damage";
+include "include/buff";
 
 program liche_form( params )
 	var caster := params[1];
@@ -53,7 +54,7 @@ program liche_form( params )
 			ModifyResistance(caster, "Fire", 10);
 			ModifyResistance(caster, "Poisnon", -10);
 			ModifyResistance(caster, "Cold", -10);
-
+			BuffDebuff_removeIcon(caster,1086);
 			return 0;
 		endif
 		if(getobjproperty(caster, "wraith"))
@@ -91,5 +92,5 @@ program liche_form( params )
 
 	EraseObjProperty (caster, "casting");
 	RecalcVitals(caster);
-
+    BuffDebuff_AddIcon(caster,1086,0);
 endprogram

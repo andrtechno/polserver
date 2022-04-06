@@ -54,21 +54,15 @@ program energy_control( item )
   var dmg := CInt(GetAttribute(boss, MAGERY)/10);
   fieldstrength := RandomInt(dmg);
 
-
-
-print("3333");
-
 	while( item )
 		var dmg := RandomDiceRoll("1d8" );
 		PlaySoundEffect( item, SFX_SPELL_ENERGY_FIELD );
 
 		foreach coord in coordinates
-		print(coord);
 			foreach mobile in ListMobilesNearLocation( coord[1], coord[2], coord[3], 0,"britannia")
 				if( !creator )
 					creator := mobile;
 				endif
-print("11");
 				PerformAction( mobile, ANIM_HIT );
 				ApplyRawSpellDamageEX(mobile, fieldstrength, "Energy", boss, magic);
 				//ApplyElementalDamageNoResist( mobile,creator,CInt(ResistedDefinedSkillGain( creator, mobile, dmg, diff, points )),element );

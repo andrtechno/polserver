@@ -1,0 +1,11 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_necrobook( who )
+    var book := CreateItemInBackpack(who,0x2253, 1);
+    var i;
+    for (i := 0x2260; i <= 0x227C; i := i + 1)
+        CreateItemInContainer(book,  i, 1);
+    endfor
+endprogram

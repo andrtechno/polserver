@@ -68,6 +68,8 @@ poison,cure => system/poisonwatcher/poison.inc
 light - проверить на удаление.
 -  сделать еще нужно
 
+necro (еще требуется)
+
 1043 curse
 
 

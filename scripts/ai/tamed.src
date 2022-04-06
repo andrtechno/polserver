@@ -600,6 +600,7 @@ function OpenMyPack(ev)
 		////////0x580: mounttype := 0x3ECD; // horse6 palomino
 		0xDC: mounttype := 0x3EA6;  // Llama
 		0xD5: mounttype := 0x3ec5;  // Polar bear
+		0x23D: mounttype := 0x3ec4;  // staff vortex
 		0xD2: mounttype := 0x3EA3;  // Desert Ostard
 		0xDA: mounttype := 0x3EA4;  // Frenzied Ostard
 		0xDB: mounttype := 0x3EA5;  // Forest Ostard

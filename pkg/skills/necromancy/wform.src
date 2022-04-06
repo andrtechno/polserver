@@ -1,8 +1,8 @@
-
 use uo;
 
 include ":attributes:attributes";
 include ":damage:damage";
+include "include/buff";
 
 program wraith_form( params )
 
@@ -32,7 +32,7 @@ program wraith_form( params )
 		ModifyResistance(caster, "Fire", 5);
 		ModifyResistance(caster, "Energy", 5);
 		ModifyResistance(caster, "Physical", -15);
-
+        BuffDebuff_removeIcon(caster,1124);
 		return 0;
 	endif
 	
@@ -62,7 +62,8 @@ program wraith_form( params )
         eraseobjproperty(caster,"NewRegenRateForStamina");
 		RecalcVitals(caster);
 	endif
-	
+	BuffDebuff_AddIcon(caster,1124,0);
+
 	PlaySoundEffect(caster, 0x17F);
 	PlayObjectCenteredEffectEx( caster, 0x374A, 1, 15, 9902, 4, 3, 1108 );
 	Sleep(1);

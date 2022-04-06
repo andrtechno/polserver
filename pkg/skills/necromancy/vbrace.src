@@ -4,7 +4,7 @@ use uo;
 
 include ":attributes:attributes";
 include ":damage:damage";
-
+include "include/buff";
 
 program vampiric_embrace( params )
 	var caster := params[1];
@@ -55,6 +55,7 @@ program vampiric_embrace( params )
 			EraseObjProperty (caster, "oldmurderer");
 			EraseObjProperty (caster, "poly");
 			ModifyResistance(cast_on, DMG_FIRE, 25);
+			BuffDebuff_removeIcon(caster,1087);
 			return 0;
 		endif
 		
@@ -86,5 +87,5 @@ program vampiric_embrace( params )
 	SetAttributeBaseValue(caster, RESISTING_SPELLS, 0);
 	ModifyResistance(cast_on, DMG_FIRE, -25);
 	RecalcVitals(caster);
-
+    BuffDebuff_AddIcon(caster,1087,0);
 endprogram
