@@ -62,7 +62,7 @@
 
 +добавлены баффы/дебафы
 bless,cunning,agility,protection,strength,
-incognito,polymorph,magic reflection,paralyze,reactive armor
+incognito,polymorph,magic reflection,paralyze,reactive armor,Invisibility
 clumsy, weaken ,feeblemind
 poison,cure => system/poisonwatcher/poison.inc
 light - проверить на удаление.

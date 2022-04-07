@@ -21,7 +21,7 @@ program can_insert(who, container, movetype, inserttype, adding_item, existing_s
   if(!ok)
     return 0;
   endif
-     
+
   var vendorserial := GetObjProperty(container,"Vendor");
   if(!vendorserial)
     var ownerserial := CInt(GetObjProperty(container, "Owner"));

@@ -68,11 +68,22 @@ if(CanMod(who,mod))
     "#cast_protection":
     "#ar":
         who.ar_mod := who.ar_mod - amt;
+
+    "#cast_poly":
+        SetStrengthMod(who, GetStrengthMod(who) - amt);
+        SetDexterityMod(who, GetDexterityMod(who) - amt);
+        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+        who.ar_mod := who.ar_mod - amt;
+        who.graphic := who.objtype;
+        who.color := who.truecolor;
+        EraseObjProperty(who,"poly");
+
   endcase
 
     var modd := GetObjProperty( who, mod );
     if(modd.buff_id)
-        BuffDebuff_removeIcon(who,modd.buff_id);
+       // BuffDebuff_removeIcon(who,modd.buff_id);
+        who.delBuff(modd.buff_id);
     endif
 
   EraseObjProperty(who, mod);

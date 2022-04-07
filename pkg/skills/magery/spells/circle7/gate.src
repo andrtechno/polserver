@@ -4,11 +4,12 @@ use uo;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include "include/objtype";
 include "include/isValidLoc";
 include ":housing:housing";
+
 const RUNEBOOK := 0x22C5;
+
 program spell_gate(parms)
   var caster := parms[1];
   var info := parms[2];

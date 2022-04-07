@@ -5,7 +5,7 @@ use util;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
+
 
 program cast_strength(parms)
   var caster := parms[1];

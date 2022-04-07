@@ -8,7 +8,6 @@ include ":magery:settings";
 include ":magery:spells_ex";
 include ":magery:report";
 include "include/client";
-include "include/sounds";
 include "include/statMod";
 include "include/spellAttack";
 
@@ -361,7 +360,6 @@ function MS_PlaySpellSFX(spellid, targ, success:=1)
 	var cfg_elem := MS_GetSpellsCfgElem(spellid);
 	var sfx := CInt(GetConfigInt(cfg_elem, "sFX"));
 	
-	Print("Playing SFX:"+sfx+" for spellid:"+spellid);
 	PlaySoundEffect(targ, sfx);
 
 	return 1;	
@@ -372,7 +370,6 @@ function MS_PlaySpellGFX(spellid, targ, caster, speed:=7, loop:=14)
 	var cfg_elem := MS_GetSpellsCfgElem(spellid);
 	var gfx := CInt(GetConfigInt(cfg_elem, "GFX"));
 	
-	Print("Playing GFX:"+gfx+" for spellid:"+spellid+" of gfx type:"+CInt(cfg_elem.GFXType));
 	case ( CInt(cfg_elem.GFXType) )
 		0: return 1;
 		1: PlayObjectCenteredEffect(targ, gfx, speed, loop);
@@ -432,8 +429,8 @@ function Resisted(circle, caster, cast_on, amt)
         if(chk2 < 1)
                 chk2 := 1;
         endif
-        
-        // What an odd construct.  
+
+        // What an odd construct.
         // If you're hit with an easy spell then you have a difficulty of your resist
         var diff := 0;
         if(chk1 > chk2)

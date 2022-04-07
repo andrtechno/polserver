@@ -10,9 +10,7 @@ use os;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include ":damage:damage";
-include "include/buff";
 
 program cast_reactivearmor( parms )
     var caster := parms[1];
@@ -25,11 +23,9 @@ program cast_reactivearmor( parms )
   
 	if ( GetObjProperty(cast_on, "ReactiveArmor") )
 		RemoveReactiveArmor(cast_on);
-		BuffDebuff_removeIcon(cast_on,1028);
 	else
 		var points := (AP_GetSkill(cast_on, INSCRIPTION) / 20) + 15;
 		ApplyReactiveArmor(cast_on, points);
-		BuffDebuff_AddIcon(cast_on,1028,points);
 	endif
 
 //	MS_PlaySpellSFX(info.spell_id, cast_on);
@@ -46,7 +42,8 @@ function ApplyReactiveArmor(mobile, points)
 	ModifyResistance(mobile, DMG_COLD, -5);
 	ModifyResistance(mobile, DMG_POISON, -5);
 	ModifyResistance(mobile, DMG_ENERGY, -5);
-
+    var ar := CStr(points)+"\t"+CStr(5)+"\t"+CStr(5)+"\t"+CStr(5)+"\t"+CStr(5);
+    mobile.addBuff(1028, 0, 1075812, 1075813, ar);
 	SetObjProperty(mobile, "ReactiveArmor", points);
 endfunction
 
@@ -58,6 +55,6 @@ function RemoveReactiveArmor(mobile)
 	ModifyResistance(mobile, DMG_COLD, 5);
 	ModifyResistance(mobile, DMG_POISON, 5);
 	ModifyResistance(mobile, DMG_ENERGY, 5);
-
+    mobile.delBuff(1028);
 	EraseObjProperty(mobile, "ReactiveArmor");
 endfunction

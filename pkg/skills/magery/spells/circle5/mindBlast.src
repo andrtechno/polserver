@@ -4,7 +4,6 @@ use uo;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include ":damage:damage";
 
 program cast_mind_blast( parms )

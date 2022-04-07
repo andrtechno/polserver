@@ -1,7 +1,6 @@
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include "include/fields";
 //include "include/firewall";
 const UOBJ_FIREFIELD_NS := 0x398c;

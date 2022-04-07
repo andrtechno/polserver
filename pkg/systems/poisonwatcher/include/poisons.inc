@@ -2,7 +2,7 @@ use os;
 use cfgfile;
 use uo;
 
-include "include/buff";
+//include "include/buff";
 
 const EVENT_ADD_POISON			:= 0x1;
 const EVENT_CURE_POISON			:= 0x2;
@@ -68,7 +68,11 @@ function AddPoison(mobile, poison_name, amount, attacker, level := 1)
 	event.level := level;
 	
 	GetScript(mobile).SendEvent(event);
-    BuffDebuff_AddIcon(mobile,1038,amount);
+//1043322 ~1_NAME~ has just poisoned you!
+//500233 You are already poisoned.
+//0x0F8627, cliloc2=0x1069B1
+mobile.addBuff(1038,amount, 0x0F8627, 1060406, CStr(level));
+    //BuffDebuff_AddIcon(mobile,1038,amount);
 endfunction
 
 //
@@ -96,7 +100,7 @@ function CurePoison(mobile, amount, poisontype := "", level := 1)
 	event.level := level;
 	
 	GetScript(mobile).SendEvent(event);
-    BuffDebuff_removeIcon(mobile,1038);
+    mobile.delBuff(1038);
 endfunction
 
 // 
@@ -117,6 +121,7 @@ function CureSpecific(mobile, poison_name, amount, level := 1)
 	event.level := level;
 	
 	GetScript(mobile).SendEvent(event);
+    //mobile.delBuff(1038);
 endfunction
 
 //

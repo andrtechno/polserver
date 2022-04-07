@@ -16,7 +16,8 @@ program textcmd_buffs(who, text)
         if(text > 0)
             BuffDebuff_AddIcon(who,i,100);
         else
-           BuffDebuff_removeIcon(who,i);
+           who.delBuff(i);
+           //BuffDebuff_removeIcon(who,i);
         endif
         total := total + 1;
         sleepms(10);

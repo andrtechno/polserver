@@ -8,7 +8,7 @@ use cfgfile;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
+
 
 program cast_protection(parms)
     var caster := parms[1];

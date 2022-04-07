@@ -342,6 +342,7 @@ function CleanupPoison(who, poison_name, byref num_poisons)
 
 	if( CfgInfo(poison_name).CureMessage )
 		SendSysMessage(who, CfgInfo(poison_name).CureMessage);
+		who.delBuff(1038);
 	endif
 
 	if( CfgInfo(poison_name).CureScript )

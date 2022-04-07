@@ -3,7 +3,6 @@ use os;
 
 include ":magery:spells";
 include ":damage:damage";
-include "include/buff";
 
 program cast_reflect( parms )
   var caster := parms[1];
@@ -18,13 +17,11 @@ program cast_reflect( parms )
 /////////////////////////////////////
 	if ( GetObjProperty(caster, "MagicReflection") )
 		RemoveMagicReflection(caster);
-		BuffDebuff_removeIcon(caster,1031);
         PlaySoundEffect(caster, 0x01eb);
         PlayObjectCenteredEffect(caster, 0x373a, 10,10);
 	else
 		var points := 25 - (AP_GetSkill(caster, INSCRIPTION) / 20);
 		ApplyMagicReflection(caster, points);
-		BuffDebuff_AddIcon(caster,1031,points);
         PlaySoundEffect(caster, 0x1ea);
         PlayObjectCenteredEffect( caster, FX_SPARK_EFFECT, 10,10);
 	endif
@@ -55,7 +52,8 @@ function ApplyMagicReflection(caster, points)
 	ModifyResistance(caster, DMG_COLD, 10);
 	ModifyResistance(caster, DMG_POISON, 10);
 	ModifyResistance(caster, DMG_ENERGY, 10);
-
+    var mr := CStr("-"+points)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10);
+    caster.addBuff(1031, 0, 1075817, 1075818, mr);
 	SetObjProperty(caster, "MagicReflection", points);
 endfunction
 
@@ -67,6 +65,6 @@ function RemoveMagicReflection(caster)
 	ModifyResistance(caster, DMG_COLD, -10);
 	ModifyResistance(caster, DMG_POISON, -10);
 	ModifyResistance(caster, DMG_ENERGY, -10);
-
+	caster.delBuff(1031);
 	EraseObjProperty(caster, "MagicReflection");
 endfunction

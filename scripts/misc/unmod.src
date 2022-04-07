@@ -2,7 +2,6 @@ use uo;
 use os;
 include ":attributes:attributes";
 include "include/statMod";
-include "include/buff";
 
 program demod(parms)
     var mod := lower(parms[1]);
@@ -51,30 +50,50 @@ program demod(parms)
     var buff_id;
     var debuff:=1;
     case(mod)
-        "#cast_bless":          buff_id:=1048;
+        "#cast_bless":
+            buff_id:=1048;
+            var b := CStr(amt)+"\t"+CStr(amt)+"\t"+CStr(amt);
+            who.addBuff(buff_id, duration, 1075847, 1075848, b);
         "#cast_cunning":
-            buff_id:=1046;
-            if(amt<0)
+
+            if(amt < 0)
                 buff_id:=1041;
+                who.addBuff(buff_id, duration, 1027984, 1075834, CStr(StrReplace(amt,"-","")));
+            else
+                buff_id:=1046;
+                who.addBuff(buff_id, duration, 1075843, 1075844, CStr(amt));
             endif
         "#cast_strength":
-            buff_id:=1047;
-            if(amt<0)
+            if(amt < 0)
                 buff_id:=1042;
+                who.addBuff(buff_id, duration, 1075845, 1075838, CStr(StrReplace(amt,"-","")));
+            else
+                buff_id:=1047;
+                who.addBuff(buff_id, duration, 1075845, 1075846, CStr(amt));
             endif
         "#cast_agility":
-            buff_id:=1045;
-            if(amt<0)
+            if(amt < 0)
                 buff_id:=1040;
+                who.addBuff(buff_id, duration, 1075831, 1075832, CStr(StrReplace(amt,"-","")));
+            else
+                 buff_id:=1045;
+                 who.addBuff(buff_id, duration, 1075841, 1075842, CStr(amt));
             endif
 
-        "#cast_poly":           buff_id:=1035;
-        "#cast_protection":     buff_id:=1029;
-        "#p":                   buff_id:=1037;
+        "#cast_poly":
+            buff_id:=1035;
+                //var mr := CStr("-"+points)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10);
+                who.addBuff(buff_id, duration, 1075824, 502156, "");
+        "#cast_protection":
+            buff_id:=1029;
+            who.addBuff(buff_id, duration, 1075814, 1072382, CStr(amt));
+        "#p":
+            buff_id:=1037;
+            who.addBuff(buff_id, duration, 1015199, "", "");
     endcase
 
 
-    BuffDebuff_AddIcon(who,buff_id,duration);
+    //BuffDebuff_AddIcon(who,buff_id,duration);
     var prop:=struct;
     prop.+value := amt;
     prop.+duration := duration;
@@ -85,7 +104,8 @@ program demod(parms)
     var modd := GetObjProperty( who, mod );
     if(ReadGameClock() >= modd.timeleft)
         undo_mod(who, mod, amt);
-        BuffDebuff_removeIcon(who,buff_id);
+        //BuffDebuff_removeIcon(who,buff_id);
+        who.delBuff(buff_id);
     endif;
 endprogram
 

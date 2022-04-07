@@ -4,7 +4,6 @@ use util;
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include "include/buff";
 
 program cast_nightsight(parms)

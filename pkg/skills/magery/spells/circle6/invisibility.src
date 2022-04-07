@@ -4,7 +4,6 @@ use os;
 include ":attributes:attributes";
 include ":magery:spells";
 
-
 program cast_invis( parms )
     var caster := parms[1];
     var info := parms[2];
@@ -21,13 +20,21 @@ program cast_invis( parms )
         return 0;
     endif
 
-  PlaySoundEffect(cast_on, SFX_SPELL_INVISIBILITY);
+    //var x := caster.x;
+    //var y := caster.y;
+
+    PlaySoundEffect(cast_on, SFX_SPELL_INVISIBILITY);
   	// Tell spell starter to not wait for this script to finish
 	var spell_starter := GetProcess(info.pid);
 	spell_starter.SendEvent("continue");
-	
-  cast_on.hidden := 1;
-  Detach();
-  sleep(CInt(GetAttribute(caster, MAGERY)*3));
-  cast_on.hidden := 0;
+
+
+    var duration := CInt(GetAttribute(caster, MAGERY)*3);
+    cast_on.hidden := 1;
+    //cast_on.addBuff(1036,duration, 1075825, 1075826, "");
+    //start_script(":ski:exploder", parms);
+    Detach();
+    sleep(duration);
+    cast_on.hidden := 0;
+    //cast_on.delBuff(1036);
 endprogram

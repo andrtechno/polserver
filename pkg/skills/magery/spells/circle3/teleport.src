@@ -3,7 +3,6 @@ use os;
 
 include ":magery:spells";
 include "include/client";
-include "include/sounds";
 include "include/isValidLoc";
 
 program cast_teleport( parms )

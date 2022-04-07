@@ -72,7 +72,7 @@ program chrdeath(corpse,ghost)
 	var resistances := GetObjProperty(ghost, "%Resistances%");
 	if(mr)
 		ModifyResistance(ghost, DMG_PHYSICAL, mr);
-		BuffDebuff_removeIcon(ghost,1031);
+		//BuffDebuff_removeIcon(ghost,1031);
 		EraseObjProperty(ghost, "MagicReflection");
 	endif
     if(resistances)
@@ -90,7 +90,7 @@ program chrdeath(corpse,ghost)
         endif
     endif
 
-
+ghost.clearBuffs();
 
 
 

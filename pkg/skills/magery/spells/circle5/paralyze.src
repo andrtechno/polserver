@@ -3,7 +3,6 @@ use os;
 
 include ":attributes:attributes";
 include ":magery:spells";
-include "include/buff";
 
 program cast_paralyze( parms )
     var caster := parms[1];
@@ -24,9 +23,9 @@ program cast_paralyze( parms )
 	var spell_starter := GetProcess(info.pid);
 	spell_starter.SendEvent("continue");
 
-  SetObjProperty(cast_on, "LastHit", {caster.name,caster.serial, "paralyze" });
-  PlayStationaryEffect( cast_on.x, cast_on.y, cast_on.z, FX_CURSE_EFFECT, 10, 0xa, 0, cast_on.realm );
-  PlaySoundEffect( cast_on, SFX_SPELL_PARALYZE );
+    SetObjProperty(cast_on, "LastHit", {caster.name,caster.serial, "paralyze" });
+    PlayStationaryEffect( cast_on.x, cast_on.y, cast_on.z, FX_CURSE_EFFECT, 10, 0xa, 0, cast_on.realm );
+    PlaySoundEffect( cast_on, SFX_SPELL_PARALYZE );
 	// Duration: ((caster Eval Int/10) - ((target Resist Magic/10)) * 1.5
         if (Reflected(cast_on))
             SendSysMessage (caster, "The spell was reflected back opnto you!!!", color := 33);
@@ -36,7 +35,8 @@ program cast_paralyze( parms )
 	var duration := CInt((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 10) * 1500);
         duration := pararesist(2, caster, cast_on, amt, info);
 	cast_on.SetParalyzed(1);
-    BuffDebuff_AddIcon(cast_on,1037,5000);
+    //BuffDebuff_AddIcon(cast_on,1037,5000);
+    cast_on.addBuff(1037, 5000, 1015199, 1042971, CStr("by "+caster.name));
 	Detach();
 	
 	while ( duration )
@@ -54,7 +54,8 @@ program cast_paralyze( parms )
 	endwhile
 	
 	cast_on.SetParalyzed(0);
-	BuffDebuff_removeIcon(cast_on,1037);
+	//BuffDebuff_removeIcon(cast_on,1037);
+	 cast_on.delBuff(1037);
 	return 1;
 /*        
   if (Reflected(cast_on))
