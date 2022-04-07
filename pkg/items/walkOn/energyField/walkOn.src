@@ -1,0 +1,46 @@
+use uo;
+
+include ":attributes:attributes";
+include "include/client";
+include ":magery:spells";
+include ":damage:damage";
+
+
+const EFFECT_SPARKLE := 0x373a;
+const SOUND_EFFECT_RES := 0x215;
+
+
+program walkOn( who, item )
+
+	var diff    := 60;
+	var points  := 25;
+
+	var creator := 0;
+	var serial  := CInt( GetObjProperty( item, "Creator" ) );
+  var magic := GetObjProperty(item, "Magic");
+  if (!magic)
+      magic := 0;
+  endif
+
+
+
+	if( serial )
+		creator := SystemFindObjectBySerial( serial );
+		if( !creator )
+			creator := SystemFindObjectBySerial( serial, SYSFIND_SEARCH_OFFLINE_MOBILES );
+		endif
+
+		if(creator)
+			SetScriptController(creator);
+		endif
+	endif
+
+	var dmg := RandomDiceRoll("1d8" );
+	PlaySoundEffect( who, SFX_SPELL_ENERGY_FIELD );
+	PerformAction( who, ANIM_HIT );
+
+	ApplyRawSpellDamageEX(who, dmg, "Energy", creator, magic);
+
+	//ApplyElementalDamageNoResist( mobile,creator,CInt(ResistedDefinedSkillGain( creator, who, dmg, diff, points )),element );
+
+endprogram
