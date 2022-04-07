@@ -1,0 +1,18 @@
+use uo;
+use os;
+
+include "include/shapes";
+
+
+program textcmd_shape(who)
+
+
+
+   // foreach i in (GetCoordsInSquare(1417, 1694, 3,1))
+   //     CreateItemAtLocation( i.x, i.y, 0, 0x3915, 1, who.realm);
+   // endforeach
+
+    foreach i in (GetCoordsInRect(1416, 1693, 1422, 1699))
+        CreateItemAtLocation( i.x, i.y, 0, 0x3915, 1, who.realm);
+    endforeach
+endprogram

@@ -11,21 +11,27 @@ const ERRORTYPE_FREE_SERVER     := 2;
 const ERRORTYPE_EXISTING_ADRESS := 3;
 const ERRORTYPE_EXISTING_IP	:= 4;
 
+var data := struct{};
+
 program create_account()
 
 	var account_name := QueryParam("acc_name");
 	var password1    := QueryParam("acc_pass");
 	var password2    := QueryParam("acc_pass2");
 	var email        := QueryParam("email");
-	
+
+
+            data.+"success" := Boolean(0);
+
+
 	if( TypeOf(account_name) != "String" || account_name == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
+		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
 	elseif( TypeOf(password1) != "String" || password1 == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptypass.html></head></html>");
+		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptypass.html></head></html>");
 	elseif( TypeOf(password2) != "String" || password2 == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyconfirm.html></head></html>");
+		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyconfirm.html></head></html>");
 	elseif( TypeOf(email) != "String" || email == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyemail.html></head></html>");
+	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyemail.html></head></html>");
 	//elseif( len(account_name) < MIN_CHARACTERS_FOR_ACCOUNT_NAME )
 	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=shortuser.html></head></html>");
 	//elseif( len(account_name) > MAX_CHARACTERS_FOR_ACCOUNT_NAME )
@@ -33,9 +39,9 @@ program create_account()
 	//elseif( len(password1) < MIN_CHARACTERS_FOR_PASSWORD )
 	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=shortpass.html></head></html>");
 	elseif( password1 != password2 )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=diffconfirm.html></head></html>");
+		data.+"message" := "Пароли не совпадают.";
 	elseif( password1 == account_name )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=sameusrpwd.html></head></html>");
+        data.+"message" := "Пароль совпадает с аккаунтом.";
 	else
 		
 			var account := CreateAccount(account_name, password1, 1 );
@@ -43,17 +49,18 @@ program create_account()
 			if( !account )
 				case( account.errortext )
 					"Account already exists":
-						WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=userdupe.html></head></html>");
+                        data.+"message" := "Такой аккаунт уже сущетвует.";
 					default:
-						WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=userdupe.html></head></html>");
+                        data.+"message" := "Такой аккаунт уже сущетвует.";
 				endcase
 			else
 				account.setProp("email", email);
-				WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=success.html></head></html>");
+                data.+"success" := Boolean(1);
+                data.+"message" := "Аккаунт успешно создан.";
 			endif
 	endif
-//endif
-	
+
+    WriteHtml( PackJSON(data) );
 endprogram
 
 

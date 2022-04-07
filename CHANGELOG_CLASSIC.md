@@ -79,3 +79,6 @@ mass cure
 mass dispel
 
 
+DisplayDamage() fix double display damage if self damage
+
+
