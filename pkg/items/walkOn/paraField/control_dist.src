@@ -60,6 +60,6 @@ endfunction
 
 function ParalyzeMobile(mobile, duration)
 	TS_StartTimer(mobile, "Paralysis", duration);
-
+print("ParalyzeMobile");
 	return 1;
 endfunction

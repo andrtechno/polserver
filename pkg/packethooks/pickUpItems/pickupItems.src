@@ -21,7 +21,6 @@ exported function HandleItemPickup( mobile, byref packet )
 		var newpacket := CreatePacket( 0x27, 2 );
 		newpacket.SetInt8( 1, 0x0 );
 		newpacket.SendPacket( mobile );
-print(newpacket);
 		return 1;
 	endif
 

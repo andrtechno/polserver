@@ -20,18 +20,17 @@ program create_account()
 	var password2    := QueryParam("acc_pass2");
 	var email        := QueryParam("email");
 
-
-            data.+"success" := Boolean(0);
+    data.+"success" := Boolean(0);
 
 
 	if( TypeOf(account_name) != "String" || account_name == "" )
-		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
+		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
 	elseif( TypeOf(password1) != "String" || password1 == "" )
-		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptypass.html></head></html>");
+		data.+"message" := "Пароль не может быть пустым.";
 	elseif( TypeOf(password2) != "String" || password2 == "" )
-		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyconfirm.html></head></html>");
+		data.+"message" := "Пароль2 не может быть пустым.";
 	elseif( TypeOf(email) != "String" || email == "" )
-	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyemail.html></head></html>");
+	    data.+"message" := "Email не может быть пустым.";
 	//elseif( len(account_name) < MIN_CHARACTERS_FOR_ACCOUNT_NAME )
 	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=shortuser.html></head></html>");
 	//elseif( len(account_name) > MAX_CHARACTERS_FOR_ACCOUNT_NAME )

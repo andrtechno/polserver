@@ -48,6 +48,7 @@ endprogram
 
 function PickTreasureChest(me, lockpick, chest)
   var lvl := GetObjProperty(chest,"level" );
+
   if (!lvl)
 	DestroyItem(chest);
   endif
