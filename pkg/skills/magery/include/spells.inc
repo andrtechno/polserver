@@ -539,4 +539,3 @@ function CalcSpellDamage(circle, caster, cast_on)
   endif
   return dmg;
 endfunction
-

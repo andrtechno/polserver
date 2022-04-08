@@ -11,7 +11,7 @@ program cast_teleport( parms )
   var interdiction;
   
   var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
-      if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
+    if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
     endif
     if (!cast_on)
@@ -20,8 +20,16 @@ program cast_teleport( parms )
     endif
 
   if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
-        return 0;
+    SendSysMessage (caster, "That is too far away.");
+    return 0;
   endif
+
+    if((caster.x != info.x) || (caster.y != info.y))
+        SendSysMessage(caster, "You lose your concentration.");
+        EraseObjProperty(caster, "#Medding");
+        EraseObjProperty(caster, "#Casting");
+        return;
+    endif
 
   if (!isValidLoc(cast_on.x, cast_on.y))
     SendSysMessage(caster, "You cannot teleport there.");

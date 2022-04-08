@@ -18,13 +18,17 @@ program SpellStarter(params)
 	var spell_id := params[2]; // Id # of the spell
 	var scroll := params[3]; // Scroll ObjType being used
 	var targ := params[4]; // NPC target used if NPC is casting the spell
-//        targ := targ; // stop compiler unused warning
+    //targ := targ; // stop compiler unused warning
         if (scroll == 1)
         endif
 	if ( !Attach(mobile) )
 		SendSysMessage(mobile, "You are already doing something.", color := 33);
 		return 0;
 	endif
+
+    var x := mobile.x;
+    var y := mobile.y;
+
 
 	var spell_elem := MS_GetSpellsCfgElem(spell_id);
 	var manacost := CInt(spell_elem.ManaCost);
@@ -209,7 +213,14 @@ program SpellStarter(params)
 		info.+circle := spell_elem.Circle;
 		info.+spell_config := spell_elem;
 		info.+damage_typ := spell_elem.DamageType;
-
+		info.+x := x;
+		info.+y := y;
+        if((mobile.x != x) || (mobile.y != y))
+            EraseObjProperty(mobile, "#Medding");
+            EraseObjProperty(mobile, "#Casting");
+            SendSysMessage(mobile, "You lose your concentration.");
+            return;
+        endif
 		var script := Start_Script(spell_elem.SpellScript, {mobile, info, spell_id, targ});
 		Detach();
 		EraseObjProperty(mobile, "#Casting");
