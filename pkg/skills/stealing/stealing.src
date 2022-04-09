@@ -11,14 +11,24 @@ var mey;
 
 program skill_stealing(who)
 
+
+    if(!freeHands(who))
+        return;
+	endif
+	if(!needGloves(who))
+        return;
+	endif
+
     var data := {};
     data[1] := "stealing";
     data[2] := ReadGameClock();
     data[3] := SKILLID_STEALING;
     SetObjProperty(who, "LastUsedSkill", data );
+
+
     TrainingSkill(who, data[3]);
 
-	SendSysMessage(who, "Who would you like to snoop?");
+	SendSysMessage(who, "Who would you like to steal?");
     mex := who.x;
     mey := who.y;
 	var victim := Target(who, TGTOPT_CHECK_LOS);
@@ -40,16 +50,17 @@ program skill_stealing(who)
     var realitem := SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0);
 
     var pts := CInt(GetAttribute(who, STEALING)) + 15;
+
 	if (SkillCheck(who, STEALING, GetDiff(who, victim), pts))
         victim.movable:= 1;
         MoveItemToContainer(realitem, who.backpack);
         DestroyItem(victim);
         SendSysMessage(who, "You have successfully stolen the item.");
-
-
     else
-            SendSysMessage(who, "fail stealing.");
-
+	    tellplayers(who);
+	    callguard(who);
+	    who.setCriminal(1);
+        SendSysMessage(who, "fail stealing.");
 	endif
 
 endprogram

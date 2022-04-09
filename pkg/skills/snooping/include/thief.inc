@@ -9,14 +9,15 @@ const TIME_OPEN_CONTAINER := 60;
 function freeHands(who)
 	if(GetEquipmentByLayer(who, LAYER_HAND1) || GetEquipmentByLayer(who, LAYER_HAND2))
 		SendSysMessage(who, "You need empty hands to perform this action!");
-		return;
+		return 0;
 	endif
+    return 1;
 endfunction
 
 function needGloves(who)
 	var wearGloves:= 0;
     foreach item in ListEquippedItems(who)
-    	if (item.objtype == 0x1300a || item.objtype == 0x1300b)
+    	if (item.objtype in {0x1300a,0x1300b})
             wearGloves:= 1;
 	    endif
 	endforeach
@@ -32,8 +33,8 @@ function tellplayers(who)
 	foreach mobile in targets
 		if ((mobile.serial!=who.serial) && (mobile.dead==0) && (!mobile.criminal))
 			SendSysMessage(mobile, "You notice "+who.name+" stealing!");
-		//elseif(mobile.serial==who.serial)
-		//	SendSysMessage(who, "You are caught stealing!");
+		elseif(mobile.serial==who.serial)
+			SendSysMessage(who, "You are caught stealing!");
 		endif
 	endforeach
 endfunction
@@ -52,6 +53,6 @@ function GetDiff(who, victim)
     var whoskill := CInt(skill/4) + CInt(GetDexterity(who)/4);                     // max 60
     var victimskill := CInt(GetDexterity(victim)/6) + CInt(GetIntelligence(victim)/4) + 10; // max 60
     var chance := victimskill - whoskill + 50;
-SendSysMessage(who, "chance: "+chance);
+    //SendSysMessage(who, "chance: "+chance);
     return chance;
 endfunction
