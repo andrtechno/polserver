@@ -1,0 +1,32 @@
+use uo;
+use cfgfile;
+use polsys;
+
+include "include/skills";
+include "include/math";
+include "include/itemtypes";
+
+var	npc_config := ReadConfigFile("::npcdesc");
+
+program chardata(xObject)
+	var allprops := array;
+	var prop := struct;
+	prop.+ clilocid := 0;
+	prop.+ values := array;
+
+    if(xObject.isA(POLCLASS_NPC))
+	    var	NPC_entry := FindConfigElem( npc_config, xObject.npctemplate );
+	    var	NPC_Str := GetConfigInt( NPC_entry, "STR" );
+
+		//prop.clilocid := 1026487;
+		//prop.values := array{NPC_Str};
+		//allprops.append(prop);
+
+        prop.clilocid := 1026496;
+		prop.values := array{"dsasdadsa"};
+		allprops.append(prop);
+
+    endif
+
+    return allprops;
+endprogram

@@ -65,8 +65,40 @@ exported function MegaCliloc( who, byref packet )
 		// End of loop.
 		packet.SetInt32(packet.GetSize(), 0);
 	elseif (xObject.IsA (POLCLASS_MOBILE))
+
+		packet.SetSize(15);
+
+		var Object_Name := CAscZ(xObject.name);
+		packet.SetInt32(OFFSET_CLILOC_ID, 1042971);
+		packet.SetUnicodeString(OFFSET_UNICODE_TEXT, Object_Name, 1);
+		// I've noticed that this packet is only sent if this value has changed
+		// from the last time it was checked. And using html to change the size doesn't work
+		// for some reason. Maybe a core/client issue?
+		packet.SetInt16(OFFSET_LENGTH_ID, Object_Name.Size() * 2);
+
+
 		// to be added later
-		//var xDesc := run_script_to_completion ( ":megacliloc:chardata", xObject);		
+		var xDesc := run_script_to_completion ( ":megacliloc:chardata", xObject);
+		print(xDesc);
+		if ( xDesc.Size() > 0 )
+        	foreach prop in xDesc
+				var str := "";
+				if (prop.values.size() > 0)
+					str := CStr(prop.values[1]);
+					var i;
+					for (i:=2; i<=prop.values.size(); i:=i+1)
+						str += CChr(0x09) + CStr(prop.values[i]);
+					endfor
+				endif
+				print("str: "+str);
+				str := CAscZ (str);
+				//packet.SetInt32(packet.GetSize() - 1, prop.clilocid);
+				//var Length_ID := packet.GetSize();
+				packet.SetUnicodeString(packet.GetSize() + 1, str, 1);
+				//packet.SetInt16(Length_ID, str.Size() * 2);
+        	endforeach
+        endif
+        packet.SetInt32(packet.GetSize(), 0);
 	endif
 	return 0;
 endfunction

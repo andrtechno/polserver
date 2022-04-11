@@ -123,7 +123,7 @@ program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 
 	  foreach x in weaponhit
 		Detach();
-
+		  SendSysMessage(attacker, " rawdamage weaponhit");
 		run_script_to_completion(CStr(x), { attacker, defender, weapon, armor, basedamage, rawdamage } );
 		rawdamage := GetObjProperty(weapon, "TempDamage");
 	  endforeach
@@ -142,7 +142,7 @@ program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 		  endforeach
 		  EraseObjProperty(weapon, "TempDamage");
 		  if (rawdamage < 1)
-        		rawdamage := 1;
+            rawdamage := 1;
 		  endif
 		endif
 		DealDamage(defender, attacker, rawdamage);

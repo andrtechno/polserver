@@ -34,8 +34,23 @@ program cast_protection(parms)
 	return;
   endif
   var magery := GetAttribute(caster, MAGERY);
-  var mod_amount := (GetModAmount(magery) * 2);
+  var mod_amount := 0;
   var duration := GetModDuration(magery);
+  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+
+  if(GetObjProperty(caster,"classid") == ID_MAGE)
+    mod_amount := (GetModAmount(magery) / 2) * CInt(GetObjProperty(caster,"classlevel"));
+    ///mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10)); //(GetModAmount(magery) * 2) * classlevel;
+    duration := (60 * classlevel) * 10;
+  else
+    mod_amount := (GetModAmount(magery) / 2);
+  endif
+
+
+
+
+
+
   var itmcfg := ReadConfigFile(":*:itemdesc");
   var arpoints := 0;
   foreach thing in ListEquippedItems(cast_on)

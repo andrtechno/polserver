@@ -28,8 +28,21 @@ program cast_AGILITY( parms )
     return;
   endif
   var magery := GetAttribute(caster, MAGERY);
-  var mod_amount := GetModAmount( magery );
-  var duration := GetModDuration( magery );
+
+  var mod_amount := 0;
+  var duration := 0;
+  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+
+  if(GetObjProperty(caster,"classid") == ID_MAGE)
+    mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10)); //(GetModAmount(magery) * 2) * classlevel;
+    duration := (60 * classlevel) * 10;
+  else
+    mod_amount := GetModAmount( magery );
+    duration := GetModDuration( magery );
+  endif
+
+
+
 
   DoTempMod(cast_on, "#cast_agility", mod_amount, duration);
 endprogram

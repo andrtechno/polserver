@@ -5,9 +5,9 @@ include "include/buff";
 
 function GetModAmount(magery)
   var mod_amount := CInt(RandomInt(3) +(magery/10));
-  if(mod_amount > 10)
-    mod_amount := 10;
-  endif
+  //if(mod_amount > 10)
+  //  mod_amount := 10;
+  //endif
   return mod_amount;
 endfunction
 

@@ -82,3 +82,7 @@ mass dispel
 DisplayDamage() fix double display damage if self damage
 
 
+11.04.22 Изменины магии bless,strength,agility,protection,cunning
+добавлено зависимость от уровня например 4 ур маг, кастует от 39-49
+время каста зависти от уровня. например 4 ур маг. 40 минут держится.
+

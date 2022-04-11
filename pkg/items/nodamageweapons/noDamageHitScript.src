@@ -1,15 +1,14 @@
 use uo;
 use os;
-use cfgfile;
+
 include ":combat:hitScriptInc";
 include ":attributes:attributes";
 include ":damage:damage";
 
-var speech;
 
 program noDamageHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 
-
+ SendSysMessage( attacker, "asdadsdsa");
   	  	  DealDamage(defender, attacker, 1);
 	  return 1;
 

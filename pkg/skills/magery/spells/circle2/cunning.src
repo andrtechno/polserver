@@ -31,5 +31,14 @@ program cast_CUNNING( parms )
   var magery := GetAttribute(caster, MAGERY);
   var mod_amount := GetModAmount( magery );
   var duration := GetModDuration( magery );
+  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+
+  if(GetObjProperty(caster,"classid") == ID_MAGE)
+    mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10));
+    duration := (60 * classlevel) * 10;
+  endif
+
+
+
   DoTempMod(cast_on, "#cast_cunning", mod_amount, duration);
 endprogram

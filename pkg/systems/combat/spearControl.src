@@ -2,10 +2,14 @@ use uo;
 use os;
 use cfgfile;
 
-program spearcontrol(item)
+program spearControl(item)
   var cfgfile  := ReadConfigFile(":combat:itemdesc");
   var dmg      := cfgfile[item.objtype].damage;
   if(dmg)
     item.hitscript := "spearHitScript";
   endif
+
+
+
+
 endprogram

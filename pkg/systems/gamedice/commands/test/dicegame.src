@@ -1,0 +1,43 @@
+use uo;
+use os;
+use util;
+
+program textcmd_dicegame(who)
+    var targ := TargetCoordinates(who);
+    var randObj := RandomInt(3)+1;
+    var rand := RandomInt(6)+1;
+
+    var arrays := array{
+        array{0x4BB4, 0x4BBA, 0x4BC0},
+        array{0x4BB5, 0x4BBB, 0x4BC1},
+        array{0x4BB6, 0x4BBC, 0x4BC2},
+        array{0x4BB7, 0x4BBD, 0x4BC3},
+        array{0x4BB8, 0x4BBE, 0x4BC4},
+        array{0x4BB9, 0x4BBF, 0x4BC5}
+    };
+    if (!targ)
+        SendSysMessage (who, "Cancelled.", color := 33);
+        return;
+    endif
+
+    if ( !CheckLosAt(who, targ.x, targ.y, targ.z) )
+        SendSysMessage (who, "That is too far away.");
+        return;
+    endif
+
+//SendSysMessage( who, "Select a character."+rand+" "+Hex(arrays[rand][randObj]) );
+
+//if((targ.x > who.x) && (targ.y > who.y))
+    var item := CreateItemAtLocation( targ.x, targ.y, targ.z, arrays[rand][randObj], 1, who.realm);
+    if(item)
+    item.desc:="DiceGame";
+    item.movable:=0;
+    PrintTextAbove(item, who.name+": " + rand);
+    endif
+Detach();
+sleep(3);
+DestroyItem(item);
+//else
+//SendSysMessage( who, "size x Y");
+//endif
+endprogram

@@ -718,6 +718,7 @@ function makeBlacksmithItems(who, what, amt, cont, hammer)
          // else
          //   nme := itemname;
          // endif
+
           theitem.color := use_on.color;
           if(!SubtractAmount(use_on, material))
             DestroyItem(theitem);
@@ -726,13 +727,14 @@ function makeBlacksmithItems(who, what, amt, cont, hammer)
           pts:=0;
           AwardRawSkillPoints(who, SKILLID_BLACKSMITHY, pts);
           rint := randomint(100);
-        SendSysMessage(who, "excmod: "+(excmod + modpts));
-          if(rint <= 10) //(excmod + modpts) >= rint
+          SendSysMessage(who, "excmod: "+(excmod + modpts));
+
+          if(rint <= 99) //(excmod + modpts) >= rint
             theitem.quality := 1.2;
             theitem.hp      := theitem.maxhp;
             //theitem.ar      := ar_mod;
             //theitem.ar_base      := ar_mod;
-            theitem.ar_mod      := ar_mod;
+            theitem.ar_mod      := (ar_mod * 2);
 
             //weapon
             theitem.dmg_mod := dmg_mod + 5;

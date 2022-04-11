@@ -1,0 +1,13 @@
+use uo;
+
+program install()
+    Print("Installing Allnames packethook");
+    return 1;
+endprogram
+
+exported function allnames(who, byref packet)
+    Packet.SetLength(37);
+    Packet.SetString(7, SystemFindObjectBySerial(packet.getint32(3)).name, 1);
+    Packet.SendPacket(who);
+  return 1;
+endfunction

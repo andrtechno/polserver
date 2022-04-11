@@ -2,9 +2,8 @@ use uo;
 use os;
 use npc;
 
-include "include/eventID";
 include "include/statMod";
-include "include/npcstats";
+include "include/help";
 
 program dblclickself( me )
 	var mount := GetEquipmentByLayer( me, 25 );
@@ -19,24 +18,6 @@ program dblclickself( me )
 	endif
 
 
-    var serial := GetObjProperty(mount, "serial");
-	var animal := SystemFindObjectBySerial(CInt(serial));
-
-    EraseObjProperty(animal,"serial");
-    EraseObjProperty(animal,"mounted");
-    EraseObjProperty(animal,"mounted_on");
-	animal.facing := me.facing;
-	var ev := array;
-    ev.+ type;
-    ev.+ source;
-    ev.type := EVID_WAKEUP;
-    ev.source := me;
-    SendEvent(animal, ev);
-    //removebonus(me,animal);
-    npcbonus(me,animal);
-    MoveObjectToLocation(animal, me.x, me.y, me.z, me.realm, MOVEOBJECT_FORCELOCATION);
-    RestartScript(animal);
-
-	DestroyItem( mount );
+    unMount(me);
 
 endprogram
