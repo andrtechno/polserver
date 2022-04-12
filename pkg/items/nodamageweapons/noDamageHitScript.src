@@ -1,15 +1,12 @@
 use uo;
 use os;
 
-include ":combat:hitScriptInc";
 include ":attributes:attributes";
-include ":damage:damage";
 
+program noDamageHitScript(attacker,defender,item)
 
-program noDamageHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
-
- SendSysMessage( attacker, "asdadsdsa");
-  	  	  DealDamage(defender, attacker, 1);
-	  return 1;
+    //SendSysMessage( attacker, "noDamageHitScript");
+    SkillCheck(attacker, item.Attribute, -1, "", ADV_ALL);
+    return 1;
 
 endprogram

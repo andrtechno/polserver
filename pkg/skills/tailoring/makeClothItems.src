@@ -66,7 +66,8 @@ program use_sewing_kit(who, sewing_kit)
   if(((obj_type >= UOBJ_BOLT_START)  && (obj_type <= UOBJ_BOLT_END)) || ((obj_type >= UOBJ_CLOTH_START) && (obj_type <= UOBJ_CLOTH_END)) )  // stacks of cloth
     MakeClothItems(who, use_on, sewing_kit);
     return;
-  elseif((obj_type == 0x1078) || (obj_type == 0x1079) || (obj_type == 0x1067) || ((obj_type >= 0x1150) && (obj_type <= 0x1164)))
+    //(obj_type == 0x1078) || (obj_type == 0x1079) || (obj_type == 0x1067) || ((obj_type >= 0x1150) && (obj_type <= 0x1164))
+  elseif(obj_type in {0x1078,0x1150,0x1151,0x1152,0x1153,0x1154,0x1155,0x1156,0x1157,0x1158,0x1159,0x1160,0x1161,0x1162,0x1163,0x1164})
     MakeLeatherItems(who, use_on, sewing_kit);
   else
     SendSysMessage(who, "You can only use that on cloth or leather!");
@@ -447,6 +448,8 @@ function MakeLeatherItems(who, cloth, kit)
 var ar_mod :=0;
 
             case(cloth.objtype)
+
+              0x1078:   nme := ""              + itemname;
               0x1150:   nme := ""              + itemname;
 	          0x1151:   nme := "iron "         + itemname; ar_mod:=5;
               0x1152:   nme := "steel "        + itemname; ar_mod:=10;
@@ -461,7 +464,7 @@ var ar_mod :=0;
               0x1161:   nme := "darkruby "     + itemname; ar_mod:=55;
               0x1162:   nme := "crystalit "    + itemname; ar_mod:=60;
               0x1163:   nme := "onyx "         + itemname; ar_mod:=65;
-              0x1164:   nme := "mifril "       + itemname; ar_mod:=70;
+              0x1164:   itemname := "star scream " + itemname; ar_mod:=70;
             endcase
 
 
@@ -501,19 +504,20 @@ var ar_mod :=0;
             modpts := (hisskill - (skill - 10));
           endif
           rint := RandomInt(100);
-          if(modpts >= rint)
+          if(50 >= rint) //modpts
             ExceptionalFameMod(who, hisskill, skill, Cint(skill / 2));
+            itemname := "an exceptional " + itemname;
             if(hisskill >= 99)
               theitem.quality := 1.2;
-              tname := "an exceptional " + itemname + " [tailored by " + who.name + "]";
+              SetObjProperty(theitem,"craftername",who.name);
             else
-              tname := "an exceptional " + itemname;
+
             endif
             theitem.quality := 1.2;
             theitem.hp      := theitem.maxhp*5;
             theitem.ar_mod      := ar_mod;
-            SetName(theitem, tname);
-            SendSysMessage(who, "You create an exceptional " + itemname +  " and place it in your backpack.");
+           // SetName(theitem, tname);
+            SendSysMessage(who, "You create " + itemname +  " and place it in your backpack.");
           else
             rint := RandomInt(100);
             if(hisskill >= 23)
@@ -533,7 +537,9 @@ var ar_mod :=0;
               SendSysMessage( who, "You create the item and place it in your backpack." );
               theitem.quality := 1.0;
             endif
+
           endif
+          SetName(theitem, itemname);
           theitem.hp := theitem.maxhp;
         endif
       else
