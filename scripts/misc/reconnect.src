@@ -13,6 +13,7 @@ program reconnect(who)
   if (GetObjProperty(who, "StealthLogin") )
     return;
   endif
+  print("reconnect");
   foreach staff in ppl
     if((staff.cmdlevel > 0) && (CInt(GetObjProperty(staff, "LogNotify") ) == 1) )
       SendSysMessage(staff, CStr(who.name) + " (Account name: " + CStr(who.acctname) + ") has reconnected.  IP: " + CStr(who.ip) );

@@ -321,237 +321,229 @@ function MakeClothItems(who, cloth, kit)
 endfunction
 
 function MakeLeatherItems(who, cloth, kit)
-  GFInitGump(0, 0);
-  GFNoDispose();
-  GFNoClose();
-  GFPage(0);
-  GFGumpPic(  0,  50,  206);
-  GFGumpPic( 40,  50,  201);
-  GFGumpPic(460,  50,  207);
-  GFGumpPic(  0,  94,  202);
-  GFGumpPic( 40,  94, 2604);
-  GFGumpPic(460,  94, 2605);
-  GFGumpPic(  0, 410, 2606);
-  GFGumpPic( 40, 410, 2607);
-  GFGumpPic(460, 410, 2608);
-  GFGumpPic( 20, 120, 5100);
-  GFGumpPic( 28, 120, 5101);
-  GFGumpPic(118, 120, 5101);
-  GFGumpPic(208, 120, 5101);
-  GFGumpPic(298, 120, 5101);
-  GFGumpPic(370, 120, 5101);
-  GFGumpPic(460, 120, 5102);
-  GFGumpPic( 20, 128, 5103);
-  GFGumpPic( 28, 128, 5104);
-  GFGumpPic(118, 128, 5104);
-  GFGumpPic(208, 128, 5104);
-  GFGumpPic(298, 128, 5104);
-  GFGumpPic(370, 128, 5104);
-  GFGumpPic(460, 128, 5105);
-  GFGumpPic( 20, 136, 5058);
-  GFGumpPic(118, 136, 5058);
-  GFGumpPic(232, 136, 5058);
-  GFGumpPic(350, 136, 5058);
-  GFGumpPic( 20, 136, 5106);
-  GFGumpPic( 28, 136, 5107);
-  GFGumpPic(118, 136, 5107);
-  GFGumpPic(208, 136, 5107);
-  GFGumpPic(298, 136, 5107);
-  GFGumpPic(370, 136, 5107);
-  GFGumpPic(460, 136, 5108);
-  GFGumpPic( 28, 278, 5104);
-  GFGumpPic(118, 278, 5104);
-  GFGumpPic(208, 278, 5104);
-  GFGumpPic(298, 278, 5104);
-  GFGumpPic(368, 278, 5104);
-  GFGumpPic( 20, 278, 5103);
-  GFGumpPic(460, 278, 5105);
-  GFGumpPic( 20, 226, 5058);
-  GFGumpPic(118, 226, 5058);
-  GFGumpPic(232, 226, 5058);
-  GFGumpPic(350, 226, 5058);
-  GFGumpPic( 20, 366, 5106);
-  GFGumpPic( 28, 366, 5107);
-  GFGumpPic(118, 366, 5107);
-  GFGumpPic(208, 366, 5107);
-  GFGumpPic(298, 366, 5107);
-  GFGumpPic(370, 366, 5107);
-  GFGumpPic(460, 366, 5108);
-  GFGumpPic( 20, 350, 5100);
-  GFGumpPic( 28, 350, 5101);
-  GFGumpPic(118, 350, 5101);
-  GFGumpPic(208, 350, 5101);
-  GFGumpPic(298, 350, 5101);
-  GFGumpPic(370, 350, 5101);
-  GFGumpPic(460, 350, 5102);
-  GFTextLine(110,  80, 900, "LEATHER SELECTION MENU");
-  GFTextLine( 50, 121,   0, "Leather");
-  GFTextLine(200, 121,   0, "Studded");
-  GFTextLine(360, 121,   0, "Female");
-  GFTextLine(320, 351,   0, "Shoes");
-  GFTextLine(110, 351,   0, "Containers");
-  GFTextLine( 90, 380, 900, "Make Last");
-  var lastitm := GFButtonID( 70, 384,   3, 4, 99);
-  var close   := GFButtonID(410, 380, 242, 241, 1);
-  GFButtonPage(110, 123, 5209, 5209, 2);
-  GFButtonPage(260, 123, 5209, 5209, 3);
-  GFButtonPage(425, 123, 5209, 5209, 4);
-  GFButtonPage(190, 353, 5209, 5209, 5);
-  GFButtonPage(370, 353, 5209, 5209, 6);
-  GFTextLine(  300, 420, 900, "How Many?");
-  GFGumpPic(390, 417, 2443);
-  var sa := GetObjProperty(who, "#TailorAmt");
-  if(!sa)
-    sa := 1;
-  endif
-  var ct := GFTextEntry(400, 420, 100, 30, 0, sa);
-  ComposeLeatherSubMenu(who);
-  var res := GFSendGump(who);
-  if((res[0] == 999) || (res[close.keyid]))
-    SendSysMessage(who, "Cancelled");
-    return;
-  endif
-  var amt := CInt(SplitWords(res[ct.keyid])[2]);
-  if(!amt)
-    amt := 1;
-  elseif(amt > 10)
-    SendSysMessage(who, "You can only make up to 10 items at a time.");
-    return;
-  endif
-  SetObjProperty(who, "#TailorAmt", amt);
-  var cont := kit.container;
-  if(!cont)
-    cont := who.backpack;
-  endif
-  var objtype := res[0];
-  if(res[lastitm.keyid])
-    objtype := GetObjProperty(who, "LastTailorItem");
-    if(!objtype)
-      SendSysMessage(who, "You have never tailored before.");
-      return;
+    GFInitGump(0, 0);
+    GFNoDispose();
+    GFNoClose();
+    GFPage(0);
+    GFGumpPic(  0,  50,  206);
+    GFGumpPic( 40,  50,  201);
+    GFGumpPic(460,  50,  207);
+    GFGumpPic(  0,  94,  202);
+    GFGumpPic( 40,  94, 2604);
+    GFGumpPic(460,  94, 2605);
+    GFGumpPic(  0, 410, 2606);
+    GFGumpPic( 40, 410, 2607);
+    GFGumpPic(460, 410, 2608);
+    GFGumpPic( 20, 120, 5100);
+    GFGumpPic( 28, 120, 5101);
+    GFGumpPic(118, 120, 5101);
+    GFGumpPic(208, 120, 5101);
+    GFGumpPic(298, 120, 5101);
+    GFGumpPic(370, 120, 5101);
+    GFGumpPic(460, 120, 5102);
+    GFGumpPic( 20, 128, 5103);
+    GFGumpPic( 28, 128, 5104);
+    GFGumpPic(118, 128, 5104);
+    GFGumpPic(208, 128, 5104);
+    GFGumpPic(298, 128, 5104);
+    GFGumpPic(370, 128, 5104);
+    GFGumpPic(460, 128, 5105);
+    GFGumpPic( 20, 136, 5058);
+    GFGumpPic(118, 136, 5058);
+    GFGumpPic(232, 136, 5058);
+    GFGumpPic(350, 136, 5058);
+    GFGumpPic( 20, 136, 5106);
+    GFGumpPic( 28, 136, 5107);
+    GFGumpPic(118, 136, 5107);
+    GFGumpPic(208, 136, 5107);
+    GFGumpPic(298, 136, 5107);
+    GFGumpPic(370, 136, 5107);
+    GFGumpPic(460, 136, 5108);
+    GFGumpPic( 28, 278, 5104);
+    GFGumpPic(118, 278, 5104);
+    GFGumpPic(208, 278, 5104);
+    GFGumpPic(298, 278, 5104);
+    GFGumpPic(368, 278, 5104);
+    GFGumpPic( 20, 278, 5103);
+    GFGumpPic(460, 278, 5105);
+    GFGumpPic( 20, 226, 5058);
+    GFGumpPic(118, 226, 5058);
+    GFGumpPic(232, 226, 5058);
+    GFGumpPic(350, 226, 5058);
+    GFGumpPic( 20, 366, 5106);
+    GFGumpPic( 28, 366, 5107);
+    GFGumpPic(118, 366, 5107);
+    GFGumpPic(208, 366, 5107);
+    GFGumpPic(298, 366, 5107);
+    GFGumpPic(370, 366, 5107);
+    GFGumpPic(460, 366, 5108);
+    GFGumpPic( 20, 350, 5100);
+    GFGumpPic( 28, 350, 5101);
+    GFGumpPic(118, 350, 5101);
+    GFGumpPic(208, 350, 5101);
+    GFGumpPic(298, 350, 5101);
+    GFGumpPic(370, 350, 5101);
+    GFGumpPic(460, 350, 5102);
+    GFTextLine(110,  80, 900, "LEATHER SELECTION MENU");
+    GFTextLine( 50, 121,   0, "Leather");
+    GFTextLine(200, 121,   0, "Studded");
+    GFTextLine(360, 121,   0, "Female");
+    GFTextLine(320, 351,   0, "Shoes");
+    GFTextLine(110, 351,   0, "Containers");
+    GFTextLine( 90, 380, 900, "Make Last");
+    var lastitm := GFButtonID( 70, 384,   3, 4, 99);
+    var close   := GFButtonID(410, 380, 242, 241, 1);
+    GFButtonPage(110, 123, 5209, 5209, 2);
+    GFButtonPage(260, 123, 5209, 5209, 3);
+    GFButtonPage(425, 123, 5209, 5209, 4);
+    GFButtonPage(190, 353, 5209, 5209, 5);
+    GFButtonPage(370, 353, 5209, 5209, 6);
+    GFTextLine(  300, 420, 900, "How Many?");
+    GFGumpPic(390, 417, 2443);
+    var sa := GetObjProperty(who, "#TailorAmt");
+    if(!sa)
+        sa := 1;
     endif
-  endif
-  SetObjProperty(who, "LastTailorItem", objtype);
-  var material := CInt(leather_cfg[objtype]."material");
-  var skill    := CInt(leather_cfg[objtype]."skill");
-  var itemname := leather_cfg[objtype]."name";
-  if(!ReserveItem(cloth))
-    SendSysMessage(who,"Couldn't find the leather.");
-    return;
-  endif
-  var counter := 0;
-  var x := who.x;
-  var y := who.y;
-  var tname, dif, theitem, hisskill, rint, totalcloth;
-  var nme;
-
-var ar_mod :=0;
-
-            case(cloth.objtype)
-
-              0x1078:   nme := ""              + itemname;
-              0x1150:   nme := ""              + itemname;
-	          0x1151:   nme := "iron "         + itemname; ar_mod:=5;
-              0x1152:   nme := "steel "        + itemname; ar_mod:=10;
-              0x1153:   nme := "anra "         + itemname; ar_mod:=15;
-              0x1154:   nme := "valorite "     + itemname; ar_mod:=20;
-              0x1155:   nme := "lavarock "     + itemname; ar_mod:=25;
-              0x1156:   nme := "icerock "      + itemname; ar_mod:=30;
-              0x1157:   nme := "shadow "       + itemname; ar_mod:=35;
-              0x1158:   nme := "azurite "      + itemname; ar_mod:=40;
-              0x1159:   nme := "doom "         + itemname; ar_mod:=45;
-              0x1160:   nme := "bluesteel "    + itemname; ar_mod:=50;
-              0x1161:   nme := "darkruby "     + itemname; ar_mod:=55;
-              0x1162:   nme := "crystalit "    + itemname; ar_mod:=60;
-              0x1163:   nme := "onyx "         + itemname; ar_mod:=65;
-              0x1164:   itemname := "star scream " + itemname; ar_mod:=70;
-            endcase
-
-
-
-
-
-
-  while(counter < amt)
-    if((who.x != x) || (who.y != y))
-      SendSysMessage(who, "You stop leatherworking.");
-      break;
+    var ct := GFTextEntry(400, 420, 100, 30, 0, sa);
+    ComposeLeatherSubMenu(who);
+    var res := GFSendGump(who);
+    if((res[0] == 999) || (res[close.keyid]))
+        SendSysMessage(who, "Cancelled");
+        return;
     endif
-    if(!kit)
-      break;
+    var amt := CInt(SplitWords(res[ct.keyid])[2]);
+    if(!amt)
+        amt := 1;
+    elseif(amt > 10)
+        SendSysMessage(who, "You can only make up to 10 items at a time.");
+        return;
     endif
-    totalcloth := cloth.amount;
-    if(totalcloth >= material)
-      dif := (AP_GetSkill(who, TAILORING) - skill);
-      if(dif < 5)
-        dif := 5;
-      elseif(dif > 40)
-        dif := 50;
-      endif
-      makenoise(who);
-      if(SkillCheck(who, TAILORING, skill, skill*6))
-        if(SubtractAmount(cloth, material))
-          theitem := CreateItemInContainer(cont, objtype, 1);
-          theitem.color := cloth.color;
-          CheckToolWear (who, kit, TAILORING);
-          if(!theitem)
-            counter := 100;
-            SendSysMessage(who, "You have no more room in your backpack.");
-          endif
-          hisskill := AP_GetSkill(who, TAILORING);
-          var modpts := 0;
-          if(hisskill >=  skill)
-            modpts := (hisskill - (skill - 10));
-          endif
-          rint := RandomInt(100);
-          if(50 >= rint) //modpts
-            ExceptionalFameMod(who, hisskill, skill, Cint(skill / 2));
-            itemname := "an exceptional " + itemname;
-            if(hisskill >= 99)
-              theitem.quality := 1.2;
-              SetObjProperty(theitem,"craftername",who.name);
-            else
-
-            endif
-            theitem.quality := 1.2;
-            theitem.hp      := theitem.maxhp*5;
-            theitem.ar_mod      := ar_mod;
-           // SetName(theitem, tname);
-            SendSysMessage(who, "You create " + itemname +  " and place it in your backpack.");
-          else
-            rint := RandomInt(100);
-            if(hisskill >= 23)
-              hisskill := hisskill - 20;
-            else
-              hisskill := 3;
-            endif
-            if(rint < hisskill)
-              SendSysMessage( who, "You create the item, but it's quality is below average." );
-              rint := RandomInt(2) + 1;
-              case(rint)
-                1: theitem.quality := 0.7;
-                2: theitem.quality := 0.8;
-                3: theitem.quality := 0.9;
-              endcase
-            else
-              SendSysMessage( who, "You create the item and place it in your backpack." );
-              theitem.quality := 1.0;
-            endif
-
-          endif
-          SetName(theitem, itemname);
-          theitem.hp := theitem.maxhp;
+    SetObjProperty(who, "#TailorAmt", amt);
+    var cont := kit.container;
+    if(!cont)
+        cont := who.backpack;
+    endif
+    var objtype := res[0];
+    if(res[lastitm.keyid])
+        objtype := GetObjProperty(who, "LastTailorItem");
+        if(!objtype)
+            SendSysMessage(who, "You have never tailored before.");
+            return;
         endif
-      else
-        SendSysMessage(who, "You failed to make the item, and some of your leather was ruined.");
-        SubtractAmount(cloth, RandomInt(material+1));
-      endif
-      counter := counter + 1;
-    else
-      SendSysMessage(who,"You don't have enough leather to make that.");
-      counter := 100;
     endif
-  endwhile
+    SetObjProperty(who, "LastTailorItem", objtype);
+    var material := CInt(leather_cfg[objtype]."material");
+    var skill    := CInt(leather_cfg[objtype]."skill");
+    var itemname := leather_cfg[objtype]."name";
+    if(!ReserveItem(cloth))
+        SendSysMessage(who,"Couldn't find the leather.");
+        return;
+    endif
+    var counter := 0;
+    var x := who.x;
+    var y := who.y;
+    var tname, dif, theitem, hisskill, rint, totalcloth;
+
+    var ar_mod :=0;
+
+    case(cloth.objtype)
+        0x1078:   itemname := "" + itemname;
+        0x1150:   itemname := "lizard" + itemname;
+        0x1151:   itemname := "terathan " + itemname;          ar_mod:=5;
+        0x1152:   itemname := "orphidian " + itemname;         ar_mod:=10;
+        0x1153:   itemname := "drake " + itemname;             ar_mod:=15;
+        0x1154:   itemname := "dragon " + itemname;            ar_mod:=20;
+        0x1155:   itemname := "wyrm " + itemname;              ar_mod:=25;
+        0x1156:   itemname := "daemon " + itemname;            ar_mod:=30;
+        0x1157:   itemname := "storm " + itemname;             ar_mod:=35;
+        0x1158:   itemname := "snow " + itemname;              ar_mod:=40;
+        0x1159:   itemname := "necro " + itemname;             ar_mod:=45;
+        0x1160:   itemname := "ice " + itemname;               ar_mod:=50;
+        0x1161:   itemname := "fire " + itemname;              ar_mod:=55;
+        0x1162:   itemname := "blackrock " + itemname;         ar_mod:=60;
+        0x1163:   itemname := "bloodrock " + itemname;         ar_mod:=65;
+        0x1164:   itemname := "star scream " + itemname;       ar_mod:=70;
+    endcase
+
+
+    while(counter < amt)
+        if((who.x != x) || (who.y != y))
+            SendSysMessage(who, "You stop leatherworking.");
+            break;
+        endif
+        if(!kit)
+            break;
+        endif
+        totalcloth := cloth.amount;
+        if(totalcloth >= material)
+            dif := (AP_GetSkill(who, TAILORING) - skill);
+            if(dif < 5)
+                dif := 5;
+            elseif(dif > 40)
+                dif := 50;
+            endif
+            makenoise(who);
+            if(SkillCheck(who, TAILORING, skill, skill*6))
+                if(SubtractAmount(cloth, material))
+                    theitem := CreateItemInContainer(cont, objtype, 1);
+                    theitem.color := cloth.color;
+                    CheckToolWear (who, kit, TAILORING);
+                    if(!theitem)
+                        counter := 100;
+                        SendSysMessage(who, "You have no more room in your backpack.");
+                    endif
+                    hisskill := AP_GetSkill(who, TAILORING);
+                    var modpts := 0;
+                    if(hisskill >=  skill)
+                        modpts := (hisskill - (skill - 10));
+                    endif
+                    rint := RandomInt(100);
+                    if(50 >= rint) //modpts
+                        ExceptionalFameMod(who, hisskill, skill, Cint(skill / 2));
+                        itemname := "an exceptional " + itemname;
+                        if(hisskill >= 99)
+                            theitem.quality := 1.2;
+                            SetObjProperty(theitem,"craftername",who.name);
+                        endif
+                        theitem.quality := 1.2;
+                        theitem.hp      := theitem.maxhp*5;
+                        theitem.ar_mod      := ar_mod;
+                        SetName(theitem, itemname);
+                        SendSysMessage(who, "You create " + itemname +  " and place it in your backpack.");
+                    else
+                        rint := RandomInt(100);
+                        if(hisskill >= 23)
+                            hisskill := hisskill - 20;
+                        else
+                            hisskill := 3;
+                        endif
+                        if(rint < hisskill)
+                            SendSysMessage( who, "You create the item, but it's quality is below average." );
+                            rint := RandomInt(2) + 1;
+                            case(rint)
+                                1: theitem.quality := 0.7;
+                                2: theitem.quality := 0.8;
+                                3: theitem.quality := 0.9;
+                            endcase
+                        else
+                            SendSysMessage( who, "You create the item and place it in your backpack." );
+                            theitem.quality := 1.0;
+                        endif
+                        SetName(theitem, itemname);
+                    endif
+print(itemname);
+                    theitem.hp := theitem.maxhp;
+                endif
+            else
+                SendSysMessage(who, "You failed to make the item, and some of your leather was ruined.");
+                SubtractAmount(cloth, RandomInt(material+1));
+            endif
+            counter := counter + 1;
+        else
+            SendSysMessage(who,"You don't have enough leather to make that.");
+            counter := 100;
+        endif
+    endwhile
 endfunction
 
 function makenoise(who)

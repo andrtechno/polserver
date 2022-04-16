@@ -101,8 +101,17 @@ program itemdata(xObject)
 				if (IsMedableArmor (xObject))
 					prop.clilocid := 1060437;
 					prop.values := array {};
-					allprops.append (prop);
+			    	allprops.append (prop);
 				endif
+                /*if (GetObjProperty(xObject, "type"))
+                    if ((GetObjProperty(xObject, "type") == "mage"))
+                        prop.values := array {"mage"};
+                    elseif((GetObjProperty(xObject, "type") == "ranger"))
+                        prop.values := array {"ranger"};
+                    endif
+					prop.clilocid := 1042971;
+					allprops.append (prop);
+				endif*/
 			elseif (xObject.isa (POLCLASS_WEAPON))
 				if (GetObjProperty(xObject, "silver"))
 					prop.clilocid := 1060479;

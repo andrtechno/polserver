@@ -46,6 +46,16 @@ var nextwatch := ReadGameClock();
 var happiness := CInt(GetObjProperty(me,"happiness"));
 var waittime := 120;
 var LAST_BREATH := ReadGameClock();
+
+
+var freetime := CInt(ReadGameClock() + 2400);
+if (GetObjProperty(me,"freetime"))
+	freetime := GetObjProperty(me,"freetime");
+else
+	freetime := CInt(ReadGameClock() + 2400);
+	SetObjProperty(me,"freetime",freetime);
+endif
+
 if((!happiness)||(happiness == error))
   happiness := 100;
   SetObjProperty(me,"happiness", 100);
@@ -112,73 +122,105 @@ function FindPack(myserial)
 endfunction
 
 function MainAILoop()
-  var ev;
-  nextwatch := ReadGameClock();
-  var mhp;
-  EnableMainEvents();
-  while(GetHp(me)> 0)
-    if ( GetObjProperty(me, "totem") )
-	SetObjProperty(me, "happiness", 100);
-    endif
-    if(master.cmdlevel)
-	SetObjProperty(me, "happiness", 1000);
-    endif
-    happiness := GetObjProperty(me,"happiness");
-    mhp := GetHp(me);
-    if(GetObjProperty(me, "onhold"))
-      HoldLoop("onhold");
-    elseif(GetObjProperty(me, "stabled"))
-      HoldLoop("stabled");
-    elseif(GetObjProperty(me, "mounted"))
-      HoldLoop("mounted");
-    else
-      if(happiness < 10)
-	if (GetObjProperty(me, "NeverRelease") != 1)
-		release();
-	endif
-      endif
-      ev := os::wait_for_event(waittime);
-      case(ev.type)
-        SYSEVENT_SPEECH:        ProcessSpeech(ev);
-        SYSEVENT_ENGAGED:       Fight(ev.source);
-        SYSEVENT_DAMAGED:       if(GetHp(me)< mhp)
-                                  if(ev.source)
-                                    Fight(ev.source);
-                                  endif
-                                  PlaySoundEffect(me,dmgsound);
-                                endif
-        SYSEVENT_DOUBLECLICKED: if((ev.source == master) or (ev.source.cmdlevel > 2))
-                                  OpenMyPack(ev);
+    var ev;
+    nextwatch := ReadGameClock();
+    var mhp;
+    var warnings := 0;
+    EnableMainEvents();
+    while(GetHp(me)> 0)
+        if ( GetObjProperty(me, "totem") )
+            SetObjProperty(me, "happiness", 100);
+        endif
+        if(master.cmdlevel)
+            SetObjProperty(me, "happiness", 1000);
+        endif
+        happiness := GetObjProperty(me,"happiness");
+        mhp := GetHp(me);
+        if(GetObjProperty(me, "onhold"))
+            HoldLoop("onhold");
+        elseif(GetObjProperty(me, "stabled"))
+            HoldLoop("stabled");
+        elseif(GetObjProperty(me, "mounted"))
+            HoldLoop("mounted");
+        else
+            if(happiness < 10)
+                if (GetObjProperty(me, "NeverRelease") != 1)
+                    release();
+                endif
+            endif
+            ev := os::wait_for_event(waittime);
+            case(ev.type)
+                SYSEVENT_SPEECH:
+                    ProcessSpeech(ev);
+                SYSEVENT_ENGAGED:
+                    Fight(ev.source);
+                SYSEVENT_DAMAGED:
+                    if(GetHp(me)< mhp)
+                        if(ev.source)
+                            Fight(ev.source);
+                        endif
+                        PlaySoundEffect(me,dmgsound);
+                    endif
+                SYSEVENT_DOUBLECLICKED:
+                    if((ev.source == master) or (ev.source.cmdlevel > 2))
+                        OpenMyPack(ev);
+                    else
+                        print("SYSEVENT_DOUBLECLICKED 2");
+                        snoop(ev.source, me);
+                    endif
+                SYSEVENT_ITEM_GIVEN:
+                    if(ev.source == master)
+                        TakeItem(ev);
+                    endif
+                EVID_ALL_ATTACK_CMD:
+                    Fight(ev.target);
+                EVID_ALL_FOLLOW_CMD:
+                    following := ev.target;
+                SYSEVENT_ALL_GUARD_CMD:
+                    guarding := ev.target;
+                    PrintTextAbove(me,"*guarding " + guarding.name + "*");
+            endcase
+            if(master.dead)
+                dismountme(master);
+            endif
+            if(following)
+                waittime := 0;
+                Follow();
+            elseif(guarding)
+                waittime := 7;
+                Guard();
+            else
+                waittime := 120;
+                EraseObjProperty(me,"#flees");
+            endif
 
-                                else
-                                    print("SYSEVENT_DOUBLECLICKED 2");
-                                  snoop(ev.source, me);
-                                endif
-        SYSEVENT_ITEM_GIVEN:    if(ev.source == master)
-                                  TakeItem(ev);
-                                endif
-        EVID_ALL_ATTACK_CMD:    Fight(ev.target);
-        EVID_ALL_FOLLOW_CMD:    following := ev.target;
-        SYSEVENT_ALL_GUARD_CMD: guarding := ev.target;
-                                PrintTextAbove(me,"*guarding " + guarding.name + "*");
-      endcase
-      if(master.dead)
-          print("dismountme 1");
-        dismountme(master);
 
-      endif  
-      if(following)
-        waittime := 0;
-        Follow();
-      elseif(guarding)
-        waittime := 7;
-        Guard();
-      else
-        waittime := 120;
-        EraseObjProperty(me,"#flees");
-      endif
-    endif
-  endwhile
+
+
+		/*if (ReadGameClock() > freetime )
+			if ( GetObjProperty( me, "totem" ) )
+				freetime := CInt(ReadGameClock()+1200);
+				SetObjProperty(me,"freetime",freetime);
+			elseif (!GetObjProperty( me, "summoned") )
+				warnings := warnings + 1;
+				if ( warnings > 4 )
+					Release();
+					freetime := CInt(ReadGameClock()+1200);
+					SetObjProperty(me,"freetime",freetime);
+				else
+					say("*Looks Hungry*");
+					speak();
+					freetime := CInt(ReadGameClock()+1200);
+					SetObjProperty(me,"freetime",freetime);
+				endif
+			else
+				Release();
+			endif
+		endif*/
+
+
+        endif
+    endwhile
 endfunction
 
 function HoldLoop(type)

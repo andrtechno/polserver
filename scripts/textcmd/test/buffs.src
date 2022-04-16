@@ -1,5 +1,6 @@
 use uo;
 use os;
+use util;
 
 include "include/buff";
 
@@ -11,19 +12,26 @@ program textcmd_buffs(who, text)
     var total := 0;
 
     SendSysMessage(who,"wait...", color := 33);
+    if(text == 0)
+    print(who);
+        who.clearbuffs();
+        SendSysMessage(who,"finish. ", color := 67);
+        return;
+    endif
+
+    SendSysMessage(who,"finish. "+total, color := 67);
 
     for(i:=0;i<=1000000;i:=i+1)
-        if(text > 0)
-            BuffDebuff_AddIcon(who,i,100);
-        else
-           who.delBuff(i);
+        if(text >= 1)
+          //  BuffDebuff_AddIcon(who,i,100);
+        //else
            //BuffDebuff_removeIcon(who,i);
         endif
         total := total + 1;
         sleepms(10);
     endfor
 
-    SendSysMessage(who,"finish. "+total, color := 67);
+
 
 endprogram
 /*
