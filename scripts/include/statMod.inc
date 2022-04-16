@@ -47,6 +47,9 @@ if(CanMod(who,mod))
     "#intbonus":
         SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
 
+    "#cast_feeblemind":
+        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
+
     "#p" :  who.setParalyzed(0);
     "#cast_bless":
         SetStrengthMod(who, GetStrengthMod(who) - amt);
@@ -57,12 +60,14 @@ if(CanMod(who,mod))
     "#dexbonus":
     "#p_dex":
     "#dex":
+    "#cast_clumsy":
         SetDexterityMod(who, GetDexterityMod(who) - amt);
 
     "#cast_strength":
     "#str":
     "#p_str":
     "#strbonus":
+    "#cast_weaken":
         SetStrengthMod(who, GetStrengthMod(who) - amt);
 
     "#cast_protection":

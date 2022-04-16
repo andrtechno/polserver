@@ -27,19 +27,23 @@ program demod(parms)
         "#dexbonus":
         "#dex":
         "#p_dex":
+        "#cast_clumsy":
             SetDexterityMod(who, GetDexterityMod(who) + amt);
 
         "#cast_strength":
         "#strbonus":
         "#str":
         "#p_str":
+        "#cast_weaken":
             SetStrengthMod(who, GetStrengthMod(who) + amt);
 
         "#cast_cunning":
         "#intbonus":
         "#int":
         "#p_int":
+        "#cast_feeblemind":
             SetIntelligenceMod(who, GetIntelligenceMod(who) + amt);
+
         "#cast_poly":
             SetStrengthMod(who, GetStrengthMod(who) + amt);
             SetDexterityMod(who, GetDexterityMod(who) + amt);
@@ -55,35 +59,27 @@ program demod(parms)
             var b := CStr(amt)+"\t"+CStr(amt)+"\t"+CStr(amt);
             who.addBuff(buff_id, duration, 1075847, 1075848, b);
         "#cast_cunning":
-
-            if(amt < 0)
-                buff_id:=1041;
-                who.addBuff(buff_id, duration, 1027984, 1075834, CStr(StrReplace(amt,"-","")));
-            else
-                buff_id:=1046;
-                who.addBuff(buff_id, duration, 1075843, 1075844, CStr(amt));
-            endif
+            buff_id:=1046;
+            who.addBuff(buff_id, duration, 1075843, 1075844, CStr(amt));
+        "#cast_feeblemind":
+            buff_id:=1041;
+            who.addBuff(buff_id, duration, 1027984, 1075834, CStr(StrReplace(amt,"-","")));
         "#cast_strength":
-            if(amt < 0)
-                buff_id:=1042;
-                who.addBuff(buff_id, duration, 1075845, 1075838, CStr(StrReplace(amt,"-","")));
-            else
-                buff_id:=1047;
-                who.addBuff(buff_id, duration, 1075845, 1075846, CStr(amt));
-            endif
+            buff_id:=1047;
+            who.addBuff(buff_id, duration, 1075845, 1075846, CStr(amt));
+        "#cast_weaken":
+            buff_id:=1042;
+            who.addBuff(buff_id, duration, 1075845, 1075838, CStr(StrReplace(amt,"-","")));
         "#cast_agility":
-            if(amt < 0)
-                buff_id:=1040;
-                who.addBuff(buff_id, duration, 1075831, 1075832, CStr(StrReplace(amt,"-","")));
-            else
-                 buff_id:=1045;
-                 who.addBuff(buff_id, duration, 1075841, 1075842, CStr(amt));
-            endif
-
+            buff_id:=1045;
+            who.addBuff(buff_id, duration, 1075841, 1075842, CStr(amt));
+        "#cast_clumsy":
+            buff_id:=1040;
+            who.addBuff(buff_id, duration, 1075831, 1075832, CStr(StrReplace(amt,"-","")));
         "#cast_poly":
             buff_id:=1035;
                 //var mr := CStr("-"+points)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10)+"\t"+CStr(10);
-                who.addBuff(buff_id, duration, 1075824, 502156, "");
+            who.addBuff(buff_id, duration, 1075824, 502156, "");
         "#cast_protection":
             buff_id:=1029;
             who.addBuff(buff_id, duration, 1075814, 1072382, CStr(amt));

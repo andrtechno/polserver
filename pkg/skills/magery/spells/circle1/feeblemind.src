@@ -29,13 +29,13 @@ program cast_FEEBLEMIND( parms )
 	SendSysMessage (caster, "The spell was reflected back onto you!!!", color := 33);
 	cast_on := caster;
   endif
-  if (CanMod(cast_on, "#cast_cunning"))
+  if (CanMod(cast_on, "#cast_feeblemind"))
 	SendSysMessage(caster,"Already under the influence!");
 	return;
   endif
   var magery := GetAttribute(caster, MAGERY);
   var mod_amount := Resisted(info.circle,caster,cast_on,(GetModAmount( magery )));
   var duration := GetModDuration( magery );
-  DoTempMod(cast_on, "#cast_cunning", 0 - mod_amount, duration);
+  DoTempMod(cast_on, "#cast_feeblemind", 0 - mod_amount, duration);
 
 endprogram
