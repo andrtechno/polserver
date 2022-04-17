@@ -56,12 +56,12 @@ program eat_food(who, food)
 			8:  themsg := "you eat the food but are still extremely hungry";
 			9:  themsg := "you eat the food but are still extremely hungry";
 			10: themsg := "you eat the food but are still extremely hungry";
-			endcase
-			if(hunger < 0)
-				themsg := "you manage to eat the food, but you are stuffed";
-				hunger := 0;
-			endif
-			SetObjProperty(who, "hunger", hunger);
+		endcase
+		if(hunger < 0)
+			themsg := "you manage to eat the food, but you are stuffed";
+			hunger := 0;
+		endif
+		SetObjProperty(who, "hunger", hunger);
 		case (hunger)
 			0 : SetStaminaRegenRate(who, 1000);
 			1 : SetStaminaRegenRate(who, 1300);

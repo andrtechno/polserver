@@ -17,7 +17,7 @@ function BuffDebuff_AddIcon(character,icone,tempo)
     packet.SetInt32(32, 1042971);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
     packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
     packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
-    var msg := " ";// tem que ter esse " " para ele concatenar!
+    var msg := "<BASEFONT COLOR=#ff00ff>"+icone+"</BASEFONT> ";// tem que ter esse " " para ele concatenar!
 
 
     case(icone)

@@ -15,17 +15,18 @@ include "include/mrcSpawn";
 var npcdesc_cfg := ReadConfigFile( "npcdesc" );
 
 program npcdeath(corpse)
-  var i;
-  if(GetObjProperty(corpse, "restockserial"))
-    var stocklist := SystemFindObjectBySerial(CInt(GetObjProperty(corpse, "restockserial")));
-    DestroyItem(stocklist);
-  endif
-                if(GetObjProperty(corpse, "MerchantType"))
-                    var spawnname := GetObjProperty(corpse, "MerchantType") + " " + corpse.x + " " + corpse.y + " " + corpse.z;
-                    destroy_node_merc(spawnname);
-                endif
-  var killer := GetObjProperty(corpse, "LastHit");
-      if (killer != error)
+    var i;
+
+    if(GetObjProperty(corpse, "restockserial"))
+        var stocklist := SystemFindObjectBySerial(CInt(GetObjProperty(corpse, "restockserial")));
+        DestroyItem(stocklist);
+    endif
+    if(GetObjProperty(corpse, "MerchantType"))
+        var spawnname := GetObjProperty(corpse, "MerchantType") + " " + corpse.x + " " + corpse.y + " " + corpse.z;
+        destroy_node_merc(spawnname);
+    endif
+    var killer := GetObjProperty(corpse, "LastHit");
+    if (killer != error)
         i := SystemFindObjectBySerial(killer[2]);
         if (GetObjProperty(i, "CursedLoot") )
             SetObjProperty(corpse, "guardkill", 1);
@@ -33,50 +34,84 @@ program npcdeath(corpse)
             SetObjProperty(corpse, "BlessedLoot", 1);
         endif
     endif
-  if((killer != error) && (!GetObjProperty(corpse, "guardkill")))
-    AdjustNoto((SystemFindObjectBySerial(killer[2])), corpse);
-  endif
-  var char;
-  var mounted_char;
-  var onchars := EnumerateOnlineCharacters();
-  if(GetObjProperty(corpse,"mounted"))
-    char := GetObjProperty(corpse,"mounted_on");
-    foreach person in onchars
-      if(person.serial == CInt(char))
-        mounted_char := person;
-        break;
-      endif
-    endforeach
-    dismountme(mounted_char, corpse);
-  endif
-  var elem := GetObjProperty(corpse, "npctemplate");
-  var deathsound := 0;
-  var grphic := npcdesc_cfg[elem]."ObjType";
-  SetObjProperty(corpse, "Graphic", grphic);
-  if((grphic != 0x190) && (grphic != 0x191))
-    deathsound := npcdesc_cfg[elem]."deathsound";
-    if (deathsound)
-      PlaySoundEffect(corpse, deathsound);
+    if((killer != error) && (!GetObjProperty(corpse, "guardkill")))
+        AdjustNoto((SystemFindObjectBySerial(killer[2])), corpse);
     endif
-  endif
-  set_critical(1);
-  dismount(corpse);
+
+
+    var char;
+    var mounted_char;
+    var onchars := EnumerateOnlineCharacters();
+    if(GetObjProperty(corpse,"mounted"))
+        char := GetObjProperty(corpse,"mounted_on");
+        foreach person in onchars
+            if(person.serial == CInt(char))
+                mounted_char := person;
+                break;
+            endif
+        endforeach
+        dismountme(mounted_char, corpse);
+    endif
+    var elem := GetObjProperty(corpse, "npctemplate");
+    var deathsound := 0;
+    var grphic := npcdesc_cfg[elem]."ObjType";
+    SetObjProperty(corpse, "Graphic", grphic);
+    if((grphic != 0x190) && (grphic != 0x191))
+        deathsound := npcdesc_cfg[elem]."deathsound";
+        if (deathsound)
+            PlaySoundEffect(corpse, deathsound);
+        endif
+    endif
+    set_critical(1);
+
+
+    var k := SystemFindObjectBySerial(killer[2]);
+    var QuestNpcKillList := GetObjProperty(k, "QuestNpcKillList");
+
+
+
+
+
+    if(GetObjProperty(k, "QuestNpcKillList"))
+        var index;
+        for(index:=1; index<=QuestNpcKillList.Size(); index:=index+1)
+            print(QuestNpcKillList[index][1]);
+            var countNpc := CInt(QuestNpcKillList[index][2]);
+            if((elem == QuestNpcKillList[index][1]) && countNpc)
+
+                QuestNpcKillList.erase(index);
+                if(countNpc)
+                    var newData := array{};
+                    newData[1] := elem;
+                    newData[2] := (countNpc - 1);
+                    QuestNpcKillList.insert(index, newData);
+                endif
+
+                break;
+            endif
+        endfor
+        SetObjProperty(k, "QuestNpcKillList",QuestNpcKillList);
+
+
+    endif
+
+    dismount(corpse);
 // The following piece of code reports to new regional spawner the death of any NPCs spawned by it.
-     Set_Critical(1);
-      if ( GetObjProperty(corpse, "regspawn") )
-         var SpawnName := GetObjProperty(corpse, "regspawn");
-         var numspawns := CInt(GetGlobalProperty(SpawnName));
-         if ( numspawns && numspawns > 1 )
+    Set_Critical(1);
+    if ( GetObjProperty(corpse, "regspawn") )
+        var SpawnName := GetObjProperty(corpse, "regspawn");
+        var numspawns := CInt(GetGlobalProperty(SpawnName));
+        if ( numspawns && numspawns > 1 )
             numspawns := numspawns - 1;
             SetGlobalProperty(SpawnName, numspawns);
-         else
+        else
             EraseGlobalProperty(SpawnName);
-         endif
-      elseif ( !GetObjProperty(corpse, "guardkill") )
-//         AddToSpawner(corpse, npctemplate);
-      endif
-   Set_Critical(0);
-////////////////////////////////////////////////////////////////////////////////////////////////////
+        endif
+    elseif ( !GetObjProperty(corpse, "guardkill") )
+        //AddToSpawner(corpse, npctemplate);
+    endif
+    Set_Critical(0);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     if (GetObjProperty(corpse, "totem"))
 	    RemakeTotem(corpse, elem);
@@ -84,52 +119,52 @@ program npcdeath(corpse)
     endif
 
 
-  if(GetObjProperty(corpse, "guardkill"))
-    DestroyItem(corpse);
-    return;
-  endif
+    if(GetObjProperty(corpse, "guardkill"))
+        DestroyItem(corpse);
+        return;
+    endif
 
-  if(GetObjProperty(corpse,"npctemplate") == "employee")
-    foreach thing in EnumerateItemsInContainer(corpse)
-      if((thing.layer) && (thing.isa(POLCLASS_WEAPON) || thing.isa(POLCLASS_ARMOR)))
-        DestroyItem(thing);
-      endif
-    endforeach
-  endif
-  MoveBackpackToCorpse(corpse);
-  if(GetObjProperty(corpse, "npctemplate") == "playervendor")
-    var itemdesc := ReadConfigFile(":*:itemdesc");
-    var elm, dsc;
-    foreach thing in EnumerateItemsInContainer(corpse)
-      EraseObjProperty(thing, "Vendored");
-      if(GetObjProperty(thing, "Vendor"))
-        DestroyItem(thing);
-      else
-        var oldname := GetObjProperty(thing, "OldName");
-        if(oldname)
-          SetName(thing, oldname);
-        else
-          elm := FindConfigElem(itemdesc, thing.objtype);
-          dsc := itemdesc[thing.objtype].desc;
-          SetName(thing, dsc);
-        endif
-        EraseObjProperty(thing, "Master");
-        EraseObjProperty(thing, "OldName");
-        EraseObjProperty(thing, "price");
-      endif
-    endforeach
-  endif
-  if(GetObjProperty(corpse, "summoned"))
-    DestroyItem(corpse);
-  elseif(GetObjProperty(corpse, "nocorpse"))
-    foreach item in EnumerateItemsInContainer(corpse);
-      MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION);
-    endforeach
-    DestroyItem(corpse);
-  else
-    var corpseof := GetObjProperty(corpse,"npctemplate");
-      corpseof := corpseof; // Added to stop the STUPID 'not used' warning from eCompile.
-  endif
+    if(GetObjProperty(corpse,"npctemplate") == "employee")
+        foreach thing in EnumerateItemsInContainer(corpse)
+            if((thing.layer) && (thing.isa(POLCLASS_WEAPON) || thing.isa(POLCLASS_ARMOR)))
+                DestroyItem(thing);
+            endif
+        endforeach
+    endif
+    MoveBackpackToCorpse(corpse);
+    if(GetObjProperty(corpse, "npctemplate") == "playervendor")
+        var itemdesc := ReadConfigFile(":*:itemdesc");
+        var elm, dsc;
+        foreach thing in EnumerateItemsInContainer(corpse)
+            EraseObjProperty(thing, "Vendored");
+            if(GetObjProperty(thing, "Vendor"))
+                DestroyItem(thing);
+            else
+                var oldname := GetObjProperty(thing, "OldName");
+                if(oldname)
+                    SetName(thing, oldname);
+                else
+                    elm := FindConfigElem(itemdesc, thing.objtype);
+                    dsc := itemdesc[thing.objtype].desc;
+                    SetName(thing, dsc);
+                endif
+                EraseObjProperty(thing, "Master");
+                EraseObjProperty(thing, "OldName");
+                EraseObjProperty(thing, "price");
+            endif
+        endforeach
+    endif
+    if(GetObjProperty(corpse, "summoned"))
+        DestroyItem(corpse);
+    elseif(GetObjProperty(corpse, "nocorpse"))
+        foreach item in EnumerateItemsInContainer(corpse);
+            MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION);
+        endforeach
+        DestroyItem(corpse);
+    else
+        var corpseof := GetObjProperty(corpse,"npctemplate");
+        corpseof := corpseof; // Added to stop the STUPID 'not used' warning from eCompile.
+    endif
 endprogram
 
 function dismount(corpse)

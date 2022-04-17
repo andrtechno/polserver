@@ -1,0 +1,6 @@
+use uo;
+use os;
+
+program mission0( who )
+
+endprogram

@@ -15,25 +15,31 @@ program textcmd_buffs(who, text)
     if(text == 0)
     print(who);
         who.clearbuffs();
-        SendSysMessage(who,"finish. ", color := 67);
-        return;
+
     endif
 
-    SendSysMessage(who,"finish. "+total, color := 67);
 
-    for(i:=0;i<=1000000;i:=i+1)
-        if(text >= 1)
-          //  BuffDebuff_AddIcon(who,i,100);
-        //else
-           //BuffDebuff_removeIcon(who,i);
-        endif
-        total := total + 1;
-        sleepms(10);
-    endfor
+    if(text >= 1)
+        for(i:=0;i<=1000000;i:=i+1)
+            BuffDebuff_AddIcon(who,i,100);
+            total := total + 1;
+            sleepms(10);
+        endfor
+    endif
 
+if(text == 0)
+        for(i:=0;i<=1000000;i:=i+1)
+            BuffDebuff_removeIcon(who,i);
+            total := total + 1;
+            sleepms(10);
+        endfor
+    endif
 
+    SendSysMessage(who,"finish. ", color := 67);
 
 endprogram
+
+
 /*
 program textcmd_buffs(who, text)
 
@@ -1603,7 +1609,7 @@ function BuffDebuff_AddIcon(character,icone,tempo)
     packet.SetInt32(32, 1042971);//32 BYTE[4] Cliloc message ID2 cliloc "enu"(cliloc 1042971 == "~1_NOTHING~") (cliloc 1005007 == "")
     packet.SetInt32(36, 0x0);//36 BYTE[4] 0x00000000
     packet.SetInt32(40, 0x1);//40 BYTE[2] 0x0001
-    var msg := " ";// tem que ter esse " " para ele concatenar!
+    var msg := CStr(icone)+" ";// tem que ter esse " " para ele concatenar!
     case(icone)
         1001://1001: Dismount
             msg := msg+"<BASEFONT COLOR=#ff00ff>Dismount</BASEFONT>";

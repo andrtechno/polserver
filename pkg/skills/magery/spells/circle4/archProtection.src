@@ -22,17 +22,18 @@ program cast_archprot( parms )
         return 0;
     endif
     
+    //@todo duration and amount by panic
+    PlaySoundEffect(caster, SFX_SPELL_PROTECTION);
+    var magery := GetAttribute(caster, MAGERY);
+    var mod_amount := CInt(RandomInt(6) + 5);
+    var duration := GetModDuration( magery );
 
-  PlaySoundEffect(caster, SFX_SPELL_PROTECTION);
-  var magery := GetAttribute(caster, MAGERY);
-  var mod_amount := CInt(RandomInt(6) + 5);
-  var duration := GetModDuration( magery );
-  foreach cast_on in ListMobilesNearLocation( cast_on.x, cast_on.y, cast_on.z, CInt(magery/15), caster.realm );
-    if((CheckLineOfSight(cast_on, caster)) and (cast_on.cmdlevel < 2))
-	  if(CanMod(cast_on, "ar"))
-	    PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
-	    DoTempMod(cast_on, "ar", mod_amount, duration);
-	  endif
-	endif
-  endforeach
+    foreach cast_on in ListMobilesNearLocation( cast_on.x, cast_on.y, cast_on.z, CInt(magery/15), caster.realm );
+        if((CheckLineOfSight(cast_on, caster))) // and (cast_on.cmdlevel < 2)
+            if(CanMod(cast_on, "#cast_protection")) //1030 buff
+                PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
+                DoTempMod(cast_on, "#cast_protection", mod_amount, duration);
+            endif
+        endif
+    endforeach
 endprogram

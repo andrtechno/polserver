@@ -17,7 +17,7 @@ program tame( who )
   SendSysMessage( who, "What do you want to tame?" );
   var thecreature := Target(who);
   if(!thecreature)
-    SendSysMessage(who, "cancelled.");
+    SendSysMessage(who, "Cancelled.");
     return;
   endif
   if(!CheckLineOfSight(who, thecreature))

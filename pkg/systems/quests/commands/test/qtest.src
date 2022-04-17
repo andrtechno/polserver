@@ -1,0 +1,8 @@
+use uo;
+use os;
+include ":quests:quests";
+
+
+program command_qTest( who )
+GetQuestListGump(who);
+endprogram

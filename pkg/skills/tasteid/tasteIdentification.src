@@ -23,7 +23,7 @@ program do_tasteid( character )
     var data := {};
     data[1] := "tasteid";
     data[2] := ReadGameClock();
-    data[3] := 36;
+    data[3] := SKILLID_TASTE_IDENTIFICATION;
     SetObjProperty(character, "LastUsedSkill", data );
     TrainingSkill(character, data[3]);
     

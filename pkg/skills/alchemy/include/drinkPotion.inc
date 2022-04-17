@@ -54,17 +54,17 @@ function is_poison(potion)
 endfunction
 
 function do_poison(who, potion)
-  var level;
-  case(potion.objtype)
-    0x1DC04: level := 1;
-    0x1DC05: level := 2;
-    0x1DC06: level := 3;
-    0x1DC17: level := 4;
-  endcase
-  empty_bottle(who, potion);
-  PrintTextAbovePrivate(who, "You have been poisoned!", who);
-  if(who.cmdlevel > 1)
-    return;
-  endif
-  AddPoison(who, "defaultPoison", 120, who, level);
+    var level;
+    case(potion.objtype)
+        0x1DC04: level := 1;
+        0x1DC05: level := 2;
+        0x1DC06: level := 3;
+        0x1DC17: level := 4;
+    endcase
+    empty_bottle(who, potion);
+    PrintTextAbovePrivate(who, "You have been poisoned!", who);
+    //if(who.cmdlevel > 1)
+    //  return;
+    //endif
+    AddPoison(who, "defaultPoison", 120, who, level);
 endfunction

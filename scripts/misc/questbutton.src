@@ -1,6 +1,75 @@
 use uo;
 use os;
 
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+include ":quests:quests";
+
+
+
 program questButton(who)
-SendSysMessage(who, "Quests in developer (c) panic", 3, 40);
+    SendSysMessage(who, "Quests in developer (c) panic", 3, 40);
+
+
+    var gump := GFCreateGump ( 100, 100 );
+    GFPage ( gump, 0);
+    GFResizePic(gump, 0, 0, GetCfgConst("Defaults", "ForeGround"), 400, 500);
+
+
+
+    var qlist := GetQuestList();
+    var activeQuest := GetActiveQuest(who);
+    var questAction := GetObjProperty(who,"QuestAction");
+    //GetObjProperty(who,"QuestId");
+    if(activeQuest)
+        var action := ReadConfigFile(":quest_"+activeQuest+":action");
+        var missionsCount := GetConfigMaxIntKey(action);
+        var actionText := action[questAction].Text;
+        var tilecfg := ReadConfigFile("::tiles");
+
+	    var	missionElem := FindConfigElem( action, questAction );
+	    var	mAmount := GetConfigStringArray( missionElem, "AwardAmount" );
+	    var	mTile := GetConfigStringArray( missionElem, "AwardTile" );
+
+
+        GFTextLine(gump, 15, 15, 1500, qlist[GetActiveQuest(who)][2]+" ("+(questAction + 1)+"/"+(missionsCount+1)+")" );
+        GFTextLine(gump, 250, 15, 0, "Статус: Активный");
+
+
+        var y_pos:=90;
+        GFTextLine(gump, 15, y_pos - 20, 67, "Задание:" );
+        GFHTMLArea(gump, 15, y_pos, 370, 135, actionText, 1, 1);
+        //foreach line in (GFWordWrap(actionText, 400))
+        //    GFTextLine(gump, 15, y_pos, 1153, line);
+        //    y_pos := y_pos+20;
+        //endforeach
+
+
+        y_pos := y_pos+135 + 20;
+        GFTextLine(gump, 15, y_pos, 67, "Награда:");
+        y_pos := y_pos+30;
+        var i:=1;
+        foreach tile in (mTile)
+            GFTilePic(gump, 15, y_pos, tile, 0);
+            GFTextLine(gump, 65, y_pos, 2100, "("+mAmount[i]+") "+tilecfg[Hex(tile)].Desc);
+            y_pos := y_pos+40;
+            i:=i+1;
+        endforeach
+
+
+
+
+        GFTextLine(gump, 15, y_pos + 50, 67, "Опции:");
+
+        GFAddButton(gump, 180, 460, 2071, 2072, GF_CLOSE_BTN, CInt(100));
+    endif
+    //GetObjProperty(who,"QuestStatus");
+    //SetObjProperty(who,"QuestName");
+    //GetObjProperty(who,"QuestAction");
+
+
+    var input := GFSendGump ( who, gump );
+    input := CInt(input[0]);
+
 endprogram
