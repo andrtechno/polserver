@@ -11,7 +11,7 @@ include "include/noto";
 include "include/mrcSpawn";
 //include "systems:spawnregion:spawnRegion";
 //include ":spawnregion:spawnRegion";
-
+include ":quests:quests";
 var npcdesc_cfg := ReadConfigFile( "npcdesc" );
 
 program npcdeath(corpse)
@@ -66,34 +66,7 @@ program npcdeath(corpse)
 
 
     var k := SystemFindObjectBySerial(killer[2]);
-    var QuestNpcKillList := GetObjProperty(k, "QuestNpcKillList");
-
-
-
-
-
-    if(GetObjProperty(k, "QuestNpcKillList"))
-        var index;
-        for(index:=1; index<=QuestNpcKillList.Size(); index:=index+1)
-            print(QuestNpcKillList[index][1]);
-            var countNpc := CInt(QuestNpcKillList[index][2]);
-            if((elem == QuestNpcKillList[index][1]) && countNpc)
-
-                QuestNpcKillList.erase(index);
-                if(countNpc)
-                    var newData := array{};
-                    newData[1] := elem;
-                    newData[2] := (countNpc - 1);
-                    QuestNpcKillList.insert(index, newData);
-                endif
-
-                break;
-            endif
-        endfor
-        SetObjProperty(k, "QuestNpcKillList",QuestNpcKillList);
-
-
-    endif
+    GetMission(k, {elem});
 
     dismount(corpse);
 // The following piece of code reports to new regional spawner the death of any NPCs spawned by it.

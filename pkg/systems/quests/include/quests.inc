@@ -50,22 +50,22 @@ function GetQuestListGump(who)
 
     case(input)
         101: QuestStart(who, input);
-102: QuestStart(who, input);
-103: QuestStart(who, input);
+        102: QuestStart(who, input);
+        103: QuestStart(who, input);
 
         201: QuestCancel(who);
-202: QuestCancel(who);
-203: QuestCancel(who);
+        202: QuestCancel(who);
+        203: QuestCancel(who);
     endcase
 
 endfunction
 
 
 function QuestCancel(who)
-    EraseObjProperty(who, "QuestNpcKillList");
+    EraseObjProperty(who, "QuestMissionActions");
     EraseObjProperty(who, "QuestId");
-    //EraseObjProperty(who, "QuestName");
     EraseObjProperty(who, "QuestAction");
+    EraseObjProperty(who, "QuestMission");
     EraseObjProperty(who, "QuestStatus");
     SendSysMessage(who, "Quest Cancelled.");
 endfunction
@@ -75,8 +75,8 @@ function QuestStart(who, input)
 
     SetObjProperty(who,"QuestId",index);
     SetObjProperty(who,"QuestStatus","active");
-    //SetObjProperty(who,"QuestName",test[index][2]);
-    SetObjProperty(who,"QuestAction", 0);
+
+    SetMission(who,index, 0);
     SendSysMessage(who, "Quest started.");
 endfunction
 
@@ -92,7 +92,68 @@ endfunction
 function GetQuestList()
     var test:={};
     test.append({"qid1","Убей драконов","action"});
-    test.append({"qid2","Убей драконов2","action"});
-    test.append({"qid3","Убей драконов3","action"});
+    test.append({"qid2","Дыхание дракона","action"});
+    //test.append({"qid3","Убей драконов3","action"});
     return test;
+endfunction
+
+
+function GetMission(who, missionParams)
+    var activeQuest := GetActiveQuest(who);
+    if(activeQuest)
+
+        var questMission := GetObjProperty(who,"QuestMission");
+        var action := ReadConfigFile(":quest_"+activeQuest+":action");
+
+        var	missionElem := FindConfigElem( action, questMission );
+        var missionScript := GetConfigString( missionElem, "Script" );
+
+        var script := start_script(":quests:"+missionScript, {who, missionParams, action, missionElem});
+        if ( script.errortext )
+            SysLog(script.errortext);
+        else
+            Print("Starting :quests:"+missionScript+" OK.");
+        endif
+    endif
+endfunction
+
+
+function SetMission(who, questId, missionIndex)
+    SetObjProperty(who, "QuestMission", missionIndex);
+    var mission := ReadConfigFile(":quest_"+questId+":action");
+    var	missionElem := FindConfigElem( mission, missionIndex );
+    var	mActions := GetConfigStringArray( missionElem, "action" );
+    var list := {};
+    if(mActions)
+        foreach a in (mActions)
+            var split := SplitWords(a);
+            list.append(array{split[1],split[2]});
+        endforeach
+        SetObjProperty(who, "QuestMissionActions",list);
+    endif
+endfunction
+
+
+function QuestMissionAward(who, action, missionElem)
+    var	awards := GetConfigStringArray( missionElem, "Award" );
+var missionsCount := GetConfigMaxIntKey(action);
+var questMission := CInt(GetObjProperty(who, "QuestMission"));
+var awardString := "";
+    foreach item in (awards)
+        var awardSplit := SplitWords(item);
+        var it := CreateItemInBackpack(who, awardSplit[2],CInt(awardSplit[3]));
+        awardString := it.name+" ("+CInt(awardSplit[3])+"), "+awardString;
+    endforeach
+    SendSysMessage(who, "Mission complete", 3, 67);
+    SendSysMessage(who, awardString, 3, 67);
+
+    if(questMission <= missionsCount)
+        SetMission(who, GetObjProperty(who,"QuestId"), questMission + 1);
+    elseif(missionsCount == CInt(GetObjProperty(who, "QuestMission")))
+
+    //complate quest!!!
+    endif
+
+
+
 endfunction

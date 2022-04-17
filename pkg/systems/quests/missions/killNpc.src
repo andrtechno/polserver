@@ -1,0 +1,36 @@
+use uo;
+use os;
+
+include ":quests:quests";
+
+program missionKillNpc(params)
+    var who := params[1];
+    var npcDeath := params[2][1];
+    var action := params[3];
+    var missionElem := params[4];
+
+    var questMissionActions := GetObjProperty(who, "QuestMissionActions");
+    var index;
+
+    for(index:=1; index<=questMissionActions.Size(); index:=index+1)
+        var countNpc := CInt(questMissionActions[index][2]);
+        if((npcDeath == questMissionActions[index][1]))
+            questMissionActions.erase(index);
+            var newData := array{};
+            newData[1] := npcDeath;
+            newData[2] := countNpc - 1;
+            if(newData[2])
+                questMissionActions.insert(index, newData);
+            else
+                questMissionActions.erase(index);
+            endif
+            break;
+        endif
+    endfor
+
+    if(questMissionActions.Size())
+        SetObjProperty(who, "QuestMissionActions", questMissionActions);
+    else
+        QuestMissionAward(who, action, missionElem);
+    endif
+endprogram

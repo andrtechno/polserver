@@ -107,7 +107,7 @@ program merchant()
 							BuyAll(ev.source);
 						elseif (txt["quest"])
 							TurnToward(ev.source);
-							Quest(ev.source);
+							GetQuestListGump(ev.source);
 						elseif (txt["sell bag"])
 							BuyBag(ev.source);
 						elseif((txt["vendor train"]) || (txt["vendor teach"]) || (txt["merchant train"]) || (txt["merchant teach"]))
@@ -242,29 +242,6 @@ function PayForJobCompleted (byref ev)
 	SetGlobalProperty ("#jobs_for_account_"+player.acctname, playerjobs);
 endfunction
 
-
-function Quest(byref you)
-/*    var pncfg := ReadConfigFile("::npcdesc");
-	PrintTextAbovePrivate ( me, "Quest?", you );
-    var colors := pncfg[me.npctemplate].str;
-    //print(colors);
-
-    var npcKills := array{};
-    npcKills[1] := "drake1";
-    npcKills[2] := 3;
-
-    var npcKills2 := array{};
-    npcKills2[1] := "drake2";
-    npcKills2[2] := 3;
-
-    var npcKillList:=array{};
-	npcKillList.append(npcKills);
-	npcKillList.append(npcKills2);
-SetObjProperty(you,"QuestNpcKillList",npcKillList);*/
-
-GetQuestListGump(you);
-
-endfunction
 
 ///////////////////
 //  called by 'sell bag'

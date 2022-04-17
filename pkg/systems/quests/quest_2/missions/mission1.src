@@ -1,6 +1,0 @@
-use uo;
-use os;
-
-program mission1( who )
-
-endprogram
