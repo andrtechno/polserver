@@ -62,9 +62,8 @@ program merchant()
     	inv_rs := FindRootItemInStorageArea(storage, spawnname + " RS");
 	endwhile
 
-	EnableEvents(SYSEVENT_SPEECH, REACT_THRESHOLD);
+	EnableEvents(EVID_SPEECH, REACT_THRESHOLD);
 	EnableEvents(SYSEVENT_ITEM_GIVEN);
-
 	DisableEvents(EVID_SPEECH + SYSEVENT_SPEECH);
 	if(GetObjProperty(me, "frozen"))
 		me.frozen := 1;
@@ -76,7 +75,7 @@ program merchant()
 		ev := os::wait_for_event(120);
 		if(ev)
 			case (ev.type)
-				SYSEVENT_SPEECH:
+				EVID_SPEECH:
 					var txt := lower(ev.text);
 					if((ev.source.cmdlevel > 2) && (txt["showinventory"]))
 						SendOpenSpecialContainer(ev.source, inv_fs);
@@ -107,7 +106,7 @@ program merchant()
 							BuyAll(ev.source);
 						elseif (txt["quest"])
 							TurnToward(ev.source);
-							GetQuestListGump(ev.source);
+							GetMission(ev.source, {me});
 						elseif (txt["sell bag"])
 							BuyBag(ev.source);
 						elseif((txt["vendor train"]) || (txt["vendor teach"]) || (txt["merchant train"]) || (txt["merchant teach"]))
@@ -178,7 +177,7 @@ function Lookiehere(who, npc)
   ev := array;
   ev.+ type;
   ev.+ source;
-  ev.type := SYSEVENT_SPEECH;
+  ev.type := EVID_SPEECH;
   ev.text := "node";
   ev.source := npc;
   foreach thing in ListItemsNearLocationOfType(who.x, who.y, who.z, 15, 0x1887b, who.realm)

@@ -1,0 +1,33 @@
+use uo;
+use os;
+use unicode;
+
+include ":quests:quests";
+
+program missionNpcTalk(params)
+    var who := params[1];
+    var npc := params[2][1];
+    var action := params[3];
+    var missionElem := params[4];
+
+    var questMission := GetObjProperty(who, "QuestMission");
+    var input := QuestTalkNpc(who);
+
+    if(input == 100)
+        var str := "";
+        var	items := GetConfigStringArray( missionElem, "Item" );
+        foreach item in items
+            var itemSplit := SplitWords(item," ");
+            var it := CreateItemInBackpack(who, itemSplit[1],CInt(itemSplit[2]));
+            if(it)
+                SetObjProperty(it, "Owner", who.serial);
+                str := it.name+" ("+CInt(itemSplit[2])+" шт.), "+str;
+            endif
+        endforeach
+
+        SetObjProperty( who, "isTalk", 1);
+        SendSysMessageUC(who, "Вы получили: "+str, "RUS", 3, 67);
+        QuestMissionAward(who, action, missionElem);
+    endif
+
+endprogram

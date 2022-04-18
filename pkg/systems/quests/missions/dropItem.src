@@ -1,0 +1,41 @@
+use uo;
+use os;
+
+include ":quests:quests";
+
+program missionDropItem(params)
+    var who := params[1];
+    var npcDeath := params[2][1];
+    var action := params[3];
+    var missionElem := params[4];
+
+
+    var questMissionActions := GetObjProperty(who, "QuestMissionActions");
+    var index;
+
+    for(index:=1; index<=questMissionActions.Size(); index:=index+1)
+        var countNpc := CInt(questMissionActions[index][3]);
+        if((npcDeath == questMissionActions[index][1]))
+            var newData := array{};
+            newData[1] := npcDeath;
+            newData[2] := questMissionActions[index][2];
+            newData[3] := countNpc - 1;
+
+            questMissionActions.erase(index);
+
+            if(newData[3])
+                questMissionActions.insert(index, newData);
+                var it := CreateItemInBackpack(who, questMissionActions[index][2],1);
+            else
+                questMissionActions.erase(index);
+            endif
+            break;
+        endif
+    endfor
+
+    if(questMissionActions.Size())
+        SetObjProperty(who, "QuestMissionActions", questMissionActions);
+    else
+        QuestMissionAward(who, action, missionElem);
+    endif
+endprogram
