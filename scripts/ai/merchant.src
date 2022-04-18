@@ -156,7 +156,8 @@ program merchant()
 					//PayForItemDelivery (ev);
 					elseif ( ev.item.objtype == UOBJ_GOLD_COIN )
 						TrainSkill(me, ev.source, ev.item);
-					//else
+					else
+					    GetMission(ev.source, {me, ev.item});
 					//TakeItem(ev.source, ev.item);
 					endif
 			endcase
