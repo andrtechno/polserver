@@ -36,8 +36,8 @@ program questButton(who)
 	    var	missionAward := GetConfigStringArray( missionElem, "Award" );
 
 
-        GFTextLine(gump, 15, 15, 1500, qlist[GetActiveQuest(who)][1]+" ("+(qAction + 1)+"/"+(missionsCount + 1)+")" );
-        GFTextLine(gump, 250, 15, 0, "Статус: Активный");
+        GFTextLine(gump, 15, 15, 1500, qlist[GetActiveQuest(who)][1]+" ("+(qAction)+"/"+(missionsCount)+")" );
+        //GFTextLine(gump, 250, 15, 0, "Статус: Активный");
 
 
         var y_pos:=90;
@@ -47,7 +47,7 @@ program questButton(who)
         y_pos := y_pos+135 + 20;
         var y_start := y_pos;
         if(missionAward.Size())
-            GFTextLine(gump, 15, y_pos, 67, "Награда:");
+            GFTextLine(gump, 15, y_pos, 10, "Награда:");
             y_pos := y_pos+30;
             var i:=1;
             foreach award in (missionAward)
@@ -61,17 +61,26 @@ program questButton(who)
 
 	    var	actionsKill := GetConfigStringArray( missionElem, "ActionKill" );
 	    var currentActionsKill := GetObjProperty(who,"QuestCurrentActionKill");
-        GFTextLine(gump, 250, y_start, 67, "Убейте:");
-        y_start := y_start+20;
-        var killIndex := 1;
-        foreach kill in (actionsKill)
-            var killSplit := SplitWords(kill);
-            var ckillSplit := SplitWords(kill);
-            GFTextLine(gump, 250, y_start, 2100, killSplit[1]+" ("+currentActionsKill[killIndex][2]+"/"+killSplit[2]+" шт.)");
-            y_start := y_start+20;
-            killIndex:=killIndex+1;
-        endforeach
+        if(actionsKill.Size())
+            GFTextLine(gump, 250, y_start, 10, "Убейте:");
+            y_start := y_start+30;
+            var killIndex := 1;
+            foreach kill in (actionsKill)
+                var killSplit := SplitWords(kill);
+                var textColor := 2100;
+                if(CInt(currentActionsKill[killIndex][2]) == CInt(killSplit[2]))
+                   // textColor := 67;
+                    GFGumpPic(gump, 225, y_start, 211);
+                else
+                  //  GFGumpPic(gump, 225, y_start, 212);
+                endif
 
+
+                GFTextLine(gump, 250, y_start, textColor, killSplit[1]+" ("+currentActionsKill[killIndex][2]+"/"+killSplit[2]+" шт.)");
+                y_start := y_start+20;
+                killIndex:=killIndex+1;
+            endforeach
+        endif
         GFAddButton(gump, 180, 460, 2071, 2072, GF_CLOSE_BTN, CInt(100));
 
         var input := GFSendGump ( who, gump, 2);

@@ -61,16 +61,25 @@ EraseObjProperty(who, "Quest_TakeItems");
 EraseObjProperty(who, "QuestLastTalk");
 EraseObjProperty(who, "QuestActionKill");
 EraseObjProperty(who, "QuestCurrentActionKill");
-    SendQuestArrow(who, -1, -1, 1);
 
-    EraseObjProperty(who, "QuestArrow");
+RemoveQuestArrow(who);
 
 endfunction
+
+
+function RemoveQuestArrow(who)
+    var qr := GetObjProperty(who,"QuestArrow");
+    if(qr)
+        SendQuestArrow(who, -1, -1, qr[1]);
+        EraseObjProperty(who, "QuestArrow");
+    endif
+endfunction
+
 
 function QuestStart(who, input)
     var index := input - 100;
     SetObjProperty(who,"QuestId",index);
-    SetMission(who,index, 0);
+    SetMission(who,index, 1);
     SendSysMessage(who, "Quest started.");
 endfunction
 
@@ -118,7 +127,7 @@ function SetMission(who, questId, missionIndex)
     SetObjProperty(who, "QuestMission", missionIndex);
     var mission := ReadConfigFile(":quest_"+questId+":action");
     var	missionElem := FindConfigElem( mission, missionIndex );
-    var	mActions := GetConfigStringArray( missionElem, "action" );
+    var	mActionKills := GetConfigStringArray( missionElem, "ActionKill" );
     var missionScript := GetConfigString( missionElem, "Script" );
 
     AddQuestActions(who);
@@ -128,38 +137,17 @@ function SetMission(who, questId, missionIndex)
         var mArrowSplit := SplitWords(mArrow);
         xy.+x := mArrowSplit[1];
         xy.+y := mArrowSplit[2];
-    else
-        var npcSerial := GetConfigString( missionElem, "TalkNpc" );
-        var npc := SystemFindObjectBySerial(CInt(npcSerial));
-        xy.+x := npc.x;
-        xy.+y := npc.y;
+    //else
+   //     var npcSerial := GetConfigString( missionElem, "TalkNpc" );
+   //     var npc := SystemFindObjectBySerial(CInt(npcSerial));
+   //     xy.+x := npc.x;
+   //     xy.+y := npc.y;
     endif
 
-    if(xy)
+    RemoveQuestArrow(who);
+    if(xy.x && xy.y)
         AddQuestArrow(who, CInt(xy.x), CInt(xy.y));
     endif
-
-    var list := {};
-    if(mActions)
-        foreach a in (mActions)
-            var split := SplitWords(a);
-            //print("splitsize: "+split.Size());
-            //foreach s in (split.Size())
-
-            //endforeach
-            if(missionScript == "missions/dropItem")
-                list.append(array{split[1],split[2],split[3]});
-            elseif(missionScript == "missions/npcTalk")
-                list.append(array{split[1],split[2],split[3]});
-            else
-                list.append(array{split[1],split[2]});
-            endif
-        endforeach
-        if(list.Size())
-            SetObjProperty(who, "QuestMissionActions",list);
-        endif
-    endif
-
 endfunction
 
 
@@ -176,11 +164,11 @@ function QuestMissionAward(who, action, missionElem)
     SendSysMessage(who, "Mission complete", 3, 67);
     SendSysMessage(who, awardString, 3, 67);
 
-
-    if(missionsCount == CInt(GetObjProperty(who, "QuestMission")))
+    if(missionsCount == questMission)
         QuestCancel(who);
         SendSysMessage(who, "Quest complete.", 3, 67);
     elseif(questMission <= missionsCount)
+        SendSysMessage(who, "New mission.", 3, 67);
         SetMission(who, GetObjProperty(who,"QuestId"), questMission + 1);
     endif
 
@@ -271,7 +259,7 @@ function AddQuestActions(who)
             currentList.append({killSplit[1],0});
         endforeach
 
-        if(list)
+        if(list.Size())
             SetObjProperty(who, "QuestActionKill", list);
             SetObjProperty(who, "QuestCurrentActionKill", currentList);
         endif

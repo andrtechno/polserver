@@ -1,6 +1,5 @@
 use os;
 use uo;
-use file;
 
 program textcmd_where(who)
     SendSysMessage(who, "You here: "+who.x+" "+who.y+" "+who.z);
