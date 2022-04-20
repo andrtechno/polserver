@@ -1,7 +1,0 @@
-use uo;
-use os;
-
-
-program method(item)
-   print("method");
-endprogram

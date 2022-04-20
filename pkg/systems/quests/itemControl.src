@@ -1,7 +1,0 @@
-use uo;
-use os;
-
-
-program itemcontrol(item)
-   print("itemcontrol");
-endprogram

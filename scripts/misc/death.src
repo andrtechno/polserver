@@ -11,7 +11,9 @@ include "include/noto";
 include "include/mrcSpawn";
 //include "systems:spawnregion:spawnRegion";
 //include ":spawnregion:spawnRegion";
+
 include ":quests:quests";
+
 var npcdesc_cfg := ReadConfigFile( "npcdesc" );
 
 program npcdeath(corpse)
@@ -65,8 +67,13 @@ program npcdeath(corpse)
     set_critical(1);
 
 
-    var k := SystemFindObjectBySerial(killer[2]);
-    GetMission(k, {elem});
+    var ownerKill := SystemFindObjectBySerial(killer[2]);
+    //GetMission(k, {elem});
+
+    var QuestActionProps := GetObjProperty(ownerKill,"QuestActionKill");
+    if(QuestActionProps)
+        QuestAction(ownerKill, ":quests:actions/actionKill", elem);
+    endif
 
     dismount(corpse);
 // The following piece of code reports to new regional spawner the death of any NPCs spawned by it.

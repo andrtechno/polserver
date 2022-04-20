@@ -9,27 +9,32 @@ program missionKillNpc(params)
     var action := params[3];
     var missionElem := params[4];
 
-    var questMissionActions := GetObjProperty(who, "QuestMissionActions");
+    var killActions := GetObjProperty(who, "QuestActionKill");
+    var currentActions := GetObjProperty(who, "QuestCurrentActionKill");
     var index;
 
-    for(index:=1; index<=questMissionActions.Size(); index:=index+1)
-        var countNpc := CInt(questMissionActions[index][2]);
-        if((npcDeath == questMissionActions[index][1]))
-            questMissionActions.erase(index);
+ SendSysMessage(who, "missionKillNpc", 3, 67);
+return;
+    for(index:=1; index<=killActions.Size(); index:=index+1)
+        var countNpc := CInt(currentActions[index][2]);
+        if((npcDeath == killActions[index][1]))
+            currentActions.erase(index);
             var newData := array{};
             newData[1] := npcDeath;
-            newData[2] := countNpc - 1;
+            newData[2] := countNpc + 1;
             if(newData[2])
-                questMissionActions.insert(index, newData);
+                currentActions.insert(index, newData);
             else
-                questMissionActions.erase(index);
+                currentActions.erase(index);
             endif
             break;
         endif
     endfor
 
-    if(questMissionActions.Size())
-        SetObjProperty(who, "QuestMissionActions", questMissionActions);
+
+return;
+    if(killActions.Size())
+        SetObjProperty(who, "QuestMissionActions", killActions);
     else
         QuestMissionAward(who, action, missionElem);
     endif

@@ -10,21 +10,21 @@ program missionGiveItem(params)
     var action := params[3];
     var missionElem := params[4];
     SendSysMessageUC(who, "missionGiveItem: ", "RUS", 3, 67);
+
+
+    var items := GetObjProperty( who, "QuestMissionActions");
+    foreach item in items
+
+    endforeach
+
 return;
     var questMission := GetObjProperty(who, "QuestMission");
-    var input := QuestTalkNpc(who);
+    var input := QuestTalkNpc(who, npc);
 
     if(input == 100)
         var str := "";
         var	items := GetConfigStringArray( missionElem, "Item" );
-        foreach item in items
-            var itemSplit := SplitWords(item," ");
-            var it := CreateItemInBackpack(who, itemSplit[1],CInt(itemSplit[2]));
-            if(it)
-                SetObjProperty(it, "Owner", who.serial);
-                str := it.name+" ("+CInt(itemSplit[2])+" шт.), "+str;
-            endif
-        endforeach
+
 
         SetObjProperty( who, "isTalk", 1);
         SendSysMessageUC(who, "Вы получили: "+str, "RUS", 3, 67);

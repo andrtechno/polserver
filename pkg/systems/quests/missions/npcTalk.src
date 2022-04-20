@@ -11,23 +11,37 @@ program missionNpcTalk(params)
     var missionElem := params[4];
 
     var questMission := GetObjProperty(who, "QuestMission");
-    var input := QuestTalkNpc(who);
+    var npcSerial := GetConfigString( missionElem, "TalkNpc" );
 
-    if(input == 100)
-        var str := "";
-        var	items := GetConfigStringArray( missionElem, "Item" );
-        foreach item in items
-            var itemSplit := SplitWords(item," ");
-            var it := CreateItemInBackpack(who, itemSplit[1],CInt(itemSplit[2]));
-            if(it)
-                SetObjProperty(it, "Owner", who.serial);
-                str := it.name+" ("+CInt(itemSplit[2])+" шт.), "+str;
-            endif
-        endforeach
+    if(CInt(npcSerial) != npc.serial)
+        return;
+    endif
 
-        SetObjProperty( who, "isTalk", 1);
-        SendSysMessageUC(who, "Вы получили: "+str, "RUS", 3, 67);
-        QuestMissionAward(who, action, missionElem);
+    var input := QuestTalkNpc(who, npc);
+
+    if(input)
+       // if(!GetObjProperty( who, "QuestTalkNpc"))
+            var str := "";
+            var	giveItems := GetConfigStringArray( missionElem, "GiveItem" );
+            var list := {};
+            foreach item in giveItems
+                var itemSplit := SplitWords(item," ");
+                var it := CreateItemInBackpack(who, itemSplit[1],CInt(itemSplit[2]));
+                if(it)
+                    SetObjProperty(it, "Owner", who.serial);
+                    str := it.name+" ("+CInt(itemSplit[2])+" шт.), "+str;
+                endif
+                list.append({itemSplit[1],itemSplit[2]});
+            endforeach
+
+            SetObjProperty( who, "isTalk", 1);
+            SetObjProperty( who, "Quest_TakeItems", list);
+            SendSysMessageUC(who, "Вы получили предметы: "+str, "RUS", 3, 67);
+            QuestMissionAward(who, action, missionElem);
+            SetObjProperty(who, "QuestLastTalk", npcSerial);
+       // else
+        //    SendSysMessageUC(who, "Вы уже поговорили.", "RUS", 3, 67);
+       // endif
     endif
 
 endprogram

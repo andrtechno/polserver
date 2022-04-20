@@ -710,8 +710,8 @@ endfunction
  * The SendDialogGump().
  *
  */
-function GFSendGump(who, byref gump)
-	var ret_val := SendDialogGump(who, gump.layout, gump.data, gump.base.x, gump.base.y);
+function GFSendGump(who, byref gump, gumpid:=0)
+	var ret_val := SendDialogGump(who, gump.layout, gump.data, gump.base.x, gump.base.y, 0, gumpid);
 	if ( ret_val.errortext )
 		//Sometimes comes up when the gump has too much information.
 		SendSysMessage(who, "Error - Unable to display gump.");
