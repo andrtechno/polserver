@@ -1,0 +1,502 @@
+use uo; 
+use cfgfile;
+//use datafile;
+use util;
+use unicode;
+use math;
+
+//include "../../include/gumps";
+//include "../../include/gumpUtil";
+include ":datafile:datafile";
+
+var qz_loot := ReadConfigFile(":pubg:questzone_loot");
+var conttypes := array{2637,2639,2641,2643,2717,2718,2711,2604,2608,3701,3702,3703,3705,3644,3647,3648,3649,3650,3651};
+var qz_questzone := ReadConfigFile(":pubg:questzone");
+var entries2 := GetConfigStringKeys(qz_questzone);
+	
+var qz_locationloot := ReadConfigFile(":pubg:questzone_locationloot");
+var data_file := DFOpenDataFile(":pubg:LootItems", DF_CREATE, DF_KEYTYPE_INTEGER);
+
+program questzoneloot(who)
+	//var split := SplitWords(info);
+	SendSysMessage(who, "Created by Panic",3,67);
+
+
+  
+  
+    var QZGumpLayout:=array;
+	var QZGumpData := array;
+
+	var GWidth:=400;
+	var GHeight:=300;
+	QZGumpLayout.append("page 0");
+	QZGumpLayout.append("resizepic 0 0 2600 "+GWidth+" "+GHeight);
+	//QZGumpLayout.append("GumpPic 15 40 57");
+	//QZGumpLayout.append("GumpPic 100 40 2091");
+	//QZGumpLayout.append("GumpPic 350 40 59");
+
+
+
+    //var lootgroups2 := GetConfigIntKeys(qz_loot);
+
+    QZGumpData.append("Quest zone");
+    QZGumpLayout.append("text 50 15 67 0");
+
+    QZGumpData.append("By Panic (v1.0)");
+    QZGumpLayout.append("text 230 15 954 1");
+
+    QZGumpData.append("Add loot");
+    QZGumpLayout.append("text 180 60 67 2");
+    QZGumpLayout.append("button 160 65 1209 1210 1 0 100");
+
+
+    QZGumpData.append("Remove loot");
+    QZGumpLayout.append("text 290 60 33 3");
+    QZGumpLayout.append("button 270 65 1209 1210 1 0 101");
+
+
+    QZGumpData.append("Spawn NPCs");
+    QZGumpLayout.append("text 290 120 67 4");
+
+    //print(QZGumpData.size());
+
+    var padding:=100;
+
+    foreach i in entries2
+    var elem := qz_questzone[i];
+        padding:=padding + 30 * i + 20;
+        QZGumpData.append(elem.name+" (dmg: "+elem.damage+", dmg speed: "+elem.dmgSpeed+")");
+        QZGumpLayout.append("text 20 "+(padding)+" 32 "+(QZGumpData.size() - 1));
+        QZGumpData.append(elem.range);
+        QZGumpLayout.append("text 20 "+(padding + 20)+" 954 "+(QZGumpData.size() - 1));
+
+
+
+        QZGumpLayout.append("button 320 "+(padding + 5)+" 2117 2118 1 0 20"+i);
+        //QZGumpLayout.append("button 120 "+(padding + 5)+" 4018 4019 1 0 "+i+"03");
+        //QZGumpLayout.append("button 180 "+(padding + 5)+" 4018 4019 1 0 "+i+"04");
+    endforeach
+	
+	
+
+
+
+    //print(QZGumpData);
+    //print(QZGumpLayout);
+
+    var choice := SendDialogGump( who, QZGumpLayout, QZGumpData );
+    var his_choice;
+    foreach key in ( choice.keys )
+        his_choice := key;
+    endforeach
+
+    var output;
+    var btnid := 200;
+    foreach p in entries2
+    if(his_choice == (btnid + CInt(p)))
+        createNpc(who,p);
+        output := "createLoots";
+        break;
+    else
+    output := "Canceled";
+        break;
+    endif
+    endforeach
+
+    /*
+    if(his_choice == 2011)
+    createNpc(who,qz_questzone[1])
+    output := "createLoots";
+    elseif(his_choice == 2021)
+    output := "clearLoots";
+    else
+    output := "Canceled");
+    endif*/
+
+
+    case ( his_choice )
+        100: createLoots(who);
+        101: clearLoots(who);
+        //200: createNpc(who,qz_questzone[1]);
+        //202: output := "remove 202";
+        //104: output := "create zone";
+        default: output := "Canceled.";
+    endcase
+
+    /*var radius:=20;
+    var centerX:=1224;
+    var centerY:=1724;
+
+
+
+    var range := SplitWords((centerX - radius)+" "+(centerY - radius)+" "+(centerX + radius)+" "+(centerY + radius));
+	//print(range);
+    if((who.x >= CInt(range[1])) && (who.x <= CInt(range[3])) && (who.y >= CInt(range[2])) && (who.y <= CInt(range[4])))
+		SendSysMessage( who, "GZ" );
+
+    endif
+	    if((who.x <= CInt(range[1])) && (who.x <= CInt(range[3])) && (who.y <= CInt(range[2])) && (who.y <= CInt(range[4])))
+		SendSysMessage( who, "OUT GZ" );
+
+    endif*/
+	
+    SendSysMessage( who, output );
+
+endprogram
+
+
+
+function createNpc(who,id)
+//var params := qz_questzone[id]
+//var res:= SendTextEntryGump(who,"Radius");
+//if (TypeOf(res) != "Integer")
+//		SendSysMessage(who, "Only Int!!! "+CStr(TypeOf(CInt(res))));
+///return;
+//endif;
+//res:=CInt(res);
+
+var range := SplitWords(qz_questzone[id].range);
+
+	//return;
+//if(res > 0)
+var padding:=10;
+var i,z;
+var npcName := "dog";
+//var zoneRange:=CInt(res);
+//var radius:=padding*zoneRange;
+//var xtop := who.x;
+//var ytop := who.y;
+//var xbottom := who.x + radius;
+//var ybottom := who.y + radius;
+
+var xtop := CInt(range[1]);
+var ytop := CInt(range[2]);
+var xbottom := CInt(range[3]);
+var ybottom := CInt(range[4]);
+
+//create top bottom corner
+CreateNpcFromTemplate(npcName, xtop, ytop,0);
+CreateNpcFromTemplate(npcName, xbottom + padding, ybottom,0);
+var y1;
+var total := Ceil(xbottom - xtop);
+
+for( z := 1; z <= Ceil(total / padding); z := z + 1 )
+CreateNpcFromTemplate(npcName, xtop, ytop + (padding * z),0);
+CreateNpcFromTemplate(npcName, xtop + (padding * z), ytop,0);
+
+CreateNpcFromTemplate(npcName, xbottom + padding, ybottom - (padding * z),0);
+CreateNpcFromTemplate(npcName, xbottom + padding - (padding * z), ybottom,0);
+
+endfor;
+
+
+for( i := 1; i <= total; i := i + 1 )
+	SendSysMessage(who, "create npc");
+	y1 := ytop + (padding * i);
+	if((total / padding) < y1)
+	//CreateNpcFromTemplate(npcName, xtop, ytop + (padding * i),0);
+	endif
+	//CreateNpcFromTemplate(npcName, xtop + (padding * i), ytop,0);
+	//CreateNpcFromTemplate(npcName, xbottom + padding, ybottom - (padding * i),0);
+	//CreateNpcFromTemplate(npcName, xbottom + padding - (padding * i), ybottom,0);
+endfor
+//endif
+endfunction
+
+
+
+
+function createLoots(who)
+
+    var entries := GetConfigStringKeys(qz_locationloot);
+    var element;
+    var point;
+    var cont;
+
+	
+    //3703 bochka
+	
+	clearLoots(who);
+
+
+    if(!data_file)
+       print(data_file.errortext);
+    endif
+
+    var lootgroups := GetConfigIntKeys(qz_loot);
+    var counter := 0;
+    foreach listing in entries
+        element :=  qz_locationloot[listing];
+	    var randcont := RandomDiceRoll("1d"+len(conttypes));
+        cont := element.conttype;
+	    point := element.point;
+        point := SplitWords(point);
+
+        var coord := struct;
+        coord.+x := CInt(point[1]);
+        coord.+y := CInt(point[2]);
+        if(point[3])
+            coord.+z := CInt(point[3]);
+        else
+            coord.+z := GetMapInfo(CInt(point[1]), CInt(point[2]),who.realm).z;
+        endif
+        //conttypes[randcont]
+
+        //если тип не указал указывает случайный из списка
+        if(!cont)
+            cont:=conttypes[randcont];
+        endif
+        var container := CreateItemAtLocation (coord.x, coord.y, coord.z, cont, 1, who.realm);
+
+	    if(!container)
+	    	SendSysMessage(who, "Error create loot container "+container.errortext);
+	    	return;
+	    endif;
+
+
+
+        var data_elem := DFFindElement(data_file, counter, DF_CREATE);
+        if(!data_elem)
+            SendSysMessage(who, "DFFindElement: "+data_elem.errortext);
+            return;
+        endif
+
+        /*var elem_prop := DFGetProp(data_elem, "serial", DF_CREATE, container.serial);
+        if(!elem_prop)
+            SendSysMessage(who, "DFGetProp: "+elem_prop.errortext);
+            return;
+        endif*/
+        data_elem.SetProp("serial", container.serial);
+        SleepMS(2);
+        print("serial: "+container.serial);
+
+	    //создание круга
+	    /*var ffgf:= GetMidpointCircleCoords(5836, 1143, 10);
+	    print(ffgf);
+	    foreach f in ffgf
+	    CreateItemAtLocation (f.x, f.y, GetMapInfo(f.x, f.y,who.realm).z, 0x0eed, 15, who.realm);
+	    endforeach*/
+
+	    container.movable := 0;
+	    //container.color := 67;
+
+	    //CreateItemInContainer( container, 0x0e9c, 1);
+        CreateFromGroup(container, RandomInt(len(lootgroups)));
+	    counter:=counter+1;
+    endforeach
+    UnloadDataFile(":pubg:LootItems");
+    SendSysMessage(who, "Create locations: "+CStr(counter));
+endfunction
+
+function clearLoots(who)
+    //var data_file := DFOpenDataFile(":pubg:LootItems", DF_NO_CREATE, DF_KEYTYPE_INTEGER);
+    var entries := GetConfigStringKeys(qz_locationloot);
+    var element;
+    var point;
+    var counter:=0;
+    var cont;
+    print("clearLoots");
+
+    foreach l in entries
+        var df := DFFindElement(data_file, counter, DF_NO_CREATE);
+        var serial := SystemFindObjectBySerial(DFGetProp(df, "serial", 1));
+        DestroyItem(serial);
+        SleepMS(2);
+        counter:=counter+1;
+    endforeach
+    if(counter)
+        SendSysMessage(who, "Destroy locations: "+CStr(counter));
+    endif
+    UnloadDataFile(":pubg:LootItems");
+    //DFPurgeFile(data_file);
+
+endfunction
+
+
+function CreateFromStackString(who, str)
+    var params := SplitWords(str);
+    var count;
+    var objname;
+    var color;
+    var chance;
+    count := RandomDiceRoll(CStr(params[1]));
+    params[1] := params[2];
+    params[2] := params[3];
+    params[3] := params[4];
+    if (!count)
+        count := 1;
+    endif
+    objname := params[1];
+    objname := Lower(objname);
+    if(CInt(params[2]))
+        color := CInt(params[2]);
+    else
+        color := 0;
+    endif
+    if (CInt(params[3]))
+        chance := CInt(params[3]);
+    else
+        chance := 100;
+    endif
+    var rand := RandomInt(100)+1;
+    if(CInt(rand) <= CInt(chance))
+        if (CInt(objname))
+            objname := CInt(objname);
+        else
+            Lower(objname);
+        endif
+        var item := CreateItemInContainer(who, objname, count);
+        if(!item)
+            syslog("Unable to create " + objname + " on " + who.name + ". Error= " + item.errortext);
+        endif
+        item.color := color;
+
+        foreach itemb in EnumerateItemsInContainer(who)
+            itemb.decayat:=ReadGameClock() + 30;
+            itemb.name:="TEST2";
+        endforeach
+
+    //if(making_starting_equipment)
+    //  item.newbie := 1;
+    //endif
+    endif
+endfunction
+
+function CreateFromItemString(who, str)
+  var params := SplitWords(str);
+  var count, objname, color, chance;
+  var couleurs := ReadConfigFile("::colors");
+  count := RandomDiceRoll(CStr(params[1]));
+  params[1] := params[2];
+  params[2] := params[3];
+  params[3] := params[4];
+  if (!count)
+    count := 1;
+  endif
+  objname := params[1];
+  if(CInt(params[2]))
+    color := CInt(params[2]);
+  elseif (params[2])
+    color := 0;
+    var colorg := FindConfigElem(couleurs, params[2]);
+    if(colorg)
+      var str := GetConfigStringArray(colorg, "color");
+	  var ar := {};
+	  var rndint := RandomInt(len(str)) + 1;
+	  ar := SplitWords(str[rndint]);
+	  if(len(ar) > 1)
+	    if(CInt(ar[2]) > 0)
+	      color := RandomInt(CInt(ar[2]) - CInt(ar[1]))+1;
+	    else
+	      color := CInt(str[RandomInt(len(str))+1]);
+	    endif
+	  else
+            color := CInt(str[RandomInt(len(str))+1]);
+	  endif
+	  if(color == 1)
+	    color := 0;
+	  endif
+    endif
+  endif
+  if (!color)
+    color := 0;
+  endif
+  if(CInt(params[3]))
+    chance := CInt(params[3]);
+  else
+    chance := 100;
+  endif
+  if(CInt(RandomInt(100)+1) <= CInt(chance))
+    var i;
+    for(i:=1; i<=CInt(count); i:=i+1)
+      if (CInt(objname))
+        objname := CInt(objname);
+      else
+        Lower(objname);
+      endif
+      var item := CreateItemInContainer(who, objname);
+        if(!item)
+          syslog("Unable to create " + objname + " on " + who.name + ". Error= " + item.errortext);
+        endif
+      item.color := color;
+	  //item.set_member("name","u suck");
+	  //item.set_member("weight",50);
+	  item.weight:=100;
+	  //SetObjProperty(item, "weight", 50);
+	  
+	  	      foreach itemb in EnumerateItemsInContainer(who)
+       itemb.weight:=1000;
+	   itemb.decayat:=ReadGameClock() + 30;
+	   itemb.name:="TEST";
+	   itemb.set_member("weight",1000);
+      endforeach
+	  
+    endfor
+  endif
+endfunction
+
+
+
+function CreateFromGroup(who, group)
+
+  //if(making_starting_equipment != 1)
+
+ // endif
+  var elem := qz_loot[group];
+  foreach str in GetConfigStringArray(elem, "Stack")
+    CreateFromStackString(who, str);
+  endforeach
+  foreach str in GetConfigStringArray(elem, "Item")
+    CreateFromItemString(who, str);
+  endforeach
+  foreach str in GetConfigStringArray(elem, "Random")
+    CreateFromRandomString(who, str);
+  endforeach
+  foreach str in GetConfigStringArray(elem, "Group")
+    CreateFromGroup(who, str);
+  endforeach
+  //foreach str in GetConfigStringArray(elem, "Unique")
+  //  CreateFromUniqueString(who, str);
+  //endforeach
+endfunction
+
+
+
+function CreateFromRandomString(who, desc)
+
+  var params := SplitWords(desc);
+  var amt := Cint(params[1]);
+  var count := 1;
+  if(amt != 1)
+    count := RandomDiceRoll(Cstr(amt + 1));
+  endif
+  var group := params[2];
+  var chance := params[4];
+  var elem := FindConfigElem(qz_loot, group);
+  if(elem == error)
+    syslog("Unable to find group " + group);
+    return;
+  endif
+  var items := GetConfigStringArray(elem, "Item");
+  if(items == error)
+    syslog("Group " + group + " does not contain items!");
+    return;
+  endif
+  if(!chance)
+    chance := 100;
+  endif
+  var rand := RandomInt(99)+1;
+  if(CInt(rand) <= CInt(chance))
+    if(count > len(items))
+      count := len(items);
+    endif
+    while(count)
+      var n := RandomInt(len(items)) + 1;
+      if(items[n])
+        CreateFromItemString(who, items[n]);
+        count := count - 1;
+      endif
+    endwhile
+  endif
+endfunction
+

@@ -1,0 +1,27 @@
+use os;
+use unicode;
+use uo;
+
+program SharpeningBless(who, item)
+	var victim  := Target(who);
+
+    if (!victim)
+		SendSysMessage(who, "Cancelled.");
+		return;
+	endif
+
+    if(!CheckLineOfSight(who, victim))
+        SendSysMessage(who, "You can't see that!",0,33);
+        return;
+    endif
+
+    if(Distance(who,victim) > 2)
+        SendSysMessageUC(who, "Растояние слишком большое.", "RUS", 0, 33);
+        return;
+    endif
+
+    if(victim.graphic in {0xc8, 0xe2,0xe4})
+
+    endif
+
+endprogram

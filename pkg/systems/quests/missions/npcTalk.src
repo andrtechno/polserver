@@ -34,11 +34,12 @@ program missionNpcTalk(params)
                 list.append({itemSplit[1],itemSplit[2]});
             endforeach
 
-            SetObjProperty( who, "isTalk", 1);
-            SetObjProperty( who, "Quest_TakeItems", list);
+            SetObjProperty(who, "isTalk", 1);
+            SetObjProperty(who, "Quest_TakeItems", list);
+            SetObjProperty(who, "QuestLastTalk", npcSerial);
             SendSysMessageUC(who, "Вы получили предметы: "+str, "RUS", 3, 67);
             QuestMissionAward(who, action, missionElem);
-            SetObjProperty(who, "QuestLastTalk", npcSerial);
+
        // else
         //    SendSysMessageUC(who, "Вы уже поговорили.", "RUS", 3, 67);
        // endif

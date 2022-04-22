@@ -64,7 +64,7 @@ exported function MegaCliloc( who, byref packet )
 		endif
 		// End of loop.
 		packet.SetInt32(packet.GetSize(), 0);
-	elseif (xObject.IsA (POLCLASS_MOBILE))
+	elseif (xObject.IsA (POLCLASS_NPC))
 
 		packet.SetSize(15);
 
@@ -79,7 +79,7 @@ exported function MegaCliloc( who, byref packet )
 
 		// to be added later
 		var xDesc := run_script_to_completion ( ":megacliloc:chardata", xObject);
-		print(xDesc);
+
 		if ( xDesc.Size() > 0 )
         	foreach prop in xDesc
 				var str := "";
@@ -90,12 +90,12 @@ exported function MegaCliloc( who, byref packet )
 						str += CChr(0x09) + CStr(prop.values[i]);
 					endfor
 				endif
-				print("str: "+str);
+
 				str := CAscZ (str);
-				//packet.SetInt32(packet.GetSize() - 1, prop.clilocid);
-				//var Length_ID := packet.GetSize();
+				packet.SetInt32(packet.GetSize() - 1, prop.clilocid);
+				var Length_ID := packet.GetSize();
 				packet.SetUnicodeString(packet.GetSize() + 1, str, 1);
-				//packet.SetInt16(Length_ID, str.Size() * 2);
+				packet.SetInt16(Length_ID, str.Size() * 2);
         	endforeach
         endif
         packet.SetInt32(packet.GetSize(), 0);

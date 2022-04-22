@@ -1,0 +1,143 @@
+use uo;
+use util;
+use os;
+
+const RANGE := 20;
+
+program hallucinate(who,text)
+  var words := SplitWords(text);
+  var loops := CInt(words[1]); var i := 0;
+  if (!loops) loops := 12; endif
+  sendsysmessage(who,"Starting hallucination...");
+  while (i < loops)
+  i := i + 1;
+  // pack4(CInt(words[1]));
+
+  foreach item in ListItemsNearLocation(who.x,who.y,who.z,RANGE)
+	var itemid := item.serial;
+        var buf := array();
+        buf[1] := "0x1a";  // Cmd
+	buf[2] := "0x00";  //
+	buf[3] := "0x13";  // - PacketSize[2]
+	buf[4] := Hex(CInt(itemid / 16777216) + 128);
+	buf[5] := Hex( ( itemid / 65536 ) & 255 );
+	buf[6] := Hex( ( itemid / 256 ) & 255 ) ;
+	buf[7] := Hex( itemid & 255 ) ;
+	buf[8] := Hex(item.graphic / 256);
+	buf[9] := Hex( (item.graphic & 0xff) );
+	buf[10] := Hex( (item.amount / 256) );
+	buf[11] := Hex(item.amount & 0xff);
+	buf[12] := Hex(item.x / 256);
+	buf[13] := Hex((item.x & 0xff));
+	buf[14] := Hex((item.y / 256) + 192);
+	buf[15] := Hex((item.y & 0xff)) ;
+	buf[16] := Hex(item.z);
+	var color := RandomInt(1001);
+	buf[17] := Hex((color / 256));
+	buf[18] := Hex((color & 0xff)) ;
+	buf[19] := "0x00";
+	var newbuf := combineitem(buf);
+	//print("Newbuf: " + CStr(newbuf) - "0x");
+	SendPacket(who,CStr(newbuf) - "0x");
+  endforeach
+  foreach person in ListMobilesNearLocation(who.x,who.y,who.z,RANGE)
+	var buf := array();
+	var serial := person.serial;
+	var color := RandomInt(1001);
+	buf[1] := "0x78";
+	buf[2] := "size";
+        buf[3] := "size";
+	buf[4] := Hex(CInt(serial / 16777216) );
+	buf[5] := Hex( ( serial / 65536 ) & 255 );
+	buf[6] := Hex( ( serial / 256 ) & 255 ) ;
+	buf[7] := Hex( serial & 255 ) ;
+	buf[8] := Hex(person.graphic / 256);
+	buf[9] := Hex( (person.graphic & 0xff) );
+	buf[10] := Hex(person.x / 256);
+	buf[11] := Hex((person.x & 0xff));
+	buf[12] := Hex((person.y / 256));
+	buf[13] := Hex((person.y & 0xff)) ;
+	buf[14] := person.z;
+	buf[15] := person.facing;
+	buf[16] := Hex((color / 256));
+	buf[17] := Hex((color & 0xff)) ;
+	buf[18] := 0x0;
+	buf[19] := 0x1;
+	foreach item in ListEquippedItems( person )
+		var color := RandomInt(1001);
+		buf[len(buf) + 1] := Hex(CInt(item.serial / 16777216) );
+		buf[len(buf) + 1] := Hex( ( item.serial / 65536 ) & 255 );
+		buf[len(buf) + 1] := Hex( ( item.serial / 256 ) & 255 ) ;
+		buf[len(buf) + 1] := Hex( item.serial & 255 ) ;
+		buf[len(buf) + 1] := Hex((item.graphic / 256) + 128);
+		buf[len(buf) + 1] := Hex((item.graphic & 0xff)) ;
+		buf[len(buf) + 1] := Hex( item.layer);
+		buf[len(buf) + 1] := Hex((color / 256));
+		buf[len(buf) + 1] := Hex((color & 0xff)) ;
+	endforeach
+	buf[len(buf) + 1] := "0x0";
+	buf[len(buf) + 1] := "0x0";
+	buf[len(buf) + 1] := "0x0";
+	buf[len(buf) + 1] := "0x0";
+	buf[2] := Hex((len(buf) / 256));
+	buf[3] := Hex((len(buf) & 0xff));
+	var newbuf := combineitem(buf);
+	SendPacket(who,CStr(newbuf) - "0x");
+  endforeach
+  sleep(3);
+  endwhile
+endprogram
+
+
+function pack4(num)
+// print("Num: " + num);
+// print("2^24: " + 2^24);
+// print("Bitand: " + Bitand(1,255));
+//print("And: " + (num & 255));
+// 1*16777216 2*65535 3*256 4*1
+var buf := array();
+buf[1] := Hex(CInt(num / 16777216));
+buf[2] := Hex( ( num / 65536 ) & 255 );
+buf[3] := Hex( ( num / 256 ) & 255 ) ;
+buf[4] := Hex( num & 255 ) ;
+//  print("Pack4: " + buf);
+// print("Pack4two: " + combineitem(buf));
+endfunction
+
+function pack2(num)
+var buf := array();
+buf[1] := (num / 256);
+buf[2] := num & 0xff;
+return buf;
+endfunction
+
+function combineitem(arrayx)
+  var ret := "0x";
+  foreach item in arrayx
+    item := makesuretwo(CStr(item) - "0x");
+    ret := CStr(ret) + makesuretwo((CStr(item) - "0x"));
+//    print("Ret: " + ret);
+//     print("Item: " + item);
+  endforeach
+  return ret;
+endfunction
+
+function makesuretwo(num)
+if (len(num) == 1) num := "0" + num; return num;
+else return num; endif
+endfunction
+/*
+inline void pack_big_uint32(uint8 * buf, uint32 x)
+{
+    buf[0] = uint8(x >> 24);
+    buf[1] = uint8((x >> 16) & 0xff);
+    buf[2] = uint8((x >> 8) & 0xff);
+    buf[3] = uint8(x & 0xff);
+}
+
+inline void pack_big_uint16(uint8 * buf, uint16 x)
+{
+    buf[0] = x >> 8;
+    buf[1] = x & 0xff;
+}
+*/

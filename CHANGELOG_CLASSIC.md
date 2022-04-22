@@ -86,3 +86,6 @@ DisplayDamage() fix double display damage if self damage
 добавлено зависимость от уровня например 4 ур маг, кастует от 39-49
 время каста зависти от уровня. например 4 ур маг. 40 минут держится.
 
+**Cliloc changes**
+add 1080443 +~1_AMT~ Dexterity
+add 1071362 +~1_AMT~ Intelligence.

@@ -57,12 +57,11 @@ function QuestCancel(who)
     EraseObjProperty(who, "QuestAction");
     EraseObjProperty(who, "QuestMission");
     EraseObjProperty(who, "isTalk");
-EraseObjProperty(who, "Quest_TakeItems");
-EraseObjProperty(who, "QuestLastTalk");
-EraseObjProperty(who, "QuestActionKill");
-EraseObjProperty(who, "QuestCurrentActionKill");
-
-RemoveQuestArrow(who);
+    EraseObjProperty(who, "Quest_TakeItems");
+    EraseObjProperty(who, "QuestLastTalk");
+    EraseObjProperty(who, "QuestActionKill");
+    EraseObjProperty(who, "QuestCurrentActionKill");
+    RemoveQuestArrow(who);
 
 endfunction
 
@@ -180,44 +179,39 @@ function QuestTalkNpc(who, npc)
 
     var mission := ReadConfigFile(":quest_"+activeQuest+":action");
     var	missionElem := FindConfigElem( mission, GetObjProperty(who, "QuestMission") );
-var	talknpccc := GetConfigString( missionElem, "talkNpc" );
+    var	talknpccc := GetConfigString( missionElem, "talkNpc" );
 
 
 
 
-var	TalkNpc := GetObjProperty( who, "QuestLastTalk" );
+    var	TalkNpc := GetObjProperty( who, "QuestLastTalk" );
 
-print(TalkNpc);
-print(CInt(talknpccc));
-print(npc.serial);
+    //print(TalkNpc);
+    //print(CInt(talknpccc));
+    //print(npc.serial);
 
 
-if(CInt(TalkNpc) == npc.serial)
-SendSysMessageUC(who, "Вы уже поговорили.", "RUS",3, 67);
-return;
-endif
+    if(CInt(TalkNpc) == npc.serial)
+        SendSysMessageUC(who, "Вы уже поговорили.", "RUS",3, 67);
+        return;
+    endif
 
 
 
 
     if(activeQuest)
-        //if(TalkNpc != npc.serial)
+        var	talkText := GetConfigString( missionElem, "talkText" );
 
-            var	talkText := GetConfigString( missionElem, "talkText" );
+        var gump := GFCreateGump ( 100, 100 );
 
-            var gump := GFCreateGump ( 100, 100 );
+        GFPage ( gump, 0);
+        GFGumpPic(gump, 0, 0, 1249);
+        GFHTMLArea(gump, 50, 40, 335, 205, talkText, 0, 1);
+        GFAddButton(gump, 160, 260, 247, 248, GF_CLOSE_BTN, 1);
 
-            GFPage ( gump, 0);
-            GFGumpPic(gump, 0, 0, 1249);
-            GFHTMLArea(gump, 50, 40, 335, 205, talkText, 0, 1);
-            GFAddButton(gump, 160, 260, 247, 248, GF_CLOSE_BTN, 1);
-
-            var input := GFSendGump ( who, gump , 1);
-            input := CInt(input[0]);
-            return input;
-       // else
-       //     SendSysMessageUC(who, "Вы уже поговорили.", "RUS",3, 67);
-       // endif
+        var input := GFSendGump ( who, gump , 1);
+        input := CInt(input[0]);
+        return input;
     endif
 return;
 endfunction

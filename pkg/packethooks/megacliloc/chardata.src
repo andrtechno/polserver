@@ -16,16 +16,27 @@ program chardata(xObject)
 
     if(xObject.isA(POLCLASS_NPC))
 	    var	NPC_entry := FindConfigElem( npc_config, xObject.npctemplate );
-	    var	NPC_Str := GetConfigInt( NPC_entry, "STR" );
+	    var	NPC_Str := GetConfigString( NPC_entry, "STR" );
+
 
 		//prop.clilocid := 1026487;
 		//prop.values := array{NPC_Str};
 		//allprops.append(prop);
-
-        prop.clilocid := 1042971;
-		prop.values := array{"dsasdadsa"};
-		allprops.append(prop);
-
+        if(GetObjProperty(xObject,"strbonus"))
+            prop.clilocid := 1153813;
+            prop.values := array{GetObjProperty(xObject,"strbonus")};
+            allprops.append(prop);
+        endif
+        if(GetObjProperty(xObject,"intbonus"))
+            prop.clilocid := 1071362;
+            prop.values := array{GetObjProperty(xObject,"intbonus")};
+            allprops.append(prop);
+        endif
+        if(GetObjProperty(xObject,"dexbonus"))
+            prop.clilocid := 1080443; //1075842;
+            prop.values := array{GetObjProperty(xObject,"dexbonus")};
+            allprops.append(prop);
+        endif
     endif
 
     return allprops;

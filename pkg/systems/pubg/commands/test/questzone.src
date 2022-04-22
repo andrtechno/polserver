@@ -1,0 +1,93 @@
+use uo; 
+use unicode; 
+include "include/gumps";
+include "include/gumpUtil";
+
+program questzone(who, info)
+  var split := SplitWords(info);
+  
+  //var range := split[1];
+//var points := split[2];
+
+	var pp:=5;
+  /*foreach npc in ListMobilesInLineOfSight(me, HALT_THRESHOLD)
+    if((npc.npctemplate) || (npc.script == "employed") || (npc.script == "tamed"))
+		if((Distance(me,npc) < 5))
+		
+
+			SendSysMessage(npc,"You in area zone!!!",3,33);
+
+		endif
+	endif
+  endforeach*/
+
+
+
+//var container:=CreateItemAtLocation (1220, 1721 + 5, GetMapInfo(1220, 1721 + 5).z, 0xe76, 1);
+//container.movable := 0;
+//container.color := 67;
+//CreateItemInContainer( container, 0x0e9c, 1);
+
+//CreateItemAtLocation (1220, 1721, GetMapInfo(1220, 1721).z, 0x8242, 1);
+//CreateItemAtLocation (1220, 1721, GetMapInfo(1220, 1721).z, 0x0e3f, 1);
+
+Var i;
+for( i := 1; i <= 3; i := i + 1 )
+
+	SendSysMessage(who, "create npc");
+	//var zpos := GetMapInfo( xpos, ypos).z;
+	CreateNpcFromTemplate(CStr(split[1]), who.x, who.y + (pp * i),0);
+	CreateNpcFromTemplate(CStr(split[1]), who.x + (pp * i), who.y,0);
+
+endfor
+
+
+
+  // CreateNpcFromTemplate("quest1", 1420, 1695, 0, 0);
+
+  //var check := 0;
+  /*foreach acctname in ListAccounts()
+    if(uname == acctname)
+      SendSysMessage(who, "That account name is already taken");
+      check := 1;
+      break;
+    endif
+  endforeach
+  if(!check)
+    var act := CreateAccount(uname, pword, 1);
+    if(act.errortext)
+      SendSysMessage(who, "" + act.errortext);
+      return;
+    endif
+    SendSysMessage(who, "Account created successfully.");
+    act.set_uo_expansion("ML");
+  endif*/
+  
+  
+  SendSysMessage(who, "questzone");
+ // BroadCastUC(UC(who.name) + UC(": ") + UC(info), "RUS",0, 38 ); 
+endprogram
+
+
+
+
+
+
+function UC(strs) 
+  var result := array {}; 
+  if (TypeOf(strs) != "Array") 
+    result := CAscZ(CStr(strs)); 
+  else 
+    foreach str in (strs) 
+      if (TypeOf(str) != "Array") 
+        str := CAscZ(CStr(str)); 
+      endif 
+      result := result + str;     // POL 2003-06-19 or later required for this operation 
+      foreach elem in (str) 
+        result.append(elem); 
+      endforeach 
+      // 
+    endforeach 
+  endif 
+  return result; 
+endfunction 

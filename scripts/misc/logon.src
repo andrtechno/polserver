@@ -48,6 +48,12 @@ program onlogon(who)
       DestroyItem(mount);
     endif
   endif
+
+    var qr := GetObjProperty(who, "QuestArrow");
+    if(qr)
+        SendQuestArrow(who, CInt(qr[2]), CInt(qr[3]), qr[1]);
+    endif
+
   var rm := GetObjProperty(who, "ReportMenu");
   if(rm)
     var defender;
