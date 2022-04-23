@@ -9,7 +9,7 @@ const MIN_CHARACTERS_FOR_PASSWORD     := 4;
 const ERRORTYPE_NO_DOMAIN       := 1;
 const ERRORTYPE_FREE_SERVER     := 2;
 const ERRORTYPE_EXISTING_ADRESS := 3;
-const ERRORTYPE_EXISTING_IP	:= 4;
+const ERRORTYPE_EXISTING_IP     := 4;
 
 var data := struct{};
 
@@ -24,7 +24,7 @@ program create_account()
 
 
 	if( TypeOf(account_name) != "String" || account_name == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
+		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=register.html></head></html>");
 	elseif( TypeOf(password1) != "String" || password1 == "" )
 		data.+"message" := "Пароль не может быть пустым.";
 	elseif( TypeOf(password2) != "String" || password2 == "" )
@@ -43,20 +43,20 @@ program create_account()
         data.+"message" := "Пароль совпадает с аккаунтом.";
 	else
 		
-			var account := CreateAccount(account_name, password1, 1 );
+        var account := CreateAccount(account_name, password1, 1 );
 
-			if( !account )
-				case( account.errortext )
-					"Account already exists":
-                        data.+"message" := "Такой аккаунт уже сущетвует.";
-					default:
-                        data.+"message" := "Такой аккаунт уже сущетвует.";
-				endcase
-			else
-				account.setProp("email", email);
-                data.+"success" := Boolean(1);
-                data.+"message" := "Аккаунт успешно создан.";
-			endif
+        if( !account )
+            case( account.errortext )
+                "Account already exists":
+                    data.+"message" := "Такой аккаунт уже сущетвует.";
+                default:
+                    data.+"message" := "Такой аккаунт уже сущетвует.";
+            endcase
+        else
+            account.setProp("email", email);
+            data.+"success" := Boolean(1);
+            data.+"message" := "Аккаунт успешно создан.";
+        endif
 	endif
 
     WriteHtml( PackJSON(data) );

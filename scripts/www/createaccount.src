@@ -19,7 +19,7 @@ program create_account()
 	var email        := QueryParam("email");
 	
 	if( TypeOf(account_name) != "String" || account_name == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptyuser.html></head></html>");
+		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=register.html></head></html>");
 	elseif( TypeOf(password1) != "String" || password1 == "" )
 		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=emptypass.html></head></html>");
 	elseif( TypeOf(password2) != "String" || password2 == "" )
