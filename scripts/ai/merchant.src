@@ -19,6 +19,9 @@ include "include/trainSkill";
 include "include/objtype";
 include ":quests:quests";
 
+//for buff
+include ":magery:spells";
+
 const MAX_SKILLS      := 48;
 const REACT_THRESHOLD := 2;
 
@@ -104,6 +107,19 @@ program merchant()
 							start_script (":job:job", parms);
 						elseif (txt["sell all"])
 							BuyAll(ev.source);
+                        elseif (txt["buff"])
+                            if(!GetObjProperty(me, "classid"))
+                                SetObjProperty(me, "classid", 1);
+                            endif
+                            if(!GetObjProperty(me, "classlevel"))
+                                SetObjProperty(me, "classlevel", 6);
+                            endif
+							Buff(ev.source, 9);
+							Buff(ev.source, 10);
+							Buff(ev.source, 15);
+							Buff(ev.source, 16);
+							Buff(ev.source, 17);
+
 						elseif (txt["quest"])
 							TurnToward(ev.source);
 							GetMission(ev.source, {me});
@@ -172,6 +188,18 @@ program merchant()
     endif*/
 	endwhile
 endprogram
+
+function Buff(who, spell_id)
+    if(Distance(me, who) <= 10)
+        Detach();
+        var spell_elem := MS_GetSpellsCfgElem(spell_id);
+        PerformAction(me, ANIM_CAST_DIR);
+        SpeakPowerWords(me, spell_id);
+        Start_Script(":magery:"+spell_elem.SpellScript, {me, 1, spell_id, who});
+        SleepMS(1500);
+    endif
+endfunction
+
 
 function Lookiehere(who, npc)
   var ev;

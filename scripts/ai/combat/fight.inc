@@ -92,7 +92,7 @@ function flee(opponent)
 					        opponent := f_f_ev.source;
 			  		        SetOpponent(opponent);
 			              endif
-        EVID_PEACEMADE:   chk := 1;Say("i am dazzled by beautiful music22222222");
+        EVID_PEACEMADE:   chk := 1;Say("i am dazzled by beautiful music");
         EVID_HERDING:     Herd(f_f_ev);
 	  endcase
 	  if(chk)
