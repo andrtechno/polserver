@@ -195,8 +195,9 @@ function Buff(who, spell_id)
         var spell_elem := MS_GetSpellsCfgElem(spell_id);
         PerformAction(me, ANIM_CAST_DIR);
         SpeakPowerWords(me, spell_id);
+        SleepMS(500);
         Start_Script(":magery:"+spell_elem.SpellScript, {me, 1, spell_id, who});
-        SleepMS(1500);
+        SleepMS(1000);
     endif
 endfunction
 
