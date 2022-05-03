@@ -1,0 +1,15 @@
+use os;
+use uo;
+
+include "util/bank";
+
+program textcmd_buy(who)
+    var bankbox := FindBankBox(who);
+    var cash := GetStacksOfTypeInContainer (bankbox, 0xEED);
+    if(cash)
+        if(cash[1] > 1000)
+            SubtractFromStackArray (cash, 60000);
+        endif
+    endif
+
+endprogram

@@ -1,0 +1,19 @@
+use uo;
+use os;
+
+program hallucination_textcmd( mobile, text )
+
+	text := CInt(text);
+	if( !text )
+		text := 0;
+	endif
+
+	SendSysMessage( mobile, "Select target" );
+	var coun := Target( mobile, TGTOPT_NOCHECK_LOS );
+	if( !coun )
+		SendSysMessage( mobile, "Cancelled." );
+		return 0;
+	endif
+
+	Start_Script( ":hallucination:hallucination", { coun, text } );
+endprogram

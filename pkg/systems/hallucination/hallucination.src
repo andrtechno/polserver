@@ -1,0 +1,68 @@
+use uo;
+use os;
+use polsys;
+use util;
+use cfgfile;
+
+include ":hallucination:hallucination";
+include ":hallucination:settings";
+
+program hallucination( parameters )
+
+	var mobile := parameters[1],
+    duration := parameters[2],
+    settings := HALLUCINATION_GetSettingsCfgElem( "Settings" ),
+    mobs := Array,
+    objs := Array,
+    graphics := GetConfigIntArray( HALLUCINATION_GetSettingsCfgElem( "HallucinationGraphics" ), "Graphic" );
+
+	if( !duration )
+		duration := CInt( settings.HallucinationDefaultTimer );
+	endif
+
+	if( GetProcess( GetObjProperty( mobile, "#hallucinating" ) ) )
+		return 0;
+	endif
+
+	SendSysMessage( mobile, "You begin to hallucinate.", 0x3, 0x32 );
+	SetObjProperty( mobile, "#hallucinating", GetPid() );
+	duration := duration+ReadGameClock();
+	while( mobile.acctname && duration >= ReadGameClock() )
+		mobs := ListMobilesNearLocation( mobile.x, mobile.y, mobile.z, 35, mobile.realm );
+		objs := ListItemsNearLocation( mobile.x, mobile.y, mobile.z, 35, mobile.realm );
+		objs := objs+mobs;
+		foreach obj in objs
+			if( obj.IsA( POLCLASS_ITEM ) )
+				if( obj.IsA( POLCLASS_DOOR ) )
+					continue;
+				endif
+
+				if( ( obj.amount == 1 ) && ( !obj.IsA( POLCLASS_CORPSE ) ) && ( !obj.invisible ) )
+					// DeleteObject( mobile, obj );
+					DrawObject( mobile, obj, obj.graphic, RandomInt(99)+2 );
+				endif
+			elseif( obj.IsA( POLCLASS_MOBILE ) )
+				if( mobile == obj )
+					continue;
+				endif
+				// DeleteObject( mobile, obj );
+				DrawObject( mobile, obj, graphics.RandomEntry(), RandomInt(99)+2, 1 );
+			endif
+		endforeach
+		Sleep( 3+( RandomInt( 4 ) + 1 ) );
+	endwhile
+
+	mobs := ListMobilesNearLocation( mobile.x, mobile.y, mobile.z, 35, mobile.realm );
+	objs := ListItemsNearLocation( mobile.x, mobile.y, mobile.z, 35, mobile.realm );
+	objs := objs+mobs;
+	foreach obj in objs
+		if( obj.IsA( POLCLASS_MOBILE ) )
+			UpdateMobile( obj, UPDATEMOBILE_RECREATE );
+		elseif( obj.IsA( POLCLASS_ITEM ) )
+			UpdateItem( obj );
+		endif
+	endforeach
+
+	EraseObjProperty( mobile, "#hallucinating" );
+	SendSysMessage( mobile, "You stop hallucinating...", 0x3, 0x32 );
+endprogram

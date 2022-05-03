@@ -70,6 +70,7 @@ data/*
 ecompile.log
 leftovers.txt
 orphans.txt
+breaking-changes.txt
 
 # POL binaries and cfg
 pol.exe

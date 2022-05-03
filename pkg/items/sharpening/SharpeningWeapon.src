@@ -1,0 +1,72 @@
+use os;
+use unicode;
+use uo;
+use util;
+
+program SharpeningWeapon(who, item)
+	var victim  := Target(who);
+
+    if (!victim)
+		SendSysMessage(who, "Cancelled.");
+		return;
+	endif
+
+    if(!CheckLineOfSight(who, victim))
+        SendSysMessage(who, "You can't see that!", 0, 33);
+        return;
+    endif
+
+    if(Distance(who, victim) > 2)
+        SendSysMessageUC(who, "Растояние слишком большое.", "RUS", 0, 33);
+        return;
+    endif
+
+    if(victim.Attribute in {"Fencing", "Swordsmanship", "Macefighting", "Archery"})
+        var sharpening := CInt(GetObjProperty(victim, "Sharpening"));
+        if(!sharpening)
+            sharpening := 0;
+        endif
+        diff(who, item, victim, sharpening);
+    else
+        SendSysMessageUC(who, "Не является оружием.", "RUS", 0, 33);
+    endif
+
+endprogram
+
+
+function diff(who, scroll, victim, sharpening)
+    var value := 0;
+    var rint := RandomInt(99)+1;
+    var change := 100;
+    value := sharpening + 1;
+    if(sharpening >= 9)
+        change := 50;
+    elseif(sharpening >= 8)
+        change := 60;
+    elseif(sharpening >= 7)
+        change := 70;
+    elseif(sharpening >= 6)
+        change := 80;
+    elseif(sharpening >= 5)
+        change := 90;
+    elseif(sharpening >= 4)
+        change := 95;
+    endif
+
+    if(rint <= change)
+        SetObjProperty(victim, "Sharpening", value);
+        SendSysMessageUC(who, "Оружие успешно улучшенно на +"+value, "RUS", 0, 67);
+    else
+        var blessed := CInt(GetObjProperty(scroll, "Blessed"));
+        if(blessed)
+            SendSysMessageUC(who, "Не удалось улучшить оружие", "RUS", 0, 33);
+            //уменьшаем заточку
+            SetObjProperty(victim, "Sharpening", sharpening - 1);
+        else
+            SendSysMessageUC(who, "Не удалось улучшить оружие", "RUS", 0, 33);
+            //ломаем оружие
+            DestroyItem(victim);
+        endif
+    endif
+    SubtractAmount(scroll, 1);
+endfunction
