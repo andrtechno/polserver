@@ -21,22 +21,37 @@ program cast_strength( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-  PlaySoundEffect(cast_on, SFX_SPELL_STRENGTH);
-  PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
+    PlaySoundEffect(cast_on, SFX_SPELL_STRENGTH);
+    PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
     
-  if (CanMod(cast_on, "#cast_strength"))
-	SendSysMessage(caster,"Already under the influence!");
-	return;
-  endif
-  var magery := AP_GetSkill(caster, MAGERY);
-  var mod_amount := GetModAmount( magery );
-  var duration := GetModDuration( magery );
-  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+    if (CanMod(cast_on, "#cast_strength"))
+        SendSysMessage(caster,"Already under the influence!");
+        return;
+    endif
+    var magery := AP_GetSkill(caster, MAGERY);
+    var mod_amount := GetModAmount( magery );
+    var duration := GetModDuration( magery );
+    var classlevel := CInt(GetObjProperty(caster,"classlevel"));
 
-  if(GetObjProperty(caster,"classid") == ID_MAGE)
-    mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10));
-    duration := (60 * classlevel) * 10;
-  endif
+    if(GetObjProperty(caster,"classid") == ID_MAGE)
+        mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10));
+        duration := (60 * classlevel) * 10;
+    endif
+
+
+
+
+	// Str increase % = (Eval / 10 + 1)
+	var percent := CDbl(AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 10) + 1;
+	mod_amount := CInt(AP_GetStat(cast_on, STRENGTH) * (percent / 100));
+
+	// Duration: ((Evaluating Intelligence / 5) + 1) * 6 seconds.
+	duration := CInt(((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 5) + 1) * 6);
+
+
 
   DoTempMod(cast_on, "#cast_strength", mod_amount, duration);
 endprogram

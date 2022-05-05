@@ -21,6 +21,9 @@ program cast_FEEBLEMIND( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   SetObjProperty(cast_on, "LastHit", {caster.name,caster.serial, "feeblemind" });
     
   PlaySoundEffect(cast_on, SFX_SPELL_FEEBLEMIND);

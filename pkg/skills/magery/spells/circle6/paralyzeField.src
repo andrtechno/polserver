@@ -24,7 +24,9 @@ program parafield( parms )
   if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
   endif
-  
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   var fields := {};
   var x := cast_on.x;
   var y := cast_on.y;

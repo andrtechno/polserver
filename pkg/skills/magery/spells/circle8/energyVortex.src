@@ -18,10 +18,12 @@ program cast_summon( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-  if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
+    if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
-  endif
-
+    endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   var thecritter := CreateNpcFromTemplate("vortex", cast_on.x, cast_on.y,cast_on.z, 0, caster.realm);
   PlaySoundEffect(thecritter,SFX_SPELL_ENERGY_VORTEX);
   SetObjProperty(thecritter, "summoned",1);

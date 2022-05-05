@@ -21,6 +21,10 @@ program cast_bless( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
+
     PlaySoundEffect(cast_on, SFX_SPELL_BLESS);
     PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 10,10);
 

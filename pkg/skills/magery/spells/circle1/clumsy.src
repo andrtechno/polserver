@@ -18,7 +18,11 @@ program cast_clumsy( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-    if ( !MS_MobileCheck(caster, cast_on) )
+    if ( !MS_MobileCheck(caster, cast_on))
+        return 0;
+    endif
+
+    if (!CheckCastSpot(caster, info))
         return 0;
     endif
 

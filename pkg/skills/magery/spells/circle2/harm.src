@@ -21,6 +21,9 @@ program cast_harm( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   SetObjProperty(cast_on, "LastHit", {caster.name,caster.serial, "harm" });
   PlaySoundEffect(cast_on, SFX_SPELL_HARM);
   PlayObjectCenteredEffect( cast_on, FX_GLOW_SPIKE, 0x0a,0x1e);

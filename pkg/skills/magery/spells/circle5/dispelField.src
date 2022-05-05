@@ -17,7 +17,9 @@ program dispel_field( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   var magery := GetAttribute(caster, MAGERY);
   var therange := CInt(magery / 10 );
   var items := ListItemsNearLocation(cast_on.x, cast_on.y, cast_on.z, therange, caster.realm);

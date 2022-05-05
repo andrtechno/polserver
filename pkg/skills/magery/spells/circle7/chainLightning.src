@@ -24,6 +24,9 @@ program cast_chainlightning( parms )
   if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
   endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 /////////////////////// Distro 0.97 stuff here /////////////////////////////////  
 
 	// Base damage is a decimal number in between min and max damage

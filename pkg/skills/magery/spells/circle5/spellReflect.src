@@ -5,8 +5,11 @@ include ":magery:spells";
 include ":damage:damage";
 
 program cast_reflect( parms )
-  var caster := parms[1];
-  
+    var caster := parms[1];
+    var info := parms[2];
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 ///////////////////////////////////////////////////////////////////////////
 // I am going to add the new system here and  leave the old one in place //
 // as well until I can implement the new system in all scripts.          //

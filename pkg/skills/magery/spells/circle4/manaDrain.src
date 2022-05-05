@@ -21,7 +21,9 @@ program mana_drain ( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-    
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     PlaySoundEffect( caster, SFX_SPELL_MANA_DRAIN );
     PlayObjectCenteredEffect( cast_on, FX_HEAL_EFFECT, 7,0x10 );
 

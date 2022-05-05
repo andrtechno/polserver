@@ -205,6 +205,7 @@ program SpellStarter(params)
 	if ( skill_check )
 		var info := struct;
 		info.+script := spell_elem.script;
+		info.+castspot := spell_elem.CastSpot;
 		info.+attribute := attribute;
 		info.+skill_check := skill_check;
 		info.+targ := targ;
@@ -215,11 +216,9 @@ program SpellStarter(params)
 		info.+damage_typ := spell_elem.DamageType;
 		info.+x := x;
 		info.+y := y;
-        if((mobile.x != x) || (mobile.y != y))
-            EraseObjProperty(mobile, "#Medding");
-            EraseObjProperty(mobile, "#Casting");
-            SendSysMessage(mobile, "You lose your concentration.");
-            return;
+
+        if (!CheckCastSpot(mobile, info))
+            return 0;
         endif
 		var script := Start_Script(spell_elem.SpellScript, {mobile, info, spell_id, targ});
 		Detach();

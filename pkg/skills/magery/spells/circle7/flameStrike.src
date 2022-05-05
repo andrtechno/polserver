@@ -23,6 +23,9 @@ program cast_flamestrike( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   SetObjProperty(cast_on, "LastHit", {caster.name,caster.serial, "flame strike" });
   PlayObjectCenteredEffect(cast_on, 0x3709, 0x0a, 0x1e );
   PlaySoundEffect( caster, SFX_SPELL_FLAME_STRIKE );

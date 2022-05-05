@@ -7,24 +7,26 @@ include "include/objtype";
 include ":housing:housing";
 
 program cast_mark(parms)
-  var caster := parms[1];
-  var info := parms[2];
-  var interdiction;
+    var caster := parms[1];
+    var info := parms[2];
+    var interdiction;
   
-  var cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
+    var cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
     if (!cast_on)
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-
-  if (cast_on.objtype != UOBJ_RUNE)
-    SendSysMessage(caster, "You can only cast that on a recall rune!", color := 33);
-	return;
-  endif
-  if ( !Accessible( caster, cast_on ) )
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
+    if (cast_on.objtype != UOBJ_RUNE)
+        SendSysMessage(caster, "You can only cast that on a recall rune!", color := 33);
+	    return;
+    endif
+    if ( !Accessible( caster, cast_on ) )
         SendSysMessage (caster, "You can't mark that right now.", color := 33);
         return 0;
-  endif
+    endif
   
   interdiction := ListItemsNearLocationOfType(caster.x, caster.y, caster.z, 20, 0xaa07, caster.realm);
   foreach i in interdiction

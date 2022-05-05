@@ -17,7 +17,9 @@ program cast_reactivearmor( parms )
     var info := parms[2];
   
     var cast_on := caster;
-	
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     PlaySoundEffect(cast_on, SFX_SPELL_REACTIVE_ARMOR);
     PlayObjectCenteredEffect( cast_on, FX_SPARK_EFFECT, 7, 0x10 );
   

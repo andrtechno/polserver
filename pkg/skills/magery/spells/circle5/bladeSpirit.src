@@ -18,6 +18,9 @@ program cast_summon( parms )
       SendSysMessage (caster, "Cancelled.", color := 33);
       return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
     endif

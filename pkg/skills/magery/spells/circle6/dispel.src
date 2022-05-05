@@ -27,7 +27,9 @@ program dispel ( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     var magery := GetAttribute(caster, MAGERY);
     var summoned := GetObjProperty( cast_on, "summoned");
     if(summoned == 1)

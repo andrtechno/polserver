@@ -17,7 +17,9 @@ program cast_strength( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-  
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   if (!cast_on.locked)
     SendSysMessage(caster,"That is not locked!");
     return;

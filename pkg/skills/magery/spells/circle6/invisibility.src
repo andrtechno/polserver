@@ -19,7 +19,9 @@ program cast_invis( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     //var x := caster.x;
     //var y := caster.y;
 

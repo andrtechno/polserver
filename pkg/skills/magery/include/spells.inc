@@ -539,3 +539,16 @@ function CalcSpellDamage(circle, caster, cast_on)
   endif
   return dmg;
 endfunction
+
+
+function CheckCastSpot(caster, info)
+    if(info.castspot)
+        if((caster.x != info.x) || (caster.y != info.y))
+            EraseObjProperty(caster, "#Medding");
+            EraseObjProperty(caster, "#Casting");
+            SendSysMessage(caster, "You lose your concentration.");
+            return 0;
+        endif
+    endif
+    return 1;
+endfunction

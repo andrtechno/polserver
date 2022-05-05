@@ -19,7 +19,9 @@ program efield( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   PlaySoundEffect(caster,0x20c);
 
   var fields := {};

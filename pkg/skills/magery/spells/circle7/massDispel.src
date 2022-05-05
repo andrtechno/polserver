@@ -25,7 +25,9 @@ program mass_dispel ( parms )
     if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
     var magery := GetAttribute(caster, MAGERY);
     var range := CInt(magery / 20);
     var targets := ListMobilesNearLocation( cast_on.x, cast_on.y, cast_on.z, range, caster.realm );

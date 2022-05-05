@@ -26,7 +26,9 @@ program cast_cure( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-    
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 
   PlaySoundEffect(caster, SFX_SPELL_CURE);
   PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 10,10);

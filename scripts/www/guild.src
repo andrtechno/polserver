@@ -1,0 +1,15 @@
+use http;
+use uo;
+use basic;
+use guilds;
+
+var players := {};
+
+var id := CInt(QueryParam("id"));
+var guild := FindGuild( id );
+if(guild)
+print(guild.members);
+else
+print("no find guild");
+endif
+

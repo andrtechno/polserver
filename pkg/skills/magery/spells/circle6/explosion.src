@@ -24,6 +24,9 @@ program cast_explosion( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 	// Tell spell starter to not wait for this script to finish
 	var spell_starter := GetProcess(info.pid);
 	spell_starter.SendEvent("continue");

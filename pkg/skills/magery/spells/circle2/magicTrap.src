@@ -19,7 +19,9 @@ program cast_strength(parms)
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   if((cast_on.isa(POLCLASS_DOOR)) || (cast_on.objtype == 0xe79) || ((cast_on.graphic<=0x9ab) &&(cast_on.graphic>=0x9a8)) ||((cast_on.graphic<=0xe43) &&(cast_on.graphic>=0xe3c)) ||((cast_on.graphic<=0xe80) &&(cast_on.graphic>=0xe7c)))
     var magery := GetAttribute(caster, MAGERY);
     var trapstr := CInt(magery/5);

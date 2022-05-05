@@ -27,7 +27,9 @@ program spell_resurrect( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   if(Distance(caster, cast_on) > 1)
 	SendSysMessage(caster,"That is too far away!");
 	return;

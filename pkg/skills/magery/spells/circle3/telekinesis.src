@@ -17,7 +17,9 @@ program telekinesis(parms)
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-    
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 
   PlaySoundEffect( caster, SFX_SPELL_TELEKINESIS );
   if( cast_on.npctemplate || cast_on.acctname )

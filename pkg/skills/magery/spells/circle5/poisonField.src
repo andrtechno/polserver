@@ -9,9 +9,9 @@ include "include/fields";
 
 
 program poisonfield( parms )
-  var caster := parms[1];
-  var info := parms[2];
-  var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
+    var caster := parms[1];
+    var info := parms[2];
+    var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
     endif
@@ -19,10 +19,13 @@ program poisonfield( parms )
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-  if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
+    if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         SendSysMessage (caster, "You cannot see that location.", color := 33);
         return 0;
-  endif
+    endif
   
   var fields := {};
   var listeners := {};

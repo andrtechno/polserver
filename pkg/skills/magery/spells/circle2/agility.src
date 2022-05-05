@@ -21,6 +21,9 @@ program cast_AGILITY( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   PlaySoundEffect(caster, 0x1e8);
   PlayObjectCenteredEffect(caster, 0x373a, 7,7);
   if(CanMod(cast_on, "#cast_agility"))

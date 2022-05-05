@@ -24,13 +24,16 @@ program create_account()
 
 
 	if( TypeOf(account_name) != "String" || account_name == "" )
-		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=register.html></head></html>");
+		//WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=register.html></head></html>");
 	elseif( TypeOf(password1) != "String" || password1 == "" )
 		data.+"message" := "Пароль не может быть пустым.";
+		data.+"attribute" := "password";
 	elseif( TypeOf(password2) != "String" || password2 == "" )
 		data.+"message" := "Пароль2 не может быть пустым.";
+		data.+"attribute" := "password";
 	elseif( TypeOf(email) != "String" || email == "" )
 	    data.+"message" := "Email не может быть пустым.";
+		data.+"attribute" := "email";
 	//elseif( len(account_name) < MIN_CHARACTERS_FOR_ACCOUNT_NAME )
 	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=shortuser.html></head></html>");
 	//elseif( len(account_name) > MAX_CHARACTERS_FOR_ACCOUNT_NAME )
@@ -39,8 +42,10 @@ program create_account()
 	//	WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=shortpass.html></head></html>");
 	elseif( password1 != password2 )
 		data.+"message" := "Пароли не совпадают.";
+		data.+"attribute" := "password";
 	elseif( password1 == account_name )
         data.+"message" := "Пароль совпадает с аккаунтом.";
+		data.+"attribute" := "password";
 	else
 		
         var account := CreateAccount(account_name, password1, 1 );
@@ -52,6 +57,7 @@ program create_account()
                 default:
                     data.+"message" := "Такой аккаунт уже сущетвует.";
             endcase
+			data.+"attribute" := "account";
         else
             account.setProp("email", email);
             data.+"success" := Boolean(1);

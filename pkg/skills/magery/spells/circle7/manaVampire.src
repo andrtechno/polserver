@@ -19,7 +19,9 @@ program mana_drain ( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   SetObjProperty(cast_on, "LastHit", {caster.name, caster.serial, "mana vampire"});
 
 // Using POL 0.95 Distro code here

@@ -24,6 +24,9 @@ program chrcast_ebolt( parms )
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   PlayMovingEffect( caster, cast_on, FX_ENERGY_BOLT, 0xa, 0x1e );
   PlaySoundEffect( caster, SFX_SPELL_ENERGY_BOLT );
   SetObjProperty(cast_on, "LastHit", {caster.name, caster.serial, "ebolt" } );

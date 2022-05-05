@@ -26,7 +26,9 @@ program cast_archcure(parms)
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-    
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 
   PlaySoundEffect(caster, SFX_SPELL_ARCH_CURE);
   var magery := GetAttribute(caster, MAGERY);

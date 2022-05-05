@@ -8,8 +8,11 @@ include "include/client";
 include ":damage:damage";
 
 program cast_meteor( parms )
-  var caster := parms[1];
-  var info := parms[2];
+    var caster := parms[1];
+    var info := parms[2];
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 //////////////////////////////////////////////////////////////////////////////////////////
 // Removed targetting  because Distor 0.97 uses caster as centre for area of effect for //
 // this spell.                                                                          //

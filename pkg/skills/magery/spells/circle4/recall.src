@@ -26,7 +26,9 @@ if(typeof(info.targ) != "Array")
         SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
-
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 
   if((cast_on.objtype != UOBJ_RUNE) && (cast_on.objtype != RUNEBOOK))
     SendSysMessage(caster, "You can only cast that on a recall rune!");

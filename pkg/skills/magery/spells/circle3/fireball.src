@@ -22,6 +22,9 @@ program cast_fireball(parms)
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
   SetObjProperty(cast_on, "LastHit", {caster.name, caster.serial, "fireball"});
   PlayMovingEffect(caster, cast_on, FX_FIREBALL, 5, 1);
   PlaySoundEffect(caster, 0x15f);

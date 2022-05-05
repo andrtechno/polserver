@@ -24,7 +24,9 @@ program cast_poison(parms)
     if ( !MS_MobileCheck(caster, cast_on) )
         return 0;
     endif
-    
+    if (!CheckCastSpot(caster, info))
+        return 0;
+    endif
 
   if(Reflected(cast_on))
     cast_on := caster;
