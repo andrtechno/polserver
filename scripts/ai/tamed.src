@@ -692,7 +692,9 @@ function OpenMyPack(ev)
 		//0x23D:	mounttype := 0x3ed3; //тоже какоето животное
         //0x23D:	mounttype := 0x3ed4; //сабака(коричневая)
         //0x23D:	mounttype := 0x3ed5; //сабака(лайка)
-        0x23D:	mounttype := 0x3ed6; //сабака(хз)
+        //0x23D:	mounttype := 0x3ed6; //сабака(хз)
+        //0x23D:	mounttype := 0x3ed7; //сабака(2)
+        0x23D:	mounttype := 0x3e99; //сабака(хз)
     endcase
     if (mounttype == 0x3eb4 and master.graphic == 0x190) // male attempting to ride a unicorn
         SendSysMessage (master, "The unicorn only allows females to mount it.", color := 88);

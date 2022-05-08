@@ -55,6 +55,11 @@ function diff(who, scroll, victim, sharpening)
 
     if(rint <= change)
         SetObjProperty(victim, "Sharpening", value);
+        victim.name_suffix := "+" + value;
+        victim.hp := victim.hp + value;
+        victim.hit_chance_mod := victim.hit_chance_mod + value;
+        victim.buyprice := victim.buyprice + 100;
+       // victim.maxhp_mod := victim.hp + value;
         SendSysMessageUC(who, "Оружие успешно улучшенно на +"+value, "RUS", 0, 67);
     else
         var blessed := CInt(GetObjProperty(scroll, "Blessed"));
@@ -62,11 +67,15 @@ function diff(who, scroll, victim, sharpening)
             SendSysMessageUC(who, "Не удалось улучшить оружие", "RUS", 0, 33);
             //уменьшаем заточку
             SetObjProperty(victim, "Sharpening", sharpening - 1);
+            victim.name_suffix := "+"+sharpening - 1;
+            victim.hp := victim.hp + sharpening - 1;
+           // victim.maxhp_mod := victim.maxhp_mod + sharpening - 1;
         else
             SendSysMessageUC(who, "Не удалось улучшить оружие", "RUS", 0, 33);
             //ломаем оружие
-            DestroyItem(victim);
+            //DestroyItem(victim);
         endif
     endif
     SubtractAmount(scroll, 1);
+
 endfunction

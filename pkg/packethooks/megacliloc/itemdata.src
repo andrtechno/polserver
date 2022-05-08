@@ -34,13 +34,6 @@ program itemdata(xObject)
 		prop.values := array {owner};
 		allprops.append(prop);
 	endif
-    var sharpening := GetObjProperty(xObject, "Sharpening");
-	if (sharpening)
-		prop.clilocid := 1070722;
-		prop.values := array {CInt(sharpening)};
-		allprops.append(prop);
-	endif
-
 
 	if ( xObject.newbie )
 		prop.clilocid := 1038021;

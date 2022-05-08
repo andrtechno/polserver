@@ -612,7 +612,7 @@ function CarveLogs(who, blade, logs)
   //if(!ExcepChance)
   //  ExcepChance:=10;
   //endif;
-  var ExcepChance:=10;
+  var ExcepChance:=100;
   var bow := 0;
   Detach();
   PlaySoundEffect(who, 0x5a);
@@ -712,7 +712,7 @@ function CarveLogs(who, blade, logs)
         bow.quality := bow.quality + 0.2;
         bow.hp := bow.maxhp;
         bow.dmg_mod := dmg_mod;
-        bow.speed_mod:=100;
+        bow.speed_mod:=55;
 
         SendSysMessage(who, "You created an exceptional "+lower(fullName)+".");
 

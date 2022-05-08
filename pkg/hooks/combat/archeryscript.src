@@ -8,6 +8,7 @@ include ":attributes:attributes";
 
 var cWeapon := ReadConfigFile(":combat:itemdesc");
 var weaponElement;
+var weaponItem;
 var arrowElement;
 var cNPC := ReadConfigFile("::npcdesc");
 
@@ -16,12 +17,13 @@ program archeryScript(params)
 	var attacker := params[1];
 	var weapon := params[2];
 	var defender := params[3];
+	weaponItem := Weapon;
 	weaponElement := FindConfigElem(cWeapon, Weapon.objtype);
 
-// debug code for old-style system
-if (GetObjProperty(attacker, "OSS") == "1")
-	return 0;
-endif
+    // debug code for old-style system
+    if (GetObjProperty(attacker, "OSS") == "1")
+        return 0;
+    endif
 
 	if (!CheckAmmunition(attacker, weapon) )
 		SendSysMessage(attacker, "You are out of ammunition.", color := 33);
@@ -39,14 +41,14 @@ endif
 	damageRoll := FindDamage(attacker, weapon, defender);
 
 	var rawdamage:=CInt(damageRoll[3]);
-	    var dmg_mod := weapon.dmg_mod;
-        if(dmg_mod > 0)
-            var per := dmg_mod;
-            dmg_mod := (rawdamage / 100) * per;
-            dmg_mod := dmg_mod + per;
+    var dmg_mod := weapon.dmg_mod;
+    if(dmg_mod > 0)
+        var per := dmg_mod;
+        dmg_mod := (rawdamage / 100) * per;
+        dmg_mod := dmg_mod + per;
 
-            dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
-        endif
+        dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
+    endif
 
 
 	var hitParams := {
@@ -101,6 +103,11 @@ function CheckToHit(attacker, defender);
 	var aSkill := GetAttribute(attacker, "Archery");
 	var range := Distance(attacker, defender);
 	var success := CInt(150 - (Sqrt(150.0 - aSkill) * 10.0) );
+print("success start: "+success);
+print("range: "+range);
+
+
+
 	if (range > (CInt(weaponElement.maxrange) * 0.66) )
 		success := CInt(success * 0.80);
 	elseif (range < (CInt(weaponElement.maxrange) * 0.33) )
@@ -109,31 +116,65 @@ function CheckToHit(attacker, defender);
 
 	if (GetAttribute(defender, "Dexterity") > GetAttribute(attacker, "Tactics") )
 		AwardPoints(attacker, SKILLID_TACTICS, CInt(GetAttribute(defender, "Dexterity")) );
-		success := success * 0.80;
+		//success := success * 0.80;
 	else
 		AwardPoints(attacker, SKILLID_TACTICS, CInt(GetAttribute(defender, "Dexterity") / 2) );
 	endif
 
 	if (success < 1)
 		success := 1;
-	elseif (success > 90)
-		success := 90;
+	elseif (success > 80)
+		success := 80;
 	endif
+print("success: "+success);
 
+
+    //Bow
+    if(weaponItem.objtype == 0x13B2)
+        /*if (range >= 15)
+            success := 10;
+        elseif (range >= 14)
+            success := 10;
+        elseif (range >= 13)
+            success := 30;
+        elseif (range >= 12)
+            success := 30;
+        elseif (range >= 11)
+            success := 40;
+        elseif (range >= 10)
+           success := 40;
+        elseif (range >= 9)
+           success := 50;
+        elseif (range >= 8)
+           success := 50;
+        elseif (range >= 6)
+           success := 80;
+        else
+            success := 100;
+        endif*/
+        success := CInt(weaponElement.maxrange - range) * 8;
+    elseif(weaponItem.objtype == 0xF4F) //Crossbow
+        success := CInt(weaponElement.maxrange - range) * 9;
+    elseif(weaponItem.objtype == 0x13FD) //HeavyCrossbow
+        success := CInt(weaponElement.maxrange - range) * 10;
+    endif
+
+print("success final: "+success);
 	var hitRoll := RandomDiceRoll("1d100");
-
+print("hitRoll: "+hitRoll);
 	if (HitRoll <= success)
 		var defenderShield := GetEquipmentByLayer(defender, 0x02);
 		if (defenderShield.isa(POLCLASS_ARMOR))
 			var pSkill := GetAttribute(defender, "Parry");
 			var hitRate := success - HitRoll;
-			var parrySuccess := CInt(100 - (Sqrt(100.0 - pSkill) * 10.0) ) - hitRate + CInt(defenderShield.ar);
+			var parrySuccess := CInt(150 - (Sqrt(150.0 - pSkill) * 10.0) ) - hitRate + CInt(defenderShield.ar);
 			if (parrySuccess < 5)
 				parrySuccess := 5;
 			elseif (parrySuccess > 90)
 				parrySuccess := 90;
 			endif
-			var parryRoll := RandomDiceRoll("1d100");
+			var parryRoll := RandomDiceRoll("1d150");
+			print("parrySuccess "+parrySuccess);
 			if (parryRoll <= parrySuccess)
 				AwardPoints(defender, SKILLID_PARRYING, (110 - parrySuccess) );
 				PlaySoundEffect(defender, 0x141);
@@ -198,7 +239,7 @@ function FindDamage(attacker, weapon, defender)
 		dRoll := CInt(dRoll * 0.75);
 	endif
 
-	dRoll := CInt(dRoll * (1.0 + (CDbl(GetAttribute(attacker, "Anatomy")) / 200.0)) );
+	//dRoll := CInt(dRoll * (1.0 + (CDbl(GetAttribute(attacker, "Anatomy")) / 200.0)) );
 
 	var armor := GetEquipmentByLayer(defender, hitLoc);
 
@@ -209,6 +250,7 @@ function FindDamage(attacker, weapon, defender)
 	if (armor.isa(POLCLASS_ARMOR) )
 		armorElement := FindConfigElem(cWeapon, armor.objtype);
 		aRoll := CInt(RandomInt(CInt(armorElement.ar) / 2) + (CInt(armorElement.ar) / 2) );
+
 	else
 	// If not then are we dealing with a non-human NPC that has an intrinsic aarmour rating?
 		if (defender.isa(POLCLASS_NPC) )
@@ -222,7 +264,7 @@ function FindDamage(attacker, weapon, defender)
 		var pierce := (0.5 + (RandomDiceRoll("3d10") / 40.0) );
 		if (pierce < 1.0)
 			PrintTextAbove(defender, "The missile pierces " + CStr(defender.name) + "'s armor!");
-			aRoll := CInt(aRoll * pierce);
+			aRoll := CInt(aRoll * pierce) ;
 		endif
 	endif
 
@@ -232,7 +274,6 @@ function FindDamage(attacker, weapon, defender)
 		PrintTextAbove(defender, "The missile tears through " + CStr(defender.name) + "'s body!");
 		dRoll := CInt(dRoll * 1.25);
 	endif
-
 
     var dmg_mod := weapon.dmg_mod;
     if(dmg_mod > 0)
@@ -244,11 +285,24 @@ function FindDamage(attacker, weapon, defender)
     endif
 
 
-print("dRoll: "+dRoll);
-print("aRoll: "+aRoll);
-var d:=CInt(dRoll - aRoll);
-if(d <= 0)
-d:=1;
-endif;
-	return ({armor, CInt(dRoll), d});
+	if (GetAttribute(attacker, "Strength"))
+	    //dRoll:=dRoll + (GetAttribute(attacker, "Strength") / 10);
+	endif
+    if (GetStrength(attacker))
+	    dRoll:=dRoll + (GetStrength(attacker) / 10);
+	endif
+
+    //Сделать чтобы поизон стрелы стреляли по 1 хп, а обычные чтобы давали урон
+    if (GetObjProperty(weaponItem, "MissileHit"))
+        dRoll:=1;
+    endif
+   // print("dRoll: "+dRoll);
+   // print("aRoll: "+aRoll);
+    var d:=CInt(aRoll) - CInt(dRoll);
+    if(d <= 0)
+        d:=1;
+    endif;
+
+	//return ({armor, CInt(dRoll), (d + (weapon.hp / 2))});
+	return ({armor, CInt(dRoll), CInt(dRoll) - CInt(aRoll)});
 endfunction

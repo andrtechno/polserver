@@ -1,11 +1,20 @@
 use uo;
 use cfgfile;
+use unicode;
+
+include "include/client";
 
 var cWeapon := ReadConfigFile(":combat:itemdesc");
 var weaponElement;
 var arrowElement;
 
 program selectammo(who, weapon)
+
+	var weaponLayer := GetEquipmentByLayer(who,  LAYER_HAND1);
+    if(weaponLayer.serial != weapon.serial)
+		SendSysMessageUC(who, "Оружие должно быть в руке.", "RUS", 3, MESSAGE_COLOR_BAD);
+		return 0;
+    endif
 
 	SendSysMessage(who, "Select the stack of ammunition you would like to use.");
 	var ammo := Target(who);
@@ -36,10 +45,10 @@ endprogram
 function DuplicateProps(oSource, oTarget)
 
 	var propNames := GetObjPropertyNames(oSource);
-	EraseObjProperty(oTarget, "MissileHit");////MissileHit
+	EraseObjProperty(oTarget, "MissileHit");
 	foreach cProp in propNames
 		if (cProp == "OnHit")
-			SetObjProperty(oTarget, "MissileHit", GetObjProperty(oSource, cProp) );//MissileHit
+			SetObjProperty(oTarget, "MissileHit", GetObjProperty(oSource, cProp) );
 		else
 			SetObjProperty(oTarget, cProp, GetObjProperty(oSource, cProp) );
 		endif

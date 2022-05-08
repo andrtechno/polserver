@@ -2,11 +2,12 @@ use os;
 use uo;
 use util;
 use cfgfile;
+
 include ":alchemy:drinkPotion";
 include ":attributes:attributes";
 include "include/canAccess";
 
-program drink_blue (who, potion)
+program drink_red(who, potion)
   EraseObjProperty(who, "IsMeditating");
   EraseObjProperty(who, "HealTimer");
   if(!can_access(who, potion))
@@ -16,7 +17,7 @@ program drink_blue (who, potion)
     SendSysMessage(who, "You cannot drink that.");
     return;
   endif
-  if(!checkifcandrink(who, "red"))
+  if(!checkifcandrink(who, "red", 5))
     return;
   endif
   if(potion.objtype == 0x1DC0f)
@@ -29,5 +30,5 @@ program drink_blue (who, potion)
 	SetStamina(who, GetStamina(who) + heal_amount);
   endif
   empty_bottle(who, potion);
-  PlayObjectCenteredEffect(who, EFFECT_SPARKLE, 10,10);
+  PlayObjectCenteredEffect(who, EFFECT_BLUE_SPARKLE, 10,10);
 endprogram

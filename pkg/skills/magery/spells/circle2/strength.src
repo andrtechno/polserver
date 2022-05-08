@@ -45,11 +45,11 @@ program cast_strength( parms )
 
 
 	// Str increase % = (Eval / 10 + 1)
-	var percent := CDbl(AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 10) + 1;
-	mod_amount := CInt(AP_GetStat(cast_on, STRENGTH) * (percent / 100));
+	//var percent := CDbl(AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 10) + 1;
+	//mod_amount := CInt(AP_GetStat(cast_on, STRENGTH) * (percent / 100));
 
 	// Duration: ((Evaluating Intelligence / 5) + 1) * 6 seconds.
-	duration := CInt(((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 5) + 1) * 6);
+	//duration := CInt(((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) / 5) + 1) * 6);
 
 
 

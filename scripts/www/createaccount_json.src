@@ -11,6 +11,8 @@ const ERRORTYPE_FREE_SERVER     := 2;
 const ERRORTYPE_EXISTING_ADRESS := 3;
 const ERRORTYPE_EXISTING_IP     := 4;
 
+include ":accounts:accounts";
+
 var data := struct{};
 
 program create_account()
@@ -49,6 +51,7 @@ program create_account()
 	else
 		
         var account := CreateAccount(account_name, password1, 1 );
+       // var account := CreateNewAccount(account_name, password1, 0, );
 
         if( !account )
             case( account.errortext )
@@ -59,7 +62,9 @@ program create_account()
             endcase
 			data.+"attribute" := "account";
         else
+            account.set_uo_expansion("TOL");
             account.setProp("email", email);
+            account.setProp("DateReg", ReadGameClock());
             data.+"success" := Boolean(1);
             data.+"message" := "Аккаунт успешно создан.";
         endif

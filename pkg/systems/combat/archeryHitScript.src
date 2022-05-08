@@ -95,7 +95,7 @@ program HookHitScript(hookParam)
 		  return;
 		endif
 	endif
-var dmg_mod := 0;
+    var dmg_mod := 0;
     /*var dmg_mod := weapon.dmg_mod;
     if(dmg_mod > 0)
         var per := dmg_mod;

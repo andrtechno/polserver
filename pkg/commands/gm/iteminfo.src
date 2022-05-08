@@ -48,7 +48,10 @@ program textcmd_Info(who, serial)
 	if ( serial )
 		targ := SystemFindObjectBySerial(CInt(serial));
 	else
-		targ := Target(who);
+		targ := TargetCoordinates(who);
+		if(targ.item)
+            targ:=targ.item;
+		endif
 	endif
 	if ( !targ.IsA(POLCLASS_ITEM) )
 		SendSysMessage(who, "Cancelled.");

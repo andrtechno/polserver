@@ -119,7 +119,14 @@ program merchant()
 							Buff(ev.source, 15);
 							Buff(ev.source, 16);
 							Buff(ev.source, 17);
-
+                        elseif (txt["dispel"])
+                            if(!GetObjProperty(me, "classid"))
+                                SetObjProperty(me, "classid", 1);
+                            endif
+                            if(!GetObjProperty(me, "classlevel"))
+                                SetObjProperty(me, "classlevel", 6);
+                            endif
+                            Buff(ev.source, 41);
 						elseif (txt["quest"])
 							TurnToward(ev.source);
 							GetMission(ev.source, {me});
@@ -195,7 +202,7 @@ function Buff(who, spell_id)
         var spell_elem := MS_GetSpellsCfgElem(spell_id);
         PerformAction(me, ANIM_CAST_DIR);
         SpeakPowerWords(me, spell_id);
-        SleepMS(500);
+        SleepMS(1000);
         Start_Script(":magery:"+spell_elem.SpellScript, {me, 1, spell_id, who});
         SleepMS(1000);
     endif

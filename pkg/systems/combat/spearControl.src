@@ -9,7 +9,4 @@ program spearControl(item)
     item.hitscript := "spearHitScript";
   endif
 
-
-
-
 endprogram

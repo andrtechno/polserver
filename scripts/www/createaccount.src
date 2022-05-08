@@ -37,7 +37,6 @@ program create_account()
 	elseif( password1 == account_name )
 		WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=sameusrpwd.html></head></html>");
 	else
-		
 			var account := CreateAccount(account_name, password1, 1 );
 
 			if( !account )
@@ -48,6 +47,7 @@ program create_account()
 						WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=userdupe.html></head></html>");
 				endcase
 			else
+			    account.set_uo_expansion("TOL");
 				account.setProp("email", email);
 				WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=success.html></head></html>");
 			endif

@@ -9,45 +9,46 @@ include ":damage:damage";
 const EVID_UNEQUIP   := 0x123456;
 
 program unequip(who, item)
-  set_critical(1);
-  var itemdesc := ReadConfigFile("itemdesc");
-  var penalty := CInt(itemdesc[item.objtype].DexPenalty);
-  if(penalty)
-    EraseObjProperty(item, "#equipped");
-    SetDexterityMod(who, GetDexterityMod(who) + penalty);
-  endif
-  var type := GetObjProperty(item,"type");
-  var val := 0;
-  case(type)
-    "accuracy":     val := accuracy(who,item);
-    "cursed":       val := cursed(who,item);
-    "sight":        val := sight(who,item);
-    "reflect":      val := reflect(who,item);
-    "protection":   val := protection(who,item);
-    "wizzohat":     val := wizzohat(who,item);
-    "strength":     val := strengthRemove(who,item);
-    "invisibility": val := invisibility(who, item);
-    default:        val := 1;
-  endcase
+    set_critical(1);
+    var itemdesc := ReadConfigFile("itemdesc");
+    var penalty := CInt(itemdesc[item.objtype].DexPenalty);
+    if(penalty)
+        EraseObjProperty(item, "#equipped");
+        SetDexterityMod(who, GetDexterityMod(who) + penalty);
+    endif
+    var type := GetObjProperty(item,"type");
+    var val := 0;
+    case(type)
+        "accuracy":     val := accuracy(who,item);
+        "cursed":       val := cursed(who,item);
+        "sight":        val := sight(who,item);
+        "reflect":      val := reflect(who,item);
+        "protection":   val := protection(who,item);
+        "wizzohat":     val := wizzohat(who,item);
+        "strength":     val := strengthRemove(who,item);
+        "invisibility": val := invisibility(who, item);
+        default:        val := 1;
+    endcase
     if(item.resist_fire)
-    ModifyResistance(who, DMG_FIRE, item.resist_fire * -1);
-  endif
-  if(item.resist_cold)
-    ModifyResistance(who, DMG_COLD, item.resist_cold * -1);
-  endif
-  if(item.resist_poison)
-    ModifyResistance(who, DMG_POISON, item.resist_poison * -1);
-  endif
-  if(item.resist_energy)
-    ModifyResistance(who, DMG_ENERGY, item.resist_energy * -1);
-  endif
-  if(item.resist_physical)
-    ModifyResistance(who, DMG_PHYSICAL, item.resist_physical * -1);
-  endif
-
-
-  return val;
-  set_critical(0);
+        ModifyResistance(who, DMG_FIRE, item.resist_fire * -1);
+    endif
+    if(item.resist_cold)
+        ModifyResistance(who, DMG_COLD, item.resist_cold * -1);
+    endif
+    if(item.resist_poison)
+        ModifyResistance(who, DMG_POISON, item.resist_poison * -1);
+    endif
+    if(item.resist_energy)
+        ModifyResistance(who, DMG_ENERGY, item.resist_energy * -1);
+    endif
+    if(item.resist_physical)
+        ModifyResistance(who, DMG_PHYSICAL, item.resist_physical * -1);
+    endif
+    if(GetObjProperty(item, "MissileHit"))
+        EraseObjProperty(item, "MissileHit");
+    endif
+    return val;
+    set_critical(0);
 endprogram
 
 function strengthRemove(who,item)
