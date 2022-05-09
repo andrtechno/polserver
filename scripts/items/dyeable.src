@@ -39,6 +39,12 @@ program dyeable(who, dyetub)
     SendSysMessage(who, "You cant reach that!");
     return;
   endif
+
+  //if (clothList(item))
+  //    SendSysMessage(who, "no this color", color := 33);
+  //    return;
+  //endif
+
   if (item.objtype == 0xfab) // a dye tub
       SendSysMessage(who, "You cannot dye a dye tub. Use dyes to mix a colour in the tub.", color := 33);
       return;
@@ -53,3 +59,10 @@ program dyeable(who, dyetub)
     return;
   endif
 endprogram
+
+function clothList(item)
+    if (item.objtype in {0xE9})
+        return 1;
+    endif
+    return 0;
+endfunction

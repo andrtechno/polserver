@@ -32,11 +32,11 @@ endfunction
 function FindSkillidByIdentifier(attribid)
   var retval;
   case(attribid)
-    "Wrestling": retval := AP_AttributeNameToSkillId(WRESTLING);
-    "Fencing":   retval := AP_AttributeNameToSkillId(FENCING);
+    "Wrestling":        retval := AP_AttributeNameToSkillId(WRESTLING);
+    "Fencing":          retval := AP_AttributeNameToSkillId(FENCING);
     "Swordsmanship":    retval := AP_AttributeNameToSkillId(SWORDSMANSHIP);
-    "Macefighting":      retval := AP_AttributeNameToSkillId(MACEFIGHTING);
-    "Archery":    retval := AP_AttributeNameToSkillId(ARCHERY);
+    "Macefighting":     retval := AP_AttributeNameToSkillId(MACEFIGHTING);
+    "Archery":          retval := AP_AttributeNameToSkillId(ARCHERY);
   endcase
   Return retval;
 endfunction

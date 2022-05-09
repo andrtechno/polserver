@@ -1,0 +1,94 @@
+use uo;
+use os;
+use unicode; 
+
+program airdrop(who)
+    var delay:=5000;
+    var delayChest:=10000;
+    var x := who.x;
+    var y := who.y;
+    var z := who.z;
+ 	PlayStationaryEffect(x + 1, y + 1, z, 0x3709, 0, 0x1e);
+ 	PlayStationaryEffect(x - 1, y - 1, z, 0x3709, 0, 0x1e);
+
+    PlayStationaryEffect(x-1, y + 1, z, 0x3709, 0, 0x1e);
+    PlayStationaryEffect(x + 1, y - 1, z, 0x3709, 0, 0x1e);
+
+    BroadCastUC("Air drop start", "RUS",0, 38 );
+
+
+    createpent(who);
+
+    while ( delay > 0 )
+        BroadCastUC("Air time: " + delay, "RUS", 0, 38 );
+        if ( delay % 1000 )
+            SleepMS(delay % 1000);
+            delay := delay - (delay % 1000);
+        else
+            SleepMS(1000);
+            delay := delay - 1000;
+        endif
+
+
+    endwhile
+
+    var i := 100;
+    var animFlag := 0;
+    var chestZ := z;
+    var chestZend := z + i;
+    var item := CreateItemAtLocation( x, y, chestZend, 0x0E40, 1, who.realm);
+    item.movable := 0;
+    item.color := 1194;
+    item.locked := 1;
+    SetObjProperty(item,"lock",1);
+    while ( chestZ < chestZend )
+        if ( delayChest % 100 )
+            SleepMS(delayChest % 100);
+            delayChest := delayChest - (delayChest % 100);
+        else
+            SleepMS(100);
+            delayChest := delayChest - 100;
+
+        endif
+        chestZend:=chestZend-1;
+        MoveObjectToLocation(item, item.x, item.y, chestZend, item.realm, MOVEOBJECT_FORCELOCATION + MOVEITEM_IGNOREMOVABLE);
+
+    endwhile
+
+    if(chestZ == chestZend)
+        PlayStationaryEffect(item.x, item.y, item.z, 0x3709, 0, 0x1e);
+        item.locked := 0;
+    endif
+
+endprogram
+
+
+function createpent(who)
+
+    //top
+    CreateItemAtLocation( who.x - 1, who.y - 1, who.z, 0x0FE7, 1, who.realm);
+    //top right
+    CreateItemAtLocation( who.x, who.y - 1, who.z, 0x0FE8, 1, who.realm);
+    //top left
+    CreateItemAtLocation( who.x - 1, who.y, who.z, 0x0FE6, 1, who.realm);
+
+    //center
+    CreateItemAtLocation( who.x, who.y, who.z, 0x0FEA, 1, who.realm);
+    //left
+    CreateItemAtLocation( who.x - 1, who.y + 1, who.z, 0x0FE9, 1, who.realm);
+    //right
+    CreateItemAtLocation( who.x + 1, who.y - 1, who.z, 0x0FEB, 1, who.realm);
+
+
+
+    //bottom
+    CreateItemAtLocation( who.x + 1, who.y + 1, who.z, 0x0FED, 1, who.realm);
+    //bottom right
+    CreateItemAtLocation( who.x + 1, who.y, who.z, 0x0FEE, 1, who.realm);
+    //bottom left
+    CreateItemAtLocation( who.x, who.y + 1, who.z, 0x0FEC, 1, who.realm);
+
+endfunction
+
+
+

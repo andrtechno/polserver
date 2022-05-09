@@ -10,6 +10,7 @@ var cWeapon := ReadConfigFile(":combat:itemdesc");
 var weaponElement;
 var weaponItem;
 var arrowElement;
+var classId;
 var cNPC := ReadConfigFile("::npcdesc");
 
 program archeryScript(params)
@@ -19,6 +20,7 @@ program archeryScript(params)
 	var defender := params[3];
 	weaponItem := Weapon;
 	weaponElement := FindConfigElem(cWeapon, Weapon.objtype);
+	classId := CInt(GetObjProperty(attacker,"classid"));
 
     // debug code for old-style system
     if (GetObjProperty(attacker, "OSS") == "1")
@@ -41,13 +43,26 @@ program archeryScript(params)
 	damageRoll := FindDamage(attacker, weapon, defender);
 
 	var rawdamage:=CInt(damageRoll[3]);
-    var dmg_mod := weapon.dmg_mod;
+    /*var dmg_mod := weapon.dmg_mod;
     if(dmg_mod > 0)
         var per := dmg_mod;
         dmg_mod := (rawdamage / 100) * per;
         dmg_mod := dmg_mod + per;
 
         dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
+    endif*/
+
+	var classLevel := CInt(GetObjProperty(attacker,"classlevel"));
+	if(classLevel)
+	    rawdamage := rawdamage + (classLevel * 5);
+	endif
+
+
+
+    if(classId)
+        if(classId != ID_RANGER)
+            rawdamage := 1;
+        endif
     endif
 
 
@@ -131,32 +146,18 @@ print("success: "+success);
 
     //Bow
     if(weaponItem.objtype == 0x13B2)
-        /*if (range >= 15)
-            success := 10;
-        elseif (range >= 14)
-            success := 10;
-        elseif (range >= 13)
-            success := 30;
-        elseif (range >= 12)
-            success := 30;
-        elseif (range >= 11)
-            success := 40;
-        elseif (range >= 10)
-           success := 40;
-        elseif (range >= 9)
-           success := 50;
-        elseif (range >= 8)
-           success := 50;
-        elseif (range >= 6)
-           success := 80;
-        else
-            success := 100;
-        endif*/
-        success := CInt(weaponElement.maxrange - range) * 8;
+        success := success - (range * 2);
     elseif(weaponItem.objtype == 0xF4F) //Crossbow
-        success := CInt(weaponElement.maxrange - range) * 9;
+        success := success - (range * 1);
     elseif(weaponItem.objtype == 0x13FD) //HeavyCrossbow
-        success := CInt(weaponElement.maxrange - range) * 10;
+        success := success - (range);
+    endif
+
+
+    if(classId)
+        if(classId != ID_RANGER)
+            success := 10;
+        endif
     endif
 
 print("success final: "+success);
@@ -168,13 +169,14 @@ print("hitRoll: "+hitRoll);
 			var pSkill := GetAttribute(defender, "Parry");
 			var hitRate := success - HitRoll;
 			var parrySuccess := CInt(150 - (Sqrt(150.0 - pSkill) * 10.0) ) - hitRate + CInt(defenderShield.ar);
+			print("parrySuccess start: "+parrySuccess);
 			if (parrySuccess < 5)
 				parrySuccess := 5;
 			elseif (parrySuccess > 90)
 				parrySuccess := 90;
 			endif
-			var parryRoll := RandomDiceRoll("1d150");
-			print("parrySuccess "+parrySuccess);
+			var parryRoll := RandomDiceRoll("1d100");
+			print("parrySuccess: "+parrySuccess);
 			if (parryRoll <= parrySuccess)
 				AwardPoints(defender, SKILLID_PARRYING, (110 - parrySuccess) );
 				PlaySoundEffect(defender, 0x141);
@@ -214,7 +216,12 @@ function FindDamage(attacker, weapon, defender)
 	if (qualityMod > 1.25)
 		qualityMod := 1.25;
 	endif
-	var dRoll := CInt(RandomDiceRoll(CStr(weaponElement.Damage)) * qualityMod);
+
+	var test := "1d30+10";
+    //CStr(weaponElement.Damage)
+	var dRoll := CInt(RandomDiceRoll(test) * qualityMod);
+
+print("dRoll---: "+dRoll);
 	var hitLoc;
 	var lRoll := RandomDiceRoll("1d100");
 	if (lRoll > 93)
@@ -236,7 +243,7 @@ function FindDamage(attacker, weapon, defender)
 		hitLoc := 0x04;			// LEGS
 	else
 		hitLoc := 0x03;			// FEET
-		dRoll := CInt(dRoll * 0.75);
+		//dRoll := CInt(dRoll * 0.75);
 	endif
 
 	//dRoll := CInt(dRoll * (1.0 + (CDbl(GetAttribute(attacker, "Anatomy")) / 200.0)) );
@@ -284,6 +291,10 @@ function FindDamage(attacker, weapon, defender)
         dRoll:=dmg_mod;
     endif
 
+    if (GetAttribute(attacker, "Archery"))
+	    dRoll:=dRoll + (GetAttribute(attacker, "Archery") / 10);
+	endif
+
 
 	if (GetAttribute(attacker, "Strength"))
 	    //dRoll:=dRoll + (GetAttribute(attacker, "Strength") / 10);
@@ -296,6 +307,7 @@ function FindDamage(attacker, weapon, defender)
     if (GetObjProperty(weaponItem, "MissileHit"))
         dRoll:=1;
     endif
+
    // print("dRoll: "+dRoll);
    // print("aRoll: "+aRoll);
     var d:=CInt(aRoll) - CInt(dRoll);

@@ -45,7 +45,7 @@ program dispel ( parms )
             send_attack(caster, cast_on, 41);
         endif
     else
-        var buffs := {
+        /*var buffs := {
             "#cast_bless", "#cast_cunning", "#cast_agility", "#cast_strength",
             "#cast_protection", "#cast_poly", "#cast_feeblemind", "#cast_weaken", "#cast_clumsy"
         };
@@ -54,7 +54,8 @@ program dispel ( parms )
                 var b := GetObjProperty(cast_on, buff);
                 undo_mod(cast_on, buff, b.value);
             endif
-        endforeach
+        endforeach*/
+        start_script("::/misc/wipecast", cast_on);
 
         SendSysMessage(cast_on,"All the magical effects active on this creature have been wiped.");
 

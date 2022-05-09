@@ -21,6 +21,7 @@ program chrdeath(corpse,ghost)
 //  var marker, num;
   EraseObjProperty(ghost, "IsMeditating");
   ghost.SetPoisoned(0);
+  start_script("::/misc/wipecast", ghost);
   while(ListPoisonsByType(ghost, "defaultPoison").size() > 0)
       CurePoison(ghost, "defaultPoison", 120, 1);
   endwhile
@@ -87,7 +88,7 @@ program chrdeath(corpse,ghost)
             ModifyResistance(ghost, DMG_ENERGY, resistances[DMG_ENERGY]);
         endif
     endif
-
+    EraseObjProperty(ghost, "%Resistances%");
     ghost.clearBuffs();
 
 

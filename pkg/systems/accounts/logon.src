@@ -5,12 +5,19 @@
  
 use uo;
 use os;
+use unicode;
 
 include ":accounts:accounts";
 
 
 program Logon(who)
 	ACCT_SetLastLogin(who.acct);
+
+	foreach player in EnumerateOnlineCharacters()
+        if (player.cmdlevel > 0 && (player.serial != who.serial))
+            SendSysMessageUC(player, "Вошел в игру " + who.name + " ["+who.acctname+"]", "RUS", 3, 33);
+        endif
+	endforeach
 
 	return 1;
 endprogram

@@ -18,6 +18,7 @@ program charge_upkeep(parms)
     SendSysMessage(who, "that item is out of charges");
     return;
   endif
+
   var mods := Process_Mods(who, item);
   var ret  := upkeep_server(who, item, mods[1]);
   if(ret == 1)
@@ -27,11 +28,13 @@ program charge_upkeep(parms)
 endprogram
 
 function Process_Mods(who, item);
-  if(Cint(GetObjProperty(item, "HoldMods")))
-    repeat
-      sleep(1);
-    until(!Cint(GetObjProperty(item, "HoldMods")));
-  endif
+  print("Process_Mods");
+  //if(CInt(GetObjProperty(item, "HoldMods")))
+  //  repeat
+  //    sleep(1);
+  //  until(!CInt(GetObjProperty(item, "HoldMods")));
+  //endif
+  print("Process_Mods 2");
   Set_Critical(1);
   SetObjProperty(item, "HoldMods", 1);
   var holder;
@@ -97,18 +100,18 @@ function upkeep_server(who, item, type)
         depleted := 1;
         break;
       endif
-	  SetObjProperty(item, "charges", Cint(charges - 1));
+	  SetObjProperty(item, "charges", CInt(charges - 1));
 	endif
   endwhile
   return depleted;
 endfunction
 
 function Process_Unmods(who, item, mods, loff)
-  if(Cint(GetObjProperty(item, "HoldMods")))
-    repeat
-      sleep(1);
-    until(!Cint(GetObjProperty(item, "HoldMods")));
-  endif
+  //if(CInt(GetObjProperty(item, "HoldMods")))
+  //  repeat
+ //     sleep(1);
+ //   until(!CInt(GetObjProperty(item, "HoldMods")));
+ // endif
   Set_Critical(1);
   SetObjProperty(item, "HoldMods", 1);
   var type := mods[1];

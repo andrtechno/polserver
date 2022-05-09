@@ -9,7 +9,7 @@ use os;
 include ":accounts:accounts";
 
 
-program Logon(who)
+program Reconnect(who)
 	ACCT_SetLastLogin(who.acct);
 
 	return 1;

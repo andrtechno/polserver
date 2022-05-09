@@ -36,11 +36,11 @@ program earthquake( parms )
     var skillEval := GetAttribute(caster, EVALUATING_INTELLIGENCE);
 
 	foreach vtarg in targs
-	print(HITS);
-		base_damage := (CDbl(AP_GetVital(vtarg, HITS)) / 3);
-		damage := MS_GetSpellDamage(caster, vtarg, base_damage);
-	//base_damage := min_damage + (CDbl(RandomInt(CInt((max_damage - min_damage) * skillEval)) + 1));
-	//damage := MS_GetSpellDamage(caster, vtarg, base_damage);
+
+	//	base_damage := (CDbl(AP_GetVital(vtarg, HITS)) / 3);
+	//	damage := MS_GetSpellDamage(caster, vtarg, base_damage);
+	base_damage := min_damage + (CDbl(RandomInt(CInt((max_damage - min_damage) + (skillEval / 10)))));
+	damage := MS_GetSpellDamage(caster, vtarg, base_damage);
 		// Min and max damage for NPCs is 10 and 100
 		if ( vtarg.npctemplate )
 			if ( damage < 10 )
@@ -50,7 +50,7 @@ program earthquake( parms )
 			endif
 		endif
         if(vtarg == caster)
-        	damage := damage / 3;
+        	damage := damage / 2;
         endif
         print("earthquake: "+vtarg.name+" - "+damage+":"+base_damage);
         PlaySoundEffect( vtarg, SFX_SPELL_EARTHQUAKE );

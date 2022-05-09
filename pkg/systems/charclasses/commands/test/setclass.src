@@ -46,18 +46,23 @@ program textcmd_setclass(who, text)
         rate:=CInt( (AVERAGE_SKILL + (AVERAGE_LEVEL_MOD * level)) );
     endif;
 
+
+    var cap_array := {};
+
     //set all skill to "0"
 	foreach classe in GetClasseIds()
 		foreach sid in GetClasseSkills( classe )
 		    if(classid != classe)
     	        AP_SetTrueSkill( on, FindSkillName(sid), 0 );
+    	        cap_array[sid+1] := 0;
+    	    else
+                AP_SetTrueSkill( on, FindSkillName(sid), rate );
+                cap_array[sid+1] := AP_GetSkillsCap();
     	    endif
     	endforeach
 	endforeach
 
+    SetObjProperty( on, "SkillCaps", cap_array );
 
-	foreach skillid in GetClasseSkills( classid )
-	    AP_SetTrueSkill( on, FindSkillName(skillid), rate );
-	endforeach
 
 endprogram

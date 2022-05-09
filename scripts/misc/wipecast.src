@@ -1,0 +1,18 @@
+use os;
+//use vitals;
+
+include "include/statMod";
+
+program wipeCast(cast_on)
+        var buffs := {
+            "#cast_bless", "#cast_cunning", "#cast_agility", "#cast_strength",
+            "#cast_protection", "#cast_poly", "#cast_feeblemind", "#cast_weaken", "#cast_clumsy"
+        };
+        foreach buff in (buffs)
+            if (CanMod(cast_on, buff))
+                var b := GetObjProperty(cast_on, buff);
+                undo_mod(cast_on, buff, b.value);
+            endif
+        endforeach
+endprogram
+

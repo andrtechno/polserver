@@ -15,7 +15,7 @@ program Hunger(chr)
       hunger :=0;
     endif
     var who := chr;
-    hunger := hunger +1;
+    hunger := hunger -1;
     SetObjProperty(chr, "hunger", hunger);
     case (hunger)
 	  0 : SetStaminaRegenRate(who, 1000);
@@ -41,7 +41,7 @@ program Hunger(chr)
 	  8 : SendSysMessage(chr, "You're getting pretty hungry...");
 	  10: SendSysMessage(chr, "You're absolutely famished!");
     endcase
-    sleep(60 * 60);
+    sleep(30 * 60);
   endwhile
  //endif
 endprogram

@@ -16,7 +16,7 @@ program drink_intellect(who, potion)
     SendSysMessage(who, "You cannot drink that.");
     return;
   endif
-  if(!CanMod(who, "p_int"))
+  if(CanMod(who, "#p_int"))
 	SendSysMessage(who,"Already under the influence!");
 	return;
   endif
@@ -29,14 +29,13 @@ program drink_intellect(who, potion)
   case(potion.objtype)
     0x1DC23:
         empty_bottle(who, potion);
-        DoTempMod(who, "p_int", 10, 180); print("10");
+        DoTempMod(who, "#p_int", 10, 180); print("10");
     0x1DC24:
         empty_bottle(who, potion);
-    DoTempMod(who, "p_int", 20, 180); print("20");
+        DoTempMod(who, "#p_int", 20, 180); print("20");
     0x1DC25:
         empty_bottle(who, potion);
-
-        DoTempMod(who, "p_int", 30, 180); print("30");
+        DoTempMod(who, "#p_int", 30, 180); print("30");
   endcase
 SendSysMessage(who, "intellect.");
 endprogram

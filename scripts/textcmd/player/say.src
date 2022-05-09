@@ -1,0 +1,6 @@
+use uo;
+use unicode;
+
+program textcmd_say(who, text)
+    BroadcastUC(CAscZ(who.name + ": " +text), "RUS", 3, 45);
+endprogram

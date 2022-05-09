@@ -16,7 +16,7 @@ program drink_blue (who, potion)
     SendSysMessage(who, "You cannot drink that.");
     return;
   endif
-  if(!CanMod(who, "dex"))
+  if(CanMod(who, "#p_dex"))
 	SendSysMessage(who,"Already under the influence!");
 	return;
   endif
@@ -25,8 +25,8 @@ program drink_blue (who, potion)
   endif
   case(potion.objtype)
     0x1DC0c:  empty_bottle(who, potion);
-             DoTempMod(who, "dex", 10,  60);
+             DoTempMod(who, "#p_dex", 10,  60);
     0x1DC0d:  empty_bottle(who, potion);
-             DoTempMod(who, "dex", 20, 180);
+             DoTempMod(who, "#p_dex", 20, 180);
   endcase
 endprogram

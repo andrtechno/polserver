@@ -121,9 +121,23 @@ program SpellStarter(params)
 	mobile.hidden := 0;
 	EraseObjProperty(mobile, "#Medding");
 	SpeakPowerWords(mobile, spell_id);
-
+	var delay := spell_elem.Delay;
+	var classlevel := CInt(GetObjProperty(mobile,"classlevel"));
 	// Perform casting animation
         var circ := spell_elem.Circle; // adding one to circle to get cast repetitions.
+
+
+    if(classlevel)
+        var ms := delay + (CInt(circ) * 100) - (classlevel * 100);
+        if(ms < circ)
+            ms:=delay;
+        endif
+        SleepMS(ms);
+        SendSysMessage(mobile, "Cast speed ms.: " + ms, color := 33);
+    else
+        SleepMS(delay + (CInt(circ) * 100) + 1000);
+    endif
+
         var rep;
         circ := CInt(circ/2);
 
@@ -140,12 +154,11 @@ program SpellStarter(params)
                     default:
                             PerformAction(mobile, ANIM_CAST_DIR);
             endcase
-            Sleepms (2000);
         endfor
 
 
 	var orig_hp := AP_GetVital(mobile, "Hits");
-	var delay := spell_elem.Delay;
+
 	var protection := GetObjProperty(mobile, "Protection");
         // Added to work around a problem with mages being unable to cast while under the influence of
         // strength mods.

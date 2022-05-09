@@ -3,5 +3,5 @@ use unicode;
 
 program textcmd_bcast( who, text )
     //Broadcast( who.name + ": " + text, 0, 73);
-    BroadcastUC(CAscZ(who.name + ": " +text), "RUS", 3, 33);
+    BroadcastUC(CAscZ(text), "RUS", 3, 33);
 endprogram

@@ -19,6 +19,8 @@ program HookHitScript(hookParam)
 	var weaponhit := array;
 
 	Sleep(CInt(Distance(attacker, defender) / 5));
+print("sleep: "+CInt(Distance(attacker, defender) / 5));
+
 
 	// Added this to the CalcDamage function in damage.inc
 	/*
@@ -95,15 +97,16 @@ program HookHitScript(hookParam)
 		  return;
 		endif
 	endif
-    var dmg_mod := 0;
-    /*var dmg_mod := weapon.dmg_mod;
+   // var dmg_mod := 0;
+    var dmg_mod := weapon.dmg_mod;
     if(dmg_mod > 0)
         var per := dmg_mod;
         dmg_mod := (rawdamage / 100) * per;
         dmg_mod := dmg_mod + per;
 
         dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
-    endif*/
+    endif
+
 
 	if (!weaponhit)
 		if (!gloveshit)

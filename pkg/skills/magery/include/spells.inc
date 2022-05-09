@@ -285,7 +285,10 @@ function MS_GetSpellDamage(mobile, targ, base_damage)
 			sdi_bonus := 15;
 		endif
 	endif
-	
+    var classlevel := CInt(GetObjProperty(mobile,"classlevel"));
+    if(classlevel)
+        sdi_bonus := sdi_bonus + classlevel;
+    endif
 	var damage_increase := intel_bonus + sdi_bonus;
 
 	if ( AP_GetSkill(mobile, INSCRIPTION) >= 100 )
