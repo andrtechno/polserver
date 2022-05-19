@@ -23,12 +23,12 @@ include ":magery:spells";
  *
  */
 enum DAMAGE_TYPES
-	DMG_FORCED	:= -1, // Ignores resistance
-	DMG_PHYSICAL	:= "Physical",
-	DMG_FIRE	:= "Fire",
-	DMG_COLD	:= "Cold",
-	DMG_POISON	:= "Poison",
-	DMG_ENERGY	:= "Energy"
+	DMG_FORCED      := -1, // Ignores resistance
+	DMG_PHYSICAL    := "Physical",
+	DMG_FIRE        := "Fire",
+	DMG_COLD        := "Cold",
+	DMG_POISON      := "Poison",
+	DMG_ENERGY      := "Energy"
 endenum
 
 /*
@@ -274,7 +274,7 @@ function DisplayDamage(damaged, amount, source:=0)
 
 	dmg_packet.SetInt32(0x01, damaged.serial);
 
-	if ( source.acctname != damaged.acctname )
+	if ( source.serial != damaged.serial )
 		dmg_packet.SendPacket(source);
 	endif
 

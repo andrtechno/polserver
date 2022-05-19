@@ -11,6 +11,15 @@ include ":accounts:accounts";
 
 
 program Logon(who)
+
+
+
+    //Panic fix проход через игрока и нпц для realm Britannia (работает плохо)
+    /*SendPacket(who, "BF0006000801"); //Set Map to Trammel where this works...
+    SendPacket(who, "BC0101"); //Set Season to summer
+    SendPacket(who, "BF0006000801"); //Had to be sent again...
+    SendPacket(who, "220101"); // Resync client*/
+
 	ACCT_SetLastLogin(who.acct);
 
 	foreach player in EnumerateOnlineCharacters()

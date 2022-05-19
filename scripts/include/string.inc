@@ -436,3 +436,35 @@ function AddCommas(number)
   
   return newstring;
 endfunction
+
+
+function Check_ValidChar(text, allow_space:=0)
+
+         //Make sure you check a text without spaces or it will fail.
+         var valid_char := array{ "a", "b", "c", "d", "e", "f", "g",
+                                  "h", "i", "j", "k", "l", "m", "n",
+                                  "o", "p", "q", "r", "s", "t", "u",
+                                  "v", "w", "x", "y", "z", "A", "B",
+                                  "C", "D", "E", "F", "G", "H", "I",
+                                  "P", "O", "N", "M", "L", "K", "J",
+                                  "Q", "R", "S", "T", "U", "V", "W",
+                                  "X", "Y", "Z", "1", "2", "3", "4",
+                                  "5", "6", "7", "8", "9", "0" };
+
+         var len_text := Len( text );
+
+         var i;
+         for( i:=1; i<=len_text; i+=1 )
+                  SleepMS(5);
+                  var letter := CStr( text[i] );
+                  if( letter in valid_char )
+                           continue;
+                  elseif( allow_space && ( text[i] == " " || CAsc( text[i] ) == 0 ))
+                           continue;
+                  endif
+
+                  return 0;
+         endfor
+
+         return 1;
+endfunction

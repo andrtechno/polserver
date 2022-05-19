@@ -19,7 +19,7 @@ program controlEnergy( item )
       magic := 0;
   endif
 
-  var fieldstrength;
+  /*var fieldstrength;
   var online := EnumerateOnlineCharacters();
   var boss;
   foreach char in online
@@ -30,8 +30,8 @@ program controlEnergy( item )
   endforeach
   if(!boss)
     boss := SystemFindObjectBySerial(creator, SYSFIND_SEARCH_OFFLINE_MOBILES);
-  endif
-  SetScriptController(boss);
+  endif*/
+
 	var coordinates := {};
 	case( item.objtype )
 		UOBJ_EFIELD_NS:	coordinates := { { item.x, item.y, item.z },

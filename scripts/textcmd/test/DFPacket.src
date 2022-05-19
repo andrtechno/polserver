@@ -9,6 +9,13 @@ use os;
 use polsys;
 
 program DFPacket(mobile, show)
+
+//SendPacket(mobile, "BF0006000801");
+//SendPacket(mobile, "BC0101"); //Set Season to summer
+//SendPacket(mobile, "BF0006000801"); //Had to be sent again...
+SendPacket(mobile, "220101"); // Resync client
+return 1;
+
 	if ( show )
 		show := CInt(show);
 	else
