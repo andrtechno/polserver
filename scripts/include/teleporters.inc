@@ -76,8 +76,8 @@ var teleporters := {
     {{5395,   127,    0, "britannia"},    { 513,  1560,    0,	"britannia"}},
     {{5396,   127,    0, "britannia"},    { 514,  1560,    0,	"britannia"}},
 //lvl1 - lvl2
-    {{5490,    19,  -30, "britannia"},    {5514,    10,    0,	"britannia"}},
-    {{5514,    10,    0, "britannia"},    {5490,    19,  -30,	"britannia"}},
+    {{5490,    19,  -25, "britannia"},    {5514,    10,    5,	"britannia"}},
+    {{5514,    10,    5, "britannia"},    {5490,    19,  -25,	"britannia"}},
 //lvl2 - lvl3
     {{5604,   102,    5, "britannia"},    {5514,   148,   25,	"britannia"}},
     {{5514,   148,   25, "britannia"},    {5604,   102,    5,	"britannia"}},
@@ -473,8 +473,8 @@ var teleporters := {
     {{5395,   127,    0, "britannia_alt"},    { 513,  1560,    0,	"britannia_alt"}},
     {{5396,   127,    0, "britannia_alt"},    { 514,  1560,    0,	"britannia_alt"}},
 //lvl1 - lvl2
-    {{5490,    19,  -30, "britannia_alt"},    {5514,    10,    0,	"britannia_alt"}},
-    {{5514,    10,    0, "britannia_alt"},    {5490,    19,  -30,	"britannia_alt"}},
+    {{5490,    19,  -25, "britannia_alt"},    {5514,    10,    5,	"britannia_alt"}},
+    {{5514,    10,    5, "britannia_alt"},    {5490,    19,  -25,	"britannia_alt"}},
 //lvl2 - lvl3
     {{5604,   102,    5, "britannia_alt"},    {5514,   148,   25,	"britannia_alt"}},
     {{5514,   148,   25, "britannia_alt"},    {5604,   102,    5,	"britannia_alt"}},

@@ -5,7 +5,7 @@ include ":timeutils:time";
 include ":containers:storageAreas";
 
 program oncreate(who, skillids, profession)
-    var prof := profession; //warings
+    var prof := profession; //warnings
     var dmy, hms;
 
 
@@ -23,7 +23,6 @@ program oncreate(who, skillids, profession)
         DestroyItem( beard );
         var hair := GetEquipmentByLayer( who, LAYER_HAIR );
         DestroyItem( hair );
-
     endif
 
 
