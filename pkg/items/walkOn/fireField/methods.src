@@ -30,7 +30,6 @@ exported function IsExpired(field)
 	if ( !duration )
 		return 0;
 	endif
-	
 	return ( duration < ReadGameClock() );
 endfunction
 

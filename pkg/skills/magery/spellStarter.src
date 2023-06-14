@@ -9,26 +9,38 @@ use cfgfile;
 
 include ":attributes:attributes";
 include ":magery:spells";
-include "include/containers";
+include ":containers:containers";
 include ":itemUtils:itemdesc";
 include "include/client";
+include "include/sounds";
+include ":charclasses:classes";
 
 program SpellStarter(params)
 	var mobile := params[1]; // Caster
 	var spell_id := params[2]; // Id # of the spell
 	var scroll := params[3]; // Scroll ObjType being used
-	var targ := params[4]; // NPC target used if NPC is casting the spell
-    //targ := targ; // stop compiler unused warning
-        if (scroll == 1)
-        endif
-	if ( !Attach(mobile) )
-		SendSysMessage(mobile, "You are already doing something.", color := 33);
+	var targ := params[4]; // NPC target used if NPC is casting the spell.
+	var runebook := params[5]; // Used if casting recall or gate from a runebook.
+	var no_regs__no_mana := params[6]; // If > 0 spell does not require regs and mana, for runebook back pages.
+	// if (scroll == 1)
+	// endif
+	if ( !Attach(mobile) && !mobile.IsA(POLCLASS_NPC) )
+		SendSysMessage(mobile, "You are already doing something.", color := MESSAGE_COLOR_BAD);
 		return 0;
 	endif
-
+    //if(TS_GetTimerInfo(mobile, "TargetControl"))
+	//	SendSysMessage(mobile, "You have already done something.111111", color := MESSAGE_COLOR_BAD);
+	//	return 0;
+    //endif
     var x := mobile.x;
     var y := mobile.y;
 
+    var is_mage := CInt(GetObjProperty( mobile, CLASSEID_MAGE ));
+    var is_fighter := CInt(GetObjProperty( mobile, CLASSEID_WARRIOR ));
+    var is_crafter := CInt(GetObjProperty( mobile, CLASSEID_CRAFTER ));
+    var is_thief := CInt(GetObjProperty( mobile, CLASSEID_THIEF ));
+    var is_ranger := CInt(GetObjProperty( mobile, CLASSEID_RANGER ));
+    var is_bard := CInt(GetObjProperty( mobile, CLASSEID_BARD ));
 
 	var spell_elem := MS_GetSpellsCfgElem(spell_id);
 	var manacost := CInt(spell_elem.ManaCost);
@@ -36,7 +48,7 @@ program SpellStarter(params)
 	if ( spell_elem.TestOnly and !mobile.cmdlevel )
 		// TestOnly spell, check for #SpellTester
 		if ( !GetObjProperty(mobile, "#SpellTester") )
-			SendSysMessage(mobile, "This spell has been temporarily disabled.", color := 33);
+			SendSysMessage(mobile, "This spell has been temporarily disabled.", color := MESSAGE_COLOR_BAD);
 			FailSpell(mobile);
 			return 0;
 		endif
@@ -44,6 +56,25 @@ program SpellStarter(params)
 		PrintTextAbove(mobile, "Unable to cast - NPC only spell.");
 		return 0;
 	endif
+    if(!mobile.IsA(POLCLASS_NPC))
+        if ( spell_elem.OnlyMage )
+            if (is_fighter || is_crafter || is_thief || is_ranger || is_bard)
+                SendSysMessage(mobile, "You not class mage.", color := MESSAGE_COLOR_BAD);
+                return 0;
+            endif
+        endif
+        if(!runebook)
+            if ( CInt(GetAttribute(mobile, MAGERY)) < CInt(spell_elem.MinSkill))
+                SendSysMessage(mobile, "This spell requires a minimum of "+CInt(spell_elem.MinSkill)+" skills.", color := MESSAGE_COLOR_BAD);
+                return 0;
+            endif
+        endif
+    endif
+
+
+
+
+
 
 	// Perform various checks to see if mobile can perform the spell
 	var requires_mana := 1;
@@ -69,27 +100,37 @@ program SpellStarter(params)
 		requires_regs := 0;
 		requires_mana := 1;
 	endif
+	// This check for casting from back pages of a runebook.
+	if( !no_regs__no_mana )
+        requires_regs := 1;
+        requires_mana := 1;
+    endif
+    if( mobile.IsA(POLCLASS_NPC) )
+        requires_regs := 0;
+        requires_mana := 1;
+    endif
 
 	if ( GetObjProperty(mobile, "#Casting") )
-		SendSysMessage(mobile, "You cannot cast right now.", color := 33);
+		SendSysMessage(mobile, "You cannot cast right now.", color := MESSAGE_COLOR_BAD);
 		return 0;
 	elseif ( mobile.frozen )
-		SendSysMessage(mobile, "You cannot cast a spell while frozen.", color := 33);
+		SendSysMessage(mobile, "You cannot cast a spell while frozen.", color := MESSAGE_COLOR_BAD);
 		FailSpell(mobile);
 		return 0;
 	elseif ( mobile.paralyzed )
-		SendSysMessage(mobile, "You cannot cast a spell while paralyzed.", color := 33);
+		SendSysMessage(mobile, "You cannot cast a spell while paralyzed.", color := MESSAGE_COLOR_BAD);
 		FailSpell(mobile);
 		return 0;
 	elseif ( mobile.squelched && !mobile.npctemplate )
-		SendSysMessage(mobile, "Something prevents you from casting.", color := 33);
+		SendSysMessage(mobile, "Something prevents you from casting.", color := MESSAGE_COLOR_BAD);
 		FailSpell(mobile);
 		return 0;
 	elseif ( !EquipmentCheck(mobile) )
-		SendSysMessage(mobile, "Your hands must be free to cast spells.", color := 33);
+		SendSysMessage(mobile, "Your hands must be free to cast spells.", color := MESSAGE_COLOR_BAD);
 		FailSpell(mobile);
 		return 0;
 	endif
+
 
 	if ( requires_mana )
 	// Added to support necro spell mind rot.
@@ -109,39 +150,34 @@ program SpellStarter(params)
 
 	if ( requires_regs )
 		if ( !CheckReagents(mobile, spell_elem, scroll) )
-			SendSysMessage(mobile, "You don't have the proper reagents.", color := 33);
+			SendSysMessage(mobile, "You don't have the proper reagents.", color := MESSAGE_COLOR_BAD);
 			FailSpell(mobile);
 			return 0;
 		endif
 	endif
-
+    //print("requires_mana "+requires_mana);
+    //print("requires_regs "+requires_regs);
 	// might want to send events to this script
 	SetObjProperty(mobile, "#Casting", GetPid());
+
+
+
 	//mobile.frozen := 1;
 	mobile.hidden := 0;
 	EraseObjProperty(mobile, "#Medding");
 	SpeakPowerWords(mobile, spell_id);
 	var delay := spell_elem.Delay;
-	var classlevel := CInt(GetObjProperty(mobile,"classlevel"));
+	var classLevel := CInt(GetObjProperty(mobile,"classlevel"));
+	if(classLevel)
+	    var rate := classLevel * 100;
+	    delay:= delay - rate;
+	endif
 	// Perform casting animation
-        var circ := spell_elem.Circle; // adding one to circle to get cast repetitions.
-
-
-    if(classlevel)
-        var ms := delay + (CInt(circ) * 100) - (classlevel * 100);
-        if(ms < circ)
-            ms:=delay;
-        endif
-        SleepMS(ms);
-        SendSysMessage(mobile, "Cast speed ms.: " + ms, color := 33);
-    else
-        SleepMS(delay + (CInt(circ) * 100) + 1000);
-    endif
-
+        var circ := spell_elem.Circle + 1; // adding one to circle to get cast repetitions.
         var rep;
         circ := CInt(circ/2);
 
-        for (rep := 1; rep <= circ; rep := rep + 1)
+        //for (rep := 1; rep <= circ; rep := rep + 1)
             case ( Lower(spell_elem.Target) )
                     "none":
                     "direct":
@@ -154,7 +190,8 @@ program SpellStarter(params)
                     default:
                             PerformAction(mobile, ANIM_CAST_DIR);
             endcase
-        endfor
+            Sleepms (delay);
+        //endfor
 
 
 	var orig_hp := AP_GetVital(mobile, "Hits");
@@ -165,33 +202,6 @@ program SpellStarter(params)
 //	if ( AP_GetStatMod(mobile, ATTRIBUTEID_STRENGTH) )
 //		protection := 1;
 //	endif
-
-	while ( delay > 0 )
-		if ( !protection )
-			// There is a small chance, perhaps, that the mobile is damaged and then regens
-			// or is healed enough in the ~50ms delay between checking. It could be more
-			// accurate to grab the pid from ApplyDamageEX and send a damaged event to this
-			// script, on top of also checking the health.
-			if ( orig_hp > AP_GetVital(mobile, "Hits")  )
-				SendSysMessage(mobile, "Your concentration is disturbed, thus ruining thy spell.", color := 33);
-				FailSpell(mobile);
-				PlaySoundEffect(mobile, SFX_SPELL_FAIL);
-				PlayObjectCenteredEffect(mobile, FX_SPELL_FAIL, 5, 50);
-				return 0;
-			endif
-		endif
-// This was commented out /////////////////////////////
-		if ( delay % 50 )
-				SleepMS(delay % 50);
-				delay := delay - (delay % 50);
-		else
-				SleepMS(50);
-				delay := delay - 50;
-		endif
-
-
-	endwhile
-////////////////////////////////////////////////////
 
 	var attribute := Lower(spell_elem.Attribute);
 
@@ -205,28 +215,56 @@ program SpellStarter(params)
 		difficulty := -1;
 	endif
 
-//	var skill_check := SkillCheck(mobile, attribute, difficulty, 50);
-	var skill_check := SkillCheck(mobile, attribute, difficulty, 30);
+
+    //difficulty := (CInt(AP_GetSkill(mobile, MAGERY)));
+
+    SendSysMessage(mobile,"difficulty "+difficulty);
+
+    var skill_check := 1;
+    if(spell_id != 32) //if not recall spell
+        //skill_check := SkillCheck(mobile, attribute, difficulty, 50);
+	    skill_check := SkillCheck(mobile, attribute, difficulty, 1);
+    endif
+
 
 	// Added to support necro wraith form can recall regardless of their magery skill level.
-	if(GetObjProperty(mobile, "wraith") && spell_id == 32)
-		skill_check := 1;
-	endif
-	mobile.frozen := 0;
+	//if(GetObjProperty(mobile, "wraith") && spell_id == 32)
+	//	skill_check := 1;
+	//endif
+	//mobile.frozen := 0;
+
+
+
 
 	// skill_check > 0 on success
-	if ( skill_check )
+	if ( skill_check || mobile.IsA(POLCLASS_NPC))
 		var info := struct;
 		info.+script := spell_elem.script;
-		info.+castspot := spell_elem.CastSpot;
 		info.+attribute := attribute;
 		info.+skill_check := skill_check;
+		info.+castspot := spell_elem.CastSpot;
 		info.+targ := targ;
 		info.+pid := GetPid();
 		info.+spell_Id := spell_id;
 		info.+circle := spell_elem.Circle;
 		info.+spell_config := spell_elem;
-		info.+damage_typ := spell_elem.DamageType;
+		info.+damage_type := spell_elem.DamageType;
+		info.+classlevel := classLevel;
+		if(CInt(spell_elem.targetDelay))
+		    info.+targetDelay := CInt(spell_elem.targetDelay);
+		else
+            info.+targetDelay := 0;
+		endif
+
+
+		if( runebook )
+			info.runebook := runebook;
+		endif
+		// The following is for rune books.
+		info.+no_target := 0;
+		if( scroll == 1 )
+			info.no_target := 1;
+		endif
 		info.+x := x;
 		info.+y := y;
 
@@ -247,10 +285,14 @@ program SpellStarter(params)
 			ev := wait_for_event(1);
 		endwhile
 	else
+
 	    // Plan to add chaoseffects here.
 		PlaySoundEffect(mobile, SFX_SPELL_FAIL);
-		SendSysMessage(mobile, "The spell fizzles.", color := 33);
+		SendSysMessage(mobile, "The spell fizzles.", color := MESSAGE_COLOR_BAD);
+		PlayObjectCenteredEffect( mobile, 0x3735, 7, 7 );
 	endif
+
+
 
 //	MS_SpellDebug(mobile, "Spell starter completed.");
 	EraseObjProperty(mobile, "#Casting");
@@ -259,12 +301,17 @@ program SpellStarter(params)
 endprogram
 
 function EquipmentCheck(mobile)
-	var hand1 := GetEquipmentByLayer(mobile, LAYER_HAND1);
+    var hand1 := GetEquipmentByLayer(mobile, LAYER_HAND1);
 	var hand2 := GetEquipmentByLayer(mobile, LAYER_HAND2);
-
+    if(hand1.objtype in {0x2D25})
+    	return 1;
+    endif
+    if(hand2.objtype in {0xE8A, 0x13F9})
+    	return 1;
+    endif
 	// On OSI there are spell weaving weapons that mages can hold while casting spells
 	// But they are not implemented yet. Maybe later.
-	if ( (hand2 && !hand1.IsA(POLCLASS_SPELLBOOK)) || (hand2 && !hand2.IsA(POLCLASS_SPELLBOOK)) )
+	if ((hand1 && !hand1.IsA(POLCLASS_SPELLBOOK)) || (hand2 && !hand2.IsA(POLCLASS_SPELLBOOK)) )
 		return 0;
 	endif
 
@@ -296,21 +343,21 @@ function CheckReagents(mobile, byref spell_elem, scroll)
 			objtype := CInt(_amount_iter);
 		endif
 		var properties := dictionary{"objtype"->objtype};
-
 		if ( AmountInContainer(mobile.backpack, properties) < amount )
 			if ( mobile.cmdlevel )
 				SendSysMessage(mobile, "You do not have enough "+GetObjTypeDesc(objtype, (amount>1))+".");
 			endif
 			return 0;
 		endif
-
-		SleepMS(2);
+		//SleepMS(2);
 	endforeach
+
 	// Consume reagents - CInt() and < 1 checks already done in previous loop.
 	// Foreach is a pointer!
 	foreach amount in (reg_cost)
+	//print("_amount_iter "+_amount_iter);
 		ConsumeSubstance(mobile.backpack, GetObjTypeByName(lower(_amount_iter)), amount);
-		SleepMS(2);
+		//SleepMS(2);
 	endforeach
 
 	return 1;
@@ -325,5 +372,7 @@ function FailSpell(mobile)
 
 	// The fizzle GFX is not suposed to play unless interrupted
 	PlaySoundEffect(mobile, SFX_SPELL_FAIL);
+    PlayObjectCenteredEffect( mobile, 0x3735, 7, 7 );
+
 	return 1;
 endfunction

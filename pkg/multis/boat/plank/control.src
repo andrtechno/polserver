@@ -1,0 +1,9 @@
+use uo;
+use os;
+
+program controlScript( plank )
+
+	plank.Retract();
+
+	return 1;
+endprogram

@@ -1,0 +1,70 @@
+use uo;
+
+include ":keys:key";
+include ":boat:const";
+
+var config := ReadConfigFile( ":boat:planks" );
+
+
+program UsePlank( mobile, plank )
+
+	Detach();
+	var LockId := GetObjProperty(plank, "LockID");
+	if(plank.locked)
+		if(!KP_HasKeyForLock(mobile, LockId))
+			SendSysMessage(mobile, "That is locked.", color := 33);
+			return;
+		endif
+	endif
+
+
+	var tillerman := plank.multi.tillerman;
+	//Refresh the boat
+	tillerman.SetDecay(REMOVE_DELAY);
+
+
+	if( plank.Extended() )
+		if( mobile.multi != plank.multi )
+			if( Distance( mobile, plank ) <= 5 )
+				MoveObjectToLocation( mobile, plank.x, plank.y, plank.z+1, plank.realm, MOVEOBJECT_FORCELOCATION );
+			endif
+		else
+		    //TimedOpenClose (plank);
+			plank.Retract();
+			print("plang close");
+		endif
+	else
+		plank.Extend();
+		//TimedOpenClose (plank);
+		print("plang  open");
+	endif
+
+	return 1;
+endprogram
+
+
+function TimedOpenClose (plank)
+
+	if (plank.Extended())
+		//if (!IsPlankOccupied (plank))
+		//	plank.Retract();
+			EraseObjProperty (plank, "#WhenOpened");
+		//endif
+	else
+		var whenopened := ReadGameClock();
+		SetObjProperty (plank, "#WhenOpened", whenopened);
+		plank.Extend ();
+
+		repeat
+			sleep (config[plank.graphic].WhenOpened);
+			if (!plank)
+				return;
+			endif
+		until (!plank.Extend());
+
+		if (GetObjProperty( plank, "#WhenOpened" ) == whenopened)
+			plank.Retract ();
+			EraseObjProperty (plank, "#WhenOpened");
+		endif
+	endif
+endfunction

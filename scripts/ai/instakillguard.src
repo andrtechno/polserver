@@ -5,10 +5,12 @@ use uo;
 use cfgfile;
 
 include "include/eventID";
-include "include/randName";
+include ":npcs:randName";
 include "include/client";
+include ":damage:damage";
 //include "include/spawnnet";
-include "include/vetement";
+include ":npcs:garment";
+
 var me := Self();
 // replykey(me);// From spawn net inc
 
@@ -128,14 +130,14 @@ function ClearGuard()
   SetProperty("guardkill", 1);
   PlaySoundEffect(me, 0x1ff);
   PlayStationaryEffect( me.x, me.y, me.z, FX_SMOKE, speed:=0xa, loop:=0xa, realm := me.realm );
-  MoveObjectToLocation(me, 5283,1184,0, "britannia");
-  ApplyRawDamage(me, 510);
+  MoveObjectToLocation(me, 5283, 1184, 0, _DEFAULT_REALM, MOVEOBJECT_FORCELOCATION);
+  KillMobile(me);
 endfunction
 
 function Closedistance(targ)
   if(Distance( me, targ ) >= 12)
 	PlayStationaryEffect( me.x, me.y, me.z, FX_SMOKE, speed:=0xa, loop:=0xa, realm := me.realm);
-	MoveObjectToLocation(me, targ.x, targ.y, targ.z, targ.realm);
+	MoveObjectToLocation(me, targ.x, targ.y, targ.z);
 	PlayStationaryEffect( me.x, me.y, me.z, FX_SMOKE, speed:=0xa, loop:=0xa, realm := me.realm );
   endif
   case (Distance( me, targ ))

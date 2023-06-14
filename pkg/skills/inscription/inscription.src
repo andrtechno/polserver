@@ -1,39 +1,41 @@
 include ":attributes:attributes";
 include "include/objtype";
 include "include/canAccess";
-include "include/noto";
+include ":virtue:noto";
 
 var config_file;
 
 program do_inscription(who)
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  var the_item,the_book,skill,points;
-  var elem,selected_spell,product,spellnum;
-  var circle,themana;
-  config_file := ReadConfigFile("inscription");
-  SendSysMessage(who, "What would you like to inscribe?");
-  the_item := Target(who, "");
-  if(!can_access(who, the_item))
-    return;
-  endif
-  if(the_item.movable == 0)
-    SendSysMessage(who, "You cannot use that.");
-    return;
-  endif
-  if(!the_item)
-    SendSysMessage(who, "Targetting cancelled.");
-    return;
-  endif
-  if(!Accessible(who, the_item))
-    SendSysMessage(who, "You can't reach that!");
-    return;
-  endif
-  if(!ReserveItem(the_item))
-    return;
-  endif
-  if(the_item.objtype == UOBJ_BLANK_SCROLL)
-    foreach thing in ListRootItemsInContainer(who.backpack)
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    var the_item,the_book,skill,points;
+    var elem,selected_spell,product,spellnum;
+    var circle,themana;
+    config_file := ReadConfigFile("inscriptionList");
+    SendSysMessage(who, "What would you like to inscribe?");
+    the_item := Target(who, "");
+    if(!can_access(who, the_item))
+        return;
+    endif
+    if(the_item.movable == 0)
+        SendSysMessage(who, "You cannot use that.");
+        return;
+    endif
+    if(!the_item)
+        SendSysMessage(who, "Targetting cancelled.");
+        return;
+    endif
+    if(!Accessible(who, the_item))
+        SendSysMessage(who, "You can't reach that!");
+        return;
+    endif
+    if(!ReserveItem(the_item))
+        return;
+    endif
+    sleepms(300);
+    if(the_item.objtype == UOBJ_BLANK_SCROLL)
+        the_book := Target(who, "");
+    /*foreach thing in ListRootItemsInContainer(who.backpack)
       if(thing.objtype == 0x0efa)
         the_book := thing;
         break;
@@ -46,70 +48,71 @@ program do_inscription(who)
           break;
         endif
       endforeach
-    endif
+    endif*/
 
-    if(!the_book)
-      SendSysMessage(who, "You don't have a spellbook.");
-      return;
-    endif
-    if(!Accessible(who, the_book))
-      SendSysMessage(who, "You can't reach that!");
-      return;
-    endif
-    if(the_book.objtype != UOBJ_SPELLBOOK)
-      SendSysMessage(who, "You can't inscribe from that!");
-      return;
-    endif
-    selected_spell := MakeAndProcessMenu(who, the_book);
-    if(!selected_spell)
-      return;
-    endif
-    elem := FindConfigElem(config_file, selected_spell);
-    skill := GetConfigInt(elem, "skill");
-    points := GetConfigInt(elem, "points");
-    circle := GetConfigInt(elem, "circle");
-    themana := usemana(who, circle);
-    product := GetConfigInt(elem, "scroll");
-    spellnum := GetConfigInt(elem, "SpellId");
-    if(themana == 0)
-      SendSysMessage(who,"You do not have enough mana.");
-      return;
-    endif
-    if((ConsumeReagents(who, spellnum)) && (GetMana(who) >= themana))
-      SetMana(who, GetMana(who) - themana);
-      if(SkillCheck(who, INSCRIPTION, skill, points))
-        PlaySoundEffect(who, 0x24a);
-        if(SubtractAmount(the_item,1))
-          var thescroll := CreateItemInBackpack(who, product);
-          if(!thescroll)
-            SendSysMessage(who,"Your backpack is too full to create the scroll.");
+        if(!the_book)
+            SendSysMessage(who, "You don't have a spellbook.");
             return;
-          endif
-          var myskill := CInt(AP_GetSkill(who, INSCRIPTION));
-          var modpts := 0;
-          if(myskill >=  skill)
-            modpts := (myskill - (skill - 10));
-          endif
-          var rint := RandomInt(100);
-          if(modpts >= rint)
-            ExceptionalFameMod(who, myskill, skill, Cint(skill / 2));
-          endif
-          SendSysMessage(who, "You create the scroll and put it in your backpack");
         endif
-      else
-        SendSysMessage(who, "You fail and destroy the scroll");
-        SubtractAmount(the_item,1);
-      endif
+        if(!Accessible(who, the_book))
+            SendSysMessage(who, "You can't reach that!");
+            return;
+        endif
+        if(the_book.objtype != UOBJ_SPELLBOOK)
+            SendSysMessage(who, "You can't inscribe from that!");
+            return;
+        endif
+
+        selected_spell := MakeAndProcessMenu(who, the_book);
+        if(!selected_spell)
+            return;
+        endif
+        elem := FindConfigElem(config_file, selected_spell);
+        skill := GetConfigInt(elem, "skill");
+        points := GetConfigInt(elem, "points");
+        circle := GetConfigInt(elem, "circle");
+        themana := usemana(who, circle);
+        product := GetConfigInt(elem, "scroll");
+        spellnum := GetConfigInt(elem, "SpellId");
+        if(themana == 0)
+            SendSysMessage(who,"You do not have enough mana.");
+            return;
+        endif
+        if((ConsumeReagents(who, spellnum)) && (GetMana(who) >= themana))
+            SetMana(who, GetMana(who) - themana);
+            if(SkillCheck(who, INSCRIPTION, skill, points))
+                PlaySoundEffect(who, 0x24a);
+                if(SubtractAmount(the_item,1))
+                    var thescroll := CreateItemInBackpack(who, product);
+                    if(!thescroll)
+                        SendSysMessage(who,"Your backpack is too full to create the scroll.");
+                        return;
+                    endif
+                    var myskill := CInt(AP_GetSkill(who, INSCRIPTION));
+                    var modpts := 0;
+                    if(myskill >=  skill)
+                        modpts := (myskill - (skill - 10));
+                    endif
+                    var rint := RandomInt(100);
+                    if(modpts >= rint)
+                        ExceptionalFameMod(who, myskill, skill, Cint(skill / 2));
+                    endif
+                    SendSysMessage(who, "You create the scroll and put it in your backpack");
+                endif
+            else
+                SendSysMessage(who, "You fail and destroy the scroll");
+                SubtractAmount(the_item,1);
+            endif
+        else
+            SendSysMessage(who,"You do not have all of this spell's reagents.");
+            return;
+        endif
+    elseif((the_item.objtype == 0x1f14) || (the_item.objtype == 0x1f15))
+        CreateRunebook(who, the_item);
+        return;
     else
-      SendSysMessage(who,"You do not have all of this spell's reagents.");
-      return;
+        SendSysMessage(who, "You can't inscribe that!");
     endif
-  elseif((the_item.objtype == 0x1f14) || (the_item.objtype == 0x1f15))
-    CreateRunebook(who, the_item);
-    return;
-  else
-    SendSysMessage(who, "You can't inscribe that!");
-  endif
 endprogram
 
 function CreateRunebook(who, the_item)
@@ -195,64 +198,64 @@ function CreateRunebook(who, the_item)
 endfunction
 
 function MakeAndProcessMenu( who , spellbook )
-var all_spells := spellbook.Spells(),
+    var all_spells := spellbook.Spells(),
     circles := {},
     names := {},
     spells_cfg := ReadConfigFile(":*:spells");
-if (all_spells.size()<1)
-   SendSysMessage( who, "Spellbook is empty.", 3, 32 );
-   return 0;
-endif
+    if (all_spells.size()<1)
+       SendSysMessage( who, "Spellbook is empty.", 3, 32 );
+       return 0;
+    endif
 
-foreach spell in all_spells
-   var circle := spells_cfg[spell].Circle;
-   if ( !(circle in circles) )
-      circles.append(circle);
-   endif
-   names.append(spells_cfg[spell].Name);
-endforeach
+    foreach spell in all_spells
+       var circle := spells_cfg[spell].Circle;
+       if ( !(circle in circles) )
+          circles.append(circle);
+       endif
+       names.append(spells_cfg[spell].Name);
+    endforeach
 
-var tmenu := CreateMenu( "Select a circle to inscribe");
-foreach circle in circles
-   var addm := AddMenuItem( tmenu, 0x20bf + circle, "Circle "+circle+" spells");
-   if(!addm)
-      SendSysMessage( who, "Error in making circles menu: "+addm.errortext, 3, 32 );
-      return 0;
-   endif
-endforeach
+    var tmenu := CreateMenu( "Select a circle to inscribe");
+    foreach circle in circles
+       var addm := AddMenuItem( tmenu, 0x20bf + circle, "Circle "+circle+" spells");
+       if(!addm)
+          SendSysMessage( who, "Error in making circles menu: "+addm.errortext, 3, 32 );
+          return 0;
+       endif
+    endforeach
 
-var circle_choice := SelectMenuItem2( who, tmenu ); // what this menu shows?
-if( circle_choice == 0 )
-   SendSysMessage( who, "Cancelled.", 3, 32 );
-   return 0;
-elseif ( circle_choice == error )
-   SendSysMessage( who, "Error picking a circle: "+circle_choice.errortext, 3, 32 );
-   return 0;
-endif
+    var circle_choice := SelectMenuItem2( who, tmenu ); // what this menu shows?
+    if( circle_choice == 0 )
+       SendSysMessage( who, "Cancelled.", 3, 32 );
+       return 0;
+    elseif ( circle_choice == error )
+       SendSysMessage( who, "Error picking a circle: "+circle_choice.errortext, 3, 32 );
+       return 0;
+    endif
 
-var tmenu2 := CreateMenu("Select a spell to inscribe"),
+    var tmenu2 := CreateMenu("Select a spell to inscribe"),
     spell_names := {},
     scroll_types := {};
-foreach scroll in  GetConfigIntKeys(config_file);
-   var spellname := config_file[scroll].name;
-   if ( spellname in names && config_file[scroll].circle == circles[circle_choice.index] )
-      spell_names.append( spellname );
-      scroll_types.append( scroll );
-      AddMenuItem(tmenu2, config_file[scroll].graphic, spellname);
-   endif
-endforeach
+    foreach scroll in  GetConfigIntKeys(config_file);
+        var spellname := config_file[scroll].name;
+        if ( spellname in names && config_file[scroll].circle == circles[circle_choice.index] )
+            spell_names.append( spellname );
+            scroll_types.append( scroll );
+            AddMenuItem(tmenu2, config_file[scroll].graphic, spellname);
+        endif
+    endforeach
 
-var scroll_choice := SelectMenuItem2(who, tmenu2 ); // what this menu shows?
-if( scroll_choice == 0 )
-   SendSysMessage( who, "Cancelled.", 3, 32 );
-   return 0;
-elseif ( scroll_choice == error )
-   SendSysMessage( who, "Error picking a spellscroll: "+scroll_choice.errortext, 3, 32 );
-   return 0;
-else
-   SendSysMessage( who, "You will make a "+spell_names[scroll_choice.index]+" scroll.", 3, 67 );
-   return scroll_types[scroll_choice.index];
-endif
+    var scroll_choice := SelectMenuItem2(who, tmenu2 ); // what this menu shows?
+    if( scroll_choice == 0 )
+       SendSysMessage( who, "Cancelled.", 3, 32 );
+       return 0;
+    elseif ( scroll_choice == error )
+       SendSysMessage( who, "Error picking a spellscroll: "+scroll_choice.errortext, 3, 32 );
+       return 0;
+    else
+       SendSysMessage( who, "You will make a "+spell_names[scroll_choice.index]+" scroll.", 3, 67 );
+       return scroll_types[scroll_choice.index];
+    endif
 
 endfunction
 

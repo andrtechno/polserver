@@ -1,6 +1,73 @@
 use uo;
 use unicode;
 
+include "util/bank";
+include "include/string";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+const AMOUNT := 1000;
+const START_ACTIVE := 50000;
+
 program textcmd_say(who, text)
-    BroadcastUC(CAscZ(who.name + ": " +text), "RUS", 3, 45);
+
+    var isSay := GetObjProperty(who, "CmdSay");
+    if(isSay)
+        if(!isSay.enabled)
+            activeGump(who, isSay);
+            return;
+        else
+
+        endif
+    else
+        activeGump(who, isSay);
+        return;
+    endif
+
+    if(who.cmdlevel > 0 || who.IsPremium())
+        BroadcastUC(who.name + ": " +text, "RUS", 3, 66);
+        return;
+    endif
+
+    if(SpendCoin(who, AMOUNT, FindBankBox(who), 0xEED))
+        BroadcastUC(who.name + ": " +text, "RUS", 3, 66);
+    else
+        SendSysMessageUC(who, "У вас недостаточно денег в банке.", "RUS", color := 33);
+    endif
+
+    return 1;
 endprogram
+
+
+function activeGump(who, isSay)
+
+    var x := 10;
+    var y := 15;
+    var gump := GFCreateGump( 20, 50 );
+    GFClosable(gump, 1);
+    var widthGump := 250;
+    var heightGump := 140;
+    GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+
+    GFAddButton(gump, 10, 20, 2117, 2118, GF_CLOSE_BTN, 100);
+    var amount := START_ACTIVE;
+    if(CInt(isSay.penalty))
+        amount := START_ACTIVE * CInt(isSay.penalty + 1);
+    endif
+    GFTextLine(gump,  30, 17, 2100, "Цена активации "+AddCommas(amount)+" gp." );
+
+    var input := GFSendGump( who, gump );
+    input := CInt(input[0]);
+    if ( input == 100)
+
+        if(SpendCoin(who, amount, FindBankBox(who), 0xEED))
+            var data := struct;
+            data.+enabled := 1;
+            data.+penalty := isSay.penalty;
+            SetObjProperty(who, "CmdSay", data);
+            SendSysMessageUC(who, "Чат успешно активирован.", "RUS", color := 67);
+        else
+            SendSysMessageUC(who, "У вас недостаточно денег в банке.", "RUS", color := 33);
+        endif
+    endif
+endfunction

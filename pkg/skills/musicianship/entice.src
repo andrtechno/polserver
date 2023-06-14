@@ -4,7 +4,6 @@ use util;
 
 include "include/client";
 include "include/objtype";
-include "include/skillPoints";
 include "include/bard";
 include "include/eventID";
 
@@ -31,7 +30,7 @@ program enticement(who)
   endif
   var success := play(who, diff, instrument, DISCORDANCE);
   if(success)
-    var ev := array;
+    var ev := struct;
     ev.+type := EVID_ALL_FOLLOW_CMD;
     ev.+source := who;
     ev.+x := who.x;

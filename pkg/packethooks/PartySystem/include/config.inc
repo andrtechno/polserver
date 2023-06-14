@@ -19,4 +19,4 @@ CONST PARTY_INVITE_TIMEOUT := 120;
 
 // Characters must be at least this close to other party members to get stats update packets.
 // For my client, the party status window is greyed out after 19 tiles
-CONST PARTY_STATUS_UPDATE_DISTANCE := 19;
+CONST PARTY_STATUS_UPDATE_DISTANCE := 1000;

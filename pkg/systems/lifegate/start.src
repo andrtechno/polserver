@@ -1,0 +1,7 @@
+use uo;
+
+include ":lifegate:lifegate";
+
+print("Initializing life gate");
+//CleanupOldLifes();
+CreateLifeGates();

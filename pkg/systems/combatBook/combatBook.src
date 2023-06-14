@@ -1,0 +1,143 @@
+/*
+    Purpose: This hook will allow you to get combat book ability ID, when used.
+
+		Ability ID's:
+			0x00 = Disable Ability Attempt
+			0x01 = Armor Ignore
+			0x02 = Bleed Attack
+			0x03 = Concusion Blow
+			0x04 = Crushing Blow
+			0x05 = Disarm
+			0x06 = Dismount
+			0x07 = Double Strike
+			0x08 = Infecting
+			0x09 = Mortal Strike
+			0x0A = Moving Shot
+			0x0B = Paralyzing Blow
+			0x0C = Shadow Strike
+			0x0D = Whirlwind Attack
+			0x0E = Riding Swipe
+			0x0F = Frenzied Whirlwind
+			0x10 = Block
+			0x11 = Defense Mastery
+			0x12 = Nerve Strike
+			0x13 = Talon Strike
+			0x14 = Feint
+			0x15 = Dual Wield
+			0x16 = Double shot
+			0x17 = Armor Peirce
+			0x18 = Bladeweave
+			0x19 = Force Arrow
+			0x1A = Lightning Arrow
+			0x1B = Psychic Attack
+			0x1C = Serpent Arrow
+			0x1D = Force of Nature 
+
+    Const settings:
+    OFFSET_ABILITY_NUMBER:  Position in the packet for the ability's ID.
+    
+*/
+use os;
+use uo;
+use polsys;
+use cfgfile;
+
+include ":itemUtils:itemtypes";
+include ":combatBook:combatAbility";
+include ":attributes:attributes";
+
+const OFFSET_ABILITY_NUMBER := 13;
+
+program combatBook()
+
+	print("INSTALLING: CombatBook Packet");
+	return 1;
+ 
+endprogram
+
+
+exported function handleCombatAbility(who, byref packet)
+    var cfgFile := ReadConfigFile(":combatBook:abilities");
+
+    //disabled for wresting
+	/*if(who.weapon.objtype == 0x1F020)
+		SendSysMessage(who, "You don't have a weapon", 3, MESSAGE_COLOR_BAD);
+		RemoveAbility(who);
+		return 0;
+	endif*/
+
+    var currentAbility := CInt(GetObjProperty(who, "Ability"));
+    print("currentAbility "+currentAbility);
+    var ability := packet.GetInt8(OFFSET_ABILITY_NUMBER);
+    ability := CInt(ability);
+
+    var elem := FindConfigElem( cfgFile, ability );
+    var abilityName := GetConfigString( elem, "Name" );
+    var change := GetConfigReal( elem, "Change" );
+    var luck := GetConfigInt( elem, "Luck" );
+    var script := GetConfigString( elem, "Script" );
+    var delay := GetConfigInt( elem, "Delay" );
+    var mana := GetConfigInt( elem, "ManaCost" );
+    var vital := GetConfigString( elem, "Vital" );
+
+    /*if(who.luck < luck)
+        SendSysMessage(who, "You don't have enough luck", 3, MESSAGE_COLOR_BAD);
+        RemoveAbility(who);
+        return 0;
+    endif*/
+
+    var curr := CInt(AP_GetVital(who, MANA));
+    if ( curr < mana )
+        SendSysMessage(who, "You don't have enough mana!", 3, MESSAGE_COLOR_BAD);
+        RemoveAbility(who);
+        return 0;
+    endif
+
+    if(ability)
+        SendSysMessage(who, "You activity "+abilityName, 3, MESSAGE_COLOR_GOOD);
+        if ( curr >= mana )
+            AP_SetVital(who, MANA, (curr-mana));
+        else
+            //AP_SetVital(who, MANA, 0);
+                    SendSysMessage(who, "You don't have enough mana !!!!", 3, MESSAGE_COLOR_BAD);
+                    return 0;
+        endif
+
+        var options := struct;
+        options.+delay := delay;
+
+        if(vital in {MANA, STAMINA, HITS})
+            var cost := GetConfigInt( elem, "VitalCost" );
+            options.+vital := vital;
+            options.+cost := cost;
+        endif
+
+        SetObjProperty(who, "AbilityOptions", options);
+
+        /*who.luck_mod -= luck;*/
+        if(ability in {0x0A, 0x0D})
+            start_script(script, {who, 1});
+        endif
+
+
+
+
+
+
+    else
+        SendSysMessage(who, "You Disable Ability Attempt", 3, MESSAGE_COLOR_BAD);
+        var options := GetObjProperty(who, "AbilityOptions");
+        var process := GetProcess(GetObjProperty(who, "#AbilityPID"));
+        process.kill();
+        EraseObjProperty( who, "#AbilityPID");
+
+        EraseObjProperty( who, "AbilityOptions");
+
+        var regen := AP_GetVitalRegenRateMod(who, options.vital);
+        AP_SetVitalRegenRateMod( who, options.vital,  CInt(regen) - 500 );
+
+    endif
+
+    SetObjProperty(who, "Ability", ability);
+
+Endfunction

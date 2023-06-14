@@ -1,9 +1,35 @@
 use os;
 use uo;
+use unicode;
 
-program textcmd_rename( speaker, newname )
-    var thetarg := Target(speaker);
-    if (thetarg)
-        SetName(thetarg, newname);
+program textcmd_rename( who, newname )
+    var targ := Target(who);
+    if (!targ)
+        SendSysMessageUC(who, "Cancelled.", 3, 33);
+        return;
     endif
+    newname := Trim(newname);
+    var accounts := ListAccounts();
+    var flag := 1;
+
+    foreach account in accounts
+        var acc := FindAccount( account );
+        var i := 1;
+        for( i := 1; i <= 5; i := i + 1 )
+            var char := acc.getcharacter(i);
+            if(char.name == newname)
+                flag := 0;
+                break;
+            endif
+        endfor
+    endforeach
+
+    if (!flag)
+        SendSysMessageUC(who, "Это имя уже занято.", "RUS", 3, 33);
+        return;
+    endif
+
+    SetName(targ, newname);
+
+    return 1;
 endprogram

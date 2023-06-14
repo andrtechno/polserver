@@ -3,13 +3,49 @@ use uo;
 use basic;
 use guilds;
 
-var players := {};
+include "include/client";
 
 var id := CInt(QueryParam("id"));
+var token := QueryParam("token");
 var guild := FindGuild( id );
-if(guild)
-print(guild.members);
-else
-print("no find guild");
+var data := {};
+
+if(token != WEB_TOKEN)
+    var prop := struct;
+    prop.+"success" := Boolean(0);
+    prop.+"message" := "Error web token.";
+    data.append(prop);
+    WriteHtml( PackJSON(data) );
+    return 0;
 endif
+
+
+
+
+
+
+
+    WriteHtml( "<html><head><title>POL Guilds "+guild.name+"</title></head>" +
+        "<body>" +
+        "<table border=1 cellspacing=0 cellpadding=5>" +
+        "<tr bgcolor=#99CCFF><td>#</td><td>Member</td></tr>");
+
+    if(guild)
+        var i := 1;
+        foreach member in ( guild.members )
+            WriteHtml("<tr>" +
+                "<td>"+i+"</td>" +
+                "<td>" + member.name + "</td>" +
+
+            "</tr>");
+            i+=1;
+        endforeach
+
+    else
+        //print("no find guild");
+    endif
+
+
+    WriteHtml( "</table>" );
+    WriteHtml( "</BODY></HTML>" );
 

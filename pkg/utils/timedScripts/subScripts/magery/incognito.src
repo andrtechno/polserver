@@ -11,13 +11,11 @@ include "include/client";
 include ":body:bodyHues";
 
 var orig_info := struct;
-var ts_cfg_elem := TS_GetCfgElem("Incognito");
-var buff_icon := CInt( ts_cfg_elem.BuffIcon );
-var cliloc_name :=  CInt(ts_cfg_elem.cliloc_name);
-var cliloc_desc :=  CInt(ts_cfg_elem.cliloc_desc);
 
 
-var Human_hair_types := array{ "cutHair", "ShortHair", "LongHair", "PonyTailHair", "MohawkHair",
+
+
+var Human_hair_types := array{ "ShortHair", "LongHair", "PonyTailHair", "MohawkHair",
                     "PageBoyHair", "BunsHair", "AfroHair", "RecedingHair", "PigTailHair",
                     "KrisnaHair" };
 var human_beard_types := array{ "LongBeardHair", "ShortBeardHair", "GoateeHair", "MustacheHair",
@@ -38,6 +36,11 @@ var female_gargy_horns := {"FemaleHornStyle1", "FemaleHornStyle2", "FemaleHornSt
 
 program TimedScript_Incognito(params)
 	var mobile := params[1];
+	var duration := params[4];
+    var ts_cfg_elem := TS_GetCfgElem("Incognito");
+    var buff_icon := CInt( ts_cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(ts_cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(ts_cfg_elem.cliloc_desc);
 	params := 0;
 	var hair_types := array;
 	var beard_types := array;
@@ -76,22 +79,22 @@ program TimedScript_Incognito(params)
 		orig_info.+beard_color := hair.color;
 
 		SetObjProperty(mobile, "Incognito", orig_info);
-		Print("Incognito original:"+orig_info);
+
 	else
 		// Prevent Incognito spell if the caster is under the influence.
+		print("Prevent Incognito spell if the caster is under the influence.");
 		return 0;
 	endif
 
 	// Remove title prefix and suffix, ignore guild and race for now.
 	mobile.title_prefix := "";
 	mobile.title_suffix := "";
-	//mobile.title_guild := "";
-	//mobile.title_race := "";
+	mobile.title_guild := "";
+	mobile.title_race := "";
 
 	// Set gender and color
 	mobile.gender := RandomInt(2);
 	mobile.truecolor	:= 1056 - RandomInt(55); // 1002-1056
-
 
 	// Get name template and if it's a male, get random beard and color and equip it.
 	var name_template;
@@ -122,6 +125,7 @@ program TimedScript_Incognito(params)
 			new_hair.color := new_hair_color;
 			EquipItem(mobile, new_hair);
 		endif
+
 	elseif(mobile.graphic == 0x25D || mobile.graphic == 0x25E) // Elf graphic
 		// Elven stuff
 		if(mobile.gender == 0)
@@ -137,7 +141,7 @@ program TimedScript_Incognito(params)
 			CreateItemInBackpack(mobile, new_hair);
 			new_hair.color := RandomElvenHairHue();
 			EquipItem(mobile, new_hair);
-	else
+	    else
 			name_template := 14;
 			DestroyItem(GetEquipmentByLayer(mobile, LAYER_HAIR));
 			var new_hair := hair_types[RandomInt(hair_types.Size()) + 1];
@@ -175,9 +179,36 @@ program TimedScript_Incognito(params)
 		return;
 	endif
 	// Give mobile a random name
-	var names := ReadConfigFile("::names");
-	var name_list := GetConfigStringArray(names[name_template], "Name");
-	SetName(mobile, name_list[RandomInt(name_list.Size()) + 1]);
+
+    var index := "MALE";
+    if (mobile.gender == 0)
+        index := "FEMALE";
+    endif
+    var cfg := ReadConfigFile( ":magery:incognito" );
+    if (!cfg)
+	    SendSysMessage(mobile,"Unable to read incognito.cfg");
+	    return;
+    endif
+    var elem := FindConfigElem( cfg, index );
+    var number := GetConfigInt( elem, "Count" );
+    var dice_str := "1d" + CStr(number);
+    var choice := RandomDiceRoll( dice_str );
+    var entry := "Name" + choice;
+    var str := GetConfigString( elem, entry );
+
+
+
+	/*var names := ReadConfigFile("::names");
+    var elem := FindConfigElem( names, name_template );
+    var number := GetConfigInt( elem, "Count" );
+    var dice_str := "1d" + CStr(number);
+    var choice := RandomDiceRoll( dice_str );
+    var entry := "Name" + choice;
+	//var name_list := GetConfigStringArray(names[name_template], entry);
+    var str := GetConfigString( elem, entry );
+    //name_list[RandomInt(name_list.Size()) + 1]*/
+	SetName(mobile, str);
+    mobile.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, "");
 
 	return 1;
 endprogram

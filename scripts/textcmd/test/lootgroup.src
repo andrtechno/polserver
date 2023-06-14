@@ -1,0 +1,20 @@
+use os;
+use uo;
+include "include/startEqp";
+
+
+program textcmd_lootgroup(who, number)
+
+    /*var targ := Target(who);
+    if(!targ)
+        return;
+    endif
+    if(!targ.isA(POLCLASS_CONTAINER))
+        return;
+    endif*/
+    //MakeLoot(targ, CInt(number));
+
+var item := CreateItemAtLocation( who.x, who.y, who.z, 0x9b2, 1);
+                CreateFromGroup(item, CInt(number), who);
+
+endprogram

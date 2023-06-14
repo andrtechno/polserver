@@ -39,7 +39,6 @@ program textcmd_release( who)
     0x16078: CreateItemInBackpack(who,0x16031,1); //twostoryvilladeed
     0x16079: CreateItemInBackpack(who,0x16032,1); //smallstoneworkshopdeed
     0x1607A: CreateItemInBackpack(who,0x16033,1); //smallmarbleworkshopdeed
-    0x1607B: CreateItemInBackpack(who,0x1603A,1); //test
   endcase
   var tilelist := GetObjProperty(house, "bantiles");
   if(tilelist)

@@ -1,0 +1,11 @@
+use uo;
+use os;
+
+include ":charclasses:skillBookGump";
+
+program textcmd_skill( who )
+
+    SkillBookGump(who, who, 1);
+
+    return 1;
+endprogram

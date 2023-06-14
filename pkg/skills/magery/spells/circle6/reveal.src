@@ -4,57 +4,74 @@
 /////////////////////////////////////////////////////////////////////////////
 
 use uo;
+//use cliloc;
+use unicode;
 
 include ":attributes:attributes";
 include ":magery:spells";
 include "include/client";
 
-program reveal_hider ( parms )
+
+program cast_reveal( parms )
     var caster := parms[1];
     var info := parms[2];
-    var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
-    if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
-        cast_on := parms[4];
-    endif
-    if (!cast_on)
-        SendSysMessage (caster, "Cancelled.", color := 33);
-        return 0;
-    endif
+    var cast_on := caster;
+    //var cast_on := MS_TargetCoordinates(caster, info, "Select a target.");
+    //if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
+    //    cast_on := parms[4];
+    //endif
+    //if (!cast_on)
+    //    SendSysMessageCL(caster, 1042023, color := 33); // Cancelled.
+    //    return 0;
+    //endif
+
     if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
     endif
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-  var range := ( GetAttribute( caster, MAGERY  )/10 ) - 5;
-  if (range < 1)
-	range := 1;
-  endif
-  var hiders := ListMobilesNearLocationEx( caster.x, caster.y, caster.z, range, LISTEX_FLAG_HIDDEN, caster.realm );
-  var numfound := 0;
-  PlaySoundEffect(caster, SFX_1FE);
-  if(len(hiders) > 0)
-	foreach mobile in hiders
-	  if( Found( caster,  mobile) )
-		numfound := 1;
-		mobile.hidden := 0;
-		PrintTextAbovePrivate( mobile, "You have been revealed!", mobile );
-		PrintTextAbovePrivate( mobile, "You have found someone!!", caster );
-		PlaySoundEffect(mobile, SFX_1FE);
-	  endif
-	endforeach
-  endif
-  if (!numfound)
-    PrintTextAbovePrivate( caster, "You didnt find any anyone.", caster );
-  endif
-endprogram
+	MS_PlaySpellSFX(info.spell_id, cast_on);
+	MS_PlaySpellGFX(info.spell_id, cast_on, caster);
 
-function Found( finder, hider )
-  var magic_skill := Resisted(6, finder, hider, GetAttribute( finder, MAGERY ));
-  var resist := (GetAttribute( finder, RESISTING_SPELLS)/1.5);
-  if ( magic_skill > resist )
+	var area_size := CInt(GetConfigInt(info.spell_config, "AreaSize"));
+	area_size := 10;
+	var targs := ListMobilesNearLocationEx(cast_on.x, cast_on.y, cast_on.z, area_size, LISTEX_FLAG_PLAYERS_ONLY+LISTEX_FLAG_HIDDEN, cast_on.realm);
+    var counter := 0;
+	foreach targ in targs
+	    var detected := 0;
+		if ( GetObjProperty(targ, "Invisibility") )
+			//targ.hidden := 0;
+
+			// I just made these up. uo.stratics and uo.com didn't give any good info.
+			var caster_skill := AP_GetSkill(caster, MAGERY);
+			var hider_skill := AP_GetSkill(targ, MAGERY);
+			if ( caster_skill >= hider_skill )
+                detected := 1;
+			endif
+
+
+		else
+			// I just made these up. uo.stratics and uo.com didn't give any good info.
+			var caster_skill := AP_GetSkill(caster, MAGERY) + AP_GetSkill(caster, DETECTING_HIDDEN);
+			var hider_skill := AP_GetSkill(targ, HIDING) + AP_GetSkill(targ, STEALTH);
+			if ( caster_skill >= hider_skill )
+                detected := 1;
+			endif
+		endif
+        if(detected)
+            targ.hidden := 0;
+			PrintTextAbovePrivateUC(targ, "Обнаружен!", "RUS", cast_on, 3, color := MESSAGE_COLOR_GOOD, journal_print := JOURNAL_UC_PRINT_NAME);
+            PrintTextAbovePrivateUC(targ, "Вы обнаружены!", "RUS", targ, 3, color := MESSAGE_COLOR_BAD, journal_print := JOURNAL_UC_PRINT_NAME);
+		    counter := counter + 1;
+        endif
+
+
+	endforeach
+
+	if(!counter)
+        SendSysMessageUC(caster, "У вас не получилось никого обнаружить.", "RUS", 3, MESSAGE_COLOR_BAD);
+    endif
+
 	return 1;
-  else
-	return 0;
-  endif
-endfunction
+endprogram

@@ -1,9 +1,0 @@
-use uo;
-
-program textcmd_spawnHide(who)
-    var items := ListItemsInBoxOfObjType(0x1A401, 0, 0, LIST_IGNORE_Z, 7168, 4096, LIST_IGNORE_Z, who.realm);
-    foreach item in items
-        item.invisible:=1;
-    endforeach
-    SendSysMessage( who, "Hide count: " +len(items));
-endprogram

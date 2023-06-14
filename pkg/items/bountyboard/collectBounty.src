@@ -7,12 +7,10 @@ include "include/bounty";
 include "util/bank";
 
 program collectBounty(parms)
-  print("P: " + parms);
   var me   := parms[1];
   var who  := parms[2];
   var item := parms[3];
   if(!ReserveItem(item))
-    print("!");
     return;
   endif
   var serial := GetObjProperty(item, "serial");

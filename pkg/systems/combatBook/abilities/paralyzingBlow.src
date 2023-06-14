@@ -1,0 +1,23 @@
+/*
+A successful Paralyzing Blow will leave the target stunned, unable to move, attack, or cast spells, for a few seconds.
+Duration is 3 seconds (player), 6 seconds (NPC). The duration is broken by combat damage in the same way as paralyze spell.
+This move is exempt from the Tactics requirement when used as an Unarmed (wrestling) special move.
+paralyze immunity applied to targets have been reduced to 6-8 seconds when used on weapons with speeds 3.5 or greater
+*/
+
+include ":combatBook:combatAbility";
+include ":timedScripts:timedScripts";
+include ":attributes:attributes";
+
+program ability_paralyzingBlow(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var duration := 3;
+    if(defender.isA(POLCLASS_NPC))
+        duration := 6;
+    endif
+
+    TS_StartTimer(defender, "Paralysis", duration);
+
+    return 1;
+endprogram

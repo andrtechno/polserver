@@ -1,13 +1,16 @@
 use os;
 use uo;
+use PolSys;
 
-program unload( who, scriptname )
+include "include/client";
 
-    Unload_Scripts(scriptname);
-if(scriptname == "")
-SendSysMessage(who, "unloaded: All", 3, 33);
-else
-SendSysMessage(who, "unloaded: "+scriptname, 3, 33);
-endif
+program textcmd_unload( who, scriptname )
 
+    var unload := Unload_Scripts(scriptname);
+    ReloadConfiguration();
+    if(scriptname == "")
+        SendSysMessage(who, "Unloaded "+unload+" scripts.", 3, MESSAGE_COLOR_GOOD);
+    else
+        SendSysMessage(who, "Unloaded: "+scriptname+" script.", 3, MESSAGE_COLOR_GOOD);
+    endif
 endprogram

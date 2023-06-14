@@ -1,0 +1,44 @@
+use uo;
+use polsys;
+use os;
+
+include ":gumps:requestGump";
+include ":itemUtils:itemdesc";
+include "include/string";
+
+program textcmd_makeorder(who)
+
+    SendSysMessage(who, "Select a target owner.");
+    var victim := Target(who);
+    if(!victim)
+        SendSysMessage(who, "Aborted.");
+        return;
+    endif
+    /*sleep(1);
+    SendSysMessage(who, "Select a target banker.");
+    var banker := Target(who);
+    if(!banker)
+        SendSysMessage(who, "Aborted.");
+        return;
+    endif*/
+
+
+	var amt := RequestGump(who, "Укажите сумму чека?", "Сумма.");
+
+	if(!amt)
+    SendSysMessage(who, "Aborted.");
+		return 0;
+	endif
+
+
+    var currency := 0x0EED;
+
+    var orderItem := CreateItemInBackpack(who, 0x14000, 1);
+	SetName(orderItem, orderItem.desc + " made out to " + who.name + " in the amount of " + AddCommas(amt) + " " + GetObjTypeDesc(currency, 1) + ".");
+    SetObjProperty(orderItem, "Amount", amt);
+    SetObjProperty(orderItem, "Currency", currency);
+    SetObjProperty(orderItem, "IssuingBank", "britannia");
+    SetObjProperty(orderItem, "Payee", who.name);
+    SetObjProperty(orderItem, "PayeeSerial", who.serial);
+    SetObjProperty(orderItem, "PurchaserSerial", who.serial);
+endprogram

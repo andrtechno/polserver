@@ -1,0 +1,84 @@
+use http;
+use uo;
+use os;
+use basic;
+use cfgfile;
+use PolSys;
+
+program players()
+    var data := struct{};
+    var itemsdata := {};
+
+    var lootcfgfile := ReadConfigFile("::nlootgroup");
+    var ggg := dictionary;
+    foreach lootgroup in (GetConfigIntKeys( lootcfgfile ))
+        var datix := {};
+        var elem := FindConfigElem( lootcfgfile, lootgroup );
+        var list := ListConfigElemProps( elem );
+
+
+
+        var stacks := GetConfigStringArray(elem, "Stack");
+        foreach stackItem in (stacks)
+            print(stackItem);
+        endforeach
+
+        var randoms := GetConfigStringArray(elem, "Random");
+        foreach randomItem in (randoms)
+            var split := SplitWords(randomItem);
+            var group := FindConfigElem( lootcfgfile, split[2] );
+            var randoms2 := GetConfigStringArray(group, "Item");
+            foreach randomItem2 in (randoms2)
+                var split := SplitWords(randomItem2);
+                var descr := GetItemDescriptor(split[2]);
+                //itemsdata.append(struct{name:=descr.desc,amount:=split[1], chance:=CInt(split[3])});
+                datix.append(struct{name:=descr.desc,amount:=Value(split[1]), chance:=CInt(split[3])});
+               // ggg.insert(lootgroup, struct{name:=descr.desc,amount:=Value(split[1]), chance:=CInt(split[3])});
+            endforeach
+
+            var descr := GetItemDescriptor(split[2]);
+            datix.append(struct{name:=descr.desc,amount:=split[1], chance:=CInt(split[3])});
+            //ggg.insert(lootgroup, struct{name:=descr.desc,amount:=split[1], chance:=CInt(split[3])});
+
+        endforeach
+
+        var items := GetConfigStringArray(elem, "Item");
+        foreach item in (items)
+            var split := SplitWords(item);
+            var descr := GetItemDescriptor(split[2]);
+            datix.append(struct{name:=descr.desc,amount:=split[1], chance:=CInt(split[3])});
+            //ggg.insert(lootgroup, struct{name:=descr.desc,amount:=split[1], chance:=CInt(split[3])});
+        endforeach
+
+        ggg.insert(lootgroup, datix);
+    endforeach
+
+
+
+
+    data.+loots:=ggg;
+
+    WriteHtml( PackJSON(data) );
+endprogram
+
+
+function Value(dice)
+
+    if(!dice["d"])
+
+        return CInt(dice);
+	else
+        dice["d"] := " ";
+        dice["-"] := " ";
+        dice["+"] := " ";
+        dice := SplitWords(dice);
+        var X := CInt(dice[1]);
+        var Y := CInt(dice[2]);
+        var Z := CInt(dice[3]);
+
+        var average := X * Y + Z;
+        var min_average := X + Z;
+
+        return CInt(min_average)+" - "+CInt(average);
+	endif
+endfunction

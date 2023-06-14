@@ -1,0 +1,17 @@
+use uo;
+
+program hook_startup()
+	print("INSTALLING: Combat WarmodeChange hook... ");
+	return 1;
+endprogram
+
+
+exported function warmodeChange(mobile, byref packet)
+    var flag := CInt(packet.GetInt8(1));
+    //print("WarMode "+ flag);
+    if(flag)
+    	return 0;
+    else
+        EraseObjProperty(mobile, "LastMyAttackOpponent");
+    endif
+endfunction

@@ -19,18 +19,16 @@ program TimedScript_Strength(params)
     var cliloc_name :=  CInt(cfg_elem.cliloc_name);
     var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
 	params := {};
-	
-	// Prevents mod from being applied twice.
-	if ( GetObjProperty(defender, "StrengthMod") )
-		return 0;
-	endif
 
 	var true_percent := CDbl(percent) / 100;
 	var points := struct;
-	points.+str := CInt(AP_GetTrueStat(defender, STRENGTH) * true_percent);
+	//points.+str := CInt(AP_GetTrueStat(defender, STRENGTH) * true_percent);
+    points.+str := CInt(percent);
+
 	AP_ModifyStatMod(defender, STRENGTH, points.str);
+
 	defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, CStr(percent));
-	SetObjProperty(defender, "StrengthMod", points);
+	SetObjProperty(defender, "Strength", points);
 	
 	return 1;
 endprogram

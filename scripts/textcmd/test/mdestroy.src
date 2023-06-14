@@ -1,11 +1,27 @@
 use os;
 use uo;
+use unicode;
+
+include "include/client";
 
 program textcmd_mdestroy(who, text)
     var range := CInt( text );
-    var items := ListItemsNearLocation(who.x, who.y, who.z, range, who.realm);
-    foreach item in items
-        DestroyItem(item);
-    endforeach
-    SendSysMessage( who, "Deleted item count: " +len(items));
+    if(range)
+        var items := ListItemsNearLocation(who.x, who.y, who.z, range, who.realm);
+        var i := 0;
+        foreach item in items
+            var nodestroy := CInt(GetObjProperty(item, "NoMDestroy"));
+            var houseSerial := CInt(GetObjProperty(item, "houseserial"));
+            if(nodestroy)
+                PrintTextAbovePrivate( item, "*No destroy*", who, color := MESSAGE_COLOR_BAD);
+            else
+                if(!houseSerial)
+                    DestroyItem(item);
+                    i+=1;
+                endif
+            endif
+        endforeach
+
+        SendSysMessageUC( who, "Удалено итемов: " +i, "RUS", 3, MESSAGE_COLOR_GOOD);
+    endif
 endprogram

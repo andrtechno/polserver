@@ -1,0 +1,95 @@
+use uo;
+use os;
+
+include "include/client";
+//include "include/attributes";
+include ":charclasses:classes";
+//include "include/spelldata";
+//include "include/dotempmods";
+include ":guards:areas";
+
+include ":magery:spells";
+include ":codexdamnorum:spelldata";
+
+const SPELL_EFFECT_TYPE_MOVING 	:= MOVING_SPELL_PLAGUE;
+const SPELL_EFFECT_ID		:= FX_SPELL_PLAGUE;
+const SPELL_EFFECT_SPEED	:= SPEED_SPELL_PLAGUE;
+const SPELL_EFFECT_LOOP		:= LOOP_SPELL_PLAGUE;
+
+program cast_plague( parms )
+
+	var caster := parms[1];
+	var info := parms[2];
+	var circle := info.circle;
+
+	var cast_on;
+	var fromhit;
+
+	if (parms[1] == "#MOB")
+		caster := parms[2];
+		cast_on := parms[3];
+		if (parms[4])
+			circle := parms[4];
+		endif
+		if (parms[5])
+			fromhit := parms[5];
+		endif
+
+	else
+		/*var result := TryToCast( caster, SPELLID_PLAGUE );
+		if( result != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+
+		if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+            SendSysMessage(caster, "You cannot cast this kind of spell here.");
+            return 0;
+	    endif
+
+        cast_on := MS_Target(caster, info.targ, "Select a target.");
+        if (!cast_on) // If no cast_on then get cast_on from params[4]. Used mostly for NPC casting.
+            cast_on := parms[4];
+        endif
+
+
+	endif
+
+	var magery	:= GetEffectiveSkill( caster, SKILLID_MAGERY );
+	var range	:= 10; //ModifyWithMagicEfficiency( caster, CInt(magery / 20 ) );
+	var plvl	:= 5; //ModifyWithMagicEfficiency( caster, CInt( magery / 50 ) + 2 );
+
+	EraseObjProperty( caster, "#Casting" );
+	var victims := ListMobilesNearLocationEx( cast_on.x, cast_on.y, cast_on.z, range, 0x03 );
+
+	foreach mobile in victims
+		if( CheckLosAt( mobile, cast_on.x, cast_on.y, cast_on.z ) )
+			var immunity	:= IsProtected( caster, mobile, circle );
+			var newplvl	:= plvl;
+			if( immunity != IMMUNED )
+				if( immunity == CURSED )
+					newplvl := newplvl * 2;
+				endif
+
+				send_attack( mobile, caster, info.spell_id );
+
+				//var protection := GetResultingPlaneProtection( mobile, plane );
+				var protection := 10;
+				if( protection )
+					newplvl := newplvl - CInt( newplvl * protection * 0.25 );
+					if( newplvl < 1 )
+						newplvl := 0;
+					endif
+				endif
+		
+				PlayObjectCenteredEffect( mobile, SPELL_EFFECT_ID, SPELL_EFFECT_SPEED, SPELL_EFFECT_LOOP );
+				PlaySoundEffect( mobile, SFX_SPELL_PLAGUE );
+				if( newplvl )
+
+					//SetPoison( mobile, Resisted( caster, mobile, circle, newplvl ), "You feel deadly ill..." );
+				endif
+			endif
+		endif
+	endforeach
+
+endprogram

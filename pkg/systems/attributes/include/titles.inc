@@ -88,31 +88,31 @@ endfunction
 
 function AP_CheckSkillModulation( skill_amount, item_modulation )
             
-        case( item_modulation )
-        	1: if( skill_amount > 75 ) // > Apprentice
-                           return 0;
-                   endif
-                   break;
-        	2: if( skill_amount > 90 ) // > Journeyman
-                           return 0;
-                   endif
-                   break;
-        	3: if( skill_amount > 110 ) // > Expert
-                           return 0;
-                   endif
-                   break;
-        	4: if( skill_amount > 125 ) // > Adept
-                           return 0;
-                   endif
-                   break;
-        	5: if( skill_amount > 140 ) // > Master
-                           return 0;
-                   endif
-                   break;
-        	6: if( skill_amount > 150 ) // > GrandMaster
-                           return 1;
-                   endif
-                   break;
+    case( item_modulation )
+        1: if( skill_amount > 75 ) // > Apprentice
+                return 0;
+            endif
+            break;
+        2: if( skill_amount > 90 ) // > Journeyman
+                    return 0;
+                endif
+                break;
+        3: if( skill_amount > 110 ) // > Expert
+                return 0;
+                endif
+                break;
+        4: if( skill_amount > 125 ) // > Adept
+                    return 0;
+            endif
+            break;
+        5: if( skill_amount > 140 ) // > Master
+                return 0;
+            endif
+            break;
+        6: if( skill_amount > 150 ) // > GrandMaster
+            return 1;
+        endif
+        break;
         endcase
         
         return 1;

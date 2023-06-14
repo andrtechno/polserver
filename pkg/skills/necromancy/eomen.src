@@ -15,10 +15,10 @@ program evil_omen( params )
 	var duration := 20;
 	info := info;
 	spellID := spellID;
-	if(Reflected(cast_on))
-		cast_on := caster;
-	endif
-
+	//if(Reflected(cast_on))
+	//	cast_on := caster;
+	//endif
+    cast_on := Reflected(cast_on, caster, info);
 	if(!cast_on.isa(POLCLASS_MOBILE))
 		SendSysMessage(caster, "You can not use this spell on items.",3,40);
 		return 0;

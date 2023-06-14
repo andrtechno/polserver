@@ -1,0 +1,45 @@
+use os;
+use uo;
+
+include ":combatBook:combatAbility";
+include ":attributes:attributes";
+
+program starter(params)
+    var who := params[1];
+    var elem := params[2];
+    var vital := params[3];
+    //var mana := GetConfigInt( elem, "ManaCost" );
+
+    var mana := 2;
+    var delay := GetConfigInt( elem, "VitalDelay" );
+    var cost := GetConfigInt( elem, "VitalCost" );
+
+    var abi := CInt(GetObjProperty(who, "Ability"));
+
+
+    var curr := CInt(AP_GetVital(who, vital));
+    if ( curr < mana )
+
+        RemoveAbility(who);
+        return 0;
+    endif
+
+	SetObjProperty( who, "#AbilityPID", GetPid() );
+
+    while(1)
+        Set_Critical(1);
+        abi := CInt(GetObjProperty(who, "Ability"));
+        curr := CInt(AP_GetVital(who, vital));
+        if ( curr >= mana )
+            AP_SetVital(who, vital, (curr-mana));
+        else
+            AP_SetVital(who, vital, 0);
+            RemoveAbility(who);
+            break;
+        endif
+        Set_Critical(0);
+
+        SleepMS(delay);
+    endwhile
+
+endprogram

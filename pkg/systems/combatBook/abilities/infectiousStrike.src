@@ -1,0 +1,45 @@
+/*
+Infectious Strike requires a weapon with poison charges on it Only weapon types that have Infectious Strike as an available special move will be able to be poisoned. While no skill in Poisoning is absolutely required to use this ability, being knowledgeable in the application and use of toxins will allow a character to use Infectious Strike at reduced mana cost and to inflict more deadly poison on his victim. Level 5 poison will be possible when using this special move. Poisoning skill is not required, but without it you will only be able to inflict level 1 poisons on your victim. This move is exempt from the Tactics skill requirement.
+The Poisoning skill will give a (Poisoning Skill)% chance to increase the level of poison delivered by 1.
+The blade must have poison applied to it.
+The power of the poison depends on the type of poison used and your poisoning skill.
+With Poisoning skill 0.0 – 19.9 you can inflict Level 1 (with a chance of level 0)
+With Poisoning skill 20.0 – 39.9 you can inflict level 2 (with a chance of level 3)
+With Poisoning skill 40.0 – 59.9 you can inflict level 3 (with a chance of level 4)
+With Poisoning skill 60.0 – 100.0 you can inflict level 4 (with a chance of level 5)
+
+
+Для «Заразительного удара» требуется оружие с зарядами яда.
+
+Отравлять можно только те типы оружия, для которых «Заразительный удар» является доступным специальным приемом.
+
+Хотя для использования этой способности абсолютно не требуется никакого навыка отравления,
+знание применения и использования токсинов позволит персонажу использовать
+Infectious Strike с меньшими затратами маны и нанести более смертоносный яд своей жертве.
+
+При использовании этого специального приема будет возможен яд 5-го уровня.
+
+Навык отравления не требуется, но без него вы сможете нанести на свою жертву только яды 1 уровня.
+
+Этот ход освобождается от требования навыка Тактика.
+
+Навык отравления дает (навык отравления)% шанс повысить уровень доставляемого яда на 1.
+На лезвие должен быть нанесен яд.
+
+Сила яда зависит от типа используемого яда и вашего навыка отравления.
+С навыком Отравление 0.0 – 19.9 можно нанести урон 1 уровня (с шансом 0 уровня)
+С навыком Отравление 20.0 – 39.9 можно нанести урон 2 уровня (с шансом 3 уровня)
+С навыком Отравление 40.0 - 59.9 можно нанести 3 уровень (с шансом 4 уровень)
+С навыком Отравление 60.0 – 100.0 можно нанести 4 уровень (с шансом 5 уровень)
+
+
+*/
+
+
+program ability_InfectiousStrike(params)
+    var attacker := params[1];
+    var defender := params[2];
+    print("ability_InfectiousStrike");
+
+    return 1;
+endprogram

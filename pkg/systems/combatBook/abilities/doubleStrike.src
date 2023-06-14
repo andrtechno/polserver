@@ -1,0 +1,23 @@
+/*
+The highly skilled warrior can use this special attack to make two quick swings in succession.
+Landing both blows would be devastating! 10% damage penalty
+*/
+
+use uo;
+use unicode;
+
+include ":damage:damage";
+
+program ability_DoubleStrike(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var damage := params[3];
+
+
+    var percent := 10;
+    damage := damage / 100 * percent;
+
+    ApplyRawDamageEX(defender, damage/2, DMG_FORCED, attacker);
+
+    return struct{damage:=damage};
+endprogram

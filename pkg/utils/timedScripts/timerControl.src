@@ -86,7 +86,6 @@ function StartUp(mobile, byref timer_list, byref num_poisons)
 		event.+name := _timer_iter;
 		event.+amount := timer.duration;
 		event.+level := timer.level;
-
 		AddTimer(mobile, event, timer_list, num_poisons);
 		SleepMS(2);
 	endforeach
@@ -131,7 +130,7 @@ function AddTimer(mobile, byref event, byref timer_list, byref num_poisons)
 	endif
 
 	var result := 0;
-	if ( !timer_list.Exists(event.name) )
+	if ( !timer_list.exists(event.name) )
 		result := AddNewTimer(mobile, event, timer_list, num_poisons);
 	else
 		result := AddExistingTimer(mobile, event, timer_list, num_poisons);
@@ -280,6 +279,7 @@ function LowerDuration(mobile, byref event, byref timer_list, byref num_poisons)
 	if ( event.amount == -1 )
 		EndTimedScript(mobile, event.name, num_poisons, event);
 		KillTimedScript(mobile, timer_info.pid, timer_list, event.name);
+		//print("EndTimedScript/KillTimedScript "+event.name);
 		return 1;
 	endif
 
@@ -294,6 +294,8 @@ function LowerDuration(mobile, byref event, byref timer_list, byref num_poisons)
 	return 1;
 endfunction
 
+
+
 function NPCDeath(byref timer_list)
 	foreach timer in ( timer_list )
 		GetProcess(timer.pid).Kill();
@@ -305,6 +307,7 @@ endfunction
 
 function PlayerDeath(mobile, byref timer_list, byref num_poisons)
 	Set_Critical(1);
+
 	foreach timer in ( timer_list )
 		timer := timer; // So the compiler does not issue warnings.
 		var elem_info := TS_GetCfgElem(_timer_iter);
@@ -315,14 +318,17 @@ function PlayerDeath(mobile, byref timer_list, byref num_poisons)
 			continue;
 		endif
 
+
 		var event := struct;
 		event.+name := _timer_iter;
 		event.+amount := -1;
 
 		LowerDuration(mobile, event, timer_list, num_poisons);
-	endforeach
-	Set_Critical(0);
+		SleepMS(1);
 
+	endforeach
+
+	Set_Critical(0);
 	return 1;
 endfunction
 
@@ -341,8 +347,8 @@ function EndTimedScript(mobile, byref timer_name, byref num_poisons, event)
 		SendSysMessage(mobile, elem_info.EndMessage);
 	endif
 
-        event.amount := 0;
-        UpdateBuffIcon( mobile, elem_info, event );
+    event.amount := 0;
+    UpdateBuffIcon( mobile, elem_info, event );
 
 	if( elem_info.EndScript )
 		var script := Start_Script(elem_info.EndScript, mobile);
@@ -358,9 +364,10 @@ function KillTimedScript(mobile, byref pid, byref timer_list, byref timer_name)
 		script.Kill();
 	endif
 
+    //print("before KillTimedScript "+timer_name+" "+timer_list);
 	timer_list.Erase(timer_name);
 
 	SaveState(mobile, timer_list);
-
+    //print("after KillTimedScript "+timer_list);
 	return 1;
 endfunction

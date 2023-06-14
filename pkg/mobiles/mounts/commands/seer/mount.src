@@ -1,0 +1,29 @@
+use uo;
+use os;
+
+include ":mounts:mounts";
+
+program command_Mount(who)
+
+    SendSysMessage(who,"Select a npc");
+    var npc := Target(who);
+    if(!npc)
+        SendSysMessage(who,"Cancelled.");
+        return;
+    endif
+
+    SendSysMessage(who,"Select a mobile");
+    var mobile := Target(who);
+
+    if(!mobile)
+        SendSysMessage(who,"Cancelled.");
+        return;
+    endif
+
+
+    var res := MP_Mount( mobile, npc );
+    if(!res)
+        SendSysMessage(who, "Already mounted.");
+        return;
+    endif
+endprogram

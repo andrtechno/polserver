@@ -1,174 +1,158 @@
 use uo;
 use os;
 use util;
+use guilds;
+use unicode;
 
-include "include/NPCBackpacks";
 include ":attributes:attributes";
-include "include/statMod";
-include "include/noto";
+include ":virtue:noto";
 include "include/reportMurder";
-include ":poisonwatcher:poisons";
+include "include/res";
+include ":timedScripts:poisonUtil";
+include ":mounts:mounts";
 include "include/utility";
-include "include/itemtypes";
-include "include/npcstats";
-include ":damage:damage";
+include ":insurance:insurance";
+
 
 var allmyjunk := {};
 var stackstuff := 0;
 
 
-program chrdeath(corpse,ghost)
-//  var marker, num;
-  EraseObjProperty(ghost, "IsMeditating");
-  ghost.SetPoisoned(0);
-  start_script("::/misc/wipecast", ghost);
-  while(ListPoisonsByType(ghost, "defaultPoison").size() > 0)
-      CurePoison(ghost, "defaultPoison", 120, 1);
-  endwhile
-  var killer := GetObjProperty(ghost, "LastHit");
-  if(killer != error)
-    AdjustNoto((SystemFindObjectBySerial(killer[2], SYSFIND_SEARCH_OFFLINE_MOBILES)), ghost);
-  endif
-  var fame := CInt(GetObjProperty(ghost, "Fame"));
-  fame := (fame - CInt(fame / 20));
-  SetObjProperty(ghost, "Fame", fame);
-  SetObjProperty(corpse,"serial", ghost.serial);
-  dismount(corpse);
-  CheckForAutoRes(ghost, corpse);
-  CheckForDivineRes(ghost, corpse);
-  var corpsenamearray := SplitWords(corpse.name);
-  var corpsenamearraylen := len(corpsenamearray);
-  var x, corpsename := "";
-  for (x := 4; x <= corpsenamearraylen; x := x + 1)
-    corpsename := corpsename + " " + corpsenamearray[x];
-  endfor
-/*
-  // We create a marker to replace a corpse so we really don't die.
-  marker := CreateItemAtLocation(6143, 0, 0, 0x5000, 1, "britannia_alt");
-  if(marker.errortext)
-      Broadcast(marker.errortext);
-  endif
-//  marker.graphic := 0x512;
-  foreach prop in GetObjPropertyNames(corpse)
-    SetObjProperty( marker, prop, GetObjProperty( corpse, prop ) );
-    Sleepms(1);
-  endforeach
-  marker.name := "The place where " + ghost.name + " fell.";
-    foreach item in ListRootItemsInContainer(corpse)
-	if (item != marker && !item.newbie)
-	    if (!ReserveItem(item) )
-		return;
-	    endif
-	    num := num + 1;
-	    MoveTheItem(item, corpse, marker);
-	endif
-    endforeach
-  DestroyItem(corpse);
-  MoveObjectToLocation(marker, ghost.x, ghost.y, ghost.z, ghost.realm, MOVEOBJECT_FORCELOCATION);
-*/
+program chrdeath(corpse, ghost)
+    VS_AdjustVirtue(ghost, "Sacrifice", 1, 75);
+	EraseObjProperty(ghost, "IsMeditating");
+	EraseObjProperty(ghost, "Protection");
+    EraseObjProperty(ghost, "mover"); //check resend
+    var last_damage := GetObjProperty(corpse, "LastDamage");
+    var killer := last_damage.serial;
+
+	ghost.SetPoisoned(0);
+	while(TS_GetTimerNames(ghost, "P").size() > 0)
+		TS_CurePoison(ghost, 100000, "P", 5);
+	endwhile
+
+	// This next loop should remove all buffs when the player dies.
+	var running_timers := {};
+	running_timers := TS_GetTimerList(ghost);
+	foreach running_timer in running_timers
+		TS_Death(ghost);
+	endforeach
 
 
-	var mr := GetObjProperty(ghost, "MagicReflection");
-	var resistances := GetObjProperty(ghost, "%Resistances%");
-	if(mr)
-		ModifyResistance(ghost, DMG_PHYSICAL, mr);
-		EraseObjProperty(ghost, "MagicReflection");
+	if(last_damage != error)
+		AdjustNoto((SystemFindObjectBySerial(killer, SYSFIND_SEARCH_OFFLINE_MOBILES)), ghost);
 	endif
-    if(resistances)
-        if(resistances[DMG_FIRE])
-            ModifyResistance(ghost, DMG_FIRE, resistances[DMG_FIRE]);
-        endif
-        if(resistances[DMG_COLD])
-            ModifyResistance(ghost, DMG_COLD, resistances[DMG_COLD]);
-        endif
-        if(resistances[DMG_POISON])
-            ModifyResistance(ghost, DMG_POISON, resistances[DMG_POISON]);
-        endif
-        if(resistances[DMG_ENERGY])
-            ModifyResistance(ghost, DMG_ENERGY, resistances[DMG_ENERGY]);
-        endif
+	var fame := CInt(GetObjProperty(ghost, "Fame"));
+	fame := (fame - CInt(fame / 20));
+	SetObjProperty(ghost, "Fame", fame);
+	SetObjProperty(corpse, "serial", ghost.serial);
+	MP_DeathUnmount(corpse);
+	CheckInsuredItems( ghost );
+	RewardTheKiller ( ghost, SystemFindObjectBySerial( last_damage.serial ) );
+	CheckForAutoRes(ghost, corpse);
+	CheckForDivineRes(ghost, corpse);
+	var corpsenamearray := SplitWords(corpse.name);
+	var corpsenamearraylen := len(corpsenamearray);
+	var x, corpsename := "";
+	for (x := 4; x <= corpsenamearraylen; x := x + 1)
+		corpsename := corpsename + " " + corpsenamearray[x];
+	endfor
+	//if(len(ghost.reportables)>0)
+        //SendReportGump(ghost);
+	//endif
+    AdjustMurderCounts(SystemFindObjectBySerial(killer, SYSFIND_SEARCH_OFFLINE_MOBILES));
+    //start_script("::/misc/wipecast", {ghost, ghost});
+
+    var killerMobile := SystemFindObjectBySerial(killer);
+
+    if( ghost.Guildid != killerMobile.Guildid )
+        var myGuild := FindGuild( ghost.Guildid );
+        var killerGuild := FindGuild( killerMobile.Guildid );
+
+        killerGuild.setProp("point", CInt(killerGuild.getProp("point")) + 1);
+        myGuild.setProp("point", CInt(myGuild.getProp("point")) - 1);
+
+        SendSysMessageUC(ghost, "Вы потеряли гильд очки","RUS",3,33);
+        SendSysMessageUC(killerMobile, "Вы получили гильд "+killerGuild.getProp("point")+" очки","RUS",3,67);
     endif
-    EraseObjProperty(ghost, "%Resistances%");
-    ghost.clearBuffs();
-
-
-
-  if(len(ghost.reportables)>0)
-	SendReportGump(ghost);
-  endif
-
-
 endprogram
 
 function CheckForAutoRes(who, corpse)
-  if(CInt(GetObjProperty(corpse, "AutoRes")) == 1)
-	Resurrect(who);
-	SetHp(who, GetMaxHP(who));
-	SetMana(who, GetMaxMana(who));
-	SetStamina(who, GetMaxStamina(who));
-	var mypack := who.backpack;
-    if(!mypack)
-      return;
-    endif
-	foreach thing in EnumerateItemsInContainer(corpse)
-	  if(thing.container == corpse)
-	    if(!EquipItem(who, thing))
-		  MoveItemToContainer(thing, mypack);
-	    endif
-	  endif
-	endforeach
-  endif
+	if(CInt(GetObjProperty(corpse, "AutoRes")) == 1)
+		Resurrect(who);
+		DestroyRobe(who);
+		AP_SetVital(who, VITALID_LIFE, AP_GetVitalMaximumValue(who, VITALID_LIFE));
+		AP_SetVital(who, VITALID_MANA, AP_GetVitalMaximumValue(who, VITALID_MANA));
+		AP_SetVital(who, VITALID_STAMINA, AP_GetVitalMaximumValue(who, VITALID_STAMINA));
+		var mypack := who.backpack;
+		if(!mypack)
+			return;
+		endif
+		foreach thing in EnumerateItemsInContainer(corpse)
+			if(thing.container == corpse)
+				if(!EquipItem(who, thing))
+					MoveItemToContainer(thing, mypack);
+				endif
+			endif
+		endforeach
+	endif
 endfunction
 
 function CheckForDivineRes(who, corpse)
-  if ( CInt( GetObjProperty(corpse, "DivineRes") ) == 1 )
-    EraseObjProperty(corpse, "DivineRes");
-    EraseObjProperty(who, "DivineRes");
-    Resurrect(who);
-    PrintTextAbove(who, who.name + " has been restored by the Gods!");
-    PlaySoundEffect(who, 0x11e);
-    var itemlist := EnumerateItemsInContainer(corpse);
-    var mypack := GetEquipmentByLayer(who, 0x15);
-    foreach x in itemlist
-      if (!EquipItem(who, x) )
-        if (x.container == corpse)
-            MoveItemToContainer(x, mypack);
-        endif
-      endif
-    endforeach
-    SetHp(who, who.maxhp);
-    SetMana(who, who.maxmana);
-    SetStamina(who, who.maxstamina);
-  endif
+	if ( CInt( GetObjProperty(corpse, "DivineRes") ) == 1 )
+		EraseObjProperty(corpse, "DivineRes");
+		EraseObjProperty(who, "DivineRes");
+		Resurrect(who);
+		PrintTextAbove(who, who.name + " has been restored by the Gods!");
+		PlaySoundEffect(who, 0x11e);
+		var itemlist := EnumerateItemsInContainer(corpse);
+		var mypack := GetEquipmentByLayer(who, 0x15);
+		foreach x in itemlist
+			if (!EquipItem(who, x) )
+				if (x.container == corpse)
+					MoveItemToContainer(x, mypack);
+				endif
+			endif
+		endforeach
+		AP_SetVital(who, VITALID_LIFE, who.maxhp);
+		AP_SetVital(who, VITALID_MANA, who.maxmana);
+		AP_SetVital(who, VITALID_STAMINA, who.maxstamina);
+	endif
 endfunction
 
 function dismount(corpse)
-
-  var mount := FindObjtypeInContainer( corpse, 0x1F021, FINDOBJTYPE_ROOT_ONLY );
-
-  if( mount.errortext )
-    return 0;
-  endif
-
-  var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount,"serial")));
-  var master := SystemFindObjectBySerial(CInt(GetObjProperty(animal,"master")));
-  animal.facing := corpse.facing;
-  EraseObjProperty(animal, "mounted");
-  EraseObjProperty(animal, "mounted_on");
-  MoveObjectToLocation( animal, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION);
-  DestroyItem(mount);
-  //removebonus(master,animal);
-  npcbonus(master,animal);
+	var mount := GetEquipmentByLayer( corpse, 25 );
+	// Added for Reward Mounts.
+	if(GetObjProperty(mount, "RewardMount"))
+		DestroyItem( mount );
+		return;
+	endif
+	// End Reward Mount adition.
+	foreach item in EnumerateItemsInContainer(corpse)
+		if (item.objtype == 0x1f021)
+			mount := item;
+			break;
+		endif
+	endforeach
+	if (!mount)
+		return;
+	endif
+	var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount,"serial")));
+	animal.facing := corpse.facing;
+	EraseObjProperty(animal, "mounted");
+	EraseObjProperty(animal, "mounted_on");
+	MoveObjectToLocation( animal, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION);
+	DestroyItem(mount);
 endfunction
 
 function remove_poison (cast_on)
 
-  if (ListPoisonsByType(cast_on, "defaultPoison").size() > 0)
-    CurePoison(cast_on, 120, "defaultPoison", 4);
-    if (ListPoisonsByType(cast_on, "defaultPoison").size() > 0)
-        CurePoison(cast_on, 120, "defaultPoison", 4);
+    if (TS_GetTimerNames(cast_on, "P").size() > 0)
+        TS_CurePoison(cast_on, 100000, "P", 5);
+        if (TS_GetTimerNames(cast_on, "P").size() > 0)
+            TS_CurePoison(cast_on, 100000, "P", 5);
+        endif
     endif
-  endif
 
 endfunction
 
@@ -193,4 +177,67 @@ function MoveTheItem(item, oldcontainer, newcontainer)
 	else
 		MoveItemToContainer(item, newcontainer);
 	endif
+endfunction
+
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	CheckInsuredItems( ghost )
+//
+//	Purpose:	Looks for items in the ghosts backpack that have the CProp
+//				"AutoReinsure" and reinsures those items.
+//
+//	Parameter:	ghost::player ref
+//
+//	 Returns:	nothing
+//
+//	Created: 2022-08-02 00:30:17 by Yukiko
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+function CheckInsuredItems( ghost )
+
+	var things := EnumerateItemsInContainer( ghost.backpack, ENUMERATE_ROOT_ONLY );
+	foreach thing in things
+		var cost := CalculateInsCost( thing );
+		if( GetObjProperty( thing, "Reinsure" ) )
+			// This will try to reinsure the item. If the player does not have enough gold
+			// in their bank the player will be notified that the item could not be reinsured.
+			PayForInsurance( ghost, thing, cost );
+		endif
+	endforeach
+
+endfunction
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	RewardTheKiller( ghost, killer )
+//
+//	Purpose:	Pays out the total insured cost of the insured items the victim was holding.
+//
+//	Parameters:	ghost::player ref, killer::player ref
+//
+//	Returns:	nothing
+//
+//	Created: 2022-08-02 01:15:08 by Yukiko
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+function RewardTheKiller( ghost, killer )
+
+	var msg := "";
+	if( !killer.IsA( POLCLASS_NPC ) )
+		// Determine the reward based on the insured items in the victim's inventory.
+		var ins_reward := GetObjProperty( ghost, "InsuredTotalCost");
+		if( ins_reward )
+			msg := ghost.name + "had some items insured at a cost of " + CStr( ins_reward );
+			var bank_box := FindBankBox( killer );
+			if( !CreateCoins( bank_box, 0xEED, ins_reward ) )
+				msg := msg + " but your bank could not hold all of the gold. It must be full.";
+			else
+				msg := msg + ". The gold has been placed in your bank.";
+			endif
+			SendSysMessage( killer, msg, color := 66 );
+			EraseObjProperty( ghost, "InsuredTotalCost");
+		endif
+	endif
+
 endfunction

@@ -1,0 +1,19 @@
+
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndDisarm(params)
+	var mobile := params[1];
+	
+	var cfg_elem := TS_GetCfgElem("Disarm");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Disarm");
+	SetObjProperty(mobile, "#AbilityTimer", ReadGameClock() + 10);
+	return 1;
+endprogram
+

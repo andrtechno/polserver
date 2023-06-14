@@ -1,0 +1,28 @@
+use uo;
+
+include ":datafile:datafile";
+
+program Install()
+	return 1;
+endprogram
+
+exported function IsguildStone( unused item )
+	return 1;
+endfunction
+
+exported function SetGuild( item, guildid )
+	return SetObjProperty( item, "GuildID", guildid );
+endfunction
+
+exported function GetGuild( item )
+	return CInt( GetObjProperty( item, "GuildID" ));
+endfunction
+
+
+exported function SetGuildPoint( item )
+	return SetObjProperty( item, "GuildPoint", GetGuildPoint( item ) + 1 );
+endfunction
+
+exported function GetGuildPoint( item )
+	return CInt( GetObjProperty( item, "GuildPoint"));
+endfunction

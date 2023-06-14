@@ -3,8 +3,8 @@ use os;
 use cfgfile;
 
 include ":attributes:attributes";
-include ":poisonwatcher:poisons";
 include "include/trainingskill";
+include ":timedScripts:timedScripts";
 
 var cfg := ReadConfigFile("::npcdesc");
 
@@ -19,12 +19,12 @@ program animal_lore(who)
   EraseObjProperty(who, "HealTimer");
   var targ := Target(who);
   if(!targ.isA(POLCLASS_NPC))
-	SendSysMessage(who, "You must target a creature");
+	SendSysMessage(who, "You must target a creature", color := 33);
 	return;
   endif
   var elem := cfg[targ.npctemplate];
   var tameskill := GetAttribute( who, TAMING );
-  var lore :=      GetAttribute( who, ANIMALLORE );
+  //var lore :=      GetAttribute( who, ANIMAL_LORE );
   var tamedif := elem.tameskill -20;
   var phisical := "";
   var health := "";
@@ -35,11 +35,11 @@ program animal_lore(who)
   if(!foodtype)
     foodtype := "all";
   endif
-  var pts := CInt(GetAttribute(who, ANIMALLORE)) + 15;
-  if(SkillCheck(who,ANIMALLORE, -1, pts/3))
-    phisical := GetStr(GetStrength(targ)/20);
-    health := GetHealth(10*GetHp(targ)/GetMaxHp(targ));
-    if (ListPoisonsByType(targ, "defaultPoison").size() > 0 )
+  var pts := CInt(GetAttribute(who, ANIMAL_LORE)) + 15;
+  if(SkillCheck(who,ANIMAL_LORE, -1, pts/3) > 0)
+    phisical := GetStr(AP_GetStat(targ, STRENGTH)/20);
+    health := GetHealth(10*AP_GetVital(targ, VITALID_LIFE)/AP_GetVitalMaximumValue(targ, VITALID_LIFE));
+    if (TS_GetTimerNames(targ, "P").size() > 0 )
       poison := ", but is poisoned";
     endif
     foodinfo := FindFood(foodtype);

@@ -1,0 +1,47 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include "include/client";
+
+program TimedScript_EndLiche(params)
+	var mobile := params[1];
+
+	var cfg_elem := TS_GetCfgElem("Liche");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+
+
+	//if (GetObjProperty( mobile, "IsLiche")==1) then
+    PlayObjectCenteredEffect( mobile, FX_SPELL_LICHE, SPEED_SPELL_LICHE, LOOP_SPELL_LICHE );
+    PlaySoundEffect( mobile, LICHE_MORPH_SOUND );
+
+
+    var points := struct;
+    points := GetObjProperty(mobile, "Polymorph");
+    AP_ModifyStatMod(mobile, DEXTERITY, -points.dex);
+    AP_ModifyStatMod(mobile, INTELLIGENCE, -points.int);
+    AP_ModifyStatMod(mobile, STRENGTH, -points.str);
+
+
+    mobile.graphic := points.graphic;
+    mobile.color := points.color;
+
+    EraseObjProperty( mobile, "IsLiche" );
+    if( !mobile.isA(POLCLASS_NPC) )
+        EraseObjProperty( mobile, "Type" );
+    endif
+
+        //if( mobile.dead )
+        //    mobile.graphic := mobile.graphic + 2;
+        //endif
+	//endif
+
+
+
+	mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Polymorph");
+
+	return 1;
+endprogram

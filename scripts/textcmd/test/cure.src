@@ -1,0 +1,32 @@
+use os;
+use uo;
+include ":timedScripts:timedScripts";
+include ":timedScripts:poisonUtil";
+include ":virtue:noto";
+
+program textcmd_cure(who)
+
+	SendSysMessage( who, "Select a target to cure." );
+	var on := Target(who,TGTOPT_CHECK_LOS);
+	if (!on)
+		SendSysMessage(on, "Canceled.", 1, 33);
+		return;
+	endif
+
+	// Get poison level
+	var poison_names := TS_GetTimerNames(on, "P");
+	var poison_level := 1;
+
+	foreach timer_name in ( poison_names )
+		var timer_info := TS_GetTimerInfo(on, timer_name);
+		if ( timer_info.level > poison_level )
+        poison_level := timer_info.level;
+		endif
+	endforeach
+
+    TS_CurePoison(on, 10000, "P", poison_level);
+
+    VS_AdjustVirtue(on, "compassion", 1, 100);
+
+    SendSysMessage( who, on.name + " cured!");
+endprogram

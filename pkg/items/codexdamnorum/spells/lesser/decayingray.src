@@ -1,0 +1,103 @@
+use uo;
+
+include "include/math";
+//include "include/dotempmods";
+include "include/client";
+include ":magery:spells";
+include ":guards:areas";
+include ":codexdamnorum:spelldata";
+
+
+program decayingray( params )
+
+	var caster := params[1];
+	var info := params[2];
+	var circle := info.circle;
+	var cast_on;
+	var fromhit;
+
+	if (params[1] == "#MOB")
+		caster := params[2];
+		cast_on := params[3];
+		if (params[4])
+			circle := params[4];
+		endif
+		if (params[5])
+			fromhit := params[5];
+		endif
+
+	else
+
+		/*if( TryToCast( caster, SPELLID_DECAYING_RAY ) != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+	
+		if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+            SendSysMessage(caster, "You cannot cast this kind of spell here.");
+            return 0;
+        endif
+        cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+        if (!cast_on) // If no cast_on then get cast_on from params[4]. Used mostly for NPC casting.
+            cast_on := params[4];
+        endif
+	endif
+
+
+		EraseObjProperty( caster, "#Casting" );
+		//cast_on := Reflected( caster, cast_on, circle );
+				    if(Reflected(cast_on, caster, struct{}))
+                        cast_on := caster;
+                    endif
+
+
+    PlaySoundEffect(caster, 0x00fe );
+
+	var immunity := IsProtected( caster, cast_on, circle );
+	if( immunity == IMMUNED )
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif
+
+	/*if( !CanMod( cast_on, "ar" ) )
+		SendSysMessage( caster, "The target have a spell on him that protect him from the spell effect." );
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif*/
+
+
+	var amount := 10; //CInt( GetModAmount( caster ) * 1.25 );
+	var duration := 10; //GetModDuration( caster );
+	var protection := 10;
+	//var protection := GetResultingPlaneProtection( cast_on, plane );
+
+	if( protection )
+		var modifier := 10;
+		//var modifier := 100 - (protection * 20);
+		if( modifier < 1 )
+			modifier := 0;
+		endif
+		
+		amount := CInt( amount * modifier / 100 );
+		duration := CInt( duration * modifier / 100 );
+
+		if( !duration || !amount )
+			PrintTextAbovePrivate( cast_on, "The nature of the target prevent it from being affected by that spell!", caster );
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif
+	endif
+
+	amount := Resisted( caster, cast_on, circle, amount );
+	duration := Resisted( caster, cast_on, circle, duration );
+
+	if( !amount )
+		return;
+	endif
+
+    //DotempMod( cast_on, "ar", 0 - amount, duration );
+    SendSysMessage( caster, "You reduced " + cast_on.name + "'s armor rating by " + amount + "." );
+    SendSysMessage( cast_on, "Your armor rating was reduced by " + amount + "." );
+    //EraseObjProperty( caster, "#Casting" );
+    return 1;
+endprogram

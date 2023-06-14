@@ -3,13 +3,14 @@ use os;
 use cfgfile;
 include ":combat:hitScriptInc";
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 include "include/string";
 include ":damage:damage";
 
 var speech;
 
-program HookHitScript(hookParam)
-
+program ArcheryHitScript(hookParam)
+    print("ArcheryHitScript");
 	var attacker := hookParam[1];
 	var defender := hookParam[2];
 	var weapon := hookParam[3];
@@ -18,8 +19,6 @@ program HookHitScript(hookParam)
 	var rawdamage := hookParam[6];
 	var weaponhit := array;
 
-	Sleep(CInt(Distance(attacker, defender) / 5));
-print("sleep: "+CInt(Distance(attacker, defender) / 5));
 
 
 	// Added this to the CalcDamage function in damage.inc
@@ -34,7 +33,7 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 	endif
 	*/
 
-	//var rd := rawdamage;
+	var rd := rawdamage;
 	SetObjProperty(weapon, "TempDamage", rawdamage);
 
 	if (GetObjProperty(defender, "#BLINKING") != error )
@@ -51,13 +50,13 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 		rawdamage := x;
 	endif
 
-	SetObjProperty(defender, "LastHit", {attacker.name, attacker.serial, weapon });
+
 
 	var armorhit;
 	if ( (armor == 0) || (!armor) )
-	  armorhit := GetObjProperty(defender, "OnArmorHit");
+        armorhit := GetObjProperty(defender, "OnArmorHit");
 	else
-	  armorhit := GetObjProperty(armor, "OnHit");
+        armorhit := GetObjProperty(armor, "OnHit");
 	endif
 
 	var hit := GetObjProperty(weapon, "OnHit");
@@ -75,7 +74,6 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 		endif
 	endif
 
-
 	var gloves := GetEquipmentByLayer(attacker, 0x07);
 	var gloveshit := 0;
 	if (gloves)
@@ -91,26 +89,16 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 		endforeach
 		EraseObjProperty(defender, "TempDamage");
 		if (rawdamage > 0)
-		  DealDamage(defender, attacker, rawdamage);
+		  ApplyDamageEx( defender,rawdamage, DMG_PHYSICAL, attacker );
 		  return;
 		else
 		  return;
 		endif
 	endif
-   // var dmg_mod := 0;
-    var dmg_mod := weapon.dmg_mod;
-    if(dmg_mod > 0)
-        var per := dmg_mod;
-        dmg_mod := (rawdamage / 100) * per;
-        dmg_mod := dmg_mod + per;
-
-        dmg_mod:=RandomIntMinMax((dmg_mod - per),dmg_mod);
-    endif
-
 
 	if (!weaponhit)
 		if (!gloveshit)
-			DealDamage(defender, attacker, rawdamage);
+			ApplyDamageEx( defender,rawdamage, DMG_PHYSICAL, attacker );
 			return;
 		else
 			foreach x in gloveshit
@@ -122,7 +110,7 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 			if (rawdamage < 1)
         		rawdamage := 1;
 			endif
-			DealDamage(defender, attacker, rawdamage + dmg_mod);
+			ApplyDamageEx( defender,rawdamage, DMG_PHYSICAL, attacker );
 			return;
 		endif
 	else
@@ -139,7 +127,7 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
             rawdamage := 1;
 		endif
 	    if (!gloveshit)
-			DealDamage(defender, attacker, rawdamage + dmg_mod);
+			ApplyDamageEx( defender,rawdamage, DMG_PHYSICAL, attacker );
 			return;
 		else
 			foreach x in gloveshit
@@ -152,8 +140,22 @@ print("sleep: "+CInt(Distance(attacker, defender) / 5));
 				rawdamage := 1;
 			endif
 		endif
-
-		DealDamage(defender, attacker, rawdamage + dmg_mod);
+			ApplyDamageEx( defender,rawdamage, DMG_PHYSICAL, attacker );
+			// Set LastDamage info.
+			SetLastDamageInfo(attacker, rawdamage, "Archery", defender);
 		return;
 	endif
 endprogram
+
+function ArrayAppend(x, y)
+
+	var xlen := len(x);
+	var i := 0;
+	for (i := 1; i <= len(y); i := i + 1)
+		xlen := xlen + 1;
+		x[xlen] := y[i];
+	endfor
+
+	return x;
+
+endfunction

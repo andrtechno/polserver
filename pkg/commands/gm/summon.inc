@@ -14,8 +14,8 @@ function summon_creature( caster, circle := 8, npctemplate, cast_loc, gate)
   Detach();
   sleep(2);
   thecritter := CreateNpcFromTemplate(npctemplate, 5849, 1207, 0, parms, caster.realm);
-  if(npctemplate == "demon")
-    thecritter.setCriminal(1);w
+  if(npctemplate == "daemon")
+    thecritter.setCriminal(1);
     caster.setCriminal(1);
   endif
   MoveObjectToLocation(thecritter, cast_loc.x, cast_loc.y, cast_loc.z, thecritter.realm, MOVEOBJECT_FORCELOCATION);
@@ -31,7 +31,7 @@ function summon_creature( caster, circle := 8, npctemplate, cast_loc, gate)
   sleep(duration);
   PlaySoundEffect( thecritter, SFX_SPELL_MANA_VAMPIRE );
   PlayStationaryEffect( thecritter.x, thecritter.y, thecritter.z, FX_SMOKE, 0xa, 0xa, 0, thecritter.realm );
-  MoveObjectToLocation(thecritter,0,0,0,"britannia_alt",MOVEOBJECT_FORCELOCATION);
-  Damage(thecritter, GetHp(thecritter) + 3);
+  MoveObjectToLocation(thecritter,0,0,0,"britannia_alt",MOVEOBJECT_FORCELOCATION); // problem for new map
+  Damage(thecritter, AP_GetVital(thecritter, VITALID_LIFE) + 3);
 endfunction
 

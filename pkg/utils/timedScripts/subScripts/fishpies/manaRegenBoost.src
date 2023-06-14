@@ -15,14 +15,27 @@ program TimedScript_manaRegenBoost(params)
 	var points := params[3];
 	params := 0;
 
+
+	var cfg_elem := TS_GetCfgElem("FishManaRegenBoost");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+    var endScript :=  CInt(cfg_elem.EndScript);
+
+
 	// Prevents more than one fish pie mod from running on a character.
 	var timers := TS_GetTimerNames(mobile);
+
 	foreach timer in timers
 		if(timer[1,4] == "Fish")
-			Run_Script(":timedScripts/subScripts/fishpies/end" + timer, {mobile});
+		    //timer["Fish"]:="";
+			Run_Script(":timedScripts:/subScripts/fishpies/end" + timer, {mobile});
+			//Run_Script(endScript, {mobile});
 			break;
 		endif
 	endforeach
+
+    //mobile.addBuff(buff_icon, 4, cliloc_name, cliloc_desc, CStr("dsa"));
 	AP_SetVitalRegenRateMod( mobile, "Mana", AP_GetVitalRegenRateMod( mobile, "Mana" ) + points);
 	SetObjProperty(mobile, "FishManaRegenBoost", points);
 

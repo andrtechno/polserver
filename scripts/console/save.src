@@ -1,17 +1,17 @@
-
 use uo;
 use os;
+use unicode;
 
 program cmd_shutdown()
 
-   print("Saving World State");
-   Broadcast("Saving World State");
-   var res := SaveWorldState();
-   if (res)
-      print("Done saving: " + res );
-      Broadcast("Done saving");
-   else
-      print("Save error: " + res);
-   endif
+    print("Saving World State");
+    BroadcastUC("Сохранение игрового мира...", "RUS", 3, 0x25);
+    var res := SaveWorldState();
+    if (res)
+        print("Done saving: " + res );
+        BroadcastUC("Сохранение завершено.", "RUS", 3, 0x25);
+    else
+        print("Save error: " + res);
+    endif
 
 endprogram

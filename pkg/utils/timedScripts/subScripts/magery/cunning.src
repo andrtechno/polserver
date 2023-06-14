@@ -19,18 +19,14 @@ program TimedScript_Cunning(params)
     var cliloc_name :=  CInt(cfg_elem.cliloc_name);
     var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
 	params := {};
-	
-	// Prevents mod from being applied twice.
-	if ( GetObjProperty(defender, "CunningMod") )
-		return 0;
-	endif
-	
+
 	var true_percent := CDbl(percent) / 100;
 	var points := struct;
-	points.+int := CInt(AP_GetTrueStat(defender, INTELLIGENCE) * true_percent);
+	//points.+int := CInt(AP_GetTrueStat(defender, INTELLIGENCE) * true_percent);
+    points.+int := CInt(percent);
 	AP_ModifyStatMod(defender, INTELLIGENCE, points.int);
 	defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, CStr(percent));
-	SetObjProperty(defender, "CunningMod", points);
+	SetObjProperty(defender, "Cunning", points);
 
 	return 1;
 endprogram

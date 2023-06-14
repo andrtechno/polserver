@@ -1,0 +1,14 @@
+
+include ":timedScripts:timedScripts";
+
+program ability_mortalStrike(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var duration := 8;
+    if(defender.isA(POLCLASS_NPC))
+        duration := 14;
+    endif
+
+    TS_StartTimer(defender, "MortalStrike", duration, {}, attacker);
+    return 1;
+endprogram

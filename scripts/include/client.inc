@@ -19,6 +19,9 @@
 ////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////
 
+const WEB_TOKEN := "u99v0fwur23c-2kr-wit4w5yjh-56uyjvwajunaghvgkgjofun34bg";
+
+
 ////
 // Soundeffects
 // The first section is just an enum of existing sounds,
@@ -72,7 +75,7 @@ const SFX_2C    :=  0x002c; // bellows.wav, bellows
 const SFX_2D    :=  0x002d; // chstcls3.wav, chest close
 const SFX_2E    :=  0x002e; // chstopn2.wav, chest open
 const SFX_2F    :=  0x002f; // drawercl.wav, drawer close
-const SFX_30    :=  0x0030; // drawerop.wav, drawer opeconst SFX_31    :=  0x0031; // drink01.wav, drink - sip or slurp
+const SFX_30    :=  0x0030; // drawerop.wav, drawer open
 const SFX_31    :=  0x0031; // drink01.wav, drink
 const SFX_32    :=  0x0032; // drink05.wav, drink
 const SFX_33    :=  0x0033; // dropgem1.wav, drop gem
@@ -263,9 +266,9 @@ const SFX_EB    :=  0x00eb; // open01a.wav
 const SFX_EC    :=  0x00ec; // open03a.wav
 const SFX_ED    :=  0x00ed; // open04b.wav
 const SFX_EE    :=  0x00ee; // open09.wav
-const SFX_EF    :=  0x00ef; // portclos.wav slamming Boom! labelled as portcullis but no chain sound.
-const SFX_F0    :=  0x00f0; // portcul4.wav close portcullis with chain sound
-const SFX_F1    :=  0x00f1; // portcul5.wav open prtcullis with chain sound
+const SFX_EF    :=  0x00ef; // portclos.wav
+const SFX_F0    :=  0x00f0; // portcul4.wav
+const SFX_F1    :=  0x00f1; // portcul5.wav
 const SFX_F2    :=  0x00f2; // shut03a.wav
 const SFX_F3    :=  0x00f3; // shut07a.wav
 const SFX_F4    :=  0x00f4; // shut14b.wav
@@ -382,11 +385,11 @@ const SFX_162   :=  0x0162; // corpsr1.wav
 const SFX_163   :=  0x0163; // corpsr3.wav
 const SFX_164   :=  0x0164; // corpsr4.wav
 const SFX_165   :=  0x0165; // corpsr5.wav
-const SFX_166   :=  0x0166; // demon1.wav
-const SFX_167   :=  0x0167; // demon2.wav
-const SFX_168   :=  0x0168; // demon3.wav
-const SFX_169   :=  0x0169; // demon4.wav
-const SFX_16A   :=  0x016a; // demon5.wav
+const SFX_166   :=  0x0166; // daemon1.wav
+const SFX_167   :=  0x0167; // daemon2.wav
+const SFX_168   :=  0x0168; // daemon3.wav
+const SFX_169   :=  0x0169; // daemon4.wav
+const SFX_16A   :=  0x016a; // daemon5.wav
 const SFX_16B   :=  0x016b; // dragon1.wav
 const SFX_16C   :=  0x016c; // dragon2.wav
 const SFX_16D   :=  0x016d; // dragon3.wav
@@ -631,7 +634,6 @@ const SFX_MUSIC_TAMBORINE_GOOD      :=  SFX_53;
 const SFX_MUSIC_TAMBORINE_FAIL      :=  SFX_54;
 
 // * spells & magic sounds *
-const SFX_SPELL_FAIL				:=	SFX_5D;
 const SFX_SPELL_CLUMSY              :=  SFX_1E0;
 const SFX_SPELL_CREATE_FOOD         :=  SFX_1E3;
 const SFX_SPELL_FEEBLEMIND          :=  SFX_1E5;
@@ -704,9 +706,9 @@ const SFX_CARPENTRY		              := 0x023e;
 const SFX_TRAP_NEEDLE               :=  SFX_225;
 const SFX_TRAP_POISON               :=  SFX_206;
 const SFX_TRAP_EXPLOSION            :=  SFX_208;
-const SFX_ANVIL                     :=  SFX_2B;
-const SFX_PICK                      :=  SFX_13B;
-const SFX_HAMMER                    :=  SFX_43;
+const SFX_ANVL                     :=  SFX_2B;
+const SFX_PICK                      :=  SFX_125;
+const SFX_HAMER                    :=  SFX_43;
 const SFX_GLASSBREAK4               :=  SFX_42;
 const SFX_HARP_SUCC                 :=  SFX_46;
 const SFX_LUTE_SUCC                 :=  SFX_4D;
@@ -724,10 +726,6 @@ const SFX_OPEN_WOODEN_DOOR          :=  SFX_EB;
 const SFX_CLOSE_WOODEN_DOOR         :=  SFX_F2;
 const SFX_OPEN_METAL_DOOR           :=  SFX_ED;
 const SFX_CLOSE_METAL_DOOR          :=  SFX_F4;
-const SFX_OPEN_PORTCULLIS           :=  SFX_F0;
-const SFX_CLOSE_PORTCULLIS_CHAIN    :=  SFX_F1;
-const SFX_OPEN_SLIDING_DOOR         :=  SFX_30;
-const SFX_CLOSE_SLIDING_DOOR        :=  SFX_2F;
 
 
 ////
@@ -744,19 +742,28 @@ const ANIM_FIDGET_2             :=  0x0006; // Look down.
 const ANIM_STAND_1HAND          :=  0x0007; // Stand 1 handed attack.
 const ANIM_STAND_2HAND          :=  0x0008; // Stand 2 handed attack.
 const ANIM_ATTACK_1HAND_WIDE    :=  0x0009; // Attack 1 handed wide (sword/any).
-const ANIM_ATTACK_1HAND_JAB     :=  0x000a; // Attack 1 handed jab (fencing).
-const ANIM_ATTACK_1HAND_DOWN    :=  0x000b; // Attack 1 handed down (mace).
-const ANIM_ATTACK_2HAND_DOWN    :=  0x000c; // Attack 2 handed jab (mace).
-const ANIM_ATTACK_2HAND_WIDE    :=  0x000d; // Attack 2 handed wide.
-const ANIM_ATTACK_2HAND_JAB     :=  0x000e; // Attack 2 handed jab (spear).
-const ANIM_ATTACK_BOW           :=  0x0012; // Attack bow.
-const ANIM_ATTACK_XBOW          :=  0x0013; // Attack xbow.
-const ANIM_WALK_WARMODE         :=  0x000f; // Walk in warmode.
+const ANIM_ATTACK_1HAND_JAB     :=  0x000A; // Attack 1 handed jab (fencing).
+const ANIM_ATTACK_1HAND_DOWN    :=  0x000B; // Attack 1 handed down (mace).
+const ANIM_ATTACK_2HAND_DOWN    :=  0x000C; // Attack 2 handed jab (mace).
+const ANIM_ATTACK_2HAND_WIDE    :=  0x000D; // Attack 2 handed wide.
+const ANIM_ATTACK_2HAND_JAB     :=  0x000E; // Attack 2 handed jab (spear).
+const ANIM_WALK_WARMODE         :=  0x000F; // Walk in warmode.
 const ANIM_CAST_DIR             :=  0x0010; // Spellcasting direction.
 const ANIM_CAST_AREA            :=  0x0011; // Spellcasting area.
+const ANIM_ATTACK_BOW           :=  0x0012; // Attack bow.
+const ANIM_ATTACK_XBOW          :=  0x0013; // Attack xbow.
 const ANIM_HIT                  :=  0x0014; // Get hit.
 const ANIM_DIE_BACK             :=  0x0015; // Die backward.
 const ANIM_DIE_FOR              :=  0x0016; // Die forward.
+const ANIM_HORSE_RIDE_SLOW      :=  0x0017; // Horseback: Ride - slow
+const ANIM_HORSE_RIDE_FAST      :=  0x0018; // Horseback: Ride - fast
+const ANIM_HORSE_SIT            :=  0x0019; // Horseback: Sit still
+const ANIM_HORSE_ATTACK_MELEE   :=  0x001A; // Horseback: Attack - 1-handed
+const ANIM_HORSE_ATTACK_BOW     :=  0x001B; // Horseback: Attack with a bow
+const ANIM_HORSE_ATTACK_XBOW    :=  0x001C; // Horseback: Attack with a crossbow
+const ANIM_HORSE_SLAP           :=  0x001D; // Horseback: Slap horse
+const ANIM_TWIST_DODGE          :=  0x001E; // Twist (dodge hit?)
+const ANIM_ATTACK_PUNCH         :=  0x001F; // Attack - punch
 const ANIM_BOW                  :=  0x0020; // Bow.
 const ANIM_SALUTE               :=  0x0021; // Salute.
 const ANIM_EAT                  :=  0x0022; // Eat.
@@ -767,10 +774,14 @@ const ANIM_EAT                  :=  0x0022; // Eat.
 // Graphicaleffects (itemIDs)
 ///
 // * general *
+const	FX_POISON_GAS		  :=  0x113A;
+const FX_MAGICAL_SPARKLES_EW := 0x1153; //
+const FX_MAGICAL_SPARKLES_NS := 0x1159; //
 const FX_SPLASH         :=  0x352d; //
 const FX_EXPLODE_1      :=  0x36ca; //
 const FX_EXPLODE_2      :=  0x36bd; //
 const FX_EXPLODE_3      :=  0x36b0; //
+const FX_EXPLODE_4      :=  0x36CB; //
 const FX_FIREBALL       :=  0x36d4; //
 const FX_MAGIC_ARROW    :=  0x36e4; //
 const FX_FIRE_BOLT      :=  0x36f4; // Firesnake. (pagan?)
@@ -854,6 +865,63 @@ const FONT_SMALL_DARK   :=  0x06;   // Small dark letters.
 const FONT_COLOR        :=  0x07;   // Colorful font.
 const FONT_RUNE         :=  0x08;   // Rune font (only capitals).
 const FONT_SMALL_LIGHT  :=  0x09;   // Small light letters.
+
+//////////////////////////////
+//htmlgumpcolor Color-values
+//////////////////////////////
+
+// Const HTML_BLACK          := "#000000";
+// Const HTML_DARKGRAY       := "#696969";//"#404040";
+// Const HTML_GRAY           := "#808080";
+// Const HTML_LIGHTGRAY      := "#C0C0C0";
+// Const HTML_DARKSLATEGRAY  := "#2F4F4F";
+// Const HTML_SLATEGRAY      := "#708090";
+// Const HTML_LIGHTSLATEGRAY := "#778899";
+// Const HTML_DARKRED        := "#800000";
+// Const HTML_RED            := "#FF0000";
+// Const HTML_DARKGREEN      := "#008000";
+// Const HTML_GREEN          := "#00FF00";
+// Const HTML_DARKYELLOW     := "#808000";
+// Const HTML_YELLOW         := "#FFFF00";
+// Const HTML_DARKORANGE     := "#FF8C00";
+// Const HTML_DARKBLUE       := "#000080";
+// Const HTML_BLUE           := "#0000FF";
+// Const HTML_DARKPURPLE     := "#800080";
+// Const HTML_PURPLE         := "#FF00FF";
+// Const HTML_DARKTURQUOISE  := "#008080";
+// Const HTML_TURQUOISE      := "#00FFFF";
+// Const HTML_WHITE          := "#FFFFFF";
+// Misc Colors
+// Const HTML_SADDLEBROWN    := "#8B4513";
+
+//////////////////////////////
+//xmfhtmlgumpcolor Color-Werte
+//////////////////////////////
+
+// Const XMFCOLOR_BLACK          :=0;
+// Const XMFCOLOR_WHITE          :=32767;
+// Const XMFCOLOR_BLUE1          :=15;
+// Const XMFCOLOR_BLUE2          :=5295;
+// Const XMFCOLOR_RED1           :=15360;
+// Const XMFCOLOR_RED2           :=20480;
+// Const XMFCOLOR_RED3           :=25600;
+// Const XMFCOLOR_RED4           :=30720;
+// Const XMFCOLOR_RED5           :=32000;
+// Const XMFCOLOR_RED6           :=32272;
+// Const XMFCOLOR_RED7           :=64512;
+// Const XMFCOLOR_GRAYRED        :=16715;
+// Const XMFCOLOR_PURPLE1        :=16927;
+// Const XMFCOLOR_PURPLE2        :=19777215;
+// Const XMFCOLOR_GRAY1          :=15855;
+// Const XMFCOLOR_GRAY2          :=16912;
+// Const XMFCOLOR_OCHER1         :=23341;
+// Const XMFCOLOR_OCHER2         :=49671;
+// Const XMFCOLOR_OCHER3         :=90000;
+// Const XMFCOLOR_GREEN1         :=33280;
+// Const XMFCOLOR_GREEN2         :=33760;
+// Const XMFCOLOR_YELLOW         :=32512;
+// Const XMFCOLOR_TURQUOISE      :=1023;
+// Const XMFCOLOR_TURQUOISEGREEN :=10000;
 
 ////
 // Creature IDs ( hardcoded graphic IDs )
@@ -974,7 +1042,7 @@ const DIR_W             :=  0x06;   // West.
 const DIR_NW            :=  0x07;   // Northwest.
 
 // * Colors *
-// This is not suposed to be a "complete" colorchart, but a
+// This is not supposed to be a "complete" colorchart, but a
 // quick way to access normal colors.
 const COLOR_DEFAULT         := 0x0000;
 const COLOR_BLACK           := 0x0001;
@@ -1028,6 +1096,18 @@ const FONTCOLOR_LAVENDER := 20;
 const FONTCOLOR_BLACK := 1;
 const FONTCOLOR_BROWN := 46;
 const FONTCOLOR_YELLOW := 53;
+const MSG_ERROR         := 33;
+const MSG_FAIL          := MSG_ERROR;
+const MSG_SUCCESS       := 66;
+const MSG_NEUTRAL       := 88;
+
+//////////////////////////////////////
+// Canned colours
+//////////////////////////////////////
+const MESSAGE_COLOR_GOOD    := 68;
+const MESSAGE_COLOR_WARNING := 54;
+const MESSAGE_COLOR_BAD     := 34;
+const MESSAGE_COLOR_MESSAGE := 1320;
 
 ////
 // SkillIDs
@@ -1090,7 +1170,8 @@ const SKILLID_SPELLWEAVING      := 54;
 const SKILLID_MYSTICISM         := 55;
 const SKILLID_IMBUING           := 56;
 const SKILLID_THROWING          := 57;
-const SKILLID__HIGHEST          := 49;
+const SKILLID_TESTSKILL         := 58;
+const SKILLID__HIGHEST          := 58;
 
 //////////////////////////////////////
 // Realm constants                  //
@@ -1102,13 +1183,96 @@ const MALAS_REALM               := "malas";
 const TOKUNO_REALM              := "tokuno";
 const TERMUR_REALM              := "termur";
 
-//////////////////////////////////////
-// Canned colours
-//////////////////////////////////////
-const MESSAGE_COLOR_GOOD	:= 366; // default 268
-const MESSAGE_COLOR_WARNING	:= 54;
-const MESSAGE_COLOR_BAD		:= 34;
-const MESSAGE_COLOR_MESSAGE	:= 1320;
+/////////////////////////////////////////////
+// Added from 098 Distro for compatibility
+// with pkgs added from it. There will be
+// duplication of values.
+////////////////////////////////////////////
+const	GFX_MAGICAL_SPARKLES_EW	:= 0x1153;
+const	GFX_MAGICAL_SPARKLES_NS	:= 0x1159;
+const	GFX_BLUE_SPARKLES	:= 0x373A;
+const	GFX_RED_SPARKLES	:= 0x374A;
+const	GFX_BLUE_SPARKLE_SWIRL	:= 0x375A;
+const	GFX_BLUE_SPARKLE_BORDER	:= 0x376A;
+const	GFX_BLUE_SPARKLE_GROUND	:= 0x3779;
 
 
-const DESTROY_TREASURE_CHEST := 300; //5 min
+//////////////////////////////////
+// Greater Chants of Necromancy //
+//////////////////////////////////
+
+//Darkness
+const SPELLID_DARKNESS		:= 66;
+const SFX_SPELL_DARKNESS	:= 0x01e4;
+const FX_SPELL_DARKNESS		:= 0x0373a;
+const MOVING_SPELL_DARKNESS	:= 0;
+const SPEED_SPELL_DARKNESS	:= 0xa;
+const LOOP_SPELL_DARKNESS	:= 0xa;
+
+
+
+
+//Raise Dead
+const SPELLID_SORCERERS_BANE	:= 73;
+const SFX_SPELL_SORCERERS_BANE	:= 0x0209;
+const FX_SPELL_SORCERERS_BANE	:= 0x3709;
+const MOVING_SPELL_SORCERERS_BANE	:= 0;
+const SPEED_SPELL_SORCERERS_BANE	:= 0x0a;
+const LOOP_SPELL_SORCERERS_BANE	:= 0x1e;
+
+//Summon Spirit
+const SPELLID_SUMMON_SPIRIT	:= 74;
+const SFX_SPELL_SUMMON_SPIRIT	:= 0x022b;
+
+//Wraithform
+const SPELLID_WRAITHFORM	:= 75;
+const WRAITHFORM_DRAIN_SOUND	:= 0x1fa;
+const WRAITHFORM_MORPH_SOUND	:= 0x210;
+const WRAITHFORM_WRAITH_GRAPHIC	:= 0x1a;
+const WRAITHFORM_WRAITH_COLOR	:= 0x482;
+const WRAITHFORM_DRAIN_EFFECT	:= 0x374a;
+const WRAITHFORM_MORPH_EFFECT	:= 0x3709;
+const MOVING_SPELL_WRAITHFORM	:= 0;
+const SPEED_SPELL_WRAITHFORM	:= 1;
+const LOOP_SPELL_WRAITHFORM	:= 0x10;
+
+//Wyvern Strike
+const SPELLID_WYVERN_STRIKE	:= 76;
+const SFX_SPELL_WYVERN_STRIKE	:= 0x1e2;
+const FX_SPELL_WYVERN_STRIKE	:= 0x3709;
+const MOVING_SPELL_WYVERN_STRIKE := 1;
+const SPEED_SPELL_WYVERN_STRIKE	:= 5;
+const LOOP_SPELL_WYVERN_STRIKE	:= 1;
+
+//Kill
+const SPELLID_KILL		:= 77;
+const SFX_SPELL_KILL		:= 0x202;
+const FX_SPELL_KILL		:= 0x375a;
+const MOVING_SPELL_KILL 	:= 0;
+const SPEED_SPELL_KILL		:= 1;
+const LOOP_SPELL_KILL		:= 0x10;
+
+//Liche
+const SPELLID_LICHE		:= 78;
+const LICHE_KILL_SOUND 		:= 0x202;
+const LICHE_MORPH_SOUND 	:= 0x20a;
+const FX_SPELL_LICHE	 	:= 0x375a;
+const MOVING_SPELL_LICHE 	:= 0;
+const SPEED_SPELL_LICHE		:= 1;
+const LOOP_SPELL_LICHE		:= 0x10;
+
+//Plague
+const SPELLID_PLAGUE		:= 79;
+const SFX_SPELL_PLAGUE		:= 0x1e2;
+const FX_SPELL_PLAGUE		:= 0x374a;
+const MOVING_SPELL_PLAGUE 	:= 0;
+const SPEED_SPELL_PLAGUE	:= 7;
+const LOOP_SPELL_PLAGUE		:= 0x10;
+
+//Spellbind
+const SPELLID_SPELLBIND		:= 80;
+const SFX_SPELL_SPELLBIND	:= 0x20d;
+const FX_SPELL_SPELLBIND	:= 0x37b9;
+const MOVING_SPELL_SPELLBIND	:= 0;
+const SPEED_SPELL_SPELLBIND	:= 7;
+const LOOP_SPELL_SPELLBIND	:= 0x10;

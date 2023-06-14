@@ -1,0 +1,42 @@
+use cfgfile;
+
+include ":contextmenus:contextMenu";
+
+program Install()
+	Print( "Custom Container Class Methods Installed." );
+	return 1;
+endprogram
+
+exported function GetTooltipInfo( container )
+
+	container := container;
+
+	return 1;
+endfunction
+
+exported function GetContextMenuEntries( item, mobile )
+
+	var list := Array;
+
+
+
+
+	if( item.objtype == 0x9C18 ) //safe
+        var pincode := CInt(GetObjProperty(item, "pincode"));
+        var owner := CInt(GetObjProperty(item, "owner"));
+        if(!pincode)
+            list.Append( Struct{ "cliloc":=3006098, "disabled":=0, "color":=0x1F } );
+        else
+            if(owner == mobile.serial)
+                list.Append( Struct{ "cliloc":=3006096, "disabled":=0, "color":=0x1F } );
+            else
+        endif
+
+
+
+        endif
+
+	endif
+
+	return list;
+endfunction

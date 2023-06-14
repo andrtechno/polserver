@@ -1,23 +1,25 @@
 use uo;
 use os;
-use npc;
 
-include "include/statMod";
-include "include/help";
+include ":mounts:mounts";
+include "include/eventID";
+include ":itemUtils:itemdesc";
 
-program dblclickself( me )
-	var mount := GetEquipmentByLayer( me, 25 );
-
+program dblclickself( who )
+	var mount := GetEquipmentByLayer( who, 25 );
 	if (!mount)
-		OpenPaperdoll( me, me );
+		OpenPaperdoll( who, who );
 		return;
 	endif
-	if (me.warmode)
-		OpenPaperdoll( me, me );
+	if (who.warmode)
+		OpenPaperdoll( who, who );
 		return;
 	endif
-
-
-    unMount(me);
-
+	// This allows a script to run prior to unequipping
+	// a mount for any efects or mods to the player.
+	var unequip := GetObjProperty(mount, "Unequip");
+	if(unequip)
+		Run_Script(unequip, {who});
+	endif
+	MP_Unmount( who );
 endprogram

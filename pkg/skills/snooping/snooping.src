@@ -7,6 +7,7 @@ include ":attributes:attributes";
 include ":snooping:thief";
 include "include/trainingskill";
 include "include/utility";
+include ":charclasses:classes";
 
 
 var mex;
@@ -16,7 +17,30 @@ program snooping(who)
     var newitem;
     mex := who.x;
     mey := who.y;
-    SendSysMessage(who, "snooping");
+    var time := CInt(GetObjProperty(who, "#Snoop"));
+    var classLevel := CInt(GetObjProperty(who, "classlevel"));
+    var classId := CInt(GetObjProperty(who, "classid"));
+    if(!classLevel || (classId != ID_THIEF))
+        classLevel := 0;
+    endif
+    var cfgFile := ReadConfigFile(":snooping:settings");
+    var elem := FindConfigElem( cfgFile, classLevel );
+    var containerTime := GetConfigInt( elem, "ShowContainerTime" );
+
+    if(!freeHands(who))
+        return;
+	endif
+	if(!needGloves(who))
+        return;
+	endif
+
+    if((time + 10) > ReadGameClock())
+        SendSysMessage(who, "You must wait some time before snooping this victim again");
+        return;
+    endif;
+
+
+
     var data := {};
     data[1] := "snooping";
     data[2] := ReadGameClock();
@@ -26,24 +50,8 @@ program snooping(who)
 
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
+
     SendSysMessage(who, "Select target.");
-
-	freeHands(who);
-	needGloves(who);
-
-	var storage:= FindStorageArea("Merchant Storage");
-
-	var newpack:=find_or_create_item(storage, "temp "+who.serial,0xe75);
-	if (!storage)
-		SendSysMessage(who,"unable to find merchant storage");
-		return;
-	endif
-
-	if (!newpack)
-		SendSysMessage(who,"unable to create temporary backpack");
-		return;
-	endif
-
 	var victim  := Target(who);
 
     if (!victim)
@@ -55,82 +63,131 @@ program snooping(who)
         return;
     endif
     if(Distance(who,victim) > 2)
-        SendSysMessage(who, "You are not close enough to stealing that!");
+        //SendSysMessage(who, "You are not close enough to snooping that!");
+        if(victim.gender == 0)
+            SendSysMessage(who, "He is too far away.");
+        else
+            SendSysMessage(who, "She is too far away.");
+        endif
+        return;
+    endif
+    if ((victim.serial==who.serial))
+        SendSysMessage(who, "No need to snoop this.");
+        return;
+    endif
+    if (!(victim.graphic in {400, 401}))
+        SendSysMessage(who, "You should target a human");
         return;
     endif
 
-    if ((victim.serial==who.serial) && ((victim.graphic != 400) || (victim.graphic != 401)))
-        SendSysMessage(who, "No need to steal this.");
-        return;
-    endif
-	//if(GetObjProperty(victim, "snooped"))
-	//	SendSysMessage(who, "You must wait some time before snooping this victim again");
-	//	return;
-	//endif;
-    var pts := CInt(GetAttribute(who, SNOOPING)) + 15;
+    PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
 
+    var pts := CInt(GetAttribute(who, SNOOPING)) + (classLevel * 10);
+    SetObjProperty(who, "#Snoop", ReadGameClock());
     sleep(3);
 
-    if(Distance(victim,who) > 2)
-        SendSysMessage(who, "target location 2");
-        return;
-    endif
-
-    if((who.x != mex) || (who.y != mey))
-        SendSysMessage(who, "you location!!!");
-        return;
-    endif
-
-    if (SkillCheck(who, SNOOPING, GetDiff(who, victim), pts))
-        PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
-
-		SetObjProperty(victim, "snooped", 1);
-		SetObjProperty(who, "snooping", 1);
-
-        var copyitem:=CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm);
+    SendSysMessage(who, "pts: "+pts);
+    var diff := GetDiff2(who, victim);
 
 
-        SetObjProperty(who,"#Snoop",ReadGameClock() + TIME_OPEN_CONTAINER);
-        SetObjProperty(who,"#Snoop_pid",copyitem.serial);
+    if (SkillCheck(who, SNOOPING, diff, pts))
 
-        var items := EnumerateItemsInContainer(victim.backpack);
-        foreach item in items
-            if(item.newbie == 0)
-                newitem := CreateItemCopyAtLocation(copyitem.x,copyitem.y,copyitem.z,item);
-                SetObjProperty(newitem,"realitem",item.serial);
-                MoveItemToContainer(newitem, newpack, item.x, item.y);
-            endif
-        endforeach
-        foreach item2 in EnumerateItemsInContainer(newpack)
-            item2.movable:=0;
-        endforeach
-
-
-        if(!SendViewContainer(who, newpack))
-            print("Error view container");
+        var newContainer := CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm); //0x0E75 //0x1300c
+        if(!newContainer)
+            print("Error create container "+newContainer.errortext);
             return;
         endif;
-        SendOpenSpecialContainer( who, newpack );
+        var oldpack := SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"));
+        if(oldpack)
+            CloseWindow( who, 12, oldpack);
+            DestroyItem(oldpack);
+        endif
+
+
+        SetObjProperty(who, "#Snoop_pid", newContainer.serial);
+
+        var items := EnumerateItemsInContainer(victim.backpack, ENUMERATE_ROOT_ONLY);
+        var copiesCount := 0;
+        var copiesNoCount := 0;
+        foreach item in items
+            var tname := item.name;
+            if(item.newbie == 0)
+                var newitem := CreateItemCopyAtLocation(newContainer.x, newContainer.y, newContainer.z, item);
+                if(victim.isa(POLCLASS_NPC))
+                    newitem.name := "Fake Item";
+                endif
+                SetObjProperty(newitem, "realitem", item.serial);
+                MoveItemToContainer(newitem, newContainer, item.x, item.y);
+                RecursiveCopy(victim, item, newitem, copiesCount);
+                newitem.movable := 0;
+                copiesCount := copiesCount+1;
+            else
+                copiesNoCount := copiesNoCount+1;
+            endif
+
+        endforeach
+        if(who.cmdlevel > 2)
+            SendSysMessage(who, copiesCount+ " items copied, "+copiesNoCount+" were not copied.");
+        endif
+
+        SendOpenSpecialContainer( who, newContainer );
         Detach();
-        sleep(TIME_OPEN_CONTAINER);
+        sleep(containerTime);
 
-        CloseWindow( who, 12, newpack );
-		foreach item in EnumerateItemsInContainer(newpack)
-      		DestroyItem(item);
-		endforeach
+        CloseWindow( who, 12, newContainer );
 
-        DestroyRootItemInStorageArea(storage, "temp " + who.serial);
+        DestroyItem(newContainer);
 
-        EraseObjProperty(victim, "snooped");
-        EraseObjProperty(who, "snooping");
+        EraseObjProperty(who, "#Snoop");
+        EraseObjProperty(who, "#Snoop_pid");
 
         return;
     else
 	    tellplayers(who);
-	    callguard(who);
+	    //callguard(who);
 	    who.setCriminal(1);
         SendSysMessage(who, "fail.");
 		return;
     endif
 endprogram
+
+function RecursiveCopy(who, originalItem, copy, byref copiesCount)
+    Set_Critical(1);
+    if (originalItem.isA(POLCLASS_CONTAINER))
+        var items := EnumerateItemsInContainer(originalItem, ENUMERATE_ROOT_ONLY);
+        foreach item in items
+            var newitem := CreateItemCopyAtLocation(who.x,who.y,who.z,item);
+            SetObjProperty(newitem, "realitem", item.serial);
+            MoveItemToContainer(newitem, copy, item.x, item.y);
+            newitem.movable := 0;
+            copiesCount := copiesCount + 1;
+            RecursiveCopy(who, item, newitem, copiesCount);
+        endforeach
+    endif
+    Set_Critical(0);
+endfunction
+
+
+function GetDiff2(who, victim)
+    var victimLevel := CInt(GetObjProperty( victim, "classlevel" ));
+    var victimClass := CInt(GetObjProperty( victim, "classid" ));
+    if(victimClass != ID_THIEF)
+        victimLevel := 0;
+    endif
+    print("-------------- "+who.name+" > "+victim.name);
+    var skill := GetEffectiveSkill( who, SKILLID_SNOOPING );
+
+
+    var whoskill := CInt(skill/4) + CInt(GetDexterity(who)/4) + CInt(GetObjProperty( who, "classlevel" )) * 10;
+
+
+    var victimskill := CInt(GetDexterity(victim)/2) + CInt(GetIntelligence(victim)/2) + victimLevel * 10;
+
+
+    var chance := victimskill - whoskill;
+
+
+    SendSysMessage(who, "chance: "+chance);
+    return chance;
+endfunction
 

@@ -36,16 +36,13 @@ function GenerateNewWoodType()
     elseif((val >= 1451) && (val <= 1499)) //Elkris
         return 17;
     endif
-return 1;
+    return 1;
 endfunction
 
 
 
 
 
-
-
-//skill := AP_GetSkill( who, LUMBERJACKING);
 function GetWoodTypeBySkill(skill)
 
     if(skill >= 145)

@@ -1,48 +1,28 @@
 use uo;
-use util;
 use os;
-
-
-include ":attributes:attributes";
-include "include/client";
-include "include/spellAttack";
 include ":damage:damage";
 include "include/objtype";
 
-const DELAY_BETWEEN_HITS_MS	:= 1000;
+program ControlScript(field)
+	SetObjProperty(field, "#PID", GetPid());
+	var creator := field.GetOwner();
 
-program controlEnergy( item )
-  var magic;
-  var creator := GetObjProperty(item, "creater");
-  magic := GetObjProperty(item, "Magic");
-  if (!magic)
-      magic := 0;
-  endif
+	if ( creator )
+		SetScriptController(creator);
+	endif
 
-  /*var fieldstrength;
-  var online := EnumerateOnlineCharacters();
-  var boss;
-  foreach char in online
-    if(creator == char.serial)
-      boss := char;
-      break;
-    endif
-  endforeach
-  if(!boss)
-    boss := SystemFindObjectBySerial(creator, SYSFIND_SEARCH_OFFLINE_MOBILES);
-  endif*/
 
 	var coordinates := {};
-	case( item.objtype )
-		UOBJ_EFIELD_NS:	coordinates := { { item.x, item.y, item.z },
-						 { item.x, item.y-1, item.z },
-						 { item.x, item.y+1, item.z } };
+	case( field.objtype )
+		0x3946:	coordinates := { { field.x, field.y, field.z },
+						 { field.x, field.y-1, field.z },
+						 { field.x, field.y+1, field.z } };
 				break;
 
 
-		UOBJ_EFIELD_EW:	coordinates := { { item.x, item.y, item.z },
-						 { item.x-1, item.y, item.z },
-						 { item.x+1, item.y, item.z } };
+		0x3955:	coordinates := { { field.x, field.y, field.z },
+						 { field.x-1, field.y, field.z },
+						 { field.x+1, field.y, field.z } };
 				break;
 
 		default:
@@ -51,23 +31,42 @@ program controlEnergy( item )
 	if( !len(coordinates) )
 		return;
 	endif
-  var dmg := CInt(GetAttribute(boss, MAGERY)/10);
-  fieldstrength := RandomInt(dmg);
 
-	while( item )
-		var dmg := RandomDiceRoll("1d8" );
-		PlaySoundEffect( item, SFX_SPELL_ENERGY_FIELD );
+    var dmg := CInt(GetAttribute(creator, MAGERY)/10);
+    dmg := RandomInt(dmg);
 
-		foreach coord in coordinates
-			foreach mobile in ListMobilesNearLocation( coord[1], coord[2], coord[3], 0,"britannia")
+
+	// Base damage is a decimal number in between min and max damage
+	var min_damage := CInt(GetObjProperty(field, "MinBaseDamage"));
+	var max_damage := CInt(GetObjProperty(field, "MaxBaseDamage"));
+	var base_damage := min_damage + (CDbl(RandomInt(CInt((max_damage - min_damage) * 10)) + 1) / 10);
+
+
+	while ( field )
+		PlaySoundEffect( field, SFX_SPELL_ENERGY_FIELD );
+
+		//foreach coord in coordinates
+		    //var mobiles := ListMobilesNearLocation( coord[1], coord[2], coord[3], 0, field.realm);
+		    var mobiles := ListMobilesNearLocation( field.x, field.y, field.z, 1, field.realm);
+		    //print("mobiles "+mobiles);
+			foreach mobile in mobiles
 				if( !creator )
 					creator := mobile;
 				endif
+				dmg := MS_GetSpellDamage(mobile, creator, base_damage);
 				PerformAction( mobile, ANIM_HIT );
-				ApplyRawSpellDamageEX(mobile, fieldstrength, "Energy", boss, magic);
-				//ApplyElementalDamageNoResist( mobile,creator,CInt(ResistedDefinedSkillGain( creator, mobile, dmg, diff, points )),element );
+				ApplyRawSpellDamageEX(mobile, dmg, GetObjProperty(field, "DamageType"), creator, 1, "", 0); //DMG_ENERGY
 			endforeach
-		endforeach
-		sleepms( DELAY_BETWEEN_HITS_MS );
+		//endforeach
+
+
+		if ( field.IsExpired() )
+			DestroyItem(field);
+		endif
+		sleep(1);
 	endwhile
+
+	return 1;
 endprogram
+
+

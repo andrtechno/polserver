@@ -1,0 +1,34 @@
+use uo;
+use os;
+use unicode;
+
+include ":containers:useCorpse";
+
+program useScript_Corpse( mobile, corpse )
+
+    var last_damage := GetObjProperty(corpse, "LastDamage");
+    var killer := last_damage.serial;
+    var killerMobile := SystemFindObjectBySerial(killer, SYSFIND_SEARCH_OFFLINE_MOBILES);
+    var timer := last_damage.time + 60;
+    var flag := 1;
+
+    if(last_damage && mobile.cmdlevel < 1)
+        if(killer != mobile.serial)
+            if(timer > POLCore().systime)
+                if(mobile.guildid != last_damage.guildid)
+                    flag :=0;
+                endif
+            else
+                flag := 1;
+            endif
+        endif
+    endif
+
+    if(!flag)
+        SendSysMessageUC( mobile, "Не доступно еще " + (timer - POLCore().systime) + " сек.", "RUS", color := 33 );
+        //return 0; //disable for test
+    endif
+
+    SetObjProperty( corpse, "#CorpseUsed", 1 );
+    return OpenContainer( mobile, corpse );
+endprogram

@@ -1,0 +1,39 @@
+use os;
+use uo;
+use util;
+use cfgfile;
+include ":alchemy:drinkPotion";
+include "include/canAccess";
+//include "include/statMod";
+include ":timedScripts:timedScripts";
+
+program drink_transmutation(who, potion)
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    if(!can_access(who, potion))
+        return;
+    endif
+    if(potion.movable == 0)
+        SendSysMessage(who, "You cannot drink that.");
+        return;
+    endif
+    if(!CheckToDrink(who, "transmutation"))
+        return;
+    endif
+	if ( GetObjProperty(who, "TransmutationPotion") )
+		SendSysMessage(who, "You are already under the influence.");
+		return 0;
+	endif
+
+    case(potion.objtype)
+        0x2DC29:
+            empty_bottle(who, potion);
+            TS_StartTimer(who, "TransmutationPotion", 60, 10, who);
+        0x2DC30:
+            empty_bottle(who, potion);
+            TS_StartTimer(who, "TransmutationPotion", 60, 30, who);
+    endcase
+	PlaySoundEffect( who,  SOUND_EFFECT_HEAL );
+	PlayObjectCenteredEffect(who, EFFECT_BLUE_SPARKLE, 10, 10);
+    return 1;
+endprogram

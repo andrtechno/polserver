@@ -1,0 +1,54 @@
+use os;
+use util;
+use uo;
+
+
+//"ForensicEvaluation" "Necromancy", "BattleFocus", "Chivalry", "Bushido", "Ninjitsu",
+//"Spellweaving", "Mysticism", "Imbuing", "Throwing"
+
+
+program plus_create(item)
+    var skillValue := RandomIntMinMax(5,10);
+    var lastTimeEquip := RandomIntMinMax(15,30);
+    var color:=0;
+
+    var data:={};
+
+    //warrior
+    data.append(array{"Anatomy","Parry", "Healing","Tactics", "Swordsmanship", "MaceFighting", "Fencing", "Wrestling"});
+    //mage
+    data.append(array{"Alchemy","ItemIdentification","SpiritSpeak","ResistingSpells","Magery","Meditation","EvaluatingIntelligence","Inscription"});
+    //crafter
+    data.append(array{"ArmsLore", "Blacksmithy", "BowcraftFletching", "Lumberjacking", "Mining", "Tinkering", "Tailoring","Carpentry"});
+    //ranger
+    data.append(array{"AnimalLore","Camping","Cooking","Fishing","Archery","Tracking", "Veterinary","AnimalTaming"});
+    //bard
+    data.append(array{"Begging", "Peacemaking","Musicianship","TasteIdentification","Provocation","Herding","Cartography","Discordance"});
+    //thief
+    data.append(array{"DetectingHidden","Hiding","Lockpicking","Snooping","Stealth","Stealing","Poisoning","RemoveTrap"});
+
+    var randClass := RandomIntMinMax(1,6);
+    var randSkill := RandomIntMinMax(1,8);
+    var skillName := data[randClass][randSkill];
+
+    if(randClass==1)
+        color:=1109;
+    elseif (randClass==2)
+        color:=2109;
+    elseif (randClass==3)
+        color:=1182;
+    elseif (randClass==4)
+        color:=1950;
+    elseif (randClass==5)
+        color:=16;
+    elseif (randClass==6)
+        color:=2193;
+    endif
+
+    item.name := "+"+skillValue+" "+skillName+" ["+lastTimeEquip+" days]";
+    item.color := color;
+    SetObjProperty(item, "skillName", skillName);
+    SetObjProperty(item, "skillValue", skillValue);
+    SetObjProperty(item, "lasttimeequip", ReadGameClock() + (lastTimeEquip * 86400));
+
+endprogram

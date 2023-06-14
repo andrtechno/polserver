@@ -17,7 +17,7 @@ program textcmd_guards( who, text )
 			PrintTextAbove( who, text );
 		endif
 
-		//start_script( ":areas:callguards", who );
+		start_script( ":guards:callguards", who );
 	endif
 
 endprogram

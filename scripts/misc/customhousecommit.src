@@ -1,0 +1,11 @@
+use uo;
+use os;
+
+
+program custom_house_commit( who, house )
+    print("house::: "+house);
+    print("who:::: "+who);
+    var commit := house.acceptcommit(who, 1);
+    print("commit "+commit);
+    return commit;
+endprogram

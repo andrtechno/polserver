@@ -1,0 +1,11 @@
+use uo;
+use os;
+
+include ":timedScripts:timedScripts";
+
+program logon(who)
+    var timeList := TS_GetTimerList(who);
+    EraseObjProperty(who, "TargetControl");
+    //print("logon magery: "+timeList);
+    //TS_LowerDuration(who, "TargetControl", -1);
+endprogram

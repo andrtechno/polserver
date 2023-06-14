@@ -1,0 +1,36 @@
+
+/*
+ Whirlwind Attack – A godsend to a warrior surrounded,
+ the Whirlwind Attack allows the fighter to strike at all nearby targets in one mighty spinning swing.
+ Will not accidentally strike innocents, allies, or party members.
+ Bushido gives a damage bonus to the Whirlwind special move. This bonus is capped at 100.
+ The bonus is determined by the following formula:
+ Damage Bonus = (Bushido/60* number of opponents)²
+ */
+
+use uo;
+
+include ":damage:damage";
+
+program ability_whirlwindAttack(params)
+    var attacker := params[1];
+    var defender := params[2];
+
+    var mobiles2 := ListHostiles( attacker, 2, LH_FLAG_LOS );
+    print(mobiles2);
+    var mobiles := ListMobilesNearLocation( attacker.x, attacker.y, LIST_IGNORE_Z, 2, attacker.realm );
+
+    var counter := mobiles.size() - 1; //1 it self
+
+    var damage := (CInt(AP_GetSkill(attacker, attacker.weapon.attribute)) / 10) * counter;
+
+    foreach mobile in mobiles
+        if(mobile.serial != attacker.serial)
+            if(damage > 0)
+		        ApplyRawDamageEX(mobile, CInt(damage), DMG_FORCED, attacker);
+		    endif
+        endif
+    endforeach
+
+    return 1;
+endprogram

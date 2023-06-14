@@ -7,7 +7,7 @@ include "include/client";
 include "include/canAccess";
 
 program use_scroll(mobile, scroll)
-  
+
   if(!can_access(mobile, scroll))
     SendSysMessageCL(mobile, 500237); // Target cannot be seen.
     return 0;
@@ -38,12 +38,14 @@ program use_scroll(mobile, scroll)
   info.+Delay := GetConfigString(element, "Delay");
   info.+Script := GetConfigString(element, "Script");
   info.+PowerWords := GetConfigString(element, "PowerWords");
+  info.+SpellScript := GetConfigString(element, "SpellScript");
   parms[1] := "#scroll";
   parms[2] := mobile;
   parms[3] := scroll;
   parms[4] := info;
-  start_script(":spellweaving:spellStarter", parms);
-  
-  return 0;
+
+  var s := start_script(":spellweaving:spellStarter", parms);
+
+  return 1;
   
 endprogram

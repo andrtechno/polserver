@@ -1,0 +1,57 @@
+use uo;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include ":combatBook:combatAbility";
+
+program ability_movingShot(params)
+    var attacker := params[1];
+    var flag := params[2];
+    var abi := CInt(GetObjProperty(attacker, "Ability"));
+    var options := GetObjProperty(attacker, "AbilityOptions");
+
+	//SetObjProperty( attacker, "#AbilityPID", GetPid() );
+
+    var cost := 1;
+    if(options.cost)
+        cost := options.cost;
+    endif
+
+    var curr := CInt(AP_GetVital(attacker, options.vital));
+    if ( curr < cost )
+        return 0;
+    endif
+
+    GrantPrivilege( attacker, "firewhilemoving" );
+    attacker.Enable("firewhilemoving");
+
+    var regen := AP_GetVitalRegenRateMod(attacker, options.vital);
+    AP_SetVitalRegenRateMod( attacker, options.vital, CInt(regen) + 500 );
+
+
+
+    while(1)
+		Set_Critical(1);
+        abi := CInt(GetObjProperty(attacker, "Ability"));
+
+		curr := CInt(AP_GetVital(attacker, options.vital));
+		if ( curr > cost )
+			AP_SetVital(attacker, options.vital, (curr-cost));
+		else
+			AP_SetVital(attacker, options.vital, 0);
+			abi := 0;
+		endif
+		Set_Critical(0);
+		if(!abi)
+			attacker.Disable("firewhilemoving");
+			RemoveAbility(attacker);
+            break;
+		endif;
+        SleepMS(options.delay);
+
+    endwhile
+
+    return 1;
+endprogram
+

@@ -15,7 +15,7 @@ function decay(object, blood)
     DestroyItem(object);
     sleep(60);
     DestroyItem(blood);
-    print("decay");
+
 endfunction
 
 program p_decay( theparms )

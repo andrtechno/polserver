@@ -1,0 +1,104 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+use datafile;
+use unicode;
+use os;
+
+include "include/client";
+var cfgmap := ReadConfigFile("map_issues");
+var cfgbug := ReadConfigFile("bug_reports");
+
+var QueryGoto := QueryParam("goto");
+var QueryRealm := QueryParam("realm");
+var QueryKey := QueryParam("key");
+var QueryAction := QueryParam("action");
+var QueryIPAddress := QueryIP();
+
+//if(QueryIPAddress != "127.0.0.1")
+//    return 0;
+//endif
+
+
+if(QueryGoto && QueryRealm)
+    foreach gm in EnumerateOnlineCharacters()
+        if(gm.cmdlevel > 2)
+            var split := SplitWords(QueryGoto);
+            MoveObjectToLocation(gm, CInt(split[1]), CInt(split[2]), CInt(split[3]), QueryRealm, MOVEOBJECT_FORCELOCATION);
+            SendSysMessageUC(gm, "Вы были перемещены через BUG REPORT.", "RUS", color := MESSAGE_COLOR_BAD);
+        endif
+    endforeach
+endif
+
+if(QueryAction == "delete" && QueryKey)
+    var data_file := TT_GetDataFile();
+    data_file.DeleteElement(QueryKey);
+endif
+
+
+WriteHtml( "<html><head><meta charset=\"utf-8\"><title>POL bug reports</title></head>" +
+    "<body>");
+
+
+WriteHtml( "<h1>Map bugs</h1>" +
+    "<table border=1 cellspacing=0 cellpadding=5>" +
+    "<tr bgcolor=#99CCFF><th>Описание</th><th>Author</th><th>Location</th><th>date</th><th>delete</th></tr>");
+
+
+
+var data_file := TT_GetDataFile();
+
+foreach issue_key in (data_file.Keys())
+    if(issue_key != "Settings")
+        var elem := TT_GetDatafileElem(issue_key);
+        var playerAcc := elem.GetProp("Account");
+        var playerName := elem.GetProp("PlayerName");
+        var date := elem.GetProp("Time");
+        var realm := elem.GetProp("Realm");
+        var description := elem.GetProp("Description");
+        var targetLocation := elem.GetProp("TargetLocation");
+
+        WriteHtml("<tr>" +
+            "<td>"+description+"</td>" +
+            "<td>"+playerAcc+"/"+playerName+"</td>" +
+            "<td><a href=\"/bugreports.ecl?goto="+targetLocation+"&realm="+realm+"\">"+targetLocation+"</a></td>" +
+            "<td>"+date+"</td>" +
+            "<td><a href=\"/bugreports.ecl?action=delete&key="+issue_key+"\">Delete</a></td>" +
+        "</tr>");
+    endif
+endforeach
+WriteHtml( "</table>" );
+
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+
+
+function TT_GetDataFile()
+    var datafile := OpenDataFile( "bugmap" );
+    if( !datafile )
+        CreateDataFile( "bugmap" , DF_KEYTYPE_STRING );
+        datafile := OpenDataFile( "bugmap"  );
+    endif
+    return datafile;
+endfunction
+
+
+function TT_GetDatafileElem(elem_name )
+
+    var datafile := TT_GetDataFile();
+    var data_elem := datafile.FindElement( CStr( elem_name ) );
+    if( !data_elem )
+        data_elem := datafile.CreateElement( CStr( elem_name ) );
+    endif
+
+    if( data_elem.errortext )
+        SysLog( "Error::TT_GetDatafileElem() - Unable to find elem ["+elem_name+"] -> "+data_elem.errortext );
+        return error{"errortext":="Error::TT_GetDatafileElem() - Unable to find elem ["+elem_name+"] -> "+data_elem.errortext};
+    endif
+
+    return data_elem;
+endfunction

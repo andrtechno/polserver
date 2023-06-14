@@ -1,0 +1,40 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_Transmutation(params)
+	var mobile := params[1];
+	var points := params[3];
+	var duration := params[4];
+	params := 0;
+	
+	// Prevents mod from being applied twice.
+	//if ( GetObjProperty(mobile, "TransmutationPotion") )
+	//	return 0;
+	//endif
+
+	var cfg_elem := TS_GetCfgElem("TransmutationPotion");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+	var pointsData := struct;
+	pointsData.+dex := points;
+	pointsData.+int := points;
+	pointsData.+str := points;
+	//pointsData.+ar_mod := points;
+
+	SetObjProperty(mobile, "TransmutationPotion", pointsData);
+	AP_ModifyStatMod(mobile, DEXTERITY, pointsData.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, pointsData.int);
+	AP_ModifyStatMod(mobile, STRENGTH, pointsData.str);
+	//mobile.ar_mod := pointsData.ar_mod;
+
+    var level3 := CStr(pointsData.str)+"\t"+CStr(pointsData.dex)+"\t"+CStr(pointsData.int);
+    mobile.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, level3);
+
+	return 1;
+endprogram
+

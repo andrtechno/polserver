@@ -22,6 +22,9 @@ program TimedScript_Curse(params)
 	if ( GetObjProperty(defender, "CurseMod") )
 		return 0;
 	endif
+	if ( GetObjProperty(defender, "MassCurseMod") )
+		return 0;
+	endif
 	// Prevents mod from being applied whilst Cursed.
 	if ( GetObjProperty(defender, "ClumsyMod") )
 		return 0;
@@ -31,7 +34,7 @@ program TimedScript_Curse(params)
 		return 0;
 	endif
 	// Prevents mod from being applied whilst Cursed.
-	if ( GetObjProperty(defender, "WeakenhMod") )
+	if ( GetObjProperty(defender, "WeakenMod") )
 		return 0;
 	endif
 	

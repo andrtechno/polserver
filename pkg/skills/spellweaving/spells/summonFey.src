@@ -1,34 +1,38 @@
 include ":magery:summon";
-include "include/spellRestrictions";
+include ":damage:damage";
+//include ":magery:spellRestrictions";
 
 
 program chrcast_sfamiliar( parms )
-  var circle := 1;
-  var delivery := "notarget";
-  var noto := "neutral";
-  var result := maincast(parms, delivery, circle, noto, 607);
-  if(result == 0)
-    return;
-  endif
-  var caster := result[1];
 
-var fey :=systemfindobjectbyserial(getobjproperty(caster, "fey"));
 
-  if(fey)
-    MoveObjectToLocation(fey,0,0,0, "britannia", MOVEOBJECT_FORCELOCATION);
-    ApplyRawDamage(fey, GetHp(fey) + 10);
-    eraseobjproperty(caster, "fey");
-  endif
+	var circle := 1;
+	var delivery := "notarget";
+	var noto := "neutral";
+	//var result := maincast(parms, delivery, circle, noto, 607);
+	//if(result == 0)
+	//	return;
+	//endif
+	//var caster := result[1];
+var caster := parms[1];
 
-var wisp := Createnpcfromtemplate("thornbat", caster.x, caster.y, caster.z, 0, caster.realm);
-playsoundeffect(wisp, 534);
-wisp.setmaster(caster);
-setobjproperty(wisp, "master", caster.serial);
-setobjproperty(wisp, "summoned", 1);
-setobjproperty(wisp, "fey", 1);
-setobjproperty(caster, "fey", wisp.serial);
-wisp.script:= "summoned";
-caster.setcriminal(1);
-restartscript(wisp);
+	var fey := SystemFindObjectBySerial(getobjproperty(caster, "fey"));
+
+	if(fey)
+		MoveObjectToLocation(fey, 0, 0, 0, fey.realm, MOVEOBJECT_FORCELOCATION);
+		KillMobile(fey);
+		EraseObjProperty(caster, "fey"); //global old
+	endif
+
+	var wisp := CreateNpcFromTemplate("thornbat", caster.x, caster.y, caster.z, 0, caster.realm);
+	PlaySoundEffect(wisp, 534);
+	wisp.SetMaster(caster);
+	SetObjProperty(wisp, "master", caster.serial);
+	SetObjProperty(wisp, "summoned", 1);
+	SetObjProperty(wisp, "fey", 1);
+	SetObjProperty(caster, "fey", wisp.serial);
+	wisp.script:= "summoned";
+	caster.SetCriminal(1);
+	RestartScript(wisp);
 
 endprogram

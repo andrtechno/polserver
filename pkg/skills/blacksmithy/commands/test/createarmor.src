@@ -1,0 +1,236 @@
+use cfgfile;
+use uo;
+use os;
+
+include "include/client";
+include "include/objtype";
+include "include/canAccess";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":blacksmithy:craft";
+include ":attributes:attributes";
+
+var smith_cfg := ReadConfigFile("blacksmithy");
+var craftername;
+
+
+program textcmd_createarmor(who)
+    craftername := who.name;
+
+    var xObject := SystemFindObjectBySerial(0x400eb72f);
+    var weapondesc := GetItemDescriptor(xObject.objtype);
+    var damagefactor := (xObject.hp * xObject.quality) / xObject.maxhp;
+
+    var quality := ((0.36) * 10);
+
+    quality:=0.20 * 14; //14
+    //quality:=0.36 * 1;
+
+
+    SendSysMessage(who, "quality "+(1 +quality));
+
+SendSysMessage(who, CINT((weapondesc.MinDamage + xObject.dmg_mod)*damagefactor) + " / "+CINT((weapondesc.MaxDamage + xObject.dmg_mod)*damagefactor));
+    print(RandomFloat(30));
+//armor bez casta 175
+//armor s casta 236+
+
+//SendSysMessage(who, "DMG "+CalcBaseDamage(who));
+//SendSysMessage(who, "with arm "+(CalcBaseDamage(who) - (236/2)));
+//return 0;
+
+    var x := 15;
+    var y := 15;
+    var metal;
+    var flagWeapon := 0;
+    var flagArmorPlate := 0;
+    var flagArmorRingmail := 0;
+    var flagArmorChainmail := 0;
+    var temp;
+	var gump := GFCreateGump( 20, 50 );
+	GFPage( gump, 1 );
+	var widthGump := 300;
+    var heightGump := 400;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+    GFTextLine(gump, 75, y, 33, "Admin Blacksmithy Menu" );
+
+    var ingots := {
+        UOBJ_INGOT_COPPER,
+        UOBJ_INGOT_IRON,
+        UOBJ_INGOT_STEEL,
+        UOBJ_INGOT_ANRA,
+        UOBJ_INGOT_VALORITE,
+        UOBJ_INGOT_LAVAROCK,
+        UOBJ_INGOT_ICEROCK,
+        UOBJ_INGOT_SHADOW,
+        UOBJ_INGOT_AZURITE,
+        UOBJ_INGOT_DOOM,
+        UOBJ_INGOT_BLUESTEEL,
+        UOBJ_INGOT_DARKRUBY,
+        UOBJ_INGOT_CRYSTALIT,
+        UOBJ_INGOT_ONYX,
+        UOBJ_INGOT_MIFRIL
+    };
+
+
+	GFSetRadioGroup(gump, 1);
+
+    y+=35;
+    var index := 1;
+    foreach ingot in ingots
+        var desc := GetItemDescriptor(ingot);
+        var name := desc.name;
+        name["Ingot"]:="";
+        GFRadioButton( gump, x, y, 208, 209, 0, 100 + index );
+        GFTextLine(gump, x + 25, y, 2100, name );
+        y+=20;
+        index+=1;
+    endforeach
+
+    x := 150;
+    y := 50;
+    index := 300;
+    foreach iname in {"Weapons","Armor Platemail", "Armor Ringmail", "Armor Chainmail"}
+        //(byref gump, x, y, unc_id, che_id, status:=0, btn_value:=0)
+        GFCheckBox(gump, x, y, 210, 211, 0, index);
+        GFTextLine(gump, x + 25, y, 1153, iname);
+        y+=25;
+        index+=1;
+    endforeach
+
+    y+=15;
+    GFTextLine(gump, 150, y, 2100, "Crafted By:" );
+    GFResizePic(gump, 150, y +25, 2620, 130, 30);
+    var crafted := GFTextEntry(gump, 150 + 8, y + 30, 135, 20, 2100, craftername, 400);
+
+
+
+	GFAddButton(gump, (widthGump / 2) - 30, heightGump - 35, 247, 248, GF_CLOSE_BTN, 1);
+
+    var input := GFSendGump( who, gump );
+    foreach key in ( input.keys )
+        if( key >= 100 && key < 200 )
+            metal := GetItemDescriptor(ingots[(key - 100)]);
+        elseif(key == 300)
+            flagWeapon:=1;
+        elseif(key == 301)
+            flagArmorPlate:=1;
+        elseif(key == 302)
+            flagArmorRingmail:=1;
+        elseif(key == 303)
+            flagArmorChainmail:=1;
+        elseif(key == 400)
+            craftername := GFExtractData(input, key);
+        endif
+        SleepMS(1);
+
+    endforeach
+
+
+    if(!metal)
+        SendSysMessage(who, "no select metal.");
+        return;
+    endif
+    if(!(flagWeapon || flagArmorPlate || flagArmorRingmail || flagArmorChainmail))
+        SendSysMessage(who, "no select any type.");
+        return;
+    endif
+
+    var backpack := CreateItemInContainer( who.backpack, 0x9b2, 1 );
+    backpack.color:=metal.color;
+
+
+    var weapons := {
+        "longsword",
+        "HammerPick",
+        "Mace",
+        "Maul",
+        "WarHammer",
+        "WarMace",
+        "Bardiche",
+        "Halberd",
+        "ShortSpear",
+        "Spear",
+        "WarFork",
+        "BroadSword",
+        "Dagger",
+        "Katana",
+        "Kryss",
+        "Scimitar",
+        "VikingSword",
+        //"Hatchet",
+        //"ButcherKnife"
+        "Cutlass"
+    };
+    var armorsPlate := {
+        "HeaterShield",
+        "PlatemailBreastplate",
+        "PlatemailArms",
+        "PlatemailLegs",
+        "PlatemailGloves",
+        "PlatemailGorget",
+        "PlateHelm",
+        "FemalePlate"
+    };
+    var armorsChainmail := {
+        "ChainmailCoif",
+        "ChainmailLeggings",
+        "ChainmailTunic"
+    };
+    var armorsRingmail := {
+        "RingmailTunic",
+        "RingmailSleeves",
+        "RingmailLeggings",
+        "RingmailGloves"
+    };
+
+    if(flagWeapon)
+        foreach weapon in weapons
+            makeItem(metal, weapon, backpack);
+        endforeach
+    endif
+    if(flagArmorPlate)
+        foreach armor in armorsPlate
+            makeItem(metal, armor, backpack);
+        endforeach
+    endif
+    if(flagArmorRingmail)
+        foreach armor in armorsRingmail
+            makeItem(metal, armor, backpack);
+        endforeach
+    endif
+    if(flagArmorChainmail)
+        foreach armor in armorsChainmail
+            makeItem(metal, armor, backpack);
+        endforeach
+    endif
+endprogram
+
+
+
+
+
+function CalcBaseDamage(me)
+	//var base_dmg := "5d8+2";
+	var base_dmg := "5d3";
+
+	base_dmg := RandomDiceRoll(base_dmg);
+
+
+
+	var dmg_mult := CDbl(AP_GetSkill(me, "Swordsmanship"));
+
+    var classid := CInt(GetObjProperty(me, "classid"));
+	if(classid == 2) //fighter
+	    var level := CInt(GetObjProperty(me, "classlevel"));
+	endif
+
+
+	dmg_mult += (CDbl(AP_GetStat(me, STRENGTH)) * 0.6);
+	dmg_mult := CDbl(dmg_mult * 0.03);
+
+
+	base_dmg *= dmg_mult;
+
+
+	return CInt(base_dmg);
+endfunction

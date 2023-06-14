@@ -1,0 +1,71 @@
+use uo;
+use unicode;
+
+include "include/client";
+
+program InstallPlayerMoved()
+
+	Print("PacketHooks - Player Moved" );
+
+	return 1;
+endprogram
+
+exported function HandlePlayerMoved( mobile, byref packet )
+
+    var sequence := packet.GetInt8( 1 ); //количество шагов
+    var notoriety := packet.GetInt8( 2 );
+    //print("sequence "+sequence);
+    //print("notoriety "+notoriety);
+    if(!mobile.opponent.isa(POLCLASS_NPC))
+        if(mobile.opponent.facing == mobile.facing)
+
+            if(CInt(GetObjProperty(mobile, "#AutoMoverTimer")) <= ReadGameClock())
+                if(CInt(GetObjProperty(mobile, "#AutoMoverFacing")) != mobile.opponent.facing) //если бегут долгое время по одному и томуже наплавдени.
+
+                    SetObjProperty(mobile, "#AutoMoverTimer", ReadGameClock() + 1);
+                    SetObjProperty(mobile, "#AutoMoverFacing", mobile.facing);
+                    SetObjProperty(mobile, "#AutoMoverCount", CInt(GetObjProperty(mobile, "#AutoMoverCount")) + 1);
+
+                endif
+            endif
+        endif
+        if(CInt(GetObjProperty(mobile, "#AutoMoverCount")) >= 5)
+            Broadcast("[Anti-Cheat] Automover detected.", color := 88);
+            EraseObjProperty(mobile, "#AutoMoverCount");
+            EraseObjProperty(mobile, "#AutoMoverFacing");
+        endif
+    endif
+
+
+    if(sequence % 2)
+        if(!mobile.cmdlevel)
+    	    SetObjProperty(mobile, "mover", struct{x:=mobile.x, y:=mobile.y});
+    	endif
+    endif
+
+    if(sequence == 0)
+        if(!mobile.cmdlevel)
+
+            var dis := GetObjProperty(mobile, "mover");
+
+            if(dis)
+                var distanced := CoordinateDistance(dis.x, dis.y, mobile.x, mobile.y);
+                if(distanced < 4)
+                    //SendSysMessage( mobile, "[Anti-Cheat] "+distanced, color := 88);
+                    if(distanced >= 2)
+                        SendSysMessageUC( mobile, "[Anti-Cheat] Привышение скорости передвижение. ["+distanced+"]", "RUS", color := MESSAGE_COLOR_BAD);
+                        foreach member in EnumerateOnlineCharacters()
+                            if (member.cmdlevel )
+                                SendSysMessageUC(member, "[Anti-Cheat] " + member.name+" Привысел скорость ["+distanced+"]", "RUS", color := 88);
+                            endif
+                        endforeach
+                    endif
+                    EraseObjProperty(mobile, "mover");
+                endif
+            endif
+        endif
+    endif
+
+
+	return 0;
+endfunction

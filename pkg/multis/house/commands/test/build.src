@@ -1,0 +1,53 @@
+use cfgfile;
+
+use os;
+use uo;
+use PolSys;
+
+program textcmd_build(who)
+    //var multi := who.multi;
+
+
+
+  var targ := TargetCoordinates(who);
+
+      if(!targ)
+          return;
+      endif
+      targ.multi.acceptcommit(who, 1);
+  targ.multi.setcustom(1);
+      //targ.multi.acceptcommit(who, 1);
+
+//targ.multi.cancelediting(who, 1);
+
+    var tool := SendHousingTool( who, targ.multi );
+print(tool);
+return 1;
+
+/*var outp := CreatePacket(0x6C,19);
+outp.SetInt8(1, 0x6C);
+outp.SetInt8(1, 1);
+outp.SetInt8(1, 1);
+outp.SetInt8(1, 2);
+outp.SetInt16(10, 0x0034);
+outp.SendPacket(who);*/
+
+//var rainpacket := "65005000";
+//SendPacket( who, rainpacket );
+
+
+
+    /*var targ := TargetCoordinates(who);
+    if(!targ)
+        return;
+    endif
+    if(targ.multi)
+    var item := CreateItemAtLocation( targ.x, targ.y, who.z, 0x0034, 1);
+
+    var component := targ.multi.add_component(item);
+    var part := targ.multi.addhousepart(0x0034, targ.x, targ.y, who.z);
+
+    print(component);
+    print(part);
+    endif*/
+endprogram

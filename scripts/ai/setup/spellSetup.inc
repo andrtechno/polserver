@@ -45,5 +45,5 @@ function SortSpellList();
     holder.append(ct);
     spells.append(holder);
   endforeach
-//  print("spells: " + spells);
+
 endfunction

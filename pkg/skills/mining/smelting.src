@@ -5,7 +5,6 @@ include "include/client";
 include "include/objtype";
 include "include/canAccess";
 include ":attributes:attributes";
-include "include/const";
 
 program smelt_that_ore (who, ore)
   EraseObjProperty(who, "IsMeditating");
@@ -18,21 +17,21 @@ program smelt_that_ore (who, ore)
     return;
   endif
   case(ore.objtype)
-    ORE_COPPER:     SmeltOre(who, ore, INGOT_COPPER, 0);	// copper
-    ORE_IRON:       SmeltOre(who, ore, INGOT_IRON, 60);	// icon
-    ORE_STEEL:      SmeltOre(who, ore, INGOT_STEEL, 70);	// Steel
-    ORE_ANRA:       SmeltOre(who, ore, INGOT_ANRA, 80);	// Anra
-    ORE_VALORITE:   SmeltOre(who, ore, INGOT_VALORITE, 90);	// Valorite
-    ORE_LAVAROCK:   SmeltOre(who, ore, INGOT_LAVAROCK, 95);	// Lavarock
-    ORE_ICEROCK:    SmeltOre(who, ore, INGOT_ICEROCK, 100);	// Icerock
-    ORE_SHADOW:     SmeltOre(who, ore, INGOT_SHADOW, 105);	// Shadow
-    ORE_AZURITE:    SmeltOre(who, ore, INGOT_AZURITE, 110);	// Azurite
-    ORE_DOOM:       SmeltOre(who, ore, INGOT_DOOM, 115);	// Doom
-    ORE_BLUESTEEL:  SmeltOre(who, ore, INGOT_BLUESTEEL, 120);	// BlueSteel
-    ORE_DARKRUBY:   SmeltOre(who, ore, INGOT_DARKRUBY, 128);	// darkruby
-    ORE_CRYSTALIT:  SmeltOre(who, ore, INGOT_CRYSTALIT, 135);	// crystalit
-    ORE_ONYX:       SmeltOre(who, ore, INGOT_ONYX, 140);	// onxy
-    ORE_MIFRIL:     SmeltOre(who, ore, INGOT_MIFRIL, 145);	// mifril
+    UOBJ_ORE_COPPER:     SmeltOre(who, ore, UOBJ_INGOT_COPPER, 0);	// copper
+    UOBJ_ORE_IRON:       SmeltOre(who, ore, UOBJ_INGOT_IRON, 60);	// icon
+    UOBJ_ORE_STEEL:      SmeltOre(who, ore, UOBJ_INGOT_STEEL, 70);	// Steel
+    UOBJ_ORE_ANRA:       SmeltOre(who, ore, UOBJ_INGOT_ANRA, 80);	// Anra
+    UOBJ_ORE_VALORITE:   SmeltOre(who, ore, UOBJ_INGOT_VALORITE, 90);	// Valorite
+    UOBJ_ORE_LAVAROCK:   SmeltOre(who, ore, UOBJ_INGOT_LAVAROCK, 95);	// Lavarock
+    UOBJ_ORE_ICEROCK:    SmeltOre(who, ore, UOBJ_INGOT_ICEROCK, 100);	// Icerock
+    UOBJ_ORE_SHADOW:     SmeltOre(who, ore, UOBJ_INGOT_SHADOW, 105);	// Shadow
+    UOBJ_ORE_AZURITE:    SmeltOre(who, ore, UOBJ_INGOT_AZURITE, 110);	// Azurite
+    UOBJ_ORE_DOOM:       SmeltOre(who, ore, UOBJ_INGOT_DOOM, 115);	// Doom
+    UOBJ_ORE_BLUESTEEL:  SmeltOre(who, ore, UOBJ_INGOT_BLUESTEEL, 120);	// BlueSteel
+    UOBJ_ORE_DARKRUBY:   SmeltOre(who, ore, UOBJ_INGOT_DARKRUBY, 128);	// darkruby
+    UOBJ_ORE_CRYSTALIT:  SmeltOre(who, ore, UOBJ_INGOT_CRYSTALIT, 135);	// crystalit
+    UOBJ_ORE_ONYX:       SmeltOre(who, ore, UOBJ_INGOT_ONYX, 140);	// onxy
+    UOBJ_ORE_MIFRIL:     SmeltOre(who, ore, UOBJ_INGOT_MIFRIL, 145);	// mifril
     default: SendSysMessage(who,"You can't smelt that.");
   endcase
 endprogram

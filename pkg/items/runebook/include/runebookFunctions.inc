@@ -20,39 +20,60 @@ function CreateRunebookGump( who, book )
 	var book_gump := GFCreateGump(150, 200);
 
 	GFGumpPic( book_gump, 100, 10, 2200);
-  var g, h, xOffset;
-  for ( g:=0; g<2; g+=1 )
-    xOffset := 125 + ( g * 165 );
-    GFGumpPic ( book_gump, xOffset, 50, 57 );
-    xOffset += 20;
-    for ( h:=0; h<6; h+=1 )
-      GFGumpPic ( book_gump, xOffset, 50, 58 );
-      xOffset += 15;
+    print(Len(rune_list));
+    var g, h, xOffset;
+    for ( g:=0; g<2; g+=1 )
+        xOffset := 125 + ( g * 165 );
+        GFGumpPic ( book_gump, xOffset, 50, 57 );
+        xOffset += 20;
+        for ( h:=0; h<6; h+=1 )
+            GFGumpPic ( book_gump, xOffset, 50, 58 );
+            xOffset += 15;
+        endfor
+        GFGumpPic ( book_gump, xOffset - 5, 50, 59 );
     endfor
-    GFGumpPic ( book_gump, xOffset - 5, 50, 59 );
-  endfor
 
-	GFAddButton( book_gump, 130, 187, 2225, 2225, GF_PAGE_BTN, 2 );
-	GFAddButton( book_gump, 165, 187, 2226, 2226, GF_PAGE_BTN, 3 );
+var gp :=0;
+var number_of_page := Ceil(Len(rune_list) / 2);
+var gumpPageLeft:=130;
+var gumpPage := 2225;
+var pageId := 2;
+for ( gp:=0; gp <= number_of_page; gp+=1 )
+
+
+    GFAddButton( book_gump, gumpPageLeft, 187, gumpPage + gp, gumpPage + gp, GF_PAGE_BTN, pageId );
+    if(gp == 3)
+        gumpPageLeft:=gumpPageLeft + 25;
+    endif;
+    gumpPageLeft:=gumpPageLeft + 35;
+    pageId := pageId + 1;
+
+endfor
+
+
+
+
+
+	/*GFAddButton( book_gump, 165, 187, 2226, 2226, GF_PAGE_BTN, 3 );
 	GFAddButton( book_gump, 200, 187, 2227, 2227, GF_PAGE_BTN, 4 );
 	GFAddButton( book_gump, 235, 187, 2228, 2228, GF_PAGE_BTN, 5 );
 	GFAddButton( book_gump, 300, 187, 2229, 2229, GF_PAGE_BTN, 6 );
 	GFAddButton( book_gump, 335, 187, 2230, 2230, GF_PAGE_BTN, 7 );
 	GFAddButton( book_gump, 370, 187, 2231, 2231, GF_PAGE_BTN, 8 );
-	GFAddButton( book_gump, 405, 187, 2232, 2232, GF_PAGE_BTN, 9 );
+	GFAddButton( book_gump, 405, 187, 2232, 2232, GF_PAGE_BTN, 9 );*/
 
-  GFAddHTMLLocalized ( book_gump, 140, 40, 80, 18, 1011296, 0, 0); // Charges:
-  GFHTMLArea( book_gump, 220, 40, 30, 18, charges );
-  
-  GFAddHTMLLocalized ( book_gump, 300, 40, 100, 18, 1011297, 0, 0); // Max Charges:
-  GFHTMLArea( book_gump, 400, 40, 30, 18, max_charges );
-	
-	
+    GFAddHTMLLocalized ( book_gump, 140, 40, 80, 18, 1011296, 0, 0); // Charges:
+    GFHTMLArea( book_gump, 220, 40, 30, 18, charges );
+
+    GFAddHTMLLocalized ( book_gump, 300, 40, 100, 18, 1011297, 0, 0); // Max Charges:
+    GFHTMLArea( book_gump, 400, 40, 30, 18, max_charges );
+
+
 
 	GFPage( book_gump, 1 );
 
-	GFAddButton( book_gump, 125, 15, 2472, 2473, GF_CLOSE_BTN, 50 ); 
-  GFAddHTMLLocalized ( book_gump, 158, 22, 100, 18, 1011299, 0, 0); // Rename book
+	GFAddButton( book_gump, 125, 15, 2472, 2473, GF_CLOSE_BTN, 50 );
+    GFAddHTMLLocalized ( book_gump, 158, 22, 100, 18, 1011299, 0, 0); // Rename book
 	GFAddButton( book_gump, 393, 14, 2206, 2206, GF_PAGE_BTN, 2 );
 
 	var pOX := 145;
@@ -61,9 +82,9 @@ function CreateRunebookGump( who, book )
 	var recall_button    := 201;
 	var gate_button      := 301;
 	var sacred_button    := 401;
-  var drop_rune_button := 501;
+    var drop_rune_button := 501;
 	var set_default_rune := 601;
-  
+
 	var rune_pos         := 1;
         var rune_use         := 101;
 
@@ -75,7 +96,7 @@ function CreateRunebookGump( who, book )
 		endif
 
 		var mapcolor := 0;
-    var rune_entry := rune_list[rune_pos];
+        var rune_entry := rune_list[rune_pos];
 		if( TypeOf( rune_entry ) == "Struct" )
 			if( rune_entry.name )
 				// Adds color to rune name in book based on facet location
@@ -90,43 +111,47 @@ function CreateRunebookGump( who, book )
             elseif ( rune_entry.realm == "tokuno" )
                 mapcolor := 1154;
             elseif ( rune_entry.realm == "termur" )
-                mapcolor := 1645;		
+                mapcolor := 1645;
             else
                 mapcolor := 0;
             endif
 
-				GFPage( book_gump, 1 );
-				GFTextCrop( book_gump, pOX,  pOY, 115, 17, mapcolor, rune_entry.name );
-        GFAddButton( book_gump, pOX-15, pOY+5,  2103, 2104, GF_CLOSE_BTN, rune_use );
-				GFPage( book_gump, i );
+            print(rune_entry);
 
-				GFAddButton( book_gump, 130, 65, 2103, 2104, GF_CLOSE_BTN, charge_button );
-				GFTextCrop( book_gump, 145, 60, 115, 17, mapcolor, rune_entry.name );
-              //  GFTextLine( book_gump, 135, 80, 0, rune_entry.x+", "+rune_entry.y+", "+rune_entry.z);
+			GFPage( book_gump, 1 );
+			GFTextCrop( book_gump, pOX,  pOY, 115, 17, mapcolor, rune_entry.name );
+            GFAddButton( book_gump, pOX-15, pOY+5,  2103, 2104, GF_CLOSE_BTN, rune_use );
+			GFPage( book_gump, i );
+
+			GFAddButton( book_gump, 130, 65, 2103, 2104, GF_CLOSE_BTN, charge_button );
+			GFTextCrop( book_gump, 145, 60, 115, 17, mapcolor, rune_entry.name );
+			//GFTextLine( book_gump, 135, 80, 0, ConvertLatLong( rune_entry.x, rune_entry.y, 1 ));
+			//GFTextLine( book_gump, 135, 95, 0, ConvertLatLong( rune_entry.x, rune_entry.y, 2 ));
+            GFTextLine( book_gump, 135, 80, 0, rune_entry.realm+": "+rune_entry.x+", "+rune_entry.y);
 
 
-				GFAddButton( book_gump, 135, 105, 2437, 2438, GF_CLOSE_BTN, drop_rune_button );
-        GFAddHTMLLocalized ( book_gump, 150, 102, 100, 18, 1011298, 0, 0); // Drop Rune
-				
-        GFAddButton( book_gump, 160, 20, 2361, 2361, GF_CLOSE_BTN, set_default_rune );
-        GFAddHTMLLocalized ( book_gump, 175, 15, 100, 18, 1011300, 0, 0); // Set default
+            GFAddButton( book_gump, 135, 120, 2437, 2438, GF_CLOSE_BTN, drop_rune_button );
+            GFAddHTMLLocalized ( book_gump, 150, 118, 100, 18, 1011298, 0, 0); // Drop Rune
 
-        GFAddButton ( book_gump, 135, 140, 2271, 2271, GF_CLOSE_BTN, recall_button );
-        GFAddHTMLLocalized ( book_gump, 135, 120, 110, 20, 1062722, 0, 0); // Recall
-        
-		GFAddButton ( book_gump, 210, 140, 2291, 2291, GF_CLOSE_BTN, gate_button );
-        GFAddHTMLLocalized ( book_gump, 200, 120, 110, 20, 1062723, 0, 0); // Gate Travel
-        
-        //GFAddButton ( book_gump, 135, 176, 2103, 2104, GF_CLOSE_BTN, sacred_button );
-        //GFAddHTMLLocalized ( book_gump, 150, 172, 110, 20, 1062724, 0, 0); // Sacred Journey
+            GFAddButton( book_gump, 160, 20, 2361, 2361, GF_CLOSE_BTN, set_default_rune );
+            GFAddHTMLLocalized ( book_gump, 175, 15, 100, 18, 1011300, 0, 0); // Set default
 
-				charge_button += 1;
-				drop_rune_button += 1;
-				set_default_rune += 1;
-				recall_button += 1;
-				gate_button += 1;
-        sacred_button += 1;
-        rune_use += 1;
+            GFAddButton ( book_gump, 135, 140, 2271, 2271, GF_CLOSE_BTN, recall_button );
+            //GFAddHTMLLocalized ( book_gump, 135, 120, 110, 20, 1062722, 0, 0); // Recall
+
+            GFAddButton ( book_gump, 210, 140, 2291, 2291, GF_CLOSE_BTN, gate_button );
+            //GFAddHTMLLocalized ( book_gump, 210, 120, 110, 20, 1062723, 0, 0); // Gate Travel
+
+            //GFAddButton ( book_gump, 135, 176, 2103, 2104, GF_CLOSE_BTN, sacred_button );
+            //GFAddHTMLLocalized ( book_gump, 150, 172, 110, 20, 1062724, 0, 0); // Sacred Journey
+
+			charge_button += 1;
+			drop_rune_button += 1;
+			set_default_rune += 1;
+			recall_button += 1;
+			gate_button += 1;
+            sacred_button += 1;
+            rune_use += 1;
 			endif
 		endif
 
@@ -149,35 +174,38 @@ function CreateRunebookGump( who, book )
             elseif ( rune_entry.realm == "tokuno" )
                 mapcolor := 1154;
             elseif ( rune_entry.realm == "termur" )
-                mapcolor := 1645;		
+                mapcolor := 1645;
             else
                 mapcolor := 0;
             endif
 
-				GFPage( book_gump, 1);
-				GFTextCrop( book_gump, pOX, pOY, 115, 17, mapcolor, rune_entry.name );
-        GFAddButton( book_gump, pOX-15, pOY+5, 2103, 2104, GF_CLOSE_BTN, rune_use );
-				GFPage( book_gump, i);
+			GFPage( book_gump, 1);
+			GFTextCrop( book_gump, pOX, pOY, 115, 17, mapcolor, rune_entry.name );
+            GFAddButton( book_gump, pOX-15, pOY+5, 2103, 2104, GF_CLOSE_BTN, rune_use );
+			GFPage( book_gump, i);
 
-				GFAddButton( book_gump, 290, 65, 2103, 2104, GF_CLOSE_BTN, charge_button );
-				GFTextCrop( book_gump, 305, 60, 115, 17, mapcolor, rune_entry.name );
-              //  GFTextLine( book_gump, 295, 80, 0, rune_entry.x+", "+rune_entry.y+", "+rune_entry.z);
+			GFAddButton( book_gump, 290, 65, 2103, 2104, GF_CLOSE_BTN, charge_button );
+			GFTextCrop( book_gump, 305, 60, 115, 17, mapcolor, rune_entry.name );
+			//GFTextLine( book_gump, 295, 80, 0, ConvertLatLong( rune_entry.x, rune_entry.y, 1 ));
+			//GFTextLine( book_gump, 295, 95, 0, ConvertLatLong( rune_entry.x, rune_entry.y, 2 ));
+            GFTextLine( book_gump, 295, 80, 0, rune_entry.realm+": "+rune_entry.x+", "+rune_entry.y);
 
-				GFAddButton( book_gump, 295, 105, 2437, 2438, GF_CLOSE_BTN, drop_rune_button );
-        GFAddHTMLLocalized ( book_gump, 310, 102, 100, 18, 1011298, 0, 0); // Drop Rune
-        
-				GFAddButton( book_gump, 300, 20, 2361, 2361, GF_CLOSE_BTN, set_default_rune );
-				GFAddHTMLLocalized ( book_gump, 315, 15, 100, 18, 1011300, 0, 0); // Set default
-        
-		GFAddButton ( book_gump, 295, 140, 2271, 2271, GF_CLOSE_BTN, recall_button );
-        GFAddHTMLLocalized ( book_gump, 295, 120, 110, 20, 1062722, 0, 0); // Recall
-        
-		GFAddButton ( book_gump, 375, 140, 2291, 2291, GF_CLOSE_BTN, gate_button );
-        GFAddHTMLLocalized ( book_gump, 350, 120, 110, 20, 1062723, 0, 0); // Gate Travel
-        
+			GFAddButton( book_gump, 295, 120, 2437, 2438, GF_CLOSE_BTN, drop_rune_button );
+            GFAddHTMLLocalized ( book_gump, 310, 118, 100, 18, 1011298, 0, 0); // Drop Rune
+
+			GFAddButton( book_gump, 300, 20, 2361, 2361, GF_CLOSE_BTN, set_default_rune );
+			GFAddHTMLLocalized ( book_gump, 315, 15, 100, 18, 1011300, 0, 0); // Set default
+
+
+        GFAddButton ( book_gump, 295, 140, 2271, 2271, GF_CLOSE_BTN, recall_button );
+        //GFAddHTMLLocalized ( book_gump, 295, 120, 110, 20, 1062722, 0, 0); // Recall
+
+        GFAddButton ( book_gump, 370, 140, 2291, 2291, GF_CLOSE_BTN, gate_button );
+        //GFAddHTMLLocalized ( book_gump, 370, 120, 110, 20, 1062723, 0, 0); // Gate Travel
+
         //GFAddButton ( book_gump, 295, 176, 2103, 2104, GF_CLOSE_BTN, sacred_button );
         //GFAddHTMLLocalized ( book_gump, 310, 172, 110, 20, 1062724, 0, 0); // Sacred Journey
-				
+
         charge_button += 1;
 				drop_rune_button += 1;
 				set_default_rune += 1;

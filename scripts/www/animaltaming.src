@@ -1,0 +1,118 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+
+var npccfgfile := ReadConfigFile("::npcdesc");
+var list := GetConfigStringKeys( npccfgfile );
+var idQuery := QueryParam("id");
+var taxonomyQuery := QueryParam("taxonomy");
+var data := struct{};
+var taxonomyList := {
+"anura",
+"arachnida",
+"aves",
+"chiroptera",
+"beholder",
+"bovidae",
+"boss",
+"camelidae",
+"canidae",
+"cervidae",
+"cretacea",
+"crustacean",
+"daemonium",
+"delphinidae",
+"draco",
+"elementum",
+"equus",
+"felidae",
+"fey",
+"homo_sapiens",
+"immortuos",
+"limus",
+"movens_ligno",
+"odobenidae",
+"orcus",
+"phasianidae",
+"primatomorpha",
+"reptilia",
+"rodentia",
+"scarabaeidae",
+"serpentes",
+"suidae",
+"unknown",
+"ursidae",
+"vinae"
+};
+
+WriteHtml( "<html><head><title>POL Guilds</title></head>" +
+    "<body>");
+
+
+if(idQuery)
+
+    WriteHtml( "<table border=1 cellspacing=0 cellpadding=5>" +
+        "<tr bgcolor=#99CCFF><td>param</td><td>value</td></tr>");
+
+
+
+    var elem := FindConfigElem( npccfgfile, idQuery );
+
+    var info := struct;
+    foreach prop in ( ListConfigElemProps( elem ) )
+        var params := npccfgfile[idQuery];
+        var value := GetConfigString(elem,prop);
+        if(value)
+            info.+""+lower(prop) := GetConfigString(elem,prop);
+                    WriteHtml("<tr>" +
+                        "<td>"+lower(prop)+"</td>" +
+                        "<td>"+value+"</td>" +
+                    "</tr>");
+        endif
+
+
+
+    endforeach
+
+    data.+success := Boolean(1);
+    data.+data := info;
+
+    WriteHtml( "</table>" );
+    //WriteHtml( PackJSON(data) );
+    return 1;
+else
+    foreach taxonomy_id in ( taxonomyList )
+        WriteHtml( "<a href=\"animaltaming.ecl?taxonomy="+taxonomy_id+"\">"+taxonomy_id+"</a> | ");
+    endforeach
+
+
+    WriteHtml( "<table border=1 cellspacing=0 cellpadding=5>" +
+        "<tr bgcolor=#99CCFF><td>ID</td><td>tameskill</td><td>herdskill</td></tr>");
+
+
+    foreach npc in ( list )
+        var elem := FindConfigElem( npccfgfile, npc );
+        var tameskill := GetConfigString( elem, "tameskill" );
+        var name := GetConfigString( elem, "Name" );
+        var herdskill := GetConfigString( elem, "herdskill" );
+        var taxonomy := GetConfigString( elem, "Taxonomy" );
+
+        if(taxonomy == taxonomyQuery)
+            WriteHtml("<tr>" +
+                "<td><a href=\"animaltaming.ecl?id="+npc+"\">"+npc+"</a> "+name+"</td>" +
+                "<td>"+tameskill+"</td>" +
+                "<td>"+herdskill+"</td>" +
+            "</tr>");
+        endif
+    endforeach
+
+
+    WriteHtml( "</table>" );
+endif
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+

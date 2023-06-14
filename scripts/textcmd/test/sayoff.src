@@ -1,0 +1,57 @@
+use uo;
+use unicode;
+
+include "util/bank";
+include "include/string";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+const AMOUNT := 1000;
+const START_ACTIVE := 50000;
+
+program textcmd_sayoff(who)
+    var targ := Target(who);
+    if(!targ)
+        SendSysMessage(who, "Cancelled.");
+    endif
+
+    var isSay := GetObjProperty(targ, "CmdSay");
+    if(isSay)
+
+        var x := 10;
+        var y := 15;
+        var gump := GFCreateGump( 20, 50 );
+        GFClosable(gump, 1);
+        var widthGump := 250;
+        var heightGump := 140;
+        GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+
+
+        if(isSay.enabled)
+            GFAddButton(gump, 10, 20, 2117, 2118, GF_CLOSE_BTN, 100);
+            GFTextLine(gump,  30, 17, 2100, "Отключить чат" );
+        else
+            var owner := SystemFindObjectBySerial(CInt(isSay.disableOwner));
+            GFTextLine(gump, 15, 15, 33, "Чат уже отключен." );
+            GFTextLine(gump, 15, 70, 2100, "Отключил: (" +owner.acctname+"/" +owner.name+")");
+        endif
+        GFTextLine(gump, 15, 47, 2100, "Очков штрафа: " +isSay.penalty);
+
+        var input := GFSendGump( who, gump );
+        input := CInt(input[0]);
+        if ( input == 100)
+            var data := struct;
+            data.+enabled := 0;
+            data.+penalty := isSay.penalty + 1;
+            data.+disableOwner := who.serial;
+            SetObjProperty(who, "CmdSay", data);
+            SendSysMessageUC(who, "Чат отключен.", "RUS", 3, 33);
+        endif
+
+    else
+       SendSysMessageUC(who, "Чат еще небыл активен", "RUS", 3, 33);
+    endif
+
+
+    return 1;
+endprogram

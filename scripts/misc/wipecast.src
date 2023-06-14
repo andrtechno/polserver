@@ -2,17 +2,38 @@ use os;
 //use vitals;
 
 include "include/statMod";
+include ":timedScripts:timedScripts";
 
-program wipeCast(cast_on)
-        var buffs := {
-            "#cast_bless", "#cast_cunning", "#cast_agility", "#cast_strength",
-            "#cast_protection", "#cast_poly", "#cast_feeblemind", "#cast_weaken", "#cast_clumsy"
-        };
+program wipeCast(params)
+    var caster := params[1];
+    var cast_on := params[2];
+    var type := params[3];
+    if(!type)
+        type := "all";
+    endif
+    var buffs := {
+        "Agility", "Polymorph", "Bless", "Cunning", "Agility", "Strength", "ProtectionNew"
+    };
+
+    //var timeList := TS_GetTimerList(cast_on);
+
+    var deBuffs := {"FeebleMind", "Weaken", "Clumsy"};
+
+    //random
+
+
+
+    if(type == "random")
+    //var rint := RandomInt(Len(buffs)) + 1;
+    //TS_LowerDuration(cast_on, buffs[rint], -1);
+    //SendSysMessage(caster, "The magical "+Lower(buffs[rint])+" effect active on this creature has been wiped.");
+
+    else
+        //all
         foreach buff in (buffs)
-            if (CanMod(cast_on, buff))
-                var b := GetObjProperty(cast_on, buff);
-                undo_mod(cast_on, buff, b.value);
-            endif
+            TS_LowerDuration(cast_on, buff, -1);
         endforeach
+        SendSysMessage(caster, "All the magical effects active on this creature have been wiped.");
+    endif
 endprogram
 

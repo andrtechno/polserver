@@ -11,9 +11,10 @@ include ":attributes:attributes";
 program TimedScript_EndStrengthPotion(params)
 	var mobile := params[1];
 	
-	var points := CInt(GetObjProperty(mobile, "StrengthMod"));	
-	AP_ModifyStatMod(mobile, STRENGTH, -(points));
-	EraseObjProperty(mobile, "StrengthMod");
+	var points := GetObjProperty(mobile, "StrengthPotion");
+
+	AP_ModifyStatMod(mobile, STRENGTH, -points.str);
+	EraseObjProperty(mobile, "StrengthPotion");
 	
 	return 1;
 endprogram

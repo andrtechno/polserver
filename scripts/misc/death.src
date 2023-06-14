@@ -6,42 +6,55 @@ use cfgfile;
 
 include "include/client";
 include ":attributes:attributes";
-include "include/NPCBackpacks";
-include "include/noto";
-include "include/mrcSpawn";
+include ":npcs:NPCBackpacks";
+include ":damage:damage";
+include ":virtue:noto";
 //include "systems:spawnregion:spawnRegion";
 //include ":spawnregion:spawnRegion";
-
-include ":quests:quests";
-
+include ":mounts:mounts";
 var npcdesc_cfg := ReadConfigFile( "npcdesc" );
+
+include "include/startEqp";
 
 program npcdeath(corpse)
     var i;
+    //if(GetObjProperty(corpse, "restockserial"))
+    //var stocklist := SystemFindObjectBySerial(CInt(GetObjProperty(corpse, "restockserial")));
+    //    DestroyItem(stocklist);
+    //endif
+    var elem := GetObjProperty(corpse, "npctemplate");
 
-    if(GetObjProperty(corpse, "restockserial"))
-        var stocklist := SystemFindObjectBySerial(CInt(GetObjProperty(corpse, "restockserial")));
-        DestroyItem(stocklist);
+    //New loot system
+    var lewtgroup := npcdesc_cfg[elem].lootgroup;
+    if(lewtgroup)
+        MakeLoot(corpse, CInt(lewtgroup));
     endif
-    if(GetObjProperty(corpse, "MerchantType"))
-        var spawnname := GetObjProperty(corpse, "MerchantType") + " " + corpse.x + " " + corpse.y + " " + corpse.z;
-        destroy_node_merc(spawnname);
+
+    var master := SystemFindObjectBySerial(CInt(GetObjProperty(corpse, "master")), SYSFIND_SEARCH_OFFLINE_MOBILES);
+    if(master)
+        master.followers -= 1;
     endif
-    var killer := GetObjProperty(corpse, "LastHit");
-    if (killer != error)
-        i := SystemFindObjectBySerial(killer[2]);
+    var last_damage := GetObjProperty(corpse, "LastDamage");
+    var killer := last_damage.serial;
+    var killerMobile := SystemFindObjectBySerial(killer);
+    /*if (killer != error)
+        i := SystemFindObjectBySerial(killer);
+
+        AdjustNoto(i, corpse);
+
         if (GetObjProperty(i, "CursedLoot") )
             SetObjProperty(corpse, "guardkill", 1);
         elseif (GetObjProperty(i, "BlessedLoot") )
             SetObjProperty(corpse, "BlessedLoot", 1);
         endif
-    endif
+    endif*/
     if((killer != error) && (!GetObjProperty(corpse, "guardkill")))
-        AdjustNoto((SystemFindObjectBySerial(killer[2])), corpse);
+        AdjustNoto((SystemFindObjectBySerial(killer)), corpse);
     endif
 
 
-    var char;
+
+    /*var char;
     var mounted_char;
     var onchars := EnumerateOnlineCharacters();
     if(GetObjProperty(corpse,"mounted"))
@@ -52,9 +65,10 @@ program npcdeath(corpse)
                 break;
             endif
         endforeach
+
         dismountme(mounted_char, corpse);
-    endif
-    var elem := GetObjProperty(corpse, "npctemplate");
+    endif*/
+
     var deathsound := 0;
     var grphic := npcdesc_cfg[elem]."ObjType";
     SetObjProperty(corpse, "Graphic", grphic);
@@ -66,22 +80,35 @@ program npcdeath(corpse)
     endif
     set_critical(1);
 
-
-    var ownerKill := SystemFindObjectBySerial(killer[2]);
-    //GetMission(k, {elem});
-
-    var QuestActionProps := GetObjProperty(ownerKill,"QuestActionKill");
-    if(QuestActionProps)
-        QuestAction(ownerKill, ":quests:actions/actionKill", elem);
+    var pvppoint := CInt(npcdesc_cfg[elem]."PvMPointChance");
+    if(pvppoint)
+        if(pvppoint >= RandomInt(99)+1)
+            killerMobile.AddPvMPoint(1);
+        endif
     endif
 
+
+
+    	//MP_DeathUnmount(corpse);
     dismount(corpse);
-// The following piece of code reports to new regional spawner the death of any NPCs spawned by it.
+    //MP_Unmount( corpse );
+
+    var luckChance := CDbl(npcdesc_cfg[elem]."luckChance");
+    var luckAmount := CInt(npcdesc_cfg[elem]."luckAmount");
+    var rfloat := CDbl(RandomFloat(99)+1);
+    if(luckChance >= rfloat)
+        SendSysMessage(killer, "You got lucky", 3, MESSAGE_COLOR_GOOD);
+
+        killerMobile.luck_mod += (luckAmount ? luckAmount : 1);
+    endif
+
+
+    // The following piece of code reports to new regional spawner the death of any NPCs spawned by it.
     Set_Critical(1);
     if ( GetObjProperty(corpse, "regspawn") )
         var SpawnName := GetObjProperty(corpse, "regspawn");
         var numspawns := CInt(GetGlobalProperty(SpawnName));
-        if ( numspawns && numspawns > 1 )
+        if ( numspawns and numspawns > 1 )
             numspawns := numspawns - 1;
             SetGlobalProperty(SpawnName, numspawns);
         else
@@ -98,12 +125,10 @@ program npcdeath(corpse)
 	    return;
     endif
 
-
     if(GetObjProperty(corpse, "guardkill"))
         DestroyItem(corpse);
         return;
     endif
-
     if(GetObjProperty(corpse,"npctemplate") == "employee")
         foreach thing in EnumerateItemsInContainer(corpse)
             if((thing.layer) && (thing.isa(POLCLASS_WEAPON) || thing.isa(POLCLASS_ARMOR)))
@@ -137,7 +162,7 @@ program npcdeath(corpse)
     if(GetObjProperty(corpse, "summoned"))
         DestroyItem(corpse);
     elseif(GetObjProperty(corpse, "nocorpse"))
-        foreach item in EnumerateItemsInContainer(corpse);
+        foreach item in EnumerateItemsInContainer(corpse)
             MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION);
         endforeach
         DestroyItem(corpse);
@@ -148,70 +173,60 @@ program npcdeath(corpse)
 endprogram
 
 function dismount(corpse)
-	var mount := 0;GetEquipmentByLayer( corpse, 25 );
+	var mount := GetEquipmentByLayer( corpse, 25 );
 	foreach item in EnumerateItemsInContainer(corpse)
-	  if (item.objtype == 0x1F021)
-		mount := item;
-		break;
-	  endif
+		if (item.objtype == 0x1F021)
+			mount := item;
+			break;
+		endif
 	endforeach
 	if (!mount)
-	  return;
+		return;
 	endif
 	var critter := "";
 	case (mount.graphic)
-	0x3ea2: critter := "horse";
-	0x3e9f: critter := "horse2";
-	0x3ea0: critter := "horse3";
-	0x3ea1: critter := "horse4";
-	0x3ea6:	critter := "llama";
-	0x3ea3:	critter := "desertostard";
-	0x3ea4:	critter := "frenziedostard";
-	0x3ea5:	critter := "forestostard";
+		0x3ea2: critter := "horse";
+		0x3e9f: critter := "horse2";
+		0x3ea0: critter := "horse3";
+		0x3ea1: critter := "horse4";
+		0x3ea6:	critter := "llama";
+		0x3ea3:	critter := "desertostard";
+		0x3ea4:	critter := "frenziedostard";
+		0x3ea5:	critter := "forestostard";
 	endcase
 	if (mount.color == 1109)
-	  critter := "nightmare";
+		critter := "nightmare";
 	endif
 	DestroyItem( mount );
 endfunction
 
 function dismountme(who, corpse)
-  var mount := GetEquipmentByLayer(who, 25 );
-  var clone := GetObjProperty(corpse,"npctemplate");
-  var newcorpse := CreateNpcFromTemplate(clone, corpse.x, corpse.y, corpse.z, 0, corpse.realm);
-  var serial := newcorpse.serial;
-  SetObjProperty(newcorpse,"myserial", serial);
-  newcorpse.color := corpse.color;
-  newcorpse.facing := who.facing;
-  MoveObjectToLocation(newcorpse, who.x, who.y, who.z, who.realm, MOVEOBJECT_FORCELOCATION);
-  var x := newcorpse.x;
-  var y := newcorpse.y;
-  var z := newcorpse.z;
-  newcorpse.facing := who.facing;
-  ApplyRawDamage(newcorpse, GetHp(newcorpse)+3);
-  var contain;
-  foreach cpse in ListItemsAtLocation(x, y, z, who.realm );
-    if(CInt(GetObjProperty(cpse,"myserial")) == serial)
-      contain := cpse;
-      break;
-    endif
-  endforeach
-  contain.name := corpse.name;
-  foreach item in DeadListRootItemsInContainer(corpse)
-    MoveItemToContainer(item, contain);
-  endforeach
-  DestroyItem(corpse);
-  DestroyItem(mount);
-endfunction
-
-function DeadListRootItemsInContainer(container)
-  var ret := { };
-  foreach item in EnumerateItemsInContainer(container)
-    if ( item.container.serial == container.serial )
-	  ret[len(ret)+1] := item;
-    endif
-  endforeach
-  return ret;
+	var mount := GetEquipmentByLayer(who, 25 );
+	var clone := GetObjProperty(corpse,"npctemplate");
+	var newcorpse := CreateNpcFromTemplate(clone, corpse.x, corpse.y, corpse.z, 0, corpse.realm);
+	var serial := newcorpse.serial;
+	SetObjProperty(newcorpse,"myserial", serial);
+	newcorpse.color := corpse.color;
+	newcorpse.facing := who.facing;
+	MoveObjectToLocation(newcorpse, who.x, who.y, who.z, who.realm, MOVEOBJECT_FORCELOCATION);
+	var x := newcorpse.x;
+	var y := newcorpse.y;
+	var z := newcorpse.z;
+	newcorpse.facing := who.facing;
+	KillMobile(newcorpse);
+	var contain;
+	foreach cpse in ListItemsAtLocation(x, y, z, who.realm );
+		if(CInt(GetObjProperty(cpse,"myserial")) == serial)
+			contain := cpse;
+			break;
+		endif
+	endforeach
+	contain.name := corpse.name;
+	foreach item in EnumerateItemsInContainer(corpse, ENUMERATE_ROOT_ONLY)
+		MoveItemToContainer(item, contain);
+	endforeach
+	DestroyItem(corpse);
+	DestroyItem(mount);
 endfunction
 
 ///////////////////
@@ -224,8 +239,8 @@ function RemakeTotem(corpse, npctemplate)
 	PlayStationaryEffect(corpse.x, corpse.y, corpse.z, FX_SMOKE, 0xa, 0xa );
 
 	if (RandomInt(10) == 1)
-		foreach item in DeadListRootItemsInContainer(corpse)
-			MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION );
+		foreach item in EnumerateItemsInContainer(corpse, ENUMERATE_ROOT_ONLY)
+			MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, MOVEOBJECT_FORCELOCATION );
 		endforeach
 		DestroyItem(corpse);
 		return;
@@ -238,7 +253,7 @@ function RemakeTotem(corpse, npctemplate)
 	set_critical(1);
 	var totem := CreateItemAtLocation(corpse.x, corpse.y, corpse.z, totemtype, 1);
 	if (!totem)
-		foreach item in DeadListRootItemsInContainer(corpse)
+		foreach item in EnumerateItemsInContainer(corpse, ENUMERATE_ROOT_ONLY)
 			MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION );
 		endforeach
 		DestroyItem(corpse);
@@ -266,8 +281,8 @@ function RemakeTotem(corpse, npctemplate)
 	SetObjProperty(totem, "totemhp", 170);
 	SetObjProperty(totem, "broken", RandomInt(20) + 20);
 
-	foreach item in DeadListRootItemsInContainer(corpse)
-		MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, corpse.realm, MOVEOBJECT_FORCELOCATION );
+	foreach item in EnumerateItemsInContainer(corpse, ENUMERATE_ROOT_ONLY)
+		MoveObjectToLocation(item, corpse.x, corpse.y, corpse.z, MOVEOBJECT_FORCELOCATION );
 	endforeach
 	DestroyItem(corpse);
 	set_critical(0);

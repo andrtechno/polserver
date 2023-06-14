@@ -1,0 +1,6 @@
+use uo;
+
+program destroyForm( item )
+    DestroyItem(item);
+    return 1;
+endprogram

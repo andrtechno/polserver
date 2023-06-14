@@ -15,10 +15,10 @@ program TimedScript_EndCunning(params)
 	var cfg_elem := TS_GetCfgElem("Cunning");
     var buff_icon := CInt( cfg_elem.BuffIcon );
 	var points := struct;	
-	
+    points := GetObjProperty(mobile, "Cunning");
 	AP_ModifyStatMod(mobile, INTELLIGENCE, -(points.int));
 	mobile.delbuff(buff_icon);
-	EraseObjProperty(mobile, "CunningMod");
+	EraseObjProperty(mobile, "Cunning");
 	
 	return 1;
 endprogram

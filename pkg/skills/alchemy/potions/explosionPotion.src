@@ -1,0 +1,65 @@
+use uo;
+use os;
+use cliloc;
+
+include ":alchemy:drinkPotion";
+
+program use_explosionpotion(who, potion)
+    var maxDistance := 5;
+	if ( potion.stackable && potion.amount > 1 )
+		SendSysMessage(who, "You cannot throw a stack of those, are you crazy?!");
+		return 0;
+	endif
+	if( (!potion.movable) || !ReserveItem(potion) )
+		SendSysMessage(who, "You cannot use that");
+		return 0;
+	elseif( !(potion in EnumerateItemsInContainer(who.backpack)) )
+		SendSysMessageCL(who, 1042593, {}, 3, 33); // That is not in your backpack.
+		return 0;
+	endif
+	EraseObjProperty(who, "#IsMeditating");
+	EraseObjProperty(who, "#HealTimer");
+    if(!CheckToDrink(who, "explosionpotion"))
+        return;
+    endif
+
+	who.hidden := 0;
+
+	if( GetObjProperty(potion, "distance") )
+		maxDistance := CInt(GetObjProperty(potion, "distance"));
+	endif
+
+	SendSysMessage(who, "Select a target within "+maxDistance+" radius");
+	var throw_to := TargetCoordinates( who );
+	if(!throw_to)
+		return 0;
+	endif
+
+    if(CoordinateDistance(who.x, who.y, throw_to.x, throw_to.y) >= maxDistance)
+      SendSysMessage(who,"that is too far away.");
+      return 0;
+    endif
+
+	if(!CheckLosAt(who, throw_to.x, throw_to.y, throw_to.z))
+		MoveObjectToLocation(potion, who.x, who.y, who.z, who.realm, MOVEOBJECT_FORCELOCATION );
+		SendSysMessage(who, "You can't see that!");
+		return 0;
+	endif
+
+	if(!potion)
+		return 0;
+	endif
+
+	if( !GetObjProperty(potion, "#bomb") )
+		var parms := {};
+		parms[1] := potion;
+		parms[2] := who;
+		start_script(":alchemy:explosionTimer", parms);
+	endif
+	SetObjProperty(potion, "#bomb", 1);
+	Detach();
+
+	PlayMovingEffectXYZ( who.x, who.y, who.z+15, throw_to.x, throw_to.y, throw_to.z, 0x0f0d, 8, 0, 0, who.realm );
+	MoveObjectToLocation(potion, throw_to.x, throw_to.y, throw_to.z, who.realm, MOVEOBJECT_FORCELOCATION );
+
+endprogram

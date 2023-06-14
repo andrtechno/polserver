@@ -1,39 +1,146 @@
 use os;
-use uo;
+//use uo;
+use unicode;
+use polsys;
 
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
-include "include/yesNo";
-
+include ":timeutils:time";
+include "util/bank";
+include "include/client";
+//include "include/string";
+    var cfg := ReadConfigFile(":donate:premium");
 program textcmd_premium(who)
-    SendSysMessage(who, "You here: "+who.x+" "+who.y+" "+who.z);
+
+    var list := GetConfigIntKeys( cfg );
+
+    var widthGump := 450;
+    var heightGump := 580;
 
     var gump := GFCreateGump ( 100, 100 );
     GFPage ( gump, 0);
-    GFResizePic(gump, 0, 0, GetCfgConst("Defaults", "ForeGround"), 400, 500);
+    GFResizePic(gump, 0, 0, GetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
 
-    GFTextLine(gump, 330, 15, 2100, "Купить");
+    var y_pos:=30;
+    var rightX := widthGump - 140;
+    var rightY := 30;
+    var global := FindConfigElem( cfg, "Global" );
 
-    var y_pos:=50;
-    var i:=1;
-    var list := array{"Уровень 1", "Уровень 2"};
-    foreach premlevel in (list)
-        GFTextLine(gump, 15, y_pos, 2100, premlevel);
+	var time := StrFormatTime( "%m-%d-%Y %I:%M:%S %p", CInt( who.acct.getprop("PremiumExpire") ));
 
-        GFAddButton(gump, 350, y_pos, 2103, 2104, GF_CLOSE_BTN, CInt(100));
-        y_pos := y_pos+40;
-        i:=i+1;
+
+
+
+	GFSetRadioGroup(gump, 1);
+    var coinInPack := GetStacksOfTypeInContainer (who.backpack, 0x0A21);
+    var coinInBank := GetStacksOfTypeInContainer (FindBankBox(who), 0x0A21);
+    var lvlGump := 1424;
+    var counter := 0;
+
+    foreach prem in (list)
+        var description := GetConfigString( global, "Description" );
+
+        var elem := FindConfigElem( cfg, prem );
+        var skillDiff := GetConfigInt( elem, "SkillDiff" );
+
+        description := StrReplace(description, "{skill}", CStr(skillDiff));
+        //description := StrReplace(description, "{ggg2}", "chnage2");
+
+        GFGumpPic(gump, 15+30, y_pos, lvlGump + counter, 67);
+
+        GFHTMLArea(gump, 15, y_pos + 30, widthGump - 35, 100, description, 1, 1);
+
+
+
+    var textlvl := "Уровень";
+    var textlvlcolor := 2100;
+if(who.IsPremium() == _prem_iter)
+
+    textlvl := "Активирован до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+    textlvlcolor := 67;
+
+   // GFTextLine(gump, widthGump - 190, y_pos, textlvlcolor, "до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
+
+else
+
+
+    //var checked := (_prem_iter == 2) ? 1 : 0;
+    GFRadioButton( gump, 15, y_pos + 5, 210, 211, 0, CInt(300 + _prem_iter) );
+
+
+
+    GFTilePic(gump, widthGump - 150, y_pos, 0x0A21);
+    GFTextLine(gump, widthGump - 130, y_pos - 2, 2100, elem.Cost+" dc./1 мес.");
+    //GFAddButton(gump, widthGump - 80, y_pos + rightY + 70, 5544, 5543, GF_CLOSE_BTN, CInt(100 + _prem_iter));
+
+endif
+        GFTextLine(gump, 15+30+30, y_pos +3, textlvlcolor, textlvl);
+
+
+
+        y_pos := y_pos+170;
+        counter += 1;
     endforeach
 
 
-    var input := GFSendGump ( who, gump, 2);
-    input := CInt(input[0]);
-    case(input)
-        100:
-            if(YesNo( who,"Купить?" ))
-                SendSysMessage(who, "Quest Cancelled.", 3, 37);
-            	return;
-            endif
 
-    endcase
+
+    GFTextLine(gump, 15, heightGump - 35, 2100, "Баланс:");
+    GFTilePic(gump, 75, heightGump - 35, 0x0A21);
+    GFTextLine(gump, 100, heightGump - 35, 2100, (coinInBank[1] + coinInPack[1])+" dc.");
+
+
+    GFTextLine(gump, widthGump - 190, heightGump - 35, 2100, "Months:");
+    GFGumpPic(gump, widthGump - 70 - 70, heightGump - 35, 2443);
+    GFTextEntry(gump, widthGump - 70 - 60, heightGump - 34, 135, 20, 2100, 1, 200);
+
+
+    GFAddButton(gump, widthGump - 70, heightGump - 35, 2128, 2129, GF_CLOSE_BTN, CInt(100));
+
+    var input := GFSendGump ( who, gump);
+    print(input.keys);
+
+    if(!input)
+        SendSysMessage(who, "Cancelled.", 3, color := MESSAGE_COLOR_BAD);
+    endif
+    var month := 1;
+    var prem := 0;
+
+    foreach key in ( input.keys )
+        if( key >= 300 && key < 400)
+            prem := (key - 300);
+        endif
+    endforeach
+    month := CInt(GFExtractData(input, 200));
+
+
+    if(!month)
+        SendSysMessageUC(who, "Минимум 1 месяц.", "RUS", 3, color := MESSAGE_COLOR_BAD);
+        return 0;
+    endif
+    if(!prem)
+        SendSysMessageUC(who, "Вы не выбрали ни один из уровней премиум аккаунта.", "RUS", 3, color := MESSAGE_COLOR_BAD);
+        return 0;
+    endif
+
+    SetPremium(who, prem, month);
+
+    return 1;
 endprogram
+
+function SetPremium(who, prem, month)
+    var elem := FindConfigElem( cfg, prem );
+    var cost := GetConfigInt( elem, "Cost" ) * CInt(month);
+
+    if(YesNo( who,"Купить премиум аккаунт "+prem+" ур. на "+month+" месяца?" ))
+        if(SpendCoin(who, cost, who.backpack, 0x0A21) || SpendCoin(who, cost, FindBankBox(who), 0x0A21))
+            who.SetPremium( prem, month );
+            SendSysMessage(who, "-"+cost+" Donate coin.", 3, 67);
+            return 1;
+        else
+            SendSysMessage(who, "no money", 3, color := MESSAGE_COLOR_BAD);
+            return 0;
+        endif
+    endif
+
+endfunction

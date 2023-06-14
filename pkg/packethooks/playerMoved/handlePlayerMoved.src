@@ -14,6 +14,7 @@ exported function HandlePlayerMoved( mobile, byref packet )
 	if(!mobile.IsA(POLCLASS_NPC) )
 		Start_Script( ":playerMoved:moved", {mobile} );
 	endif
+	print(":HandlePlayerMoved:");
 	var cmd := packet.GetInt8( 1 );
 	var dir := packet.GetInt8( 2 );
 	packet.SetInt8( 1 ) := cmd;

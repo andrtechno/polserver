@@ -1,0 +1,75 @@
+use os;
+use uo;
+use unicode;
+
+include "include/client";
+include ":attributes:attributes";
+include "include/res";
+include "include/resPenalty";
+include "include/captcha";
+
+//include ":gumps:requestGump";
+
+
+program walkOnLifeGate(mobile)
+    if((mobile.npctemplate) && (mobile.script != "employed") && (mobile.script != "tamed") && (mobile.script != "escortee"))
+        return;
+    endif
+
+
+
+    if(mobile)
+        if(mobile.dead)
+
+        	/*var question := "Type in something that is on your mind. I will try to guess what it is!";
+        	var option := "Random 'urhgbvfs9' works too!";
+        	var pre_val := "Enter your text here";
+
+        	var input := RequestGump(mobile, question, option, pre_val, 1);
+        	if ( input == error )
+        		SendSysMessage(mobile, "You clicked 'CANCEL'");
+        	else
+        		SendSysMessage(mobile, "You typed ->"+input);
+        	endif*/
+            mobile.frozen:=1;
+            var lastRes:=CInt(GetObjProperty(mobile,"LastRes"));
+            var res := 1;
+            //if(lastRes)
+                if(lastres > ReadGameClock())
+                    var c := captcha(mobile);
+                    if(!c)
+                                     mobile.frozen:=0;
+                                     res:=0;
+                    endif;
+                   /* var valueEntry:=RandomDiceRoll("10d10+99");
+
+                    var gump := CInt(SendTextEntryGump(mobile, "Введите код: "+valueEntry+"", 1,1, 3,"code:"));
+                    if(gump != valueEntry)
+                        SendSysMessageUC(mobile, "Неверный код.", "RUS",3,33);
+                        mobile.frozen:=0;
+                        return;
+                    endif;
+                    mobile.frozen:=0;*/
+                endif;
+            //endif
+            if(res)
+                sleepMS(500);
+                Resurrect(mobile);
+                mobile.frozen:=0;
+                SetObjProperty(mobile,"LastRes", ReadGameClock() + 60 * 3);
+                DestroyRobe(mobile);
+                ResPenalties(mobile);
+            endif
+
+
+        else
+            SendSysMessage(mobile, "But that's not dead!");
+        endif
+    endif
+
+endprogram
+
+
+
+
+

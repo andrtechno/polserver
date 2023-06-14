@@ -2,8 +2,8 @@
  *
  */
 // Gump backgrounds - Used in various functions - easier to use globally.
-var BKGND_SILVERTRIM := GetCfgConst("Defaults", "BackGround");
-var BKGND_DARK_STONE := GetCfgConst("Defaults", "ForeGround");
+var BKGND_SILVERTRIM := GFGetCfgConst("Defaults", "BackGround");
+var BKGND_DARK_STONE := GFGetCfgConst("Defaults", "ForeGround");
 
 
 function Go_GumpHeader(public:=1)
@@ -82,8 +82,8 @@ function Go_LocationIndex(who, gump_Type:="base_Distro")
 		var moved := who;
 		if ( input <= num_keys )
 			case(gump_Type)
-				"base_Distro": send_Location := go_prop_base[Lower(go_keys_base[input])]; break;
-				default:       send_Location := go_prop[Lower(go_keys[input])]; break;
+				"base_Distro": send_Location := go_prop_base[go_keys_base[input]]; break;
+				default:       send_Location := go_prop[go_keys[input]]; break;
 			endcase
 			SendSysMessage(who, "Who do you want to send to "+send_Location.Name);
 			moved := target(who);
@@ -93,8 +93,8 @@ function Go_LocationIndex(who, gump_Type:="base_Distro")
 		else
 			input := input - num_keys;
 			case( gump_Type )
-				"base_Distro": send_Location  := go_prop_base[Lower(go_keys_base[input])]; break;
-				default:       send_Location := go_prop[Lower(go_keys[input])]; break;
+				"base_Distro": send_Location  := go_prop_base[go_keys_base[input]]; break;
+				default:       send_Location := go_prop[go_keys[input]]; break;
 			endcase
 		endif
 
@@ -119,8 +119,8 @@ function Go_LocationIndexGump(public:=1)
 	var gump := Go_GumpHeader(public);
 	GFHTMLArea(gump,  25, 60, 150, 20, "<basefont color=#7FFFD4>Name");
 	GFHTMLArea(gump, 175, 60, 150, 20, "<basefont color=#7FFFD4>Realm");
-	GFHTMLArea(gump, 295, 60, 150, 20, "<basefont color=#7FFFD4>Send");
-	GFHTMLArea(gump, 345, 60, 150, 20, "<basefont color=#7FFFD4>Goto");
+	GFHTMLArea(gump, 345, 60, 150, 20, "<basefont color=#7FFFD4>Send");
+	GFHTMLArea(gump, 295, 60, 150, 20, "<basefont color=#7FFFD4>Goto");
 	if( public )
 		GFAddButton(gump, 25, 447, 4008, 4010, GF_CLOSE_BTN, ADD_NEW_PUBLIC);
 		GFHTMLArea(gump,  57, 450, 30, 20, "<basefont color=#7FFFD4>Add");
@@ -153,9 +153,9 @@ function Go_LocationIndexGump(public:=1)
 		foreach place in ( go_keys_base )
 			GFTextLine(gump,  25, y_loc, 2100, go_prop_base[place].Name);
 			GFTextLine(gump, 175, y_loc, 2100, go_prop_base[place].Realm);
-			GFAddButton(gump, 300, y_loc+3, 2117, 2118, GF_CLOSE_BTN, counter);
-			GFAddButton(gump, 350, y_loc+3, 2117, 2118, GF_CLOSE_BTN, (num_keys+counter));
 
+			GFAddButton(gump, 300, y_loc+3, 2117, 2118, GF_CLOSE_BTN, (num_keys+counter));
+            GFAddButton(gump, 350, y_loc+3, 2117, 2118, GF_CLOSE_BTN, counter);
 			counter := counter + 1;
 			line_num := line_num+1;
 			y_loc := y_loc + 20;
@@ -174,9 +174,9 @@ function Go_LocationIndexGump(public:=1)
 		foreach place in ( go_keys )
 			GFTextLine(gump,  25, y_loc, 2100, go_prop[place].Name);
 			GFTextLine(gump, 175, y_loc, 2100, go_prop[place].Realm);
-			GFAddButton(gump, 300, y_loc+3, 2117, 2118, GF_CLOSE_BTN, counter);
-			GFAddButton(gump, 350, y_loc+3, 2117, 2118, GF_CLOSE_BTN, (num_keys+counter));
 
+			GFAddButton(gump, 300, y_loc+3, 2117, 2118, GF_CLOSE_BTN, (num_keys+counter));
+            GFAddButton(gump, 350, y_loc+3, 2117, 2118, GF_CLOSE_BTN, counter);
 			counter := counter + 1;
 			line_num := line_num+1;
 			y_loc := y_loc + 20;

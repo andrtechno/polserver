@@ -2,19 +2,21 @@ use uo;
 use os;
 use util;
 use cfgfile;
+use cliloc;
+
 
 include ":attributes:attributes";
 include ":magery:settings";
 include ":magery:spells_ex";
 include ":magery:report";
 include "include/client";
-include "include/statMod";
-include "include/spellAttack";
-
+include "include/sounds";
+include ":magery:spellAttack";
+include ":timedScripts:targetUtil";
 
 const EVID_DISCHARGE := 0x123457;
 
-var MS_npccfg := ReadConfigFile("::npcdesc");
+var MS_npccfg := ReadConfigFile(":*:npcdesc");
 
 /*
  * MS_GetSpellsCfgFile()
@@ -29,10 +31,11 @@ var MS_npccfg := ReadConfigFile("::npcdesc");
  *
  */
 function MS_GetSpellsCfgFile()
-	var cfg := ReadConfigFile(":magery:spells");
+	// var cfg := ReadConfigFile(":magery:spells");
+	var cfg := ReadConfigFile(":*:spells");
 
 	if ( cfg.errortext )
-		MS_ReportText("Error::MS_GetSpellsCfgFile() - Unable to open [:magery:spells.cfg] ->"+cfg.errortext, MS_REPORT_SYSLOG);
+		MS_ReportText("Error::MS_GetSpellsCfgFile() - Unable to open [:*:spells.cfg] ->"+cfg.errortext, MS_REPORT_SYSLOG);
 	endif
 
 	return cfg;
@@ -89,14 +92,14 @@ function MS_SpellDebug(mobile, text)
 endfunction
 
 /*
- * MS_Target(mobile, targ, prompt, flags)
+ * MS_Target(mobile, info, prompt, flags)
  *
  * Purpose
  * Used to handle targetting of other objects in spell scripts.
  *
  * Parameters
  * mobile:		Mobile that is doing the targetting
- * targ:	Pre-selected target (for NPCs)
+ * info:	info data
  * prompt:	Message the user receives when targeting.
  * flags:	uo.em targeting flags.
  *
@@ -104,9 +107,9 @@ endfunction
  * Returns an object reference to what was targeted.
  *
  */
-function MS_Target(mobile, targ:=0, prompt := "Select a target.", flags:=TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL, colour := 88)
+function MS_Target(mobile, info, prompt := "Select a target.", flags:=TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL, colour := 88)
 	mobile.hidden := 0;
-
+    var targ := info.targ;
 	if ( targ.IsA(POLCLASS_ITEM) )
 		SendSysMessage(mobile, "It's an object!", color := 88);
 		return targ;
@@ -120,17 +123,37 @@ function MS_Target(mobile, targ:=0, prompt := "Select a target.", flags:=TGTOPT_
 	var settings_elem := MS_GetSettingsCfgElem("Settings");
 	var allow_precast := CInt(settings_elem.AllowPrecasting);
 
-	SendSysMessage(mobile, prompt, color := colour);
-	
-	targ := Target(mobile, flags);
+    var durTime := "";
+    if(info.targetDelay)
+        durTime := " ("+info.targetDelay+" sec.)";
+        prompt["."]:="";
+    endif
+
+
+    if(info.targetDelay <= 0)
+        targ := Target(mobile, flags);
+    else
+        SendSysMessage(mobile, prompt+""+durTime, color := colour);
+        targ := TS_TargetEX(mobile, info.targetDelay, flags);
+    endif
+
+    if ( !targ )
+        SendSysMessageCL(mobile, 1042023, color := MESSAGE_COLOR_BAD); // Cancelled.
+        //SendSysMessage(mobile, "Cancelled. "+targ.errortext, color := MESSAGE_COLOR_BAD); // Cancelled.
+        return 0;
+    endif
+    if ( targ.hidden )
+        //SendSysMessage(mobile, "[Anti-cheat] Cheating detected.", color := MESSAGE_COLOR_BAD);
+        return 0;
+    endif
 	if ( Distance(mobile, targ) > CInt(settings_elem.MaxRange) )
-		SendSysMessage(mobile, "That is too far away.", color := 33);
+		SendSysMessage(mobile, "That is too far away.", color := MESSAGE_COLOR_BAD);
 		return 0;
 	endif
-	
+
 	if ( !allow_precast )
 		if ( mobile.x != orig_x || mobile.y != orig_y || mobile.realm != orig_realm )
-			SendSysMessage(mobile, "Your concentration is disturbed, thus ruining thy spell.", color := 33);
+			SendSysMessage(mobile, "Your concentration is disturbed, thus ruining thy spell.", color := MESSAGE_COLOR_BAD);
 			PlaySoundEffect(mobile, SFX_SPELL_FAIL);
 			return 0;
 		endif
@@ -141,23 +164,23 @@ function MS_Target(mobile, targ:=0, prompt := "Select a target.", flags:=TGTOPT_
 endfunction
 
 /*
- * MS_TargetCoordinates(mobile, targ, prompt)
+ * MS_TargetCoordinates(mobile, info, prompt)
  *
  * Purpose
  * Used to handle targetting of other objects in spell scripts.
  *
  * Parameters
  * mobile:		Mobile that is doing the targetting
- * targ:	Pre-selected target (for NPCs)
+ * info:	info data
  * prompt:	Message the user receives when targeting.
- * 
+ *
  * Return value
  * Returns an object reference to what was targeted.
  *
  */
-function MS_TargetCoordinates(mobile, targ:=0, prompt := "Select a target.", colour := 88)
+function MS_TargetCoordinates(mobile, info := 0, prompt := "Select a target.", colour := 88)
 	mobile.hidden := 0;
-
+    var targ := info.targ;
 	if ( targ )
 		return targ;
 	elseif ( mobile.npctemplate )
@@ -167,28 +190,48 @@ function MS_TargetCoordinates(mobile, targ:=0, prompt := "Select a target.", col
 	var orig_x := mobile.x;
 	var orig_y := mobile.y;
 	var orig_realm := mobile.realm;
+    var shp := GetHp(mobile);
 	var settings_elem := MS_GetSettingsCfgElem("Settings");
 	var allow_precast := CInt(settings_elem.AllowPrecasting);
-	
-	SendSysMessage(mobile, prompt, color := colour);
-	targ := TargetCoordinates(mobile);
+    var durTest := "";
+    if(info.targetDelay)
+        durTest := " ("+info.targetDelay+" sec.)";
+        prompt["."]:="";
+    endif
+	SendSysMessage(mobile, prompt+""+durTest, color := colour);
+	//targ := TargetCoordinates(mobile);
+
+    targ := TS_TargetCoordinatesEX(mobile, info.targetDelay);
 
 	if ( !targ )
-		SendSysMessage(mobile, "Cancelled.", color := 33);
+		//SendSysMessage(mobile, "Cancelled.", color := MESSAGE_COLOR_BAD);
+        SendSysMessageCL(mobile, 1042023, color := MESSAGE_COLOR_BAD); // Cancelled.
 		return 0;
 	elseif ( CoordinateDistance(mobile.x, mobile.y, targ.x, targ.y) > settings_elem.MaxRange )
-		SendSysMessage(mobile, "That is too far away.", color := 33);
+		SendSysMessage(mobile, "That is too far away.", color := MESSAGE_COLOR_BAD);
 		return 0;
 	endif
-	
+    /*if( !CheckLosAt( mobile, targ.x, targ.y, targ.z ) )
+        SendSysMessage( mobile, "You can't see that!" );
+        return 0;
+    endif*/
+    //if(!CheckLineOfSight(mobile, targ))
+    //    SendSysMessage(mobile, "You can't see that!");
+    //    return;
+    //endif
+    //if( (orig_x != mobile.x) || (orig_y != mobile.y) || (shp > GetHp(mobile)) )
+    //    SendSysMessage( mobile, "ERROR_MSG_LOST_CONCENTRATION" );
+    //    return 0;
+    //endif
+
 	if ( !allow_precast )
 		if ( mobile.x != orig_x || mobile.y != orig_y || mobile.realm != orig_realm )
-			SendSysMessage(mobile, "Your concentration is disturbed, thus ruining thy spell.", color := 33);
+			SendSysMessage(mobile, "Your concentration is disturbed, thus ruining thy spell.", color := MESSAGE_COLOR_BAD);
 			PlaySoundEffect(mobile, SFX_SPELL_FAIL);
 			return 0;
 		endif
 	endif
-	
+
 	return targ;
 endfunction
 
@@ -213,7 +256,7 @@ endfunction
  */
 function MS_AdjustSpellPoints(mage, targ, points)
 	// TODO: fix this function -> http://guide.uo.com/skill_26.html
-	
+
 	var mage_skill := AP_GetSkill(mage, MAGERY);
 	var defense := AP_GetSkill(targ, RESISTING_SPELLS);
 
@@ -273,33 +316,37 @@ endfunction
  *
  */
 function MS_GetSpellDamage(mobile, targ, base_damage)
-	var eval_int_bonus := CInt((AP_GetSkill(mobile, EVALUATING_INTELLIGENCE) * 3) / 100) + 1;
-	var intel_bonus := CInt(AP_GetStat(mobile, "Intelligence") / 10);
+    var eval_int_bonus := CInt((AP_GetSkill(mobile, EVALUATING_INTELLIGENCE) * 3) / 100) + 1;
+	//var intel_bonus := CInt(AP_GetStat(mobile, "Intelligence") / 10);
 
-	// TODO: Get SDI items percentage
-	var sdi_bonus := 0;
-	
+    var intel_bonus := 0;
+	var sdi_bonus := CInt(mobile.spell_damage_increase);
 	// SDI bonus capped at 15% for PvP
+	// This has changed according to uoguide.com/Spell_Damage_Increase as of 2018-05-06
+	// It is now capped at 25% - Yukiko
 	if ( mobile.IsA(POLCLASS_MOBILE) && !mobile.IsA(POLCLASS_NPC) && targ.IsA(POLCLASS_MOBILE) && !targ.IsA(POLCLASS_NPC) )
-		if ( sdi_bonus > 15 )
-			sdi_bonus := 15;
+		if ( sdi_bonus > 25 )
+			sdi_bonus := 25;
 		endif
 	endif
-    var classlevel := CInt(GetObjProperty(mobile,"classlevel"));
-    if(classlevel)
-        sdi_bonus := sdi_bonus + classlevel;
-    endif
+
 	var damage_increase := intel_bonus + sdi_bonus;
 
-	if ( AP_GetSkill(mobile, INSCRIPTION) >= 100 )
+	if ( AP_GetSkill(mobile, INSCRIPTION) >= 150 )
 		damage_increase := damage_increase + 10;
 	endif
-        
-        if (mobile.IsA(POLCLASS_NPC))
-            base_damage := base_damage * 2;
-        endif
-	
+    if( GetObjProperty( mobile, "classid" ) == ID_MAGE)
+        base_damage	:= CInt( base_damage * ClasseBonus( mobile ));
+    endif
+
+	if (mobile.IsA(POLCLASS_NPC))
+        //var eval_int_bonus := CInt((AP_GetSkill(mobile, EVALUATING_INTELLIGENCE) * 3) / 100) + 1;
+		base_damage := base_damage * 2;
+	endif
+
+
 	var total_damage := CInt(base_damage * eval_int_bonus * ((CDbl(damage_increase) / 100) + 1));
+	Broadcast("Spell damage " + CStr(total_damage), color := 88);
 	return CDbl(total_damage);
 endfunction
 
@@ -319,7 +366,7 @@ function MS_MobileCheck(mobile, targ)
 		SendSysMessage(mobile, "This spell won't work on that!");
 		return 0;
 	endif
-	
+
 	return 1;
 endfunction
 
@@ -342,7 +389,7 @@ endfunction
  *   int
  *
 */
-function MS_GetPoisonLevel(mobile, targ)
+function MS_GetPoisonLevel(mobile, unused targ)
 	var poison_level := CDbl(AP_GetSkill(mobile, MAGERY) + AP_GetSkill(mobile, POISONING)) / 2;
 
 	if ( poison_level < 65.1 )
@@ -354,32 +401,38 @@ function MS_GetPoisonLevel(mobile, targ)
 	elseif ( poison_level >= 100 )
 		poison_level := 4;
 	endif
-	
+
 	return poison_level;
 endfunction
 
 
-function MS_PlaySpellSFX(spellid, targ, success:=1)
+function MS_PlaySpellSFX(spellid, targ, success := 1)
+	success := success; // Avoid compiler warnings
+
 	var cfg_elem := MS_GetSpellsCfgElem(spellid);
-	var sfx := CInt(GetConfigInt(cfg_elem, "sFX"));
-	
+	var sfx := CInt(GetConfigInt(cfg_elem, "SFX"));
+	if(GetGlobalProperty("Debug"))
+		Print("Playing SFX:"+sfx+" for spellid:"+spellid);
+	endif
 	PlaySoundEffect(targ, sfx);
 
-	return 1;	
+	return 1;
 endfunction
 
 
-function MS_PlaySpellGFX(spellid, targ, caster, speed:=7, loop:=14)
+function MS_PlaySpellGFX(spellid, targ, caster, speed:=7, loop:=14, explode := 0)
 	var cfg_elem := MS_GetSpellsCfgElem(spellid);
 	var gfx := CInt(GetConfigInt(cfg_elem, "GFX"));
-	
+	if(GetGlobalProperty("Debug"))
+		Print("Playing GFX:"+gfx+" for spellid:"+spellid+" of gfx type:"+CInt(cfg_elem.GFXType));
+	endif
 	case ( CInt(cfg_elem.GFXType) )
 		0: return 1;
 		1: PlayObjectCenteredEffect(targ, gfx, speed, loop);
-		2: PlayMovingEffect(caster, targ, gfx, speed, loop, targ.realm);
+		2: PlayMovingEffect(caster, targ, gfx, speed, loop, explode);
 		3: PlayStationaryEffect( targ.x, targ.y, targ.z, gfx, speed, loop, 0, targ.realm );
 	endcase
-	
+
 	return 1;
 endfunction
 
@@ -389,21 +442,21 @@ function MS_GetVaildTargets(targ, area_size:=1, check_los:=1, exclude:="", inclu
         check_los := check_los;
         include_self := include_self;
         mself := mself;
-	
+
 	if ( !targ.realm )
 		targs := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size);
 	else
 		targs := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size, targ.realm);
 	endif
-	
+
 	// Remove targs with serial in exclude if exclude exists or not in includes if includes exists
 	for i := 1 to (targs.Size())
-		if ( (exclude != "" && (targs[i].serial in exclude || targs[i].serial == exclude )) || 
-                (includes != "" && (!(targs[i].serial in includes) || targs[i].serial != includes )))
+		if((exclude != "" && (targs[i].serial in exclude || targs[i].serial == exclude )) ||
+			(includes != "" && (!(targs[i].serial in includes) || targs[i].serial != includes )))
 			targs.Erase(i);
 		endif
 	endfor
-	
+
 	return targs;
 endfunction
 
@@ -417,57 +470,58 @@ function Resisted(circle, caster, cast_on, amt)
 	// called by: most spells
 	// returns: amount of damage not resisted?
 
-        var magery := CInt(AP_GetSkill(caster, MAGERY));
-        var evalint := CInt(AP_GetSkill(caster, EVALUATING_INTELLIGENCE));
-        var resist := CInt(AP_GetSkill(cast_on, RESISTING_SPELLS));
-        
-        // chk1 relates to the resist ability.
-        var chk1 := (resist / 5);
-        // chk2 relates to the difficulty level
-        var chk2 := resist - (((magery - 20) / 5) + (circle * 5));
-        
-        if(chk1 < 1)
-                chk1 := 1;
-        endif
-        if(chk2 < 1)
-                chk2 := 1;
-        endif
+    var magery := CInt(AP_GetSkill(caster, MAGERY));
+    var evalint := CInt(AP_GetSkill(caster, EVALUATING_INTELLIGENCE));
+    var resist := CInt(AP_GetSkill(cast_on, RESISTING_SPELLS));
 
-        // What an odd construct.
-        // If you're hit with an easy spell then you have a difficulty of your resist
-        var diff := 0;
-        if(chk1 > chk2)
-                diff := chk1;
-        else
-                diff := chk2;
+    // chk1 relates to the resist ability.
+    var chk1 := (resist / 5);
+    // chk2 relates to the difficulty level
+    var chk2 := resist - (((magery - 20) / 5) + (circle * 5));
+
+    if(chk1 < 1)
+        chk1 := 1;
+    endif
+    if(chk2 < 1)
+        chk2 := 1;
+    endif
+
+    // What an odd construct.
+    // If you're hit with an easy spell then you have a difficulty of your resist
+    var diff := 0;
+    if(chk1 > chk2)
+        diff := chk1;
+    else
+        diff := chk2;
+    endif
+
+    var points := getresistpoints(circle, cast_on, SKILLID_RESISTING_SPELLS);
+    if(cast_on.dead)
+        return 0;
+    endif
+
+    if(SkillCheck( cast_on, RESISTING_SPELLS, diff, points ) > 0)
+        SendSysMessage(cast_on, "You feel yourself resisting magical energy!");
+        PlaySoundEffect(cast_on, SFX_SPELL_WEAKEN);
+        PlayObjectCenteredEffect(cast_on, FX_CURSE_EFFECT, 5,5);
+        amt := (amt * 0.5);
+        if(amt < 1)
+            amt := 0;
         endif
-        
-        var points := getresistpoints(circle, cast_on, SKILLID_RESISTING_SPELLS);
-        if(cast_on.dead)
-                return 0;
-        endif
-        if(SkillCheck(cast_on, RESISTING_SPELLS, diff, points))
-                SendSysMessage(cast_on, "You feel yourself resisting magical energy!");
-                PlaySoundEffect(cast_on, SFX_SPELL_WEAKEN);
-                PlayObjectCenteredEffect(cast_on, FX_CURSE_EFFECT, 5,5);
-                amt := (amt * 0.5);
-                if(amt < 1)
-                        amt := 1;
-                endif
-        endif
-        var modamt := 1;
-        if(resist > evalint)
-                modamt := (1 + ((evalint - resist) / 200.0));
-        elseif(evalint > resist)
-                modamt := (1 + ((evalint - resist) / 500.0));
-        endif
-        amt := (amt * modamt);
-        return CInt(amt);
+    endif
+    var modamt := 1;
+    if(resist > evalint)
+        modamt := (1 + ((evalint - resist) / 200.0));
+    elseif(evalint > resist)
+        modamt := (1 + ((evalint - resist) / 500.0));
+    endif
+
+    amt := (amt * modamt);
+    return CInt(amt);
 endfunction
 
 // Old magic reflect function from spellRestrictions.inc
-
-function Reflected(cast_on)
+function Reflected3(cast_on)
   var mr := CInt(GetObjProperty(cast_on, "mr"));
   if(mr >= 1)
     PlaySoundEffect(cast_on, SFX_SPELL_MAGIC_REFLECTION);
@@ -500,8 +554,119 @@ function Reflected(cast_on)
   return 0;
 endfunction
 
-// Old function added for above old functions
+function Reflected(cast_on, caster, info)
+    var mr := CInt(GetObjProperty(cast_on, "mr"));
 
+
+	var permmr   := CInt( GetObjProperty( cast_on, "Permmr" ) );
+	var corrupmr := CInt( 0 - permmr );
+	var protserial := CInt( GetObjProperty( cast_on, "SpellReflection") );
+	var item;
+	var cursed;
+	var charges;
+	if( protserial )
+		set_critical(1);
+		foreach thing in ListEquippedItems( cast_on )
+			if( thing.serial == protserial )
+				item := thing;
+				cursed  := GetObjProperty( item, "Cursed" );
+				charges := CInt( GetObjProperty( item, "SpellReflection" ) );
+				if( !charges )
+					EraseObjProperty( item, "SpellReflect" );
+					EraseObjProperty( cast_on, "SpellReflect" );
+					PrintTextAbovePrivate( item, CStr(item.desc + " is out of charges!"), cast_on );
+					CheckForAnotherProtItem( cast_on, item, "SpellReflection" );
+				endif
+				break;
+			endif
+		endforeach
+		set_critical(0);
+	endif
+
+	if( charges && charges >= info.circle) // && charges >= circle
+		charges := CInt(charges - info.circle);
+		SetObjProperty( item, "SpellReflection", charges );
+		//if( !cursed )
+			PrintTextAbovePrivate( cast_on, CStr("Your " + item.desc + " reflected the spell!"), cast_on );
+            SendSysMessage (caster, "The spell was reflected back onto you!!!", color := MESSAGE_COLOR_BAD);
+			//source := cast_on;
+            //cast_on := caster;
+			//Reflect( source, targ );
+			//ReflectBack( caster, cast_on, source, cast_on, circle );
+
+            return cast_on;
+		//else
+		//	PrintTextAbovePrivate( cast_on, CStr("Your " + item.desc + " prevent all reflections!"), cast_on );
+		//endif
+
+    endif
+
+
+
+
+    if(mr >= 1)
+        PlaySoundEffect(cast_on, SFX_SPELL_MAGIC_REFLECTION);
+        PlayObjectCenteredEffect(cast_on, FX_CURSE_EFFECT, 10,10);
+        SendSysMessage(cast_on, "Your magic reflect spell saved you!");
+        if(mr == 1)
+            EraseObjProperty(cast_on, "mr");
+        elseif(mr == 2)
+            var holder, pid;
+            var eqp := GetObjProperty(cast_on, "EquipTimers");
+            foreach thing in ListEquippedItems(cast_on)
+                foreach entry in eqp
+                    if((thing.serial == entry[1]) and (entry[2] == "ref"))
+                        holder := GetObjProperty(thing, "pid");
+                        break;
+                    endif
+                endforeach
+            endforeach
+            pid := getprocess(holder);
+            if(pid)
+                var k := struct;
+                k.+type := EVID_DISCHARGE;
+                pid.sendevent(k);
+            else
+                EraseObjProperty(cast_on, "mr");
+            endif
+        endif
+
+        //return 1;
+        return caster;
+    endif
+
+    //SendSysMessage (caster, "The spell was reflected back onto you!!!", color := 33);
+    return cast_on;
+  //return 0;
+endfunction
+
+
+
+function CheckForAnotherProtItem( who, item, prot )
+
+	var prots := { "PoisonImmunity",
+			 "MagicImmunity",
+			 "SpellReflection" };
+
+	if( !(prot in prots) )
+		return 0;
+	endif
+
+	EraseObjProperty( who, prot );
+	foreach thing in ListEquippedItems( who )
+		if( GetObjProperty( thing, prot ) )
+			SetObjProperty( who, prot, thing.serial );
+			break;
+		endif
+	endforeach
+
+	return 1;
+
+endfunction
+
+
+
+// Old function added for above old functions
 function getresistpoints(c, victim, skillid)
   var points;
   var diff;
@@ -543,15 +708,66 @@ function CalcSpellDamage(circle, caster, cast_on)
   return dmg;
 endfunction
 
+// Function for quickly grabbing nearby mobiles that are not in excludes or that are in includes
+function MS_GetValidTargets(targ, area_size:=1, unused check_los, excludes:={}, includes:={})
+	var targs := array;
+
+	if ( !targ.realm )
+		targs := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size);
+	else
+		targs := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size, targ.realm);
+	endif
+
+	// Remove targs with serial in exclude if exclude exists or not in includes if includes exists
+	for i := 1 to ( targs.Size() )
+		if ( ((excludes.Size() > 0) && (targs[i].serial in excludes)) || ((includes.Size() > 0) && !(targs[i].serial in includes)))
+			targs.Erase(i);
+		endif
+	endfor
+
+	return targs;
+endfunction
+
+
+// Find friendlies and add them to the list of includes
+// Note: A friendly is anything non-criminal and non-murderer. I guess.
+function MS_GetFriendlies(targ, area_size:=1)
+	var friendlies := {};
+	if ( !targ.realm )
+		friendlies := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size);
+	else
+		friendlies := ListMobilesNearLocation(targ.x, targ.y, targ.z, area_size, targ.realm);
+	endif
+
+	for i := 1 to friendlies.Size()
+		if ( friendlies[i].criminal || friendlies[i].murderer )
+				friendlies.Erase(i);
+		endif
+	endfor
+
+	return friendlies;
+endfunction
 
 function CheckCastSpot(caster, info)
     if(info.castspot)
         if((caster.x != info.x) || (caster.y != info.y))
             EraseObjProperty(caster, "#Medding");
             EraseObjProperty(caster, "#Casting");
-            SendSysMessage(caster, "You lose your concentration.");
+            SendSysMessage(caster, "You lose your concentration.", 3, MESSAGE_COLOR_BAD);
             return 0;
         endif
     endif
     return 1;
+endfunction
+
+function GetBuffAmount( who, info )
+    var val := (info.classlevel * 10) - 10;
+    var magery := GetEffectiveSkill( who, SKILLID_MAGERY );
+
+    var amount := CInt(magery / 15) + val + RandomInt(10);
+    if( !amount )
+        amount := 1;
+    endif
+
+    return CInt(amount);
 endfunction

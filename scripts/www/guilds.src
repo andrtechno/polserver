@@ -1,0 +1,39 @@
+use http;
+use uo;
+use basic;
+use guilds;
+
+
+
+
+var guilds := ListGuilds();
+
+WriteHtml( "<html><head><title>POL Guilds</title></head>" +
+    "<body>" +
+    "<table border=1 cellspacing=0 cellpadding=5>" +
+    "<tr bgcolor=#99CCFF><td>Name</td><td>Guild Master</td><td>Members</td></tr>");
+
+
+foreach guild in ( guilds )
+    var guildInfo := FindGuild( guild.guildid );
+    var master := SystemFindObjectBySerial(guild.GetProp( "Master" ));
+    var abbr := guild.GetProp( "Abbr" );
+    var members := guild.members;
+
+    var allyguilds := guild.allyguilds;
+    var enemyguilds := guild.enemyguilds;
+
+	WriteHtml("<tr>" +
+        "<td><a href=\"guild.ecl?id="+guild.guildid+"\">" + guild.GetProp( "Name" ) + " ["+abbr+"]</a></td>" +
+        "<td>" + master.name + "</td>" +
+        "<td>" + Len(members) + "</td>" +
+	"</tr>");
+
+endforeach
+
+
+WriteHtml( "</table>" );
+WriteHtml( "</BODY></HTML>" );
+
+
+

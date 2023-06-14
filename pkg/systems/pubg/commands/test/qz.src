@@ -1,0 +1,21 @@
+use uo; 
+
+program questzone(who)
+    var boldsize := 3;
+    var i := 0;
+    //for(i:=1; i<=CInt(boldsize); i:=i+1)
+        var circles:= GetMidpointCircleCoords(5863, 1195, 10 + i);
+
+        foreach c in circles
+            CreateItemAtLocation (c.x, c.y, GetMapInfo(c.x, c.y, who.realm).z, 0x14555, 15, who.realm);
+        endforeach
+
+
+                circles:= GetMidpointCircleCoords(5863, 1195, 9);
+
+                foreach c in circles
+                    CreateItemAtLocation (c.x, c.y, GetMapInfo(c.x, c.y, who.realm).z, 0x14555, 15, who.realm);
+                endforeach
+    //endfor
+//0x0eed
+endprogram

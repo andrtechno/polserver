@@ -1,0 +1,37 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+use polsys;
+
+include ":weapons:weaponInfo";
+
+var cfgfile := ReadConfigFile(":weapons:itemdesc");
+var list := GetConfigStringKeys( cfgfile );
+
+
+var data := struct{};
+    WriteHtml( "<table border=1 cellspacing=0 cellpadding=5>" +
+        "<tr bgcolor=#99CCFF><td>ID</td><td>Damage</td><td>Speed</td></tr>");
+
+    foreach object in list
+        var elem := FindConfigElem( cfgfile, object );
+        var damage := GetConfigString( elem, "Damage" );
+        var name := GetConfigString( elem, "name" );
+        var attribute := GetConfigString( elem, "Attribute" );
+                var params := cfgfile[object];
+if(attribute)
+                    WriteHtml("<tr>" +
+                        "<td>"+name+"</td>" +
+                        "<td>"+CS_GetAverageDamage(GetItemDescriptor(object))+"</td>" +
+                        "<td>"+params.Speed+"</td>" +
+                    "</tr>");
+endif
+    endforeach
+
+    WriteHtml( "</table>" );
+print(list);
+
+
+
+

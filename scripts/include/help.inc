@@ -4,8 +4,6 @@ var onlinestaff;
 onlinecounselors := staffcheck("coun");
 onlinestaff := staffcheck("gm");
 
-include "include/npcstats";
-
 function Icanpage(thechar)
   foreach person in EnumerateOnlineCharacters()
     if ((GetObjProperty(person,"canpage")) && (person.serial != thechar.serial))
@@ -26,8 +24,8 @@ function staffcheck(type)
   k.+pid := getpid();
   stafflist.sendevent(k);
   var ev := wait_for_event(10);
-  var data := ev.data;
-  return data;
+  var evdata := ev.data;
+  return evdata;
 endfunction
 
 function pagecheck(serial, type)
@@ -62,28 +60,4 @@ function pagewarning(type, thepage, who)
 		 SendSysMessage( char, "Page from " + who.name +  ": " + thepage);
 	   endforeach
   endcase
-endfunction
-
-
-function unMount(who)
-    var mount := GetEquipmentByLayer( who, 25 );
-    if(mount)
-        var serial := GetObjProperty(mount, "serial");
-        var animal := SystemFindObjectBySerial(CInt(serial));
-
-        EraseObjProperty(animal,"serial");
-        EraseObjProperty(animal,"mounted");
-        EraseObjProperty(animal,"mounted_on");
-        animal.facing := who.facing;
-        var ev := array;
-        ev.+ type;
-        ev.+ source;
-        ev.type := EVID_WAKEUP;
-        ev.source := who;
-        SendEvent(animal, ev);
-        npcbonus(who,animal);
-        MoveObjectToLocation(animal, who.x, who.y, who.z, who.realm, MOVEOBJECT_FORCELOCATION);
-        RestartScript(animal);
-        DestroyItem( mount );
-    endif
 endfunction

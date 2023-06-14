@@ -1,0 +1,98 @@
+use uo;
+use os;
+
+
+include "include/client";
+include ":attributes:attributes";
+include ":charclasses:classes";
+include ":guards:areas";
+include ":codexdamnorum:spelldata";
+
+const SPELL_EFFECT_TYPE_MOVING 	:= 0;
+const SPELL_EFFECT_ID		:= 0;
+const SPELL_EFFECT_SPEED	:= 0;
+const SPELL_EFFECT_LOOP		:= 0;
+
+program wraithbreath( parms )
+
+  	//var circle := GetCircle( SPELLID_WRAITH_BREATH );
+  	var circle := 10;
+	var plane := 0x10;
+	var caster;
+	var cast_on;
+	var fromhit;
+
+	if (parms[1] == "#MOB")
+		caster := parms[2];
+		cast_on := parms[3];
+		if (parms[4])
+			circle := parms[4];
+		endif
+		if (parms[5])
+			fromhit := parms[5];
+		endif
+
+	else
+		caster := parms;
+		/*if( TryToCast( caster, SPELLID_WRAITH_BREATH ) != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+
+	
+		if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+	  SendSysMessage(caster, "You cannot cast this kind of spell here.");
+	    return 0;
+	endif
+		SendSysMessage( caster, "Select a target." );
+		//cast_on := CanTargetArea( caster, circle );
+		cast_on := Target( caster );
+	endif
+		
+	if( !cast_on )
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif
+
+	var magery	:= GetEffectiveSkill(caster, SKILLID_MAGERY);
+	var range	:= 15; //ModifyWithMagicEfficiency( caster, CInt( magery / 30 ) );
+	var duration	:= ModifyWithMagicEfficiency( caster, 15 );
+
+	EraseObjProperty( caster, "#Casting" );
+	var targets	:= ListMobilesNearLocationEx( CInt(cast_on.x), CInt(cast_on.y), CInt(cast_on.z), range, 0x03);
+	var victims	:= array;
+
+	foreach mobile in targets
+		if( CheckLosAt( mobile, CInt(cast_on.x), CInt(cast_on.y), CInt(cast_on.z) ) )
+			var immunity := IsProtected( caster, mobile, circle );
+			var circ := circle;
+			if( immunity == IMMUNED )
+				continue;
+			endif
+	
+			//if( GetResultingPlaneProtection( mobile, plane ) >= 4 )
+			//	SendSysMessage( mobile, "You're protected from the spell." );
+			//	continue;
+			//endif
+			
+			if( GetObjProperty( mobile, "FreeAction" ) >= 2 )
+				SendSysMessage( mobile, "You're protected from the spell." );
+				continue;
+			endif
+			
+			mobile.frozen := 1;
+			victims.append( mobile );
+			PlayObjectCenteredEffect( mobile, SPELL_EFFECT_ID, SPELL_EFFECT_SPEED, SPELL_EFFECT_LOOP );
+			PlaySoundEffect( mobile, 0x1fa );
+			Send_attack( mobile, caster, 10 );
+			SendSysMessage( mobile, "You get paralyzed from the power of " + caster.name + "'s spell!" );
+		endif
+	endforeach
+
+	sleep( duration );
+
+	foreach victim in victims
+		victim.frozen := 0;
+	endforeach
+
+endprogram

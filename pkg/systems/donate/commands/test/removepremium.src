@@ -1,0 +1,10 @@
+use os;
+use uo;
+use unicode;
+
+program textcmd_removepremium(who)
+    who.acct.EraseProp("Premium");
+    who.acct.EraseProp("PremiumExpire");
+    SendSysMessageUC(who, "У вас закончился \"Премиум аккаует\".", "RUS", 3, 33);
+    return 1;
+endprogram

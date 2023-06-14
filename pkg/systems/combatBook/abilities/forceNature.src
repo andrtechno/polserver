@@ -1,0 +1,20 @@
+/*
+Applies 15-35 delayed direct damage to the attacker.
+The attacker receives a damage increase of 50%-100% based on their strength.
+The attacker also applies a stun their target for two seconds which can be reduced by magic resist every 12th hit.
+Equipping the weapon will reset the hit count.
+
+Наносит 15-35 отложенного прямого урона атакующему.
+Атакующий получает увеличение урона на 50%-100% в зависимости от своей силы.
+Атакующий также применяет оглушение своей цели на две секунды,
+которое может быть уменьшено сопротивлением магии при каждом 12-м ударе. Экипировка оружия сбросит счетчик попаданий.
+
+*/
+
+program ability_ForceNature(params)
+    var attacker := params[1];
+    var defender := params[2];
+
+    print("ability_ForceNature");
+    return 1;
+endprogram

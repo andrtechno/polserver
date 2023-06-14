@@ -1,0 +1,14 @@
+use uo;
+//use unicode;
+
+//include ":attributes:attributes";
+include ":combatBook:combatAbility";
+
+program ability_endMovingShot(params)
+    var attacker := params[1];
+    //var abi := CInt(GetObjProperty(attacker,"Ability"));
+
+    attacker.Disable("firewhilemoving");
+
+    return 1;
+endprogram

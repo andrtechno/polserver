@@ -2,7 +2,7 @@ use uo;
 use util;
 use os;
 
-include ":gumps:old/old-gumps";
+include ":gumps:old-gumps";
 include "include/gumpUtil";
 include "util/bank";
 include ":attributes:attributes";
@@ -158,8 +158,8 @@ function maintainaccountgump(who, chr)
   if(!trg)
     SendSysMessage(who,"cancelled");
   else
-    if(!trg.getprop("email"));
-      trg.setprop("email", "");
+    if(!trg.getprop("Email"));
+      trg.setprop("Email", "");
     endif
     if(!trg.getprop("notes"));
       trg.setprop("notes", "");
@@ -195,13 +195,13 @@ function maintainaccountgump(who, chr)
     if(testdata[22] == error)
       testdata[22] := "";
     endif
-    var mail := trg.getprop("email");
+    var mail := trg.getprop("Email");
     if(!mail)
       mail := "Not Provided";
     endif
     testdata[23] := mail;
     if(!trg)
-      SendSysMessage(who,"Cancelled.");
+      SendSysMessage(who,"canceled");
       return;
     endif
     SetNotes(trg.name); // Modified by Shinigami
@@ -380,7 +380,7 @@ endfunction
 
 function editemail(who, trg);
   var val := CStr(SendTextEntryGump(who, "enter the new email address?", 40));
-  trg.setprop("email", val);
+  trg.setprop("Email", val);
 endfunction
 
 function jail(who, acctname);
@@ -468,7 +468,7 @@ function info(who, character, trg)
             SendSysMessage(character, "You were kicked by " + who.name + ".");
             DisconnectClient(character);
           endif
-      20: MoveObjectToLocation(character, 5288, 1176, 0, "britannia");
+      20: MoveObjectToLocation(character, 5288, 1176, 0, "britannia"); // newmap problem
       21: if(!character.isA(POLCLASS_NPC))
             var bankbox := FindBankBox(character);
             SendOpenSpecialContainer(who, bankbox);
@@ -490,21 +490,22 @@ function FillInStats(who)
   var levelname;
   case(who.cmdlevel)
       0: levelname := "Player";
-      1: levelname := "Counselor";
-      2: levelname := "Seer";
-      3: levelname := "GM";
-      4: levelname := "Admin";
-      5: levelname := "Development";
+      1: levelname := "Helper";
+      2: levelname := "Counselor";
+      3: levelname := "Seer";
+      4: levelname := "GM";
+      5: levelname := "Admin";
+      6: levelname := "Development";
   endcase
-  infodata[8] := GetStrength(who);
-  infodata[10] := GetIntelligence(who);
-  infodata[12] := GetDexterity(who);
+  infodata[8] := AP_GetStat(who, STRENGTH);
+  infodata[10] := AP_GetStat(who, INTELLIGENCE);
+  infodata[12] := AP_GetStat(who, DEXTERITY);
   infodata[14] := who.x;
   infodata[16] := who.y;
   infodata[18] := who.z;
-  infodata[20] := GetHp(who) + "/" + GetMaxHp(who);
-  infodata[22] := GetMana(who) + "/" + GetMaxMana(who);
-  infodata[24] := GetStamina(who) + "/" + GetMaxStamina(who);
+  infodata[20] := AP_GetVital(who, VITALID_LIFE) + "/" + AP_GetVitalMaximumValue(who, VITALID_LIFE);
+  infodata[22] := AP_GetVital(who, VITALID_MANA) + "/" + AP_GetVitalMaximumValue(who, VITALID_MANA);
+  infodata[24] := AP_GetVital(who, VITALID_STAMINA) + "/" + AP_GetVitalMaximumValue(who, VITALID_STAMINA);
   infodata[26] := who.ar;
   infodata[28] := who.graphic;
   infodata[30] := who.color;
@@ -574,15 +575,15 @@ function EditStat(who, character, result, trg)
       SendSysMessage(who, "Cancelled.");
     else
       case(result)
-         1: SetBaseStrength(character,val);
-         2: SetBaseIntelligence(character,val);
-         3: SetBaseDexterity(character,val);
+         1: AP_SetTrueStat(character, STRENGTH, val);
+         2: AP_SetTrueStat(character, INTELLIGENCE, val);
+         3: AP_SetTrueStat(character, DEXTERITY, val);
          4: MoveObjectToLocation(character, val, character.y, character.z, character.realm);
          5: MoveObjectToLocation(character, character.x, val, character.z, character.realm);
          6: MoveObjectToLocation(character, character.x, character.y, val, character.realm);
-         7: SetHp(character, val);
-         9: SetMana(character, val);
-        11: SetStamina(character, val);
+         7: AP_SetVital(character, VITALID_LIFE, val);
+         9: AP_SetVital(character, VITALID_MANA, val);
+        11: AP_SetVital(character, VITALID_STAMINA, val);
         13: character.ar_mod := 0;
             character.ar_mod := val - character.ar;
         14: character.graphic := val;

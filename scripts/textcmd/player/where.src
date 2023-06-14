@@ -1,17 +1,18 @@
 use os;
 use uo;
 
+include ":gumps:gumps";
+
 program textcmd_where(who)
-    SendSysMessage(who, "You here: "+who.x+" "+who.y+" "+who.z);
+    if(who.cmdlevel > 1)
+        SendSysMessage( who, "You are here: " +  who.realm, color := 88 );
+    endif
 
-    var gflayout := {
-            "page 0",
-            "GumpPic 100 100 100",
-            "text 130 120 20 0",
-            "text 130 140 20 1",
-            "text 130 160 20 2"
-            };
-
-    var gfdata := {"X "+who.x, "Y "+who.y, "Z "+who.z};
-    SendDialogGump( who, gflayout, gfdata );
+    var gump := GFCreateGump(100,100);
+    GFPage(gump, 0);
+	GFGumpPic(gump, 100, 100, 100, 0);
+    GFTextLine (gump, 130, 120, 20, "X "+who.x );
+    GFTextLine (gump, 130, 140, 20, "Y "+who.y );
+    GFTextLine (gump, 130, 160, 20, "Z "+who.z );
+    GFSendGump(who, gump);
 endprogram

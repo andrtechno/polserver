@@ -1,0 +1,12 @@
+use uo;
+
+program hook_startup()
+	print("INSTALLING: Combat HitMiss hook... ");
+	return 1;
+endprogram
+
+
+exported function hitMiss(attacker, defender)
+    SendSysMessage(attacker, "hitMiss");
+	return 1;
+endfunction

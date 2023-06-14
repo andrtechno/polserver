@@ -1,0 +1,37 @@
+use uo;
+use os;
+use cliloc;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include "include/client";
+include ":damage:damage";
+include ":combat:combat";
+
+program TimedScript_Bleed(params)
+	var defender := params[1];
+	var attacker := params[2];
+	var percent := params[3];
+	var duration := params[4];
+
+	var cfg_elem := TS_GetCfgElem("Bleed");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+    SendSysMessageCL(defender, 1060160, font := 3, color := MESSAGE_COLOR_BAD);
+    SendSysMessageCL(attacker, 1060159, font := 3, color := MESSAGE_COLOR_BAD);
+	defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, {});
+	SetObjProperty(defender, "Bleed", 1);
+
+
+	while(1)
+		PrintTextAbovePrivateCL(defender, defender, 1060202);
+		ApplyRawDamageEX(defender, RandomIntMinMax(15,31), DMG_FORCED, attacker);
+        MakeBleed(defender);
+		Sleep(2);
+	endwhile
+
+	return 1;
+endprogram
+

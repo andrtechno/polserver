@@ -17,7 +17,6 @@ program decode_map( who, map )
     SendSysMessage(who, "You cannot use that.");
     return;
   endif
-
   var cfgfile := ReadConfigFile( "itemdesc" );
   var elem := FindConfigElem( cfgfile, map.objtype );
   var maplevel := GetConfigInt( elem, "Level" );
@@ -25,7 +24,7 @@ program decode_map( who, map )
   if( maplevel > maxlevel )
     SendSysMessage( who, "You cannot comprehend the map." );
   else
-    if(SkillCheck( who, CARTOGRAPHY, (maplevel*20), (maplevel*100)))
+    if(SkillCheck( who, CARTOGRAPHY, (maplevel*20), (maplevel*100)) > 0)
       CreateTreasureMap( who, map, maplevel );
     else
       SendSysMessage( who, "You understand the map, but fail to decode it." );
@@ -63,13 +62,11 @@ endfunction
 function SetTreasureCoords( map );
   var cfgfile := ReadConfigFile( "treasure" );
   var num := GetConfigMaxIntKey( cfgfile );
-  var pick := 64; //(RandomInt( num ) + 1);
+  var pick := (RandomInt( num ) + 1);
   var elem := FindConfigElem( cfgfile, pick );
-
   var x := GetConfigInt( elem, "X" );
   var y := GetConfigInt( elem, "Y" );
   var z := GetConfigInt( elem, "Z" );
-
   SetObjProperty( map, "chestx", x );
   SetObjProperty( map, "chesty", y );
   SetObjProperty( map, "chestz", z );
@@ -84,12 +81,8 @@ function SetTreasureCoords( map );
   else
     map.ynorth := y-260;
   endif
-
   map.xeast := x+265;
   map.ysouth := y+260;
-  if(map.ysouth >= 4096)
-    map.ysouth := 4095;
-  endif
   map.gumpwidth := 200;
   map.gumpheight := 200;
   map.AppendPin(x,y);

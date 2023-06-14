@@ -3,19 +3,20 @@ use os;
 use util;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 include ":magery:spells";
 include "include/client";
+include ":charclasses:classes";
 
-program cast_AGILITY( parms )
-    var caster := parms[1];
-    var info := parms[2];
+program cast_AGILITY( params )
+    var caster := params[1];
+    var info := params[2];
     var cast_on;
-    cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
-    if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
-        cast_on := parms[4];
+    cast_on := MS_Target(caster, info, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+    if (!cast_on) // If no cast_on then get cast_on from params[4]. Used mostly for NPC casting.
+        cast_on := params[4];
     endif
     if (!cast_on)
-        SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
     if ( !MS_MobileCheck(caster, cast_on) )
@@ -24,28 +25,43 @@ program cast_AGILITY( parms )
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-  PlaySoundEffect(caster, 0x1e8);
-  PlayObjectCenteredEffect(caster, 0x373a, 7,7);
-  if(CanMod(cast_on, "#cast_agility"))
-    SendSysMessage(caster,"Another existing effect negates your spell!");
-    return;
-  endif
-  var magery := GetAttribute(caster, MAGERY);
+	if ( GetObjProperty(cast_on, "Agility") )
+        SendSysMessage(cast_on,"Already under the influence!");
+		return 0;
+	endif
 
-  var mod_amount := 0;
-  var duration := 0;
-  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+	MS_PlaySpellSFX(info.spell_id, cast_on);
+	MS_PlaySpellGFX(info.spell_id, cast_on, caster);
 
-  if(GetObjProperty(caster,"classid") == ID_MAGE)
-    mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10)); //(GetModAmount(magery) * 2) * classlevel;
-    duration := (60 * classlevel) * 10;
-  else
-    mod_amount := GetModAmount( magery );
-    duration := GetModDuration( magery );
-  endif
+    var EvalInt := AP_GetSkill(caster, EVALUATING_INTELLIGENCE);
+    var Magery := AP_GetSkill(caster, MAGERY);
+	if(caster.IsA(POLCLASS_NPC))
+        EvalInt := 150;
+        Magery := 150;
+	endif
+
+	// Dex increase % = (Eval / 10 + 1)
+	var percent := CDbl(EvalInt / 10) + 1;
+	var points := CInt(Magery * (percent / 100));
+
+	// Duration: ((Eval / 5) + 1) * 6
+	var duration := ((EvalInt / 5) + 1) * 6;
 
 
+    //var mod_amount := GetModAmount( magery );
+    //var duration := GetModDuration( magery );
+
+    if(GetObjProperty(caster,"classid") == ID_MAGE)
+        var val := (info.classlevel * 10);
+        //points := RandomIntMinMax(val, (val + 10));
+        points := GetBuffAmount( caster, info );
+        duration := 60 * val;
+    endif
 
 
-  DoTempMod(cast_on, "#cast_agility", mod_amount, duration);
+	TS_StartTimer(cast_on, "Agility", duration, points, caster);
+
+	return 1;
+
+
 endprogram

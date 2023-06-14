@@ -1,0 +1,7 @@
+use uo;
+
+include ":merchantSpawn:merchantSpawn";
+
+program textcnd_createvendors(unused who)
+    CreateMerchantSpawn();
+endprogram

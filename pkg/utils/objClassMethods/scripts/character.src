@@ -1,0 +1,215 @@
+use uo;
+use os;
+use polsys;
+use util;
+use unicode;
+
+include "include/client";
+include ":timeutils:time";
+
+program Install()
+	Print( "Custom Character Class Methods Installed." );
+	return 1;
+endprogram
+
+exported function ClearCombatAbility( mobile )
+
+	var ability_reset := CreatePacket( 0xBF, 5 );
+		ability_reset.SetInt8( 2, 0x05 );
+		ability_reset.SetInt8( 4,0x21 );
+		ability_reset.SendPacket( mobile );
+
+	return 1;
+endfunction
+
+/*
+ *
+ * PlayerSpeedBoost( mobile, toggle )
+ *
+ * Parameters:
+ * mobile - player char_ref
+ * toggle - integer flag which denotes the following movement types:
+ *			Disable := 0 (Move as normal)
+ *			MountSpeed := 1 (Run at mounted speed even if on foot)
+ *			WalkSpeed := 2 (Force walk)
+ *			WalkSpeedFast := 3 (Force unmounted running speed)
+ *			TeleportSpeed := 4 (Unknown at this time, just teleported flag?)
+ *
+ * Purpose:
+ * To allow for the control of player's movement types
+ *
+ * Date: 2019-05-07	20:50:30
+ * Shard Name: Pangaea
+ *
+ * Author: Oden (ThisIsMe)
+ * Email: DavidJSGardner@Gmail.com
+ * ICQ: 625-658-845
+ * Skype: DavidJSGardner
+ * Discord: ThisIsMe#7491
+ *
+ * Return Values:
+ * N/A
+ *
+ */
+exported function SpeedWalk( mobile, toggle := 0 )
+
+	var packet := CreatePacket( 0xBF, 6 );
+		packet.SetInt16( 1, 6 );
+		packet.SetInt16( 3, 0x26 );
+		packet.SetInt8( 5, CInt( toggle ) );
+		packet.SendPacket( mobile );
+
+	return 1;
+endfunction
+
+exported function ChangeCombatant( mobile, combatant:=0 )
+
+	var packet := CreatePacket( 0xAA, 5 );
+
+	if( !combatant.IsA( POLCLASS_MOBILE ) )
+		packet.SetInt32( 1, 0x0 );
+	else
+		packet.SetInt32( 1, combatant.serial );
+	endif
+
+	return packet.SendPacket( mobile );
+endfunction
+
+exported function IsPlayer( mobile )
+
+	return ( mobile.IsA( POLCLASS_MOBILE ) && !mobile.IsA( POLCLASS_NPC ) );
+endfunction
+
+// 0x11, 65 bytes
+exported function CloseStatusGump( mobile, serial )
+
+	var packet := CreatePacket( 0xBF, 13 );
+	packet.SetInt16( 1, 0x0D );
+	packet.SetInt16( 3, 0x16 );
+	packet.SetInt32( 5, 0x02 );
+	packet.SetInt32( 9, serial );
+
+	return packet.SendPacket( mobile );
+endfunction
+
+// For Ankh
+// 3006196 - Lock Karma
+// 3006197 - Unlock Karma
+// 3006198 - Tithe Gold
+exported function GetContextMenuEntries( mobile, player )
+
+	var list := Array;
+	if( mobile == player )
+		// The commented lines are awaiting a Core update or a packet hook to work with
+		// the newer clients.
+		list.Append( 3006123 ); // Open Paperdoll
+		list.Append( 3006145 ); // Open Backpack
+		// list.Append( 3006168 ); // Siege Bless
+		list.Append( 1114299 ); // Open Item Insurance Menu
+		list.Append( 3006201 ); // Toggle Item Insurance
+	else
+		list.Append( 3006123 ); // Open Paperdoll
+	endif
+
+	return list;
+endfunction
+
+exported function IsPremium( mobile )
+    var premium := CInt(mobile.acct.GetProp("Premium"));
+    if(premium)
+        var expire := CInt(mobile.acct.GetProp("PremiumExpire"));
+        if(expire)
+            if(expire >= polcore().systime)
+                return premium;
+            endif
+        endif
+    endif
+	return 0;
+endfunction
+
+exported function SetPremium( mobile, level, month )
+    if(level && month)
+        var acc := mobile.acct;
+        acc.SetProp("Premium", level);
+        var expire := polcore().systime + (86400 * month * 30);
+        //var expire := polcore().systime + (month * 120); //for test
+
+
+        if(CInt(acc.GetProp("PremiumExpire")))
+            expire := CInt(acc.GetProp("PremiumExpire")) - polcore().systime + expire;
+        endif
+        acc.SetProp("PremiumExpire", expire);
+
+
+        var date := FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+        SendSysMessageUC(mobile, "Вы активировали \"Премиум аккаует\" "+level+" ур. до "+date+".", "RUS", 3, 67);
+        return 1;
+    endif
+    return 0;
+endfunction
+
+exported function ErasePremium( mobile )
+
+    var expire := CInt(mobile.acct.GetProp("PremiumExpire"));
+    if(expire < polcore().systime)
+        mobile.acct.EraseProp("Premium");
+        mobile.acct.EraseProp("PremiumExpire");
+        SendSysMessageUC(mobile, "У вас закончился \"Премиум аккаует\".", "RUS", 3, 33);
+        return 1;
+    endif
+    return 0;
+endfunction
+
+
+exported function IsQuest( mobile )
+
+    var questId := CInt(GetObjProperty(mobile, "QuestId"));
+    var questMission := CInt(GetObjProperty(mobile, "QuestMission"));
+    var talkNpc := GetObjProperty(mobile, "TalkNpc");
+    if(questId)
+    	return 1;
+    endif
+	return 0;
+endfunction
+
+exported function CheckQuestRange( mobile, npc )
+    var actionRange := GetObjProperty(mobile, "QuestActionRange");
+    var dis := SplitWords(actionRange);
+	foreach thing in ListMobilesInBox(dis[1], dis[2], -120, dis[3], dis[4], 120, mobile.realm)
+        if(thing.serial == npc.serial)
+            //print(thing.name);
+            return 1;
+        endif
+	endforeach
+    return 0;
+endfunction
+
+exported function QuestAction( mobile, action )
+    var quest_action := GetObjProperty(mobile, "QuestAction");
+endfunction
+
+exported function AddPvMPoint( mobile, point )
+    var pvmPoint := CInt(GetObjProperty(mobile,"PvMPoint"));
+    SendSysMessage(mobile, "You have received PVM points", 3, MESSAGE_COLOR_GOOD);
+    SetObjProperty(mobile,"PvMPoint", pvmPoint + point);
+    return 1;
+endfunction
+
+exported function RemovePvMPoint( mobile, point )
+    var pvmPoint := CInt(GetObjProperty(mobile,"PvMPoint"));
+    SendSysMessage(mobile, "You have remove PVM points", 3, MESSAGE_COLOR_GOOD);
+    SetObjProperty(mobile,"PvMPoint", pvmPoint - point);
+    return 1;
+endfunction
+
+exported function SetFrozen(mobile, value := 0)
+    value := CInt(value);
+    mobile.frozen := value;
+    if(value)
+        SetObjProperty(mobile, "frozen", 1);
+        PrintTextAbovePrivateUC(mobile, "Вы заморожены!", "RUS", mobile, 3, color := MESSAGE_COLOR_BAD);
+    else
+        EraseObjProperty(mobile, "frozen");
+        PrintTextAbovePrivateUC(mobile, "Вы разморожены!", "RUS", mobile, 3, color := MESSAGE_COLOR_GOOD);
+    endif
+endfunction

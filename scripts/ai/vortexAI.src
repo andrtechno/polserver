@@ -6,11 +6,9 @@ use cfgfile;
 include "include/eventID";
 include "include/sysEvent";
 include "include/client";
-include "include/randName";
+include ":npcs:randName";
 include "include/NPCUtil";
 include "include/objtype";
-include "include/dist";
-include "include/dist";
 include "include/anchors";
 include "ai/combat/vortexCombatEvent";
 include "ai/setup/setup";
@@ -23,28 +21,30 @@ var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
 var masterserial := GetObjProperty(me, "master");
 
 program KillPlayers()
-  var master;
-  foreach char in EnumerateOnlineCharacters()
-    if(char.serial == masterserial)
-      master := char;
-      break;
+    var the_master;
+    foreach char in EnumerateOnlineCharacters()
+        if(char.serial == masterserial)
+            the_master := char;
+            break;
+        endif
+    endforeach
+
+    if(!the_master)
+        the_master := SystemFindObjectBySerial(CInt(masterserial), SYSFIND_SEARCH_OFFLINE_MOBILES);
     endif
-  endforeach
-  if(!master)
-    master := SystemFindObjectBySerial(CInt(masterserial), SYSFIND_SEARCH_OFFLINE_MOBILES);
-  endif
-  SetScriptController( master );
-  SetWarMode( 0 );
-  main_AI_loop();
+
+    SetScriptController( the_master );
+    SetWarMode( 0 );
+    main_AI_loop();
 endprogram
 
 function CloseDistance(opponent)
-  case (Distance(me, opponent))
-    1:
-    0:       return 1;
-    default: RunToward(opponent);
-             return 0;
-  endcase
+    case (Distance(me, opponent))
+        1:
+        0:       return 1;
+        default: RunToward(opponent);
+            return 0;
+    endcase
 endfunction
 
 function main_AI_loop()
@@ -79,14 +79,14 @@ function Fight(opponent)
     opponent := 0;
 	return;
   endif
-  var oldprio := set_priority(50);
+  set_priority(50);
   SetOpponent(opponent);
   prepare_for_fight(opponent);
   TurnToward(opponent);
   var loops := 0;
   var ev;
   var waittime := 0;
-  while((opponent) && (!opponent.dead) && (!opponent.hidden) && (!opponent.concealed) && (dist(me,opponent) < 20))
+  while((opponent) && (!opponent.dead) && (!opponent.hidden) && (!opponent.concealed) && (Distance(me,opponent) < 20))
 	if(!CloseDistance(opponent))
 	  loops := loops + 1;
 	  waittime := 0;
@@ -110,37 +110,38 @@ function Fight(opponent)
 endfunction
 
 function EnableCombatEvents()
-  EnableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + EVID_PEACEMADE );
+    EnableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + EVID_PEACEMADE );
 endfunction
 
 function DisableCombatEvents()
-  DisableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + EVID_PEACEMADE );
+    DisableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + EVID_PEACEMADE );
 endfunction
 
 function look_around()
-  var him, dista;
-  var dis := 20;
-  foreach critter in ListMobilesInLineOfSight(me, HALT_THRESHOLD)
-    dista := Distance(me, critter);
-    if(dista < dis)
-      if((critter.npctemplate != "bladespirit") && (critter.npctemplate != "vortex"))
-        him := critter;
-        dis := dista;
-      endif
+    var him, dista;
+    var dis := 20;
+
+    foreach critter in ListMobilesInLineOfSight(me, HALT_THRESHOLD)
+        if(dista < dis)
+            var privs := critter.privileges();
+            if((critter.npctemplate != "bladespirit") && (critter.npctemplate != "vortex") && (!privs.invul))
+                him := critter;
+                dis := dista;
+            endif
+        endif
+    endforeach
+    if(him)
+        Fight(him);
     endif
-  endforeach
-  if(him)
-    Fight(him);
-  endif
 endfunction
 
 function EnableMainEvents()
- DisableEvents( SYSEVENT_SPEECH + SYSEVENT_LEFTAREA + SYSEVENT_DISENGAGED + SYSEVENT_OPPONENT_MOVED );
- EnableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA, HALT_THRESHOLD );
+    DisableEvents( SYSEVENT_SPEECH + SYSEVENT_LEFTAREA + SYSEVENT_DISENGAGED + SYSEVENT_OPPONENT_MOVED );
+    EnableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA, HALT_THRESHOLD );
 endfunction
 
 function DisableMainEvents()
-  DisableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA);
+    DisableEvents( SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA);
 endfunction
 
 function Herd(ev)
@@ -158,7 +159,7 @@ function Herd(ev)
 	  loops := 0;
 	  waittime := 1;
 	endif
-	if((loops >= 30) or (coordist(me.x, me.y, lx, ly) <= 1))
+	if((loops >= 30) or (CoordinateDistance(me.x, me.y, lx, ly) <= 1))
 	  break;
 	endif
 	ev := wait_for_event(waittime);
@@ -175,7 +176,7 @@ function Herd(ev)
 endfunction
 
 function CloseIn(me, lx, ly)
-  case (coordist(me.x, me.y, lx, ly))
+  case (CoordinateDistance(me.x, me.y, lx, ly))
     0:       return 1;
     default: WalkTowardLocation(lx, ly);
              return 0;

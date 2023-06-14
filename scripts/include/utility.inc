@@ -1,7 +1,7 @@
 use basic;
+use storage;
 
-include "include/myUtil";
-
+// Used in two files...
 function find_or_create_storage( areaname )
   var area;
   area := FindStorageArea( areaname );
@@ -13,13 +13,15 @@ function find_or_create_storage( areaname )
   return area;
 endfunction
 
+// Used in three files...
 function find_or_create_item(storage, name, objtype := 0x1966a)
-  var item := FindRootItemInStorageArea(storage, name);
-  if(item)
-	return item;
-  endif
-  item := CreateRootItemInStorageArea( storage, name, objtype);
-  return item;
+	var item_found := FindRootItemInStorageArea(storage, name);
+	if(item_found)
+		return item_found;
+	endif
+
+	item_found := CreateRootItemInStorageArea( storage, name, objtype);
+	return item_found;
 endfunction
 
 function IsLocationAccessible(character, x, y, z)
@@ -39,31 +41,23 @@ function IsLocationAccessible(character, x, y, z)
   return CheckLosAt( character, x, y, z );
 endfunction
 
-//function min(x, y)
-//  if(x<= y)
-//    return x;
-//  else
-//    return y;
-//  endif
-//endfunction
+///////////////////
+// Sends messages to all online GMs. Useful for important errors
+///////////////////
 
-/////////////////// 
-// Sends messages to all online GMs. Useful for important errors 
-/////////////////// 
+function SendGMErrorMessage(text, syslogit := 0, mincmdlevel := 1)
+    if ( syslogit )
+        syslog(text);
+    endif
 
-function SendGMErrorMessage(text, syslogit := 0, mincmdlevel := 1) 
-    if ( syslogit ) 
-        syslog(text); 
-    endif 
-
-    foreach player in EnumerateOnlineCharacters() 
-        if ( player.cmdlevel ) 
-            if ( player.cmdlevel >= mincmdlevel ) 
-                SendSysMessage(player, "Staff system message: " + text, color := 220); 
-            endif 
-        endif 
-    endforeach 
-endfunction 
+    foreach player in EnumerateOnlineCharacters()
+        if ( player.cmdlevel )
+            if ( player.cmdlevel >= mincmdlevel )
+                SendSysMessage(player, "Staff system message: " + text, color := 220);
+            endif
+        endif
+    endforeach
+endfunction
 
 //////////////////////////////////////////////////////////////////////////////////////
 //
@@ -74,7 +68,7 @@ endfunction
 //
 //  Parameters:
 //  Name                  Type
-//  object                UO_OBJECT reference                  
+//  object                UO_OBJECT reference
 //  boundary              Array containing the {nwx, nwy, sex, sey}
 //                        The function assumes that the 'boundary' parameter
 //                        might contain numeric values as strings in its elements.
@@ -93,12 +87,12 @@ endfunction
 //////////////////////////////////////////////////////////////////////////////////////////////
 //  Determines if the object is within a rectangle at a specified Z coordinate
 //
-//  Note: The scope of this function is to determine whether an object 
+//  Note: The scope of this function is to determine whether an object
 //  lies within a two dimwnsional area at a specified Z coordinate.
 //
 //  Parameters:
 //  Name                  Type
-//  object                UO_OBJECT reference                  
+//  object                UO_OBJECT reference
 //  boundary              Array containing the {nwx, nwy, sex, sey}
 //  ZCoord                The desired Z level
 //
@@ -120,3 +114,159 @@ function IsInsideRectAtZLevel (object, boundary, ZCoord)
         return 0;
     endif
 endfunction
+
+function HLEnumerateOnlineCharacters (ex_staff := 0, ex_concealed_staff := 0)
+
+        var list := array;
+        var processedList := array;
+        var index, index2, ignore;
+        list := EnumerateOnlineCharacters ();
+        index2 := 1;
+
+        for (index := 1; index <= list.size(); index := index + 1)
+            ignore := 0;
+            if (list[index].cmdlevel)
+                if (ex_concealed_staff && list[index].concealed)
+                    ignore := 1;
+                endif
+                if (ex_staff)
+                    ignore := 1;
+                endif
+            endif
+            if (GetObjProperty (list[index], "HideDev"))
+                ignore := 1;
+            endif
+            if (!ignore)
+                processedList[index2] := list[index];
+                index2 := index2 + 1;
+            endif
+        endfor
+        return processedList;
+endfunction
+
+
+
+//returns all the items in container of objtype
+function EnumerateItemsInContainerOfObjtype(container, objtype)
+
+	var ret := { };
+        foreach item in EnumerateItemsInContainer(container)
+		if ( item.objtype == objtype )
+			ret.append(item);
+		endif
+	endforeach
+
+	return ret;
+
+endfunction
+
+//returns all the 'top-level' items in container of objtype
+// Deprecated for: FindSubstance( container, objtype, 1, 0, FINDSUBSTANCE_ROOT_ONLY+FINDSUBSTANCE_FIND_ALL )
+function ListRootItemsInContainerOfObjtype(container, objtype)
+
+	var ret := { };
+        foreach item in EnumerateItemsInContainer(container, ENUMERATE_ROOT_ONLY)
+		if (item.objtype == objtype)
+			ret.append(item);
+		endif
+	endforeach
+
+	return ret;
+
+endfunction
+
+function InInventory( inventory, item )
+    return ( item in EnumerateItemsInContainer( inventory ) );
+endfunction
+
+function CountItemsOfObjtypeInContainer( byref container, byref objtype )
+
+	var amt := 0;
+	foreach item in ( FindSubstance( container, objtype, 1, 0, FINDSUBSTANCE_FIND_ALL ) )
+		amt+=item.amount;
+	endforeach
+
+	return amt;
+endfunction
+
+function IsContainer( it )
+
+	if (it.objtype == 0x7057)
+		return 0;//trashcans don't count as containers
+	endif
+
+	var waslocked := it.locked;
+	it.locked := 1;
+	if (it.locked)
+		it.locked := waslocked;
+		return 1;
+	else
+		return 0;
+	endif
+
+endfunction
+
+function IsDungeon( x, y )
+
+	if ( (x >= 5120) && (x <= 6143) )
+		if ( (y >= 0) && (y <= 2303) )
+			return 1;
+		endif
+	endif
+
+	return 0;
+
+endfunction
+
+function NoTeleportZone( x, y )
+
+	if ( (x >= 5120) && (x <= 6143) )
+		if ( (y >= 2080) && (y <= 2303) )
+			return 1;
+		endif
+	endif
+
+	return 0;
+
+endfunction
+
+//	GetStacksOfTypeInContainer (container, objtype)
+//	Loops through the given container looking for item stacks from the given objtype.
+//	Returns: an array where the first element is the sum of items from the
+//		 given objtype within the container, and the following elements are
+//	ObjRefs to the item stacks found.
+//	Example: if used at a container with 2 stacks of 50 cloth, the function
+//		 would return {100, 1st_stack_of_cloth, 2nd_stack_of_cloth}.
+function GetStacksOfTypeInContainer (container, objtype)
+	var result := {0};
+	foreach item in EnumerateItemsInContainer(container)
+		if (item.objtype == objtype)
+			result.append(item);
+			result[1] := result[1]+item.amount;
+		endif
+	endforeach
+	return result;
+endfunction
+
+//	SubtractFromStackArray (byref arrayofobjrefs, amount)
+//	Loops through the array of objects until the given amount of items is subtracted, or the last item is destroyed. IE if 2 piles
+//	of 10k gold are passed as the first argument, and 15000 is passed as the second argument, the first pile will be destroyed and the
+//	second pile will have 5000 gold subtracted from it.
+//	In case the array contains non-POL-items objects, those objects are ignored.
+//	Returns: amount of items successfully subtracted.
+
+function SubtractFromStackArray (byref arrayofobjrefs, amount)
+	var needed := amount;
+	foreach item in arrayofobjrefs
+		if (!item.IsA(POLCLASS_ITEM)) continue; endif
+		if (item.amount<needed)
+			needed := needed-item.amount;
+			SubtractAmount(item, item.amount);
+		else
+			SubtractAmount(item, needed);
+			return amount;
+		endif
+	endforeach
+	return (amount-needed);
+endfunction
+

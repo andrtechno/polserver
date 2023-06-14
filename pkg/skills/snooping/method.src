@@ -1,0 +1,9 @@
+use uo;
+
+program Install()
+	return 1;
+endprogram
+
+exported function IsThiefGloves( unused item )
+	return 1;
+endfunction

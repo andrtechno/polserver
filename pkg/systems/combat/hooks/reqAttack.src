@@ -1,0 +1,51 @@
+use uo;
+
+program hook_startup()
+	print("INSTALLING: Combat Request Attack hook... ");
+	return 1;
+endprogram
+
+exported function reqAttack(attacker, byref packet)
+
+    var defender := SystemFindObjectBySerial(packet.GetInt32(1));
+    var penalty := CInt(GetObjProperty(attacker, "PenaltyPoints"));
+
+        //refresh automover
+            EraseObjProperty(attacker, "#AutoMoverCount");
+            EraseObjProperty(attacker, "#AutoMoverFacing");
+            EraseObjProperty(attacker, "#AutoMoverTimer");
+
+
+    if(defender.hidden || Distance(attacker, defender) > 18)
+        //todo нужно добавить отправку пакета чтобы визуально атаки небыло.
+
+        PrintTextAbovePrivate( attacker, "[Anti-cheat] Cheating detected.", attacker, 3, 33 );
+        SendSysMessage(attacker, "You have been fined.", 3, 33);
+        SetObjProperty(attacker, "PenaltyPoints", penalty + 1);
+    	return 1;
+    endif
+    if(defender.cmdlevel > 0)
+        //todo нужно добавить отправку пакета чтобы визуально атаки небыло.
+        //SendSysMessage(attacker, "[Anti-cheat] It is forbidden to attack the GM-server", 3, 33);
+        //SendSysMessage(attacker, "You have been fined.", 3, 33);
+        //SetObjProperty(attacker, "PenaltyPoints", penalty + 1);
+
+    	//return 1;
+    endif
+
+    if(!attacker.cmdlevel)
+        var mobilesList := ListMobilesNearLocationEx( defender.x, defender.y, defender.z, 15, LISTEX_FLAG_NORMAL, defender.realm);
+        foreach mobile in mobilesList
+            if(mobile.cmdlevel > 1)
+                if(!defender.isA(POLCLASS_NPC))
+                    //SendSysMessage(attacker, "It is forbidden to attack close GM-master", 3, 33);
+                    //SendSysMessage(attacker, "You have been fined.", 3, 33);
+                    //SetObjProperty(attacker, "PenaltyPoints", penalty + 1);
+                    //return 1;
+                endif
+            endif
+        endforeach
+    endif
+    SetObjProperty(attacker, "LastMyAttackOpponent", defender.serial);
+	return 0;
+endfunction

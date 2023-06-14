@@ -15,11 +15,10 @@ use uo;
 
 include "include/eventID";
 include "include/sysEvent";
-include "include/randName";
-include "include/vetement";
+include ":npcs:randName";
+include ":npcs:garment";
 include "include/speech";
 include "include/anchors";
-include "include/dist";
 include "ai/main/loot";
 include "include/begging";
 
@@ -35,15 +34,13 @@ program Person()
   EnableEvents( SYSEVENT_ENTEREDAREA + SYSEVENT_LEFTAREA, HALT_THRESHOLD );
   EnableEvents( SYSEVENT_OPPONENT_MOVED );
   if (GetObjProperty(me, "frozen"))
-          me.frozen := 1;
+        me.frozen := 1;
   endif
-
   SetWarMode( 0 );
   set_priority(10);
   var ev;
   var looter := GetObjProperty( me, "looter" );
   var next_wander := ReadGameClock() + 10;
-
   while (1)
     ev := os::wait_for_event( 120 );
     case (ev.type)

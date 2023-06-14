@@ -1,0 +1,47 @@
+/*
+
+This attack allows you to disarm your foe.
+A successful Disarm leaves the victim unable to re-arm another weapon for 5 seconds.
+Applies a 10 second disarm immunity timer when performed using weapons.
+Wrestling moves are not subject to the immunity timer.
+This move is exempt from the Tactics requirement when used as an Unarmed (wrestling) special move.
+Hit splintering will not proc when this special is enacted.
+
+*/
+
+use uo;
+use cliloc;
+
+include ":itemUtils:itemtypes";
+include ":timedScripts:timedScripts";
+
+program ability_Disarm(params)
+    var attacker := params[1];
+    var defender := params[2];
+
+    if(!defender.isA(POLCLASS_NPC))
+
+        var cfgFile := ReadConfigFile(":combatBook:abilities");
+
+        var elem := FindConfigElem( cfgFile, "Disarm" );
+        var duration := GetConfigInt( elem, "Duration" );
+        if(!duration)
+            duration := 5;
+        endif
+
+
+        var defender_hand1 := GetEquipmentByLayer(defender, LAYER_HAND1);
+        var defender_hand2 := GetEquipmentByLayer(defender, LAYER_HAND2);
+
+        if(defender_hand1 || (defender_hand1 && !defender_hand2))
+            MoveItemToContainer( defender_hand1, defender.backpack );
+            SendSysMessageCL(defender, 1004007, font := 3, color := MESSAGE_COLOR_BAD);
+            SendSysMessageCL(attacker, 1004006, font := 3, color := MESSAGE_COLOR_GOOD);
+            TS_StartTimer(defender, "Disarm", duration, {}, attacker);
+        endif
+    else
+        return 0;
+    endif
+
+    return 1;
+endprogram

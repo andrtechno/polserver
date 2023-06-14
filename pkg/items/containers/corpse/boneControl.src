@@ -1,0 +1,10 @@
+use uo;
+use os;
+use util;
+
+const DECAY_TIME := 5;   // In minutes. 5
+
+program boneControl(corpse)
+    sleep(DECAY_TIME * 60);
+    DestroyItem(corpse);
+endprogram

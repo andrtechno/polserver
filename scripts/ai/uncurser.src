@@ -1,0 +1,203 @@
+use npc;
+use os;
+use uo;
+
+include "include/eventID";
+include "include/sysEvent";
+include ":npcs:randName";
+include "include/utility";
+include "include/mrcSpawn";
+include ":npcs:garment";
+include "include/client";
+include "include/anchors";
+include "include/findCity";
+include "include/begging";
+include ":attributes:attributes";
+include ":npcs:trainSkill";
+include "include/objtype";
+include ":quests:quests";
+//for buff
+include ":magery:spells";
+
+const MAX_SKILLS      := 48;
+const REACT_THRESHOLD := 2;
+const REMOVE_CURSE := "cursed";
+
+var me := Self();
+me.hidden := 0;
+var itemTarget;
+var merchant_type := GetObjProperty(me,"MerchantType");
+var equipt        := GetObjProperty(me, "Equipt");
+var npccfg        := ReadConfigFile("npcdesc");
+
+set_priority(50);
+
+program merchant()
+    if(!merchant_type)
+        SetObjProperty(me, "MerchantType", "Mage");
+        merchant_type := "Mage";
+    endif
+    start_script("NPCKeeper", me);
+    var myanchor := GetObjProperty(me, "Anchor");
+    if(myanchor)
+        MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
+    endif
+    drop_anchor();
+    myanchor     := GetObjProperty(me, "Anchor");
+    var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
+
+
+    me.hidden := 0;
+	EnableEvents(EVID_SPEECH, REACT_THRESHOLD);
+	EnableEvents(SYSEVENT_ITEM_GIVEN);
+	DisableEvents(EVID_SPEECH + SYSEVENT_SPEECH);
+
+    if(GetObjProperty(me, "frozen"))
+        me.frozen := 1;
+    endif
+    var next_wander := ReadGameClock() + 10;
+    const loops := 0;
+    while (1)
+        var ev;
+        ev := os::wait_for_event(120);
+        if(ev)
+            case (ev.type)
+                EVID_SPEECH:
+                    var txt := lower(ev.text);
+                    if (txt["uncurse"])
+                        TurnToward(ev.source);
+                        say("Show me the cursed item.");
+
+	itemTarget := Target(ev.source, TGTOPT_CHECK_LOS);
+	if( !itemTarget )
+		return;
+	endif
+	var goldcoin := 5000;
+	SetObjProperty(me,"MyGold",goldcoin);
+	SetObjProperty(ev.source,"PriestPrice",goldcoin);
+	SetObjProperty(ev.source,"PriestDemand",REMOVE_CURSE);
+
+	if(GetObjProperty(itemTarget,"type") != REMOVE_CURSE)
+       //Если итем не руксед
+        Say("I can't remove a curse from an item that isn't cursed or don't seem to be.");
+    else
+        Say("I will remove a curse from that item for at least "+goldcoin+" gold pieces");
+	endif
+
+
+
+                    endif
+
+                SYSEVENT_ITEM_GIVEN:
+                    TurnToward (ev.source);
+                    if (ev.item.objtype == UOBJ_GOLD_COIN)
+                        CheckWhyHeGave(ev.source, ev.item);
+                    endif
+            endcase
+        endif
+    endwhile
+endprogram
+
+
+
+function CheckWhyHeGave ( player , donation )
+
+
+	if( !donation.amount )
+		return;
+	endif
+
+
+	var demand := GetObjProperty( player , "PriestDemand" );
+	if( !demand )
+		if( GetObjProperty( player , "PriestUpset" ) )
+			if( donation.amount >= (player.strength) * 2 )
+				Say( "Thee be blessed for this generous donation." );
+				//EraseObjProperty( player , "PriestUpset" );
+			else
+				Say( "Dost thou think that he can be forgiven for such a pitiful amount of gold?" );
+			endif
+		else
+			Say( "Thee be blessed for this generous donation." );
+		endif
+		DestroyItem( donation );
+		return;
+	endif
+
+	EraseObjProperty( player , "PriestDemand" );
+
+	var price := Cint( GetObjProperty( player , "PriestPrice" ) );
+	if(price)
+		if(donation.amount < price)
+			Say( "I was very generous by asking thee such a low price as " + price + "gps for that service, " );
+			MoveItemToContainer( donation , player.backpack );
+			Sleep( 3 );
+			Say( "so I had expected thee to have the politeness to give me what I asked for" );
+			//SetObjProperty( player , "PriestUpset" , 1 );
+			return;
+		endif
+		EraseObjProperty( player , "PriestPrice" );
+	endif
+
+
+	case(demand)
+		REMOVE_CURSE:
+		    RemoveCurse( player,  donation , price );
+        break;
+
+
+	endcase
+
+endfunction
+
+
+
+
+
+
+
+
+function RemoveCurse( player, donation, price )
+
+	//var itemserial := GetObjProperty( player , "TargetedItem" );
+	//var item := SystemFindObjectBySerial( itemserial );
+	var item := itemTarget;
+	//EraseObjProperty( player , "TargetedItem" );
+
+	var chance := 75;
+	var chancemod := 0;
+
+	if( donation.amount > price )
+		chancemod := Cint( (donation.amount - price) / 10 );
+	endif
+
+	chance := chance + chancemod;
+	Say( "Powers of the Virtues, I'm calling upon you to remove the curse from that item." );
+	PerformAction( me , ANIM_CAST_DIR );
+	Sleep( 6 );
+
+	//if( GetObjProperty( item , "CannotBeUncursed" ) )
+	//	CannotAchieveIt();
+	//else
+		if( RandomInt(100)+1 <= chance )
+			//SetObjProperty( item , "Cursed" , 3 );
+			EraseObjProperty( item , "type" );
+
+			//EraseObjProperty( item , "StayEquipped" );
+
+			Say( "From now on thee can unequip this " + item.desc + " as any normal item." );
+			PlaySoundEffect( player , SFX_SPELL_BLESS );
+			PlayObjectCenteredEffect( player , FX_BLESS_EFFECT, 10,10 );
+
+		else
+			PlayObjectCenteredEffect( me , FX_SPELL_FAIL, 7, 7);
+			PlaySoundEffect( me , SFX_5B);
+			Say( "I failed in removing that curse!" );
+			Sleep( 2 );
+			Say( "Maybe if thee had give me more than " + donation.amount + "gps, I would have succeeded." );
+		endif
+	//endif
+
+	DestroyItem( donation );
+
+endfunction

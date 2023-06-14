@@ -173,7 +173,7 @@ function HandleExtended(character, byref packet)
 		5: chk := 1; // Continue processing! At this time 5 is not used, but it may in the future! Thanks OSI!
 		default: return 0;   // OHHHH, mommy :o
 	endcase
-    print("HandleExtended: "+packet_mode);
+
 	if ( chk )
 		// I do not recommend pet count stuff. Should just change code
 		// to always send 0 for them, useless unless you have some form
@@ -223,7 +223,7 @@ function HandleExtended(character, byref packet)
 		// If negative, it's 65536 plus the resistance. -10 would be 65536 + -10
 		// tekproxy: It would be nice if a few packet guides actually mentioned this...
 		var resistances := GetResistance(character);
-		print(resistances);
+		
 		if ( CInt(resistances[DMG_FIRE]) > 0 )
 			packet.SetInt16(70, CInt(resistances[DMG_FIRE])); 
 		else

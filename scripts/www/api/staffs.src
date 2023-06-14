@@ -1,0 +1,41 @@
+use http;
+use uo;
+use os;
+use basic;
+
+program players()
+    var data := struct{};
+
+    var listAccs := ListAccounts();
+    var ListPlayers := dictionary;
+    ListPlayers[1] := {};
+    ListPlayers[2] := {};
+    ListPlayers[3] := {};
+    ListPlayers[4] := {};
+    ListPlayers[5] := {};
+    ListPlayers[6] := {};
+
+    var ListPlayersTest := array{};
+    var account;
+    var character;
+    var i;
+    var j;
+    for(i:=1;i<=listAccs.size();i:=i+1)
+        account := FindAccount( listAccs [i] );
+        for(j:=1;j<=5;j:=j+1)
+            character := account.getcharacter(j);
+            if(character)
+                if(character.cmdlevel > 0)
+                    sleepms(1);
+                    ListPlayers[character.cmdlevel].append(character.name);
+                endif
+
+            endif
+       endfor
+    endfor
+
+
+    data.+list:=ListPlayers;
+
+    WriteHtml( PackJSON(data) );
+endprogram

@@ -20,7 +20,8 @@ program staffRobeEquip( character, item )
         SendSysMessage(character, "Error color: "+col.errortext);
     endif
     var robName := GetConfigString(cmdElem, "RobeName");
-
+    //include ":virtue:virtue";
+//	VS_AdjustVirtue(caster, "Honesty", -1, 100);
     item.color:=col;
     item.name:="Staff robe of "+character.name;
     if(robName)

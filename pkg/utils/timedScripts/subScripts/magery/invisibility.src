@@ -1,14 +1,10 @@
-/*
- * $Id: invisibility.src 1028 2007-03-25 19:06:41Z tekproxy $
- *
- */
 use uo;
 use os;
 
 include ":attributes:attributes";
 include ":timedScripts:timedScripts";
 
-program TimedScript_Invisiblity(params)
+program TimedScript_Invisibility(params)
 	var defender := params[1];
 	params := 0;
 	var ts_cfg_elem := TS_GetCfgElem("Invisibility");

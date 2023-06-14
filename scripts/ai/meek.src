@@ -22,11 +22,10 @@ use cfgfile;
 
 include "include/eventID";
 include "include/sysEvent";
-include "include/randName";
+include ":npcs:randName";
 include "include/NPCUtil";
 include "include/objtype";
 include "include/speech";
-include "include/dist";
 include "include/anchors";
 include "ai/main/mainLoopMeek";
 include "ai/combat/fight";
@@ -43,9 +42,9 @@ var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
 
 program KillPlayers()
 
-    	SetWarMode( 0 );
+    SetWarMode( 0 );
 
-    	main_AI_loop();
+    main_AI_loop();
 
 endprogram
 

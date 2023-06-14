@@ -1,0 +1,18 @@
+
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+// in dev
+program TimedScript_EndPoisonImmunity(params)
+	var mobile := params[1];
+
+	var cfg_elem := TS_GetCfgElem("PoisonImmunity");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+	mobile.poisoned := 0;
+	mobile.delbuff(buff_icon);
+
+	return 1;
+endprogram
+

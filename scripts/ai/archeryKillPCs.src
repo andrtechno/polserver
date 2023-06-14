@@ -1,0 +1,71 @@
+use npc;
+use os;
+use uo;
+use cfgfile;
+
+include "include/eventID";
+include ":attributes:attributes";
+include "include/sysEvent";
+include ":npcs:randName";
+include ":npcs:garment";
+include "include/NPCUtil";
+include "include/objtype";
+include "include/anchors";
+include "ai/main/killPCsLoop";
+include "ai/combat/fight";
+include "ai/combat/defaultCombatEvent";
+include "ai/setup/killPCsSetup";
+include "ai/main/loot";
+include "ai/main/sleepMode";
+
+
+const HALT_THRESHOLD := 15; // how close before he attacks?
+var npccfgfile := ReadConfigFile( "npcdesc" );
+var idlesnd1 := CInt(npccfgfile[me.npctemplate].idlesound1);
+var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
+var missileweapon := npccfgfile[me.npctemplate].missileweapon;
+
+program KillPlayers()
+
+    SetWarMode( 0 );
+    main_AI_loop();
+
+endprogram
+
+function CloseDistance( opponent )
+
+    //var sleepdelay := 400 - (CInt(AP_GetStat(me, DEXTERITY)) * 1.5);
+    var sleepdelay := 200 - (CInt(AP_GetStat(me, DEXTERITY)) * 1.5);
+
+	if (sleepdelay < 0)
+		sleepdelay := 0;
+	endif
+
+
+    var x := RandomIntMinMax(opponent.x - 7, opponent.x + 7);
+    var y := RandomIntMinMax(opponent.y - 7, opponent.y + 7);
+    case (Distance( me, opponent ))
+        0:  // the most likely, so first
+        1:
+        2:
+        3:
+        4:
+        5:
+        6:
+            RunAwayFrom(opponent);
+            //SleepMS(sleepdelay);
+            return 0;
+        7:
+            SleepMS(2000);
+            return 0;
+        8:
+        9:
+        10:
+        default:
+            //RunTowardLocation( x, y );
+            RunToward( opponent );
+		    //SleepMS(sleepdelay);
+            return 1;
+    endcase
+
+endfunction

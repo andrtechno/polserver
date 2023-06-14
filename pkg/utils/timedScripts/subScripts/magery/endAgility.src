@@ -15,10 +15,10 @@ program TimedScript_EndAgility(params)
 	var cfg_elem := TS_GetCfgElem("Agility");
     var buff_icon := CInt( cfg_elem.BuffIcon );
 	var points := struct;	
-	points := GetObjProperty(mobile, "AgilityMod");	
+	points := GetObjProperty(mobile, "Agility");
 	AP_ModifyStatMod(mobile, DEXTERITY, -points.dex);
 	mobile.delbuff(buff_icon);
-	EraseObjProperty(mobile, "AgilityMod");
+	EraseObjProperty(mobile, "Agility");
 	
 	return 1;
 endprogram

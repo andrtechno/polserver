@@ -6,7 +6,7 @@ use uo;
 include "include/client";
 include ":attributes:caps";
 
-const CLASSE_BONUS        := 1.5;
+//this deperecate
 const CLASSEID_BARD       := "IsBard";
 const CLASSEID_CRAFTER    := "IsCrafter";
 const CLASSEID_MAGE       := "IsMage";
@@ -29,16 +29,7 @@ const AVERAGE_SKILL       := 75;
 const AVERAGE_LEVEL_MOD   := 15;
 const BONUS_PER_LEVEL     := 0.25;
 
-
-var skillid_bard := array{SKILLID_BEGGING, SKILLID_PEACEMAKING,SKILLID_MUSICIANSHIP,SKILLID_TASTE_IDENTIFICATION,SKILLID_PROVOCATION,SKILLID_HERDING,SKILLID_CARTOGRAPHY,SKILLID_DISCORDANCE};
-var skillid_crafter := array{SKILLID_ARMSLORE, SKILLID_BLACKSMITHY, SKILLID_BOWCRAFT, SKILLID_LUMBERJACKING, SKILLID_MINING, SKILLID_TINKERING, SKILLID_TAILORING,SKILLID_CARPENTRY};
-var skillid_mage := array{SKILLID_ALCHEMY,SKILLID_ITEM_IDENTIFICATION,SKILLID_SPIRITSPEAK,SKILLID_RESISTING_SPELLS,SKILLID_MAGERY,SKILLID_MEDITATION,SKILLID_EVALUATING_INTELLIGENCE,SKILLID_INSCRIPTION};
-var skillid_ranger := array{SKILLID_ANIMALLORE,SKILLID_CAMPING,SKILLID_COOKING,SKILLID_FISHING,SKILLID_ARCHERY,SKILLID_TRACKING, SKILLID_VETERINARY,SKILLID_TAMING};
-var skillid_thief := array{SKILLID_DETECTING_HIDDEN,SKILLID_HIDING,SKILLID_LOCKPICKING,SKILLID_SNOOPING,SKILLID_STEALTH,SKILLID_STEALING,SKILLID_POISONING,SKILLID_REMOVETRAP};
-var skillid_warrior := array{SKILLID_ANATOMY,SKILLID_PARRYING, SKILLID_HEALING,SKILLID_TACTICS, SKILLID_SWORDSMANSHIP, SKILLID_MACEFIGHTING, SKILLID_FENCING, SKILLID_WRESTLING};
-
-
-
+//For book cmd .skill
 function GetSkillListName()
     var data := array;
     var bard := array{"Begging", "Peacemaking","Musicianship","TasteIdentification","Provocation","Herding","Cartography","Discordance"};
@@ -60,26 +51,6 @@ function GetSkillListName()
 endfunction
 
 
-function VitalClassCharacter(who, skill_id)
-    //print("GetClasseIdForSkill: classid: "+GetClasseIdForSkill(skill_id));
-    //print("GetClasseSkills: skillist: "+GetClasseSkills(GetClasseIdForSkill(skill_id)));
-
-    //print("test: "+GetSkillCapClass(who, skill_id));
-
-    SetSkillsCaps(who, 2);
-    SetClass(who, skill_id);
-endfunction
-
-function SetSkillsCaps(who, classid);
-    print("SetSkillsCaps: "+classid);
-    foreach class in ({ID_MAGE,ID_BARD,ID_WARRIOR,ID_RANGER,ID_CRAFTER,ID_THIEF})
-    //AP_SetSkillCap
-    print(class);
-    endforeach
-
-endfunction
-
-
 function GetSkillCapClass(who, skill_id)
     var classid := GetClasseIdForSkill(skill_id);
     var list := GetClasseSkills(classid);
@@ -95,37 +66,17 @@ function GetSkillCapClass(who, skill_id)
 endfunction
 
 
-function SetClass(who, skill_id)
-    var classid := GetClasseIdForSkill(skill_id);
-    var capskill := GetSkillCapClass(who, skill_id);
-    var level := 0;
-    if(capskill >= 1200)
-        level:=6;
-    elseif(capskill >= 1080)
-        level:=5;
-    elseif(capskill >= 960)
-        level:=4;
-    elseif(capskill >= 840)
-        level:=6;
-    elseif(capskill >= 720)
-        level:=2;
-    elseif(capskill >= 600)
-        level:=1;
-    endif
-
-    if(level >= 1)
-        SetObjProperty(who,"classlevel",level);
-        SetObjProperty(who,"classid",classid);
-        SetSkillsCaps(who,classid);
-    else
-        //EraseObjProperty(who,"classlevel");
-        //EraseObjProperty(who,"classid");
-    endif
-
+function GetClassGumpIcon( classid )
+    case( classid )
+        ID_BARD:		return 5553;
+        ID_CRAFTER:	    return 5555;
+        ID_MAGE:		return 5569;
+        ID_RANGER:	    return 5551;
+        ID_THIEF:		return 5575;
+        ID_WARRIOR:	    return 5577;
+        default:		return 0;
+    endcase
 endfunction
-
-
-
 
 
 function GetSkillListId( )
@@ -148,11 +99,11 @@ function GetSkillListId( )
 
 endfunction
 
-function ClasseBonus( who, classeid )
+function ClasseBonus( who )
 
-	var level := CDbl(GetObjProperty( who, classeid ) );
-
-	if( level )
+	//var level := CInt(GetObjProperty( who, classeid ) );
+    var level := CInt(GetObjProperty( who, "classlevel" ) );
+	if( level)
 		return( 1 + BONUS_PER_LEVEL * level );
 	else
 		return( 1 );
@@ -247,19 +198,15 @@ endfunction
 
 
 function GetClasseName( classeid )
-
-        case( classeid )
-
-                ID_BARD:		return( "Bard" );
-                ID_CRAFTER:	    return( "Crafter" );
-                ID_MAGE:		return( "Mage" );
-                ID_RANGER:	    return( "Ranger" );
-                ID_THIEF:		return( "Thief" );
-                ID_WARRIOR:	    return( "Warrior" );
-                default:		return( "None" );
-
-        endcase
-
+    case( classeid )
+        ID_BARD:		return( "Бард" );
+        ID_CRAFTER:	    return( "Крафтер" );
+        ID_MAGE:		return( "Маг" );
+        ID_RANGER:	    return( "Лучник" );
+        ID_THIEF:		return( "Вор" );
+        ID_WARRIOR:	    return( "Воин" );
+        default:		return( "Нет класса" );
+    endcase
 endfunction
 
 
@@ -413,7 +360,7 @@ function HaveRestrictedModEnchantmentForClasse( who, item, classeid )
 		ID_THIEF:		break;
 		ID_WARRIOR:	if( GetObjProperty( item, "MagicImmunity" ) )
 						ret := 1;
-					elseif( GetObjProperty( item, "SpellReflect" ) )
+					elseif( GetObjProperty( item, "SpellReflection" ) )
 						ret := 1;
 					elseif( GetObjProperty( item, "PermMagicImmunity" ) )
 						ret := 1;
@@ -529,7 +476,7 @@ function IsFromThatClasse( who, classe_skills )
 	var total	:= 0;
 	var number := len( classe_skills );
 
-	for i := 0 to SKILLID__HIGHEST
+	for i := 0 to (SKILLID__HIGHEST - 10)
 		var amount := GetEffectiveSkill( who, i );
 		total := total + amount;
 		if( i in classe_skills )
@@ -620,17 +567,73 @@ function IsProhibitedByClasse( who, item )
 
 endfunction
 
-/*
+
 function AssignClasse( character )
 
 	var t;
+    //EraseObjProperty( character, CLASSEID_BARD );
+    //EraseObjProperty( character, CLASSEID_WARRIOR );
+    //EraseObjProperty( character, CLASSEID_CRAFTER );
+    //EraseObjProperty( character, CLASSEID_RANGER );
+    //EraseObjProperty( character, CLASSEID_MAGE );
+    //EraseObjProperty( character, CLASSEID_THIEF );
+    EraseObjProperty( character, "classid");
+    EraseObjProperty( character, "classlevel");
 
 	foreach classe in GetClasseIds()
-		EraseObjProperty( character, ID_BARD );
+
 		t := IsFromThatClasse( character, GetClasseSkills( classe ) );
 		if( t )
-			SetObjProperty( character, classe, t );
+            SetObjProperty( character, "classid", classe );
+            SetObjProperty( character, "classlevel", t);
+            /*if(classe == ID_MAGE)
+                SetObjProperty( character, CLASSEID_MAGE, t);
+            elseif(classe == ID_WARRIOR)
+                SetObjProperty( character, CLASSEID_WARRIOR, t);
+            elseif(classe == ID_CRAFTER)
+                SetObjProperty( character, CLASSEID_CRAFTER, t);
+            elseif(classe == ID_RANGER)
+                SetObjProperty( character, CLASSEID_RANGER, t);
+            elseif(classe == ID_THIEF)
+                SetObjProperty( character, CLASSEID_THIEF, t);
+            elseif(classe == ID_BARD)
+                SetObjProperty( character, CLASSEID_BARD, t);
+            endif*/
 		endif
 	endforeach
 
-endfunction*/
+endfunction
+
+function SetCMDClass(who, classid, level)
+
+    var rate := AVERAGE_SKILL;
+
+    who.followers_max := 1;
+
+    var classname := "";
+    case (classid)
+        ID_RANGER:  who.followers_max := level + 1;
+    endcase
+
+    rate:=CInt( (AVERAGE_SKILL + (AVERAGE_LEVEL_MOD * (level - 1))) );
+
+    var cap_array := {};
+
+    //set all skill to "0"
+	foreach classe in GetClasseIds()
+		foreach sid in GetClasseSkills( classe )
+		    if(classid != classe)
+                SetAttributeBaseValue(who, GetSkillConfigElem(sid).Attribute, 0);
+    	        cap_array[sid+1] := 100;
+    	    else
+                SetAttributeBaseValue(who, GetSkillConfigElem(sid).Attribute, rate * 10);
+                cap_array[sid+1] := AP_GetSkillsCap();
+    	    endif
+    	endforeach
+	endforeach
+
+    SetObjProperty( who, "SkillCaps", cap_array );
+
+    AssignClasse( who );
+    RecalcVitals(who);
+endfunction

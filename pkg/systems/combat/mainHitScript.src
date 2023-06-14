@@ -1,151 +1,479 @@
+/*
+ * $Id: mainHitScript.src 1212 2008-05-21 04:07:03Z AustinHeilman $
+ *
+ * Purpose:
+ * Controls combat if the combatHook is disabled.
+ * The difference between this and the combat hook is that
+ * if this is used, the core determines hit difficulty and chance
+ * and that this is run only on a successful hit.
+ *
+ * The hook controls everything from the begining of combat to the end.
+ *
+ */
 use uo;
 use os;
 use cfgfile;
-include ":combat:hitScriptInc";
-include ":attributes:attributes";
-include ":damage:damage";
 
-var speech;
+include ":attributes:attributes";
+include ":combat:hitScripts";
+include ":combat:settings";
+include ":timedScripts:timedScripts";
+include "include/client";
+include "include/facings";
+include ":damage:damage";
+include ":combat:combat";
+include ":armor:armorZones";
+include ":combatBook:combatAbility";
+include ":itemutils:itemdesc";
+
+include "include/math";
+
+var item_cfg := ReadConfigFile(":*:itemdesc");
+var g_settings_cfg := CS_GetSettingsCfgFile();
+var g_ability_cfg := ReadConfigFile(":combatBook:abilities");
+var ability;
+var weaponElement;
+var ammo_consumed := 0;
 
 program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
+    //print("MainHitScript");
+    ability := CInt(GetObjProperty(attacker, "Ability"));
 
-	var bloodoath := GetObjProperty(defender, "bloodoath");
-	if(bloodoath)
-		if(bloodoath  == defender.serial)
-			rawdamage := rawdamage * 0.9;
-			PlayObjectCenteredEffect(attacker, 0x374a, 20,15 );
-			PlayObjectCenteredEffect( defender, 0x374a, 20,15 );
-			ApplyDamageEX(attacker, rawdamage, DMG_FORCED);
+	//
+	// Cheat checker
+	//
+	if ( attacker == defender )
+		KillMobile(attacker);
+	elseif ( attacker.hidden || defender.hidden )
+		return 0;
+	elseif ( !attacker.npctemplate )
+		if ( !attacker.warmode )
+			basedamage := CInt(basedamage/2);
+			rawdamage := CInt(rawdamage/2);
 		endif
 	endif
-	var attune := getobjproperty(defender, "#attune");
-	if(attune)
-		rawdamage := rawdamage * 0.85;
-		PlayObjectCenteredEffect(attacker, 0x374a, 20,15 );
-		PlayObjectCenteredEffect( defender, 0x374a, 20,15 );
-	endif
-	var wraithform := GetObjProperty(defender, "wraith");
-	if(wraithform)
-		rawdamage := rawdamage * 1.2;
-	endif
+
+    var a_info, d_info;
+    SetupInfo(attacker, defender, a_info, d_info);
+
+
+    var attacker_hand1 := GetEquipmentByLayer(attacker, LAYER_HAND1);
+    var weaponElement := FindConfigElem(item_cfg, attacker_hand1.objtype);
+
+    //Если ренж то убывается два вида стрел.. нужно в хук переностить.
+    AmmoChecks(a_info, d_info);
+    if ( ammo_consumed )
+        //print("missileAnim");
+        //Start_Script(":combat:missileAnim",{attacker, defender, weaponElement});
+    endif
 
 
 
-	if (!CheckLineOfSight(attacker, defender) )
-		return 0;
-	endif
+    basedamage := CalcBaseDamage(a_info);
+    rawdamage := basedamage;
+    //print("CalcBaseDamage "+rawdamage);
+
 
 	if (defender.isA(POLCLASS_NPC))
 		basedamage := CInt(basedamage * 1.3);
 		rawdamage := rawdamage * 1.3;
 		rawdamage := CInt(rawdamage * ( AdjustDamageFactor(weapon, defender, attacker) ) );
 		if (rawdamage == 0)
+
 			return 0;
 		endif
 	endif
 
 
 
-	if (GetObjProperty(defender, "#BLINKING") != error )
-		if ( (GetObjProperty(defender, "#BLINKING") <= ReadGameClock() ) && (RandomInt(2) == 1) )
-			PrintTextAbove(defender, CStr(defender.name) + " evades the attack!");
-			return 0;
-		endif
-	endif
+	//FacingChecks(attacker, defender);
+	PlayHitSounds(defender);
+	SkillChecks(attacker, defender, weapon, rawdamage);
+	ParryCheck(attacker, defender, rawdamage);
 
-    var x := CheckTempProtections(attacker, defender, rawdamage);
-	if (x == 0)
-		return 0;
-	else
-		rawdamage := x;
-	endif
+	//WearDownWeapon(attacker, weapon);
+	//WearDownArmor(defender, armor);
 
-	SetObjProperty(defender, "LastHit", {attacker.name, attacker.serial, weapon });
+	//DamageInfo(attacker, defender, basedamage, rawdamage);
+	WeaponHitScripts(attacker, defender, weapon, armor, basedamage, rawdamage);
+	ArmorHitScripts(attacker, defender, weapon, armor, basedamage, rawdamage);
 
-	var armorhit;
-	if ( (armor == 0) || (!armor) )
-	  armorhit := GetObjProperty(defender, "OnArmorHit");
-	else
-	  armorhit := GetObjProperty(armor, "OnHit");
-	endif
-
-	var weaponhit := GetObjProperty(weapon, "OnHit");
-	if (!weaponhit)
-		weaponhit := GetObjProperty(attacker, "OnHit");
-	endif
+	//var hostiles := ListHostiles(defender, 1);
+	//rawdamage := rawdamage+CInt(hostiles.Size()/2);
+	//hostiles := 0;
 
 
-	if (GetObjProperty(weapon, "MissileHit"))
-        weaponhit := GetObjProperty(weapon, "MissileHit");
+	// Apply the damage to the defender
+	// Base = prearmor
+	// Raw = post armor
+
+	if (!attacker.isA(POLCLASS_NPC))
+        var xObject := attacker.weapon;
+        var weapondesc := GetItemDescriptor(xObject.objtype);
+        var damagefactor := (xObject.hp * xObject.quality) / xObject.maxhp;
+        var minDamage := CINT((weapondesc.MinDamage + xObject.dmg_mod) * damagefactor);
+        var maxDamage := CINT((weapondesc.MaxDamage + xObject.dmg_mod) * damagefactor);
+        if(rawdamage > maxDamage)
+        //    rawdamage := maxDamage;
+        endif
+        if(rawdamage < minDamage)
+         //   rawdamage := minDamage;
+        endif
+
+
+        //rawdamage := rawdamage + (xObject.hp / xObject.quality);
+
+//print("MinDmg "+minDamage);
+//print("MinDmg "+maxDamage);
     endif
 
 
-	var gloves := GetEquipmentByLayer(attacker, 0x07);
-	var gloves_hit := 0;
-	if (gloves)
-		gloves_hit := GetObjProperty(gloves, "OnHit");
+    var armor_hit := GetArmorHit(d_info);
+
+
+    ArmorChecks(d_info, armor_hit, rawdamage);
+
+
+    if( GetObjProperty( attacker, "classid" ) == ID_WARRIOR)
+        rawdamage := CInt( rawdamage );
+        //rawdamage := CInt( rawdamage * ClasseBonus( attacker ) );
+
+    endif
+   // print("Final dmg: "+rawdamage);
+	if ( rawdamage > 0 )
+
+	    var ability := AbilityChecks(attacker, defender, CInt(rawdamage));
+
+        if(ability.damage)
+            rawdamage := CInt(ability.damage);
+        endif
+		ApplyRawDamageEX(defender, CInt(rawdamage), DMG_FORCED, attacker); //DMG_PHYSICAL
+
+
 	endif
 
-	if (armorhit)
-	    SetObjProperty(defender, "TempDamage", rawdamage);
-		foreach x in armorhit
-		  Detach();
-		  run_script_to_completion(x, { attacker, defender, weapon, armor, basedamage, rawdamage } );
-		  rawdamage := CInt(GetObjProperty(defender, "TempDamage") );
-		endforeach
-		EraseObjProperty(defender, "TempDamage");
-		if (rawdamage > 0)
-		  DealDamage(defender, attacker, rawdamage);
-		  return;
-		else
-		  return;
+	return 1;
+endprogram
+
+
+
+
+function FacingChecks(attacker, defender)
+	if ( !CS_GetSettingsCfgElem("Settings").ForceFacing )
+		return 0;
+	endif
+
+	TurnObjectToward(attacker, defender.x, defender.y);
+	TurnObjectToward(defender, attacker.x, attacker.y);
+
+	return 1;
+endfunction
+
+function PlayHitSounds(defender)
+	if ( defender.IsA(POLCLASS_NPC) )
+		var damaged_sound := NPC_GetNPCConfig(defender).DamagedSound;
+		if ( damaged_sound )
+			PlaySoundEffect(defender, damaged_sound);
+		endif
+	endif
+endfunction
+
+function SkillChecks(attacker, defender, weapon, rawdamage)
+	var can_gain := 0;
+	var next_gain := CInt(GetObjProperty(attacker, "#CS_GainTime"));
+	if ( ReadGameClock() >= next_gain )
+		if ( CS_GetSettingsCfgElem("Settings").PvPGains )
+			can_gain := 1;
+		elseif ( defender.IsA(POLCLASS_NPC) )
+			can_gain := 1;
 		endif
 	endif
 
-	if (!weaponhit)
-		if (!gloves_hit)
-			DealDamage(defender, attacker, rawdamage);
-			return;
+	if ( can_gain )
+		var gain_wait := CInt(CS_GetSettingsCfgElem("Settings").GainWait);
+		SetObjProperty(attacker, "#CS_GainTime", ReadGameClock()+gain_wait);
+		if ( rawdamage > 0 )
+			SkillCheck(attacker, weapon.attribute, -1);
+			SkillCheck(attacker, "Tactics", -1);
+
+		endif
+	endif
+endfunction
+
+
+function CalcBaseDamage(byref a_info)
+	var base_dmg := GetConfigString(a_info.cfginfo, a_info.prefix+"Damage");
+	base_dmg := RandomDiceRoll(base_dmg);
+
+
+   // print("Base dmg: "+base_dmg);
+
+	        var xObject := a_info.mobile.weapon;
+            var weapondesc := GetItemDescriptor(xObject.objtype);
+
+            var damagefactor := (xObject.hp * xObject.quality) / xObject.maxhp;
+	        var minDamage := CINT((weapondesc.MinDamage + xObject.dmg_mod) * damagefactor);
+            var maxDamage := CINT((weapondesc.MaxDamage + xObject.dmg_mod) * damagefactor);
+
+	//base_dmg += xObject.quality;
+	        base_dmg := base_dmg * damagefactor;
+	        //base_dmg += xObject.hp;
+
+    //print("Base percent dmg: "+base_dmg);
+
+
+	var attribute := GetConfigString(a_info.cfginfo, a_info.prefix+"Attribute");
+	var dmg_mult := CDbl(AP_GetSkill(a_info.mobile, attribute) / 5);
+
+    //if(!a_info.mobile.IsA(POLCLASS_NPC))
+	    //dmg_mult += (CDbl(AP_GetStat(a_info.mobile, STRENGTH) / 10) + CDbl(AP_GetSkill(a_info.mobile, TACTICS) / 10) * 0.02);
+    //endif
+
+
+    if( CInt(GetObjProperty( a_info.mobile, "classid" )) == ID_WARRIOR)
+        dmg_mult += ( CDbl(AP_GetStatMod(a_info.mobile, STRENGTH) / 6) + CDbl(AP_GetSkill(a_info.mobile, TACTICS) / 6)) * ClasseBonus( a_info.mobile );
+    elseif(CInt(GetObjProperty( a_info.mobile, "classid" )) == ID_RANGER)
+        dmg_mult += ( CDbl(AP_GetStatMod(a_info.mobile, STRENGTH) / 6) + CDbl(AP_GetSkill(a_info.mobile, TACTICS) / 6)) * ClasseBonus( a_info.mobile );
+    endif
+
+    //print("Base dmg_mult: "+dmg_mult);
+    
+	base_dmg += CDbl(dmg_mult);
+
+	return CInt(base_dmg);
+endfunction
+
+function NPCDamageMod(byref attacker, byref defender, damage)
+	Print("debug message - mainHitScript: unmodified damage = " + CStr(damage));
+	var NPCMod := CS_GetSettingsCfgElem("NPCMod");
+	var PlayerAdvantage := CInt(NPCMod.PlayerAdvantage);
+	if(defender.isA(POLCLASS_NPC))
+		damage := damage * PlayerAdvantage;
+	endif
+	Print("debug message - mainHitScript: modified damage = " + CStr(damage));
+	return damage;
+endfunction
+
+function WearDownArmor(defender, armor)
+	if ( armor )
+		var armor_elem := CS_GetSettingsCfgElem("Armor");
+
+		if ( RandomInt(100)+1 <= armor_elem.WearChance )
+			SendSysMessage(defender, armor.desc+" takes some damage.");
+			armor.hp := armor.hp - 1;
+
+			if ( armor.hp <= 1 )
+				MoveObjectToLocation(armor, 1, 1, 1, armor.realm, MOVEOBJECT_FORCELOCATION);
+				SendSysMessage(defender, armor.desc+" has been destroyed.");
+				DestroyItem(armor);
+			endif
+		endif
+	endif
+
+	return 1;
+endfunction
+
+function WearDownWeapon(attacker, weapon)
+	if ( weapon.IsA(POLCLASS_WEAPON) )
+		if ( weapon.intrinsic )
+			return 1;
 		else
-		  foreach x in gloves_hit
-			Detach();
-			run_script_to_completion(CStr(x), { attacker, defender, gloves, armor, basedamage, rawdamage } );
-			rawdamage := GetObjProperty(gloves, "TempDamage");
-		  endforeach
-		  EraseObjProperty(weapon, "TempDamage");
-		  if (rawdamage < 1)
-        		rawdamage := 1;
-		  endif
-  	  	  DealDamage(defender, attacker, rawdamage);
-		  return;
+			var wpn_elem := CS_GetSettingsCfgElem("Weapons");
+			if ( (RandomInt(100)+1) <= CInt(wpn_elem.WearChance) )
+				weapon.quality := weapon.quality * CDbl(wpn_elem.WearRate);
+				if ( weapon.quality <= 0.1 )
+					SendSysMessage(attacker, weapon.desc+" breaks.");
+					MoveObjectToLocation(weapon, 1, 1, 1, attacker.realm, MOVEOBJECT_FORCELOCATION);
+					DestroyItem(weapon);
+				elseif ( weapon.hp > weapon.maxhp )
+					weapon.hp := weapon.maxhp;
+				endif
+			endif
+			return 1;
 		endif
 	else
-
-	  foreach x in weaponhit
-		Detach();
-		  SendSysMessage(attacker, " rawdamage weaponhit");
-		run_script_to_completion(CStr(x), { attacker, defender, weapon, armor, basedamage, rawdamage } );
-		rawdamage := GetObjProperty(weapon, "TempDamage");
-	  endforeach
-	  EraseObjProperty(weapon, "TempDamage");
-	  if (rawdamage < 1)
-            rawdamage := 1;
-          endif
-	        if (!gloves_hit)
-			DealDamage(defender, attacker, rawdamage);
-			return;
-		else
-		  foreach x in gloves_hit
-			Detach();
-			run_script_to_completion(CStr(x), { attacker, defender, gloves, armor, basedamage, rawdamage } );
-			rawdamage := GetObjProperty(gloves, "TempDamage");
-		  endforeach
-		  EraseObjProperty(weapon, "TempDamage");
-		  if (rawdamage < 1)
-            rawdamage := 1;
-		  endif
-		endif
-		DealDamage(defender, attacker, rawdamage);
-	  return;
+		SendSysMessage(attacker, "An attack without a weapon?! Waaaa! That shouldnt be.");
+		return 0;
 	endif
-endprogram
+endfunction
+
+function DamageInfo(attacker, defender, basedamage, rawdamage)
+	if ( attacker.cmdlevel >= 2 )
+		PrintTextAbovePrivate(attacker, "Rawdamage:"+rawdamage+"  Base:"+basedamage, attacker);
+	endif
+	if ( defender.cmdlevel >= 2 )
+		PrintTextAbovePrivate(attacker, "Rawdamage:"+rawdamage+"  Base:"+basedamage, defender);
+	endif
+endfunction
+
+function WeaponHitScripts(attacker, defender, weapon, armor, basedamage, rawdamage)
+	var weapon_scripts := array;
+	if ( weapon.intrinsic ) // Intrinsic fist
+		weapon_scripts := GetWeaponHitScripts(attacker);
+	elseif ( weapon.IsA(POLCLASS_WEAPON) )
+		weapon_scripts := GetWeaponHitScripts(weapon);
+	endif
+
+	foreach hitscript in ( weapon_scripts )
+		var script := Start_Script(hitscript, array{attacker, defender, weapon, armor, basedamage, rawdamage});
+		if ( !script || script.errortext )
+			SendSysMessage(attacker, "*Attacker* Weapon script error starting ["+hitscript+"] :"+script.errortext);
+			SendSysMessage(defender, "*Attacker* Weapon script error starting ["+hitscript+"] :"+script.errortext);
+		endif
+		SleepMS(2);
+	endforeach
+
+
+
+
+	return 1;
+endfunction
+
+
+
+function ArmorHitScripts(attacker, defender, weapon, armor, basedamage, rawdamage)
+
+	foreach hitscript in ( GetArmorHitScripts(defender, armor) )
+		var script := Start_Script(hitscript, array{attacker, defender, weapon, armor, basedamage, rawdamage});
+		if ( script.errortext )
+			SendSysMessage(attacker, "*Defender* armor script error starting ["+hitscript+"] :"+script.errortext);
+			SendSysMessage(defender, "*Defender* armor script error starting ["+hitscript+"] :"+script.errortext);
+		endif
+		SleepMS(2);
+	endforeach
+
+	return 1;
+endfunction
+
+
+
+function PoisonChecks(attacker, defender, weapon, armor, basedamage, rawdamage)
+
+	var PoisonStrength := CInt(GetObjProperty(weapon, "PoisonStrength"));
+	var duration := CInt(GetObjProperty(weapon, "duration"));
+	//Print(CStr(PoisonStrength) + "    " + CStr(duration));
+
+	if ( PoisonStrength )
+		TS_StartTimer(defender, "DefaultPoison", duration, PoisonStrength, attacker);
+	endif
+
+endfunction
+
+
+//
+// Returns 1 on successful parry.
+//
+function ParryCheck(attacker, defender, byref rawdamage)
+	var shield := defender.shield;
+	if ( !shield )
+		return 0;
+	endif
+
+	var parry_elem := CS_GetSettingsCfgElem("Parry");
+	var divisor := CDbl(parry_elem.ParryDivisor);
+	var roll := CDbl(parry_elem.ParryRoll);
+	var parry_chance := CDbl(AP_GetSkill(attacker, PARRYING)) / divisor;
+
+	if ( RandomFloat(roll) < parry_chance )
+
+		PerformAction(defender, ANIM_TWIST_DODGE);
+		SendSysMessage(defender, "You deflect some damage using your shield.");
+		rawdamage -= shield.ar;
+
+		if ( rawdamage > CInt(0.15*shield.hp) )
+			SendSysMessage(defender, shield.desc+" takes some damage.");
+			shield.quality *= CDbl(parry_elem.WearRate);
+			if ( shield.quality <= 0.1 )
+				MoveObjectToLocation(shield, 1, 1, 1, shield.realm, MOVEOBJECT_FORCELOCATION);
+				SendSysMessage(defender, shield.desc+" has been destroyed.");
+				DestroyItem(shield);
+			elseif ( shield.hp > shield.maxhp )
+				shield.hp := shield.maxhp;
+			endif
+		endif
+
+		var armor_elem := CS_GetSettingsCfgElem("Armor");
+		if ( RandomInt(100)+1 <= armor_elem.WearChance )
+			SendSysMessage(defender, shield.desc+" takes some damage.");
+			shield.hp := shield.hp - 1;
+
+			if ( shield.hp <= 1 )
+				MoveObjectToLocation(shield, 1, 1, 1, shield.realm, MOVEOBJECT_FORCELOCATION);
+				SendSysMessage(defender, shield.desc+" has been destroyed.");
+				DestroyItem(shield);
+			endif
+		endif
+	endif
+
+	return 1;
+endfunction
+
+
+function ArmorChecks(byref d_info, armor_hit, byref raw_damage)
+	//var blocked := (CInt((d_info.mobile).ar) / 2) + CInt(armor_hit.ar);
+		var blocked := (CInt((d_info.mobile).ar) / 2);
+	//var blocked := CInt(armor_hit.ar);
+	if(raw_damage < blocked)
+		blocked := CInt(armor_hit.ar);
+
+
+	endif
+raw_damage -= blocked;
+//print("ArmorChecks with blocked "+blocked);
+
+	var absorbed := blocked / 2;
+	//var absorbed := blocked;
+	//blocked -= absorbed;
+	absorbed += RandomInt(blocked+1);
+
+
+    //print("ArmorChecks with armor "+raw_damage);
+	// Why is this *0.5 part in the pseudo code?
+	//if ( raw_damage >= 2.0 )
+	//	raw_damage *= 0.5;
+	//endif
+	raw_damage := CInt(raw_damage);
+
+	if ( !armor_hit.IsA(POLCLASS_ARMOR) )
+		return 1;
+	endif
+
+	var armor_elem := g_settings_cfg["Armor"];
+	if ( RandomInt(100)+1 <= armor_elem.WearChance )
+		SendSysMessage(d_info.mobile, armor_hit.desc+" takes some damage.");
+		armor_hit.hp := armor_hit.hp - 1;
+
+		if ( armor_hit.hp <= 1 )
+			MoveObjectToLocation(armor_hit, 1, 1, 1, armor_hit.realm, MOVEOBJECT_FORCELOCATION);
+			SendSysMessage(d_info.mobile, armor_hit.desc+" has been destroyed.");
+			DestroyItem(armor_hit);
+		endif
+	endif
+
+	return 1;
+endfunction
+
+
+function GetArmorHit(byref d_info)
+	var hit_zone := CS_GetRandomArmorZone();
+	var armor_hit := CS_GetEquipmentInArmorZone(d_info.mobile, hit_zone);
+
+	var best_armor := struct;
+	best_armor.name := "nothing-"+hit_zone;
+	best_armor.desc := "nothing"+hit_zone;
+	best_armor.ar := 0;
+
+	if ( armor_hit.Size() < 1 )
+
+		return 0;
+	endif
+
+	foreach item in ( armor_hit )
+		if ( item.ar > best_armor.ar )
+			best_armor := item;
+		endif
+		SleepMS(2);
+	endforeach
+
+	return best_armor;
+endfunction

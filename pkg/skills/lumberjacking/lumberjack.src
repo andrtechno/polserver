@@ -10,185 +10,242 @@ include "include/string";
 include "include/objtype";
 include "include/canAccess";
 include "include/utility";
-include "include/dist";
 include ":itemutils:toolWear";
-include "include/noto";
-include "include/bowcraft";
+//include "virtue:noto";
+//include "include/bowcraft";
 include ":damage:damage";
 include ":lumberjacking:lumber";
 
 
-const UACTION_CHOP := 0x0d;
-const FX_POISON_GAS := 0x113a;
+const UACTION_CHOP := 0x0f;
+
 var bowcraftconfigfile := ReadConfigFile("::bowcraft");
 var mex;
 var mey;
-var woodconfigfile := ReadConfigFile(":lumberjacking:itemdesc");
+var woodconfigfile := ReadConfigFile(":logs:itemdesc");
 var woodArray := GetConfigStringKeys(woodconfigfile);
+var classLevel;
+var woodtype;
+var elemWood;
 const EVID_CHECK_SPOT := 0x123456;
 const OC_PID := "#woodcore";
 
 const NO_AUTO_MINE := 0;
 
 program use_axe(me, axe)
-  EraseObjProperty(me, "IsMeditating");
-  EraseObjProperty(me, "HealTimer");
-  if(!can_access(me, axe))
-    return;
-  endif
-  if(!ReserveItem(axe))
-    return;
-  endif
-  if(!IsToolEquipped(me, axe))
-    SendSysMessage(me,"You have to equip that to lumberjack!");
-    return;
-  endif
-  var tree := TreeNearby(me, axe);
-  if(!tree)
-    return;
-  endif
-  SendSysMessage(me, "You begin chopping...");
-  var checker := 0;
-  mex := me.x;
-  mey := me.y;
-  var mount;
+    classLevel := CInt(GetObjProperty(me,"classlevel"));
+    EraseObjProperty(me, "IsMeditating");
+    EraseObjProperty(me, "HealTimer");
+    if(!can_access(me, axe))
+        return;
+    endif
+    if(!ReserveItem(axe))
+        return;
+    endif
+    if(!IsToolEquipped(me, axe))
+        SendSysMessage(me,"You have to equip that to lumberjack!");
+        return;
+    endif
+    var tree := TreeNearby(me, axe);
+    if(!tree)
+        return;
+    endif
+    SendSysMessage(me, "You begin chopping...");
+    var checker := 0;
+    mex := me.x;
+    mey := me.y;
+    var mount;
 
-  var skillValue := GetWoodTypeBySkill(AP_GetSkill( me, LUMBERJACKING));
-  var woodtype := GenerateNewWoodType();
-  if(woodtype > skillValue)
-    woodtype:=skillValue;
-  endif
-  print("woodTYPE: "+woodtype);
-  repeat
-    mount := GetEquipmentByLayer(me, 25);
+
+
+    var maxWood := GetWoodTypeBySkill(AP_GetSkill( me, LUMBERJACKING));
+    woodtype := GenerateNewWoodType();
+
+
+
+
+    print("woodtype "+woodtype);
+    print("maxWood "+maxWood);
+    if(woodtype > maxWood)
+        woodtype := maxWood;
+    endif
+
+
+    woodtype := 1;
+    var randomwoodtype := RandomIntMinMax(1, maxWood);
+    elemWood := FindConfigElem(woodconfigfile, woodArray[randomwoodtype]);
+    var chance := GetConfigInt(elemWood, "Chance");
+    var chanceMod := RandomInt(99)+1;
+    //if(chanceMod <= chance)
+    //    woodtype := randomwoodtype;
+    //endif
+    if(chance >= chanceMod)
+        woodtype := randomwoodtype;
+    endif
+    //print("randomwoodtype "+randomwoodtype);
+    //print("chanceMod "+chanceMod);
+    //print("woodtype "+woodtype);
+
+
+    var minLevel := GetConfigInt(elemWood, "MinLevel");
+    var minSkill := GetConfigInt(elemWood, "MinSkill");
+
+    var classid := CInt(GetObjProperty(me, "classid"));
+    if(classid >= minLevel)
+       // var harvestAmount := classLevel - 1;
+    endif
+
+    var counter := 0;
+    repeat
+        mount := GetEquipmentByLayer(me, 25);
       	if(!HasToolEquipped(me,axe))
             SendSysMessage(me,"You stop lumberjack.");
             return 1;
       	endif;
-    if(mount)
-      SendSysMessage(me,"you cannot chop wood while on horseback.");
-      return;
-    endif
-    if(!axe)
-      return;
-    endif
-    PerformAction(me, UACTION_CHOP);
-    PlaySoundEffect(me, SFX_SKILL_LUMBERJACK);
-    sleepms(2500);
-    checker := Do_Chops(me, axe, tree, woodtype);
-  until(checker == 1);
+        if(mount)
+            SendSysMessage(me,"you cannot chop wood while on horseback.");
+            return;
+        endif
+        if(!axe)
+            return;
+        endif
+        PerformAction(me, UACTION_CHOP);
+        PlaySoundEffect(me, SFX_SKILL_LUMBERJACK);
+        sleepms(2500);
+        checker := Do_Chops(me, axe, tree, counter);
+        counter := counter + 1;
+    until(checker == 1);
 endprogram
 
-function Do_Chops(me, axe, tree, woodtype)
 
-    /*var pid := 0;
-    while(!pid)
-        sleepms(50);
-        pid := GetGlobalProperty(OC_PID);
-    endwhile
-    pid := getprocess(pid);
-    if(!pid)
-  	    return 1;
-    endif
-    var k := struct;
-    k.+x := tree.x;
-    k.+y := tree.y;
-    k.+type := EVID_CHECK_SPOT;
-    k.+source := getprocess(getpid());
-    pid.sendevent(k);
-    var woodtype := wait_for_event(17);*/
 
-   // var woodtype := RandomInt(17) + 1; //count woods
-   // print("woodtype: "+woodtype);
+function WoodList(me)
+    var skill := AP_GetSkill( me, LUMBERJACKING);
+    var arrayList := array;
+    foreach wood in (woodArray)
+
+        elemWood := FindConfigElem(woodconfigfile, wood);
+        var minLevel := GetConfigInt(elemWood, "MinLevel");
+        var minSkill := GetConfigInt(elemWood, "MinSkill");
+        var name := GetConfigString(elemWood, "Name");
+
+        if(classLevel >= minLevel)
+            if(skill >= minSkill)
+                arrayList.append(wood);
+            endif
+        endif
+    endforeach
+
+    return arrayList;
+
+endfunction
+
+
+
+function Do_Chops(me, axe, tree, counter)
+
     var diff := 0;
     var objtype := 0;
     var skill := AP_GetSkill(me, LUMBERJACKING);
     var points := skill + 1;
     var name;
-   // var woodArray := GetConfigStringKeys(woodconfigfile);
-    //case(woodtype)
-    //  1: diff :=  -1;   objtype := 0x1BDD;   name := "logs";
-    //  2: diff :=  65;   objtype := 0x20001;   name := "jake";
-    //  3: diff :=  70;   objtype := 0x20002;   name := "oak";
-    //  4: diff :=  75;   objtype := 0x20003;   name := "karund";
-    //  5: diff :=  80;   objtype := 0x20004;   name := "leshram";
-    //  6: diff :=  85;   objtype := 0x20005;   name := "turmalit";
-    //  7: diff :=  90;   objtype := 0x20006;   name := "emerint";
-    //  8: diff :=  95;   objtype := 0x20007;   name := "legrand";
-    //  9: diff :=  100;   objtype := 0x20008;   name := "solmur";
-    //  10: diff :=  105;   objtype := 0x20009;   name := "kleor";
-     // 11: diff :=  110;   objtype := 0x20010;   name := "lorgadum";
-  //  endcase
 
-    var elem := FindConfigElem(woodconfigfile, woodArray[woodtype]);
-    var harvestAmount := GetConfigInt(elem,"HarvestAmount");
 
-    var cfgdiff := GetConfigInt(elem,"Difficulty");
-    var Desc := CStr(GetConfigString(elem,"Name"));
+    var premium := me.IsPremium();
+    var amount := 1;
+    var harvest := 10;
+    /*var cc := 0;
+    case(premium)
+        2: harvest := 7; cc := 1;
+        3: harvest := 5; cc := 2;
+    endcase*/
+
+    case(premium)
+        1: amount += 1;
+        2: amount += 2;
+        3: amount += 3;
+    endcase
+
+
+    //var harvestAmount:=1;
+    if(counter > 0) // or cc for old
+        woodtype := 1;
+    endif
+    //if(RandomInt(100) >= 50)
+    //    woodtype := 1;
+    //endif
+    objtype := woodArray[woodtype];
+
+    var elemWood := FindConfigElem(woodconfigfile, objtype);
+
+
+
+    //harvestAmount := GetConfigInt(elemWood,"HarvestAmount");
+    //var classid := CInt(GetObjProperty(me, "classid"));
+    //if(classLevel && (classid == 3))
+    //    harvestAmount := classLevel + harvestAmount;
+    //endif
+
+    var cfgdiff := GetConfigInt(elemWood,"Difficulty");
+    var Desc := CStr(GetConfigString(elemWood,"Name"));
     diff := cfgdiff;
 
-    objtype := woodArray[woodtype];
+
     name := Trim(Desc,TRIM_BOTH);
     if(woodtype > 1)
-        name:=name+" logs";
-    endif;
+        name := name+" logs";
+    endif
+    if(woodtype == 1)
+        amount := 1;
+    endif
+
+    var difficulty := GetHarvestDifficulty("wood", tree.x, tree.y, tree.objtype);
+
+    if(difficulty == error)
+        SendSysMessage(me, "There's not enough wood here to chop");
+        return 1;
+    endif
+    if((me.x != mex) || (me.y != mey))
+        SendSysMessage(me,"You stop chopping.");
+        return 1;
+    endif
 
 
-
-  var difficulty := GetHarvestDifficulty("wood", tree.x, tree.y, tree.objtype);
-
-  if(difficulty == error)
-    SendSysMessage(me, "There's not enough wood here to chop");
-    return 1;
-  endif
-  if((me.x != mex) || (me.y != mey))
-    SendSysMessage(me,"You stop chopping.");
-    return 1;
-  endif
-
-
-
-  if(difficulty == error)
-    SendSysMessage(me,"there is no more ore here to LAMBA.");
-    return 1;
-  endif
-
-
-  if(difficulty != -1)
-    var rint := RandomInt(5) + 1;
-    if((CInt(skill) >= CInt(diff)) && (rint <= 3))
-      difficulty := diff;
-    else
-        var defaultElem := FindConfigElem(woodconfigfile, UOBJ_LOG);
-        harvestAmount := GetConfigInt(defaultElem,"HarvestAmount");
-      woodtype := 1;
-      objtype := UOBJ_LOG;
-          name := CStr(GetConfigString(defaultElem,"Name"));
+    if(difficulty != -1)
+        var rint := RandomInt(5) + 1;
+        if((CInt(skill) >= CInt(diff)) && (rint <= 3))
+            difficulty := diff;
+    //else
+       // var defaultElem := FindConfigElem(woodconfigfile, UOBJ_LOG);
+        //harvestAmount := GetConfigInt(defaultElem,"HarvestAmount");
+     // woodtype := 1;
+      //objtype := UOBJ_LOG;
+         // name := CStr(GetConfigString(defaultElem,"Name"));
           //name := "logs";
+        endif
     endif
-  endif
 
-  var wood_amount := HarvestResource( "wood", tree.x, tree.y, 1, 10 );
-  if(SkillCheck(me, LUMBERJACKING, difficulty, points))
 
+
+    var wood_amount := HarvestResource( "wood", tree.x, tree.y, 1, harvest );
     if(wood_amount == 0)
-      SendSysMessage(me, "There's not enough wood here to chop.");
-      return 1;
+        SendSysMessage(me, "There's not enough wood here to chop.");
+        return 1;
     endif
-    //print(name);
-    //print(objtype);
-    if(!CreateItemInBackpack(me, objtype, harvestAmount)) //wood_amount //0x1bdd
-      SendSysMessage(me, "Your backpack is too full.");
-      return 1;
+
+    if(SkillCheck(me, LUMBERJACKING, difficulty, points))
+        if(!CreateItemInBackpack(me, objtype, amount))
+            SendSysMessage(me, "Your backpack is too full.");
+            return 1;
+        else
+            SendSysMessage(me, "You put some "+name+" in your backpack");
+            CheckToolWear (me, axe, LUMBERJACKING);
+            return 0;
+        endif
     else
-      SendSysMessage(me, "You put some "+name+" in your backpack");
-      CheckToolWear (me, axe, LUMBERJACKING);
-      return 0;
+        SendSysMessage(me, "You fail to get any usable wood.");
+        return 0;
     endif
-  else
-    SendSysMessage(me, "You fail to get any usable wood.");
-    return 0;
-  endif
 endfunction
 
 function TreeNearby(me, axe)
@@ -198,7 +255,7 @@ function TreeNearby(me, axe)
     SendSysMessage(me, "Cancelled");
     return 0;
   endif
-  var distt := coordist( me.x, me.y, tree.x, tree.y );
+  var distt := CoordinateDistance( me.x, me.y, tree.x, tree.y );
   if(distt > 1 )
     if(!tree.item.container)
       SendSysMessage(me,"That is too far away");
@@ -322,36 +379,6 @@ function chopfurniture(me, theobj)
       MoveObjectToLocation(thing, theobj.x, theobj.y, theobj.z, theobj.realm, MOVEOBJECT_FORCELOCATION);
     endif
   endforeach
-  if(theobj.usescript == ":tinkering:tinkerTraps")
-    var traptype := GetObjProperty(theobj,"trap_type");
-    var trapstrength := GetObjProperty(theobj,"trap_strength");
-    var trapperserial := CInt(GetObjProperty(theobj, "trapper"));
-    var trapper := SystemFindObjectBySerial(trapperserial, SYSFIND_SEARCH_OFFLINE_MOBILES);
-    if(trapper)
-      SetObjProperty(me, "LastHit", {trapper.name, trapper.serial, "trapped chest" });
-      SetScriptController(trapper);
-    endif
-    case (traptype)
-      "1" :   PlaySoundEffect(me, SFX_224);
-              var dmg := (RandomInt(20) + CInt(trapstrength));
-              SendSysMessage(me, "You set off a needle trap!");
-              ApplyDamageEX(me, dmg, DMG_PHYSICAL);
-              theobj.usescript := "";
-              EraseObjProperty( theobj, "trap_type" );
-              EraseObjProperty( theobj, "trap_strength" );
-
-      "2" :   start_script(":traps:poisonTrapTriggered", {me, theobj, "You set off a poison trap!", trapstrength});
-
-      "3" :   PlaySoundEffect(me, SFX_208);
-              SendSysMessage(me, "You set off an explosion trap!");
-              PlayObjectCenteredEffect( me, FX_EXPLODE_3, 10,10);
-              var dmg := (RandomInt(20) + CInt(trapstrength));
-              ApplyDamageEX(me, dmg, DMG_PHYSICAL);
-              theobj.usescript := "";
-              EraseObjProperty( theobj, "trap_type" );
-              EraseObjProperty( theobj, "trap_strength" );
-    endcase
-  endif
   var created := GetObjProperty(theobj, "ItemsCreatedSerials");
   if(created)
     var holder;
@@ -409,7 +436,7 @@ function use_blade(who, blade, use_on)
 
 
     if((checkme == UOBJ_LOG) || (checkme == 0x1bd7) || is_log)
-        //if(AP_GetSkill( who, BOWCRAFT) < cfgdiff)
+        //if(AP_GetSkill( who, SKILLID_BOWCRAFT) < cfgdiff)
         //    //SendSysMessageUC(who, "Не достаточно навыка", "RUS", 3, 0x25);
         //    SendSysMessage(who, "You have no chance to successfully work with that logs.");
         //    return;
@@ -655,12 +682,12 @@ function CarveLogs(who, blade, logs)
 
 
     var fullName:="";
-  if(SkillCheck(who, BOWCRAFT, difficulty, pointvalue))
+  if(SkillCheck(who, SKILLID_BOWCRAFT, difficulty, pointvalue))
     if(what == UOBJ_SHAFTS)
       var amt := logs.amount;
       if(DestroyItem(logs))
         CreateItemInBackpack(who, what, amt);
-        CheckToolWear (who, blade, BOWCRAFT);
+        CheckToolWear (who, blade, SKILLID_BOWCRAFT);
         SendSysMessage(who, "You create some shafts and place them in your pack." );
       endif
     elseif (what == UOBJ_BOW)
@@ -669,7 +696,7 @@ function CarveLogs(who, blade, logs)
         bow := CreateItemInBackpack(who, what);
         bow.color := itemColor;
         bow.name := "a "+fullName;
-        CheckToolWear (who, blade, BOWCRAFT);
+        CheckToolWear (who, blade, SKILLID_BOWCRAFT);
 
         SendSysMessage(who, "You create a bow and place it in your pack.");
       endif
@@ -677,14 +704,14 @@ function CarveLogs(who, blade, logs)
       if(SubtractAmount(logs, material))
         bow := CreateItemInBackpack(who, what);
         bow.color := 11;
-        CheckToolWear (who, blade, BOWCRAFT);
+        CheckToolWear (who, blade, SKILLID_BOWCRAFT);
         SendSysMessage(who, "You create a crossbow and place it in your pack.");
         SetName(bow, "a crossbow");
       endif
     elseif (what == UOBJ_HEAVY_XBOW)
       if(SubtractAmount(logs, material))
         bow := CreateItemInBackpack(who, what);
-        CheckToolWear (who, blade, BOWCRAFT);
+        CheckToolWear (who, blade, SKILLID_BOWCRAFT);
         SendSysMessage(who, "You create a heavy crossbow and place it in your pack.");
         SetName(bow, "a heavy crossbow");
       endif
@@ -692,7 +719,7 @@ function CarveLogs(who, blade, logs)
       SendSysMessage(who, "I don't know how to make that.");
       return;
     endif
-    var myskill := CInt(AP_GetSkill(who, BOWCRAFT));
+    var myskill := CInt(AP_GetSkill(who, SKILLID_BOWCRAFT));
     var modpts := 0;
     if(myskill >=  difficulty)
       modpts := (myskill - difficulty);
@@ -700,7 +727,7 @@ function CarveLogs(who, blade, logs)
     var rint := RandomInt(100);
     //change exp.
     if(rint <= ExcepChance)
-      ExceptionalFameMod(who, myskill, difficulty, Cint(pointvalue / 2));
+      //ExceptionalFameMod(who, myskill, difficulty, Cint(pointvalue / 2));
 
         bow.name := "an exceptional " + fullName;
         if(myskill >= 99)

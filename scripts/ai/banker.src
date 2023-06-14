@@ -3,31 +3,36 @@ use os;
 use uo;
 use cfgfile;
 use util;
+use unicode;
 
-include "util/bank";
+include ":containers:storageAreas";
 include "include/eventID";
 include "include/sysEvent";
 include "include/client";
 include "include/anchors";
-include "include/dist";
 include "include/begging";
 include "include/string";
 include "include/findCity";
-include "include/itemdesc";
+include ":itemUtils:itemdesc";
 include ":gumps:gumps";
 include ":gumps:requestGump";
-include ":gumps:yesNoSizable";
+include ":gumps:confirmationSizable";
 include ":currency:currency";
 include ":accounts:accounts";
 
 var bank;
 var me := Self();
-//me.freeze := 1;
 var npccfg := ReadConfigFile("npcdesc");
 var bankcity := WhatCityAmIIn(me);
 var currency := GetTownCurrency(bankcity);
+if(!currency)
+    currency := 0xEED;
+endif
+var bank_region := CP_DEFAULT_AREA;
+var my_speech_font := me.speech_font;
+var my_speech_color := me.speech_color;
 
-const REACT_THRESHOLD := 5;
+const REACT_THRESHOLD := 4;
 
 program banker();
 	start_script("NPCKeeper", me);
@@ -36,41 +41,40 @@ program banker();
 	if(myanchor)
 		MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
 	endif
-	
-	//drop_anchor();
+
+	drop_anchor();
 	myanchor := GetObjProperty(me, "Anchor");
-	//EnableEvents(EVID_NODE);
-	//EnableEvents(SYSEVENT_ITEM_GIVEN);
+	EnableEvents(EVID_SPEECH, REACT_THRESHOLD);
+	EnableEvents(SYSEVENT_ITEM_GIVEN);
 	//DisableEvents(SYSEVENT_SPEECH);
-		EnableEvents( SYSEVENT_SPEECH, REACT_THRESHOLD );
 	var text;
-	var splitted := {};
+	//var splitted := {};
 	while(1)
 		var ev;
 		ev := os::wait_for_event(120);
+		if(ev.type == EVID_SPEECH)
 
-		//if(ev.type == EVID_NODE)
 			text := lower(ev.text);
-			splitted := SplitWords(text);
-			/*if(ev.source.criminal == 1)
+			//splitted := SplitWords(text);
+			if(ev.source.criminal == 1)
 				SetObjProperty(me, "OriginalSpeechColor", me.speech_color);
 				me.speech_color := 33;
 				say("I will not do business with criminals!");
 				me.speech_color := GetObjProperty(me, "OriginalSpeechColor");
 				EraseObjProperty(me, "OriginalSpeechColor");
 				return 0;
-			endif*/
+			endif
 			if(text["bankers note"] || text["banker's note"] || text["bankers order"] || text["banker's order"] || text["draft"])
 				PrintTextAbove(me, "" + ev.source.name + " one moment please.");
 				Sleep(2);
 				BuyBankersNote(ev.source, me);
 			elseif(text["bank"])
-				OpenBank(ev.source);
+				OpenBank(ev.source, bank_region);
 			elseif(text["balance"])
-				//if(ev.source.criminal == 1)
-				//	say("I will not do business with criminals!");
-				//else
-					var bankbox := FindBankBox(ev.source);
+				if(ev.source.criminal == 1)
+					say("I will not do business with criminals!");
+				else
+					var bankbox := CP_GetStorageContainerForMobile( ev.source, bank_region, CP_CREATE );
 					var contents := EnumerateItemsInContainer(bankbox);
 					var camt := 0;
 					var samt := 0;
@@ -84,19 +88,19 @@ program banker();
 						endcase
 					endforeach
 					ShowBalance(ev.source, AddCommas(gamt), AddCommas(samt), AddCommas(camt));
-				//endif
+				endif
 //			elseif(text["bankers order"] || text["banker's order"] || text["draft"])
 			endif
-		//elseif(SYSEVENT_ITEM_GIVEN)
-		//TurnToward (ev.source);
-		//	if ( GetObjProperty ( ev.item, "Payee") )
-		//		CashBankersOrder( me, ev );
-		//	endif
-		//endif
+		elseif(SYSEVENT_ITEM_GIVEN)
+		    TurnToward (ev.source);
+			if ( GetObjProperty ( ev.item, "Payee") )
+				CashBankersOrder( me, ev );
+			endif
+		endif
 		/*if(ReadGameClock() >= next_wander)
 			begpurse(me);
 			wander();
-			if(coordist(me.x, me.y, myanchor[1], myanchor[2]) > 5)
+			if(CoordinateDistance(me.x, me.y, myanchor[1], myanchor[2]) > 5)
 				MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
 			endif
 			next_wander := ReadGameClock() + 10;
@@ -104,9 +108,11 @@ program banker();
 	endwhile
 endprogram
 
-function OpenBank(you)
+// Using 'new' StorageAreas.inc
+function OpenBank(you, bank_region)
+	var item_word := "items";
   TurnToward(you);
-  var bankbox := FindBankBox(you);
+  var bankbox := CP_GetStorageContainerForMobile( you, bank_region, CP_CREATE );
   if(bankbox)
     var contents := EnumerateItemsInContainer(bankbox);
     var amt := 0;
@@ -115,7 +121,10 @@ function OpenBank(you)
         amt := (amt + 1);
       endif
     endforeach
-    printtextaboveprivate(me, "Your bank box holds " + amt + " items", you);
+	if(amt == 1)
+		item_word := "item";
+	endif
+    PrintTextAbovePrivate(me, "Your bank box holds " + amt + " " + item_word + ".", you);
     SendOpenSpecialContainer(you, bankbox);
   else
     say("You don't seem to have a bank box, "+ you.name);
@@ -125,9 +134,9 @@ endfunction
 function ShowBalance(who, goldamt, silveramt, copperamt)
 
 	var bankBalance := GFCreateGump();
-	
+
 	GFPage(bankBalance, 0);
-	
+
 	//Background 1
 	GFResizePic(bankBalance, 154, 101, 9200, 357, 343);
 	//HTML 1
@@ -158,21 +167,20 @@ function ShowBalance(who, goldamt, silveramt, copperamt)
 endfunction
 
 function BuyBankersNote(who, me, currency := 0xEED)
-	var box := FindBankBox(who);
+	var box := CP_GetStorageContainerForMobile( who, bank_region, CP_CREATE );
 	var stuff := EnumerateItemsInContainer(box);
 	var payeeserial := 0;
-	var i := 1;
 	var amt := 500000001;		// This is so the 'while' loop will get executed.
-	
-	while(amt > 500000000)
+
+//	while(amt > 500000000)
 		amt := RequestGump(who,"For what amount shall I make the Banker's Order? The coins must be in your bank box.", "The maximum is 500 million coins");
 		amt := CInt(amt);
 		if(!amt)
-			PrintTextAbove(me, "Very well then. I see you've changed your mind.", 1, 39);
+			PrintTextAbove(me, "Very well then. I see you've changed your mind.", 3, 39);
 			return 0;
 		endif
-	endwhile
-	
+//	endwhile
+
 	var copperamt := 0;
 	var silveramt := 0;
 	var goldamt := 0;
@@ -184,39 +192,40 @@ function BuyBankersNote(who, me, currency := 0xEED)
 			default:
 		endcase
 	endforeach
-	
-	if(goldamt < (amt + 10))
-		PrintTextAbove(me, "I'm sorry. You don't have the funds available in your bank box.", 1, 39);
-		PrintTextAbove(me, "Please come back when you can deposit the amount needed.", 1, 39);
-		return 0;
-	endif
-		
 
-	
-	var payee := RequestGump(who,"Whom shall I list as the payee?", "Please make sure the name is spelled correctly.");
+	if(goldamt < (amt + 10))
+		PrintTextAbove(me, "I'm sorry. You don't have the funds available in your bank box.", 3, 39);
+		PrintTextAbove(me, "Please come back when you can deposit the amount needed.", 3, 39);
+		return 0;
+	endif
+
+
+
+	var payee := RequestGump(who, "Whom shall I list as the payee?", "Please make sure the name is spelled correctly.");
+	//var payee := RequestGump(who, "Кого я должен указать в качестве получателя платежа?", "Пожалуйста, убедитесь, что имя написано правильно.");
 	if(!payee)
-		PrintTextAbove(me, "Very well then. I see you've changed your mind.", 1, 39);
+		PrintTextAbove(me, "Very well then. I see you've changed your mind.", 3, 39);
 		return 0;
 	endif
-	
-	payeeserial := FindValidPlayer(payee);
+
+	payeeserial := ACCT_FindValidPlayer(payee);
 	if(!payeeserial)
-		PrintTextAbove(me, "That person doesn't seem to have an account with any bank.", 1, 33);
+		PrintTextAbove(me, "That person doesn't seem to have an account with any bank.", 3, MESSAGE_COLOR_BAD);
 		return 0;
 	endif
-	
-	var agree := yesNoSizable(who, "There is a nominal fee of 10 coins additional charge for the Note. Do you accept?");
+
+	var agree := confirmationSizable(who, "There is a nominal fee of 10 coins additional charge for the Note. Do you accept?");
 	if(!agree)
-		PrintTextAbove(me, "Very well then. Perhaps later.", 1, 39);
+		PrintTextAbove(me, "Very well then. Perhaps later.", 3, 39);
 		return 0;
 	endif
-	
-	
+
+
 
 	var spentcoins := SpendCoin(who, amt + 10, box, CInt(currency));
 	if(!spentcoins)
-		SendSysMessage(who, "There was a problem extracting the coins from your bank box.", 1, 33);
-		SendSysMessage(who, "Please page a staff member and reprt this.", 1, 33);
+		SendSysMessage(who, "There was a problem extracting the coins from your bank box.", 3, MESSAGE_COLOR_BAD);
+		SendSysMessage(who, "Please page a staff member and reprt this.", 3, MESSAGE_COLOR_BAD);
 		Return 0;
 	endif
 
@@ -224,10 +233,10 @@ function BuyBankersNote(who, me, currency := 0xEED)
 
 	var created := CreateItemInBackpack(who, "bankersorder");
 	if(created.errortext == "That container is full")
-		PrintTextAbove(me, "Your backpack is full. Make room and come back later.", 1, 33);
+		PrintTextAbove(me, "Your backpack is full. Make room and come back later.", 3, MESSAGE_COLOR_BAD);
 		return 0;
 	endif
-	
+
 	SetObjProperty(created, "Payee", payee);					// Payee's name
 	SetObjProperty(created, "PayeeSerial", payeeserial);		// Serial number of the player to whom the order is made
 	SetObjProperty(created, "Currency", currency);				// The ObjType of the coins being used
@@ -235,102 +244,72 @@ function BuyBankersNote(who, me, currency := 0xEED)
 	SetObjProperty(created, "IssuingBank", bankcity);			// The city name in which the bank is located
 	SetObjProperty(created, "PurchaserSerial", who.serial);			// The serial number of the purchaser
 	SetName(created, created.desc + " made out to " + payee + " in the amount of " + AddCommas(amt) + " " + GetObjTypeDesc(currency, 1) + ".");
-	created.color := 0x501;
+	//created.color := 0x501;
 endfunction
 
 function CashBankersOrder(me, event)
 
 	var type := 0x0EED;
-	var foundit := 0;
 	var amnt := 0;
 	var refund := 0;
 	var bankbox := 0;
 	var payee := GetObjProperty(event.item, "Payee");
 	var payeeserial := CInt(GetObjProperty(event.item, "PayeeSerial"));
 	if(event.source.serial == CInt(GetObjProperty(event.item, "PurchaserSerial")))
-		var accept := yesNoSizable(event.source, "Do you wish to cancel this Banker's Order and get a refund?");
+		var accept := confirmationSizable(event.source, "Do you wish to cancel this Banker's Order and get a refund?");
 		if(!accept)
-			PrintTextAbove(me, "Very well then. The Banker's Order has been returned to you.", 1, 39);
+			PrintTextAbove(me, "Very well then. The Banker's Order has been returned to you.", 3, 39);
 			MoveItemToContainer(event.source.backpack, event.item);
 			return 0;
 		endif
 		type := CInt(GetObjProperty(event.item, "Currency"));
 		amnt := CInt(GetObjProperty(event.item, "Amount"));
-		bankbox := FindBankBox(event.source);
+		bankbox := CP_GetStorageContainerForMobile( event.source, bank_region, CP_CREATE );
 		refund := createcoins( bankbox, type, amnt );
 		if(refund < 0)
-			SendSysMessage(event.source, "This note is made out for 0 coins. Stop wasting my time!", 2, 33);
+			SendSysMessage(event.source, "This note is made out for 0 coins. Stop wasting my time!", 3, MESSAGE_COLOR_BAD);
 			return 0;
 		endif
 		if(!refund)
-			PrintTextAbove(me, "I could not fit the coins in your bank box.", 1, 33);
-			PrintTextAbove(me, "You might not have enough room.", 1, 33);
+			PrintTextAboveUC(me, "Я не смог поместить монеты в ваш банк.", "RUS", 3, MESSAGE_COLOR_BAD); //I could not fit the coins in your bank box.
+			PrintTextAboveUC(me, "Вам может не хватить места.", "RUS", 3, MESSAGE_COLOR_BAD); //You might not have enough room.
 			MoveItemToContainer(event.source.backpack, event.item);
 			return 0;
 		endif
-		PrintTextAbove(me, "The coins have been deposited in your bank box.", 1, 66);
+		PrintTextAbove(me, "The coins have been deposited in your bank box.", 3, 66);
 		DestroyItem(event.item);
 		return 1;
 	elseif(event.source.serial == payeeserial)
-		var accept := yesNoSizable(event.source, "Do you wish to redeem this Banker's Order for the coins?");
+		var accept := confirmationSizable(event.source, "Do you wish to redeem this Banker's Order for the coins?");
 		if(!accept)
-			PrintTextAbove(me, "Very well then. The Banker's Order has been returned to you.", 1, 39);
+			PrintTextAbove(me, "Very well then. The Banker's Order has been returned to you.", 3, 39);
 			MoveItemToContainer(event.source.backpack, event.item);
 			return 0;
 		endif
 		type := CInt(GetObjProperty(event.item, "Currency"));
 		amnt := CInt(GetObjProperty(event.item, "Amount"));
-		bankbox := FindBankBox(event.source);
+		bankbox := CP_GetStorageContainerForMobile( event.source, bank_region, CP_CREATE );
 		refund := createcoins( bankbox, type, amnt );
 		if(refund < 0)
-			SendSysMessage(event.source, "This note is made out for 0 coins. Stop wasting my time!", 2, 33);
+			SendSysMessage(event.source, "This note is made out for 0 coins. Stop wasting my time!", 3, MESSAGE_COLOR_BAD);
 			return 0;
 		endif
 		if(!refund)
-			PrintTextAbove(me, "I could not fit the coins in your bank box.", 1, 33);
-			PrintTextAbove(me, "You might not have enough room.", 1, 33);
+			PrintTextAboveUC(me, "Я не смог поместить монеты в ваш банк.", "RUS", 3, MESSAGE_COLOR_BAD); //I could not fit the coins in your bank box.
+			PrintTextAboveUC(me, "Вам может не хватить места.", "RUS", 3, MESSAGE_COLOR_BAD); //You might not have enough room.
 			MoveItemToContainer(event.source.backpack, event.item);
 			return 0;
 		endif
-		PrintTextAbove(me, "The coins have been deposited in your bank box.", 1, 66);
+		PrintTextAbove(me, "The coins have been deposited in your bank box.", 3, 66);
 		DestroyItem(event.item);
 		return 1;
 	else
-			PrintTextAbove(me, "Only the person who bought the Banker's Order or", 1, 39);
-			PrintTextAbove(me, "the payee, " + payee + ", may redeem it.", 1, 39);
-			PrintTextAbove(me, "The Banker's Order has been returned to you.", 1, 39);
-			MoveItemToContainer(event.source.backpack, event.item);
-			return 0;
+        PrintTextAboveUC(me, "Только тот, кто купил банковский ордер или", "RUS", 3, MESSAGE_COLOR_BAD); //Only the person who bought the Banker's Order or
+        PrintTextAboveUC(me, "получатель платежа, " + payee + ", может выкупить его.", "RUS", 3, MESSAGE_COLOR_BAD); //the payee, " + payee + ", may redeem it.
+        SendSysMessageUC(event.source, "Банковский ордер вам возвращен.", "RUS", 3, color := MESSAGE_COLOR_BAD); //The Banker's Order has been returned to you.
+        MoveItemToContainer(event.source.backpack, event.item);
+        return 0;
 	endif
-/*
-	if(event.source.serial == payeeserial)
-		var accept := yesNoSizable(event.source, "Do you wish to redeem this Banker's Order for the coins?");
-		if(!accept)
-			PrintTextAbove(me, "Very well then. The Banker's Order has been returned to you.", 1, 39);
-			MoveItemToContainer(event.source.backpack, event.item);
-			return 0;
-		endif
-		type := CInt(GetObjProperty(event.item, "Currency"));
-		amnt := CInt(GetObjProperty(event.item, "Amount"));
-		bankbox := FindBankBox(event.source);
-		refund := createcoins( event.source, bankbox, type, amnt );
-		if(!refund)
-			PrintTextAbove(me, "I could not fit the coins in your bank box.", 1, 33);
-			PrintTextAbove(me, "You might not have enough room.", 1, 33);
-			MoveItemToContainer(event.source.backpack, event.item);
-			return 0;
-		endif
-		PrintTextAbove(me, "The coins have been deposited in your bank box.", 1, 66);
-		DestroyItem(event.item);
-		return 1;
-	else
-			PrintTextAbove(me, "Only the person who bought the Banker's Order or", 1, 39);
-			PrintTextAbove(me, "the payee, " + payee + ", may redeem it.", 1, 39);
-			PrintTextAbove(me, "The Banker's Order has been returned to you.", 1, 39);
-			MoveItemToContainer(event.source.backpack, event.item);
-			return 0;
-	endif
-*/
 endfunction
 
 function ReserveCoins(byref contents)
@@ -357,5 +336,5 @@ function ReleaseCoins(byref things)
 			default:
 		endcase
 	endforeach
-	
+
 endfunction

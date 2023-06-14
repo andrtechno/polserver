@@ -1,0 +1,18 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndDismount(params)
+	var mobile := params[1];
+	
+	var cfg_elem := TS_GetCfgElem("Dismount");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Dismount");
+	
+	return 1;
+endprogram
+

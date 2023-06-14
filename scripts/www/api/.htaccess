@@ -1,0 +1,6 @@
+#Options -Indexes
+AddDefaultCharset UTF-8
+#Options FollowSymlinks
+
+
+AddType application/json json ecl

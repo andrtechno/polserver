@@ -12,7 +12,7 @@ include ":timedScripts:timedScripts";
 program TimedScript_EndFeebleMind(params)
 	var mobile := params[1];
 	
-	var cfg_elem := TS_GetCfgElem("Strength");
+	var cfg_elem := TS_GetCfgElem("FeebleMind");
     var buff_icon := CInt( cfg_elem.BuffIcon );
 	var points := struct;	
 	points := GetObjProperty(mobile, "FeebleMindMod");	

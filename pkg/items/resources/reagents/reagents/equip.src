@@ -1,0 +1,10 @@
+use uo;
+use os;
+use cfgfile;
+
+include ":itemutils:itemdesc";
+
+program quest(item)
+	return 1;
+endprogram
+

@@ -47,8 +47,8 @@ program create_account()
 						WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=userdupe.html></head></html>");
 				endcase
 			else
-			    account.set_uo_expansion("TOL");
-				account.setProp("email", email);
+			    account.set_uo_expansion("AOS");
+				account.setProp("Email", email);
 				WriteHtml("<html><head><meta http-equiv=refresh content=0;URL=success.html></head></html>");
 			endif
 	endif

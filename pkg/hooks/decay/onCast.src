@@ -1,0 +1,14 @@
+use os;
+use uo;
+
+
+exported function onCast(who, spellid)
+    sleep(10);
+
+print("onCast" + spellid);
+    return 0;
+endfunction
+
+program Install()
+
+endprogram

@@ -13,7 +13,7 @@ program textcmd_buffs(who, text)
 
     SendSysMessage(who,"wait...", color := 33);
     if(text == 0)
-    print(who);
+
         who.clearbuffs();
 
     endif
@@ -27,7 +27,7 @@ program textcmd_buffs(who, text)
         endfor
     endif
 
-if(text == 0)
+    if(text == 0)
         for(i:=0;i<=1000000;i:=i+1)
             BuffDebuff_removeIcon(who,i);
             total := total + 1;
@@ -1074,7 +1074,7 @@ print(Packet1.GetSize());
 program teste(character,TextoErrado, TextoCorreto)
     TextoErrado := TextoErrado;
     if(!TextoCorreto)
-        SendSysMessage(character , " O comando é .z <stextss> ");
+        SendSysMessage(character , " O comando ï¿½ .z <stextss> ");
     else
         TextoCorreto := CAscZ("<" + character.name + "> ")+TextoCorreto;
         BroadcastUC(TextoCorreto, "ENG", font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
@@ -1095,7 +1095,7 @@ endprogram
 program teste(character,TextoErrado TextoCorreto)//ByRef ByteRef
     TextoErrado := TextoErrado;
     if(!TextoCorreto)
-        SendSysMessage(character , " O comando é .z <stextss> ");
+        SendSysMessage(character , " O comando ï¿½ .z <stextss> ");
     else
         TextoCorreto := CAscZ("<" + character.name + "> ")+TextoCorreto;
         foreach listaDeCharacter in EnumerateOnlineCharacters()
@@ -1153,9 +1153,9 @@ endprogram
 
  //var tgt := Target( character, options := TGTOPT_CHECK_LOS+TGTOPT_NEUTRAL);
  //tgt.graphic := 400;
-    //SendSysMessageUC(character, CAscZ("é?"), "ENU",font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
-    //SendSysMessage( character,cstr(CAscZ("õ")));
-    ///SendSysMessage( character,cstr(CAscZ("é")));
+    //SendSysMessageUC(character, CAscZ("ï¿½?"), "ENU",font:=_DEFAULT_UCFONT, color:=_DEFAULT_UCCOLOR);
+    //SendSysMessage( character,cstr(CAscZ("ï¿½")));
+    ///SendSysMessage( character,cstr(CAscZ("ï¿½")));
     //SendSysMessage( character,cstr(CAscZ(txt)));
     //var MatrizDeIpsDuplicados := EnumeraIpsDuplicados();
     //ImprimeMatrizDeIpsDuplicados(character,MatrizDeIpsDuplicados);
@@ -1213,7 +1213,7 @@ function EnumerateCharacters()
     var character;
     var i;
     var j;
-    for(i:=1;i<=listAccs .size();i:=i+1)
+    for(i:=1;i<=listAccs.size();i:=i+1)
         account := FindAccount( listAccs [i] );
         for(j:=1;j<=5;j:=j+1)
             character := account.getcharacter(j);
@@ -1509,9 +1509,9 @@ SendSysMessage( character, cstr(" fim do programa "));
 //Lookup: 25DE8C8
 //Length: 125992
 //Unknown: 0
-//SendSysMessageUC(character,CAscZ( "Você é feião2!!"),  "ENG", _DEFAULT_TEXT_FONT, _DEFAULT_TEXT_COLOR);
-// SendSysMessage(character, "Você é feião1!!");
- //SendMessage(character, "Você é feião!!");
+//SendSysMessageUC(character,CAscZ( "Vocï¿½ ï¿½ feiï¿½o2!!"),  "ENG", _DEFAULT_TEXT_FONT, _DEFAULT_TEXT_COLOR);
+// SendSysMessage(character, "Vocï¿½ ï¿½ feiï¿½o1!!");
+ //SendMessage(character, "Vocï¿½ ï¿½ feiï¿½o!!");
 
 
 //SendSysMessage(character, cstr( FONTS));

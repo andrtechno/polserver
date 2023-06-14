@@ -317,7 +317,7 @@ var infodata := array(
        "",
        "BLACKSMITHY",          //44
        "",
-       "BOWCRAFT",             //46
+       "BOWCRAFTFLETCHING",   //46
        "",
        "PEACEMAKING",          //48
        "",
@@ -397,7 +397,7 @@ var infodata := array(
        "",
        "STEALTH",              //124
        "",
-       "REMOVETRAP",           //126
+       "REMOVE_TRAP",           //126
        "",
        "Edit",                 //127
        "Freeze",

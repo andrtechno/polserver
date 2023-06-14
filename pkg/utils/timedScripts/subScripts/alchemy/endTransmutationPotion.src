@@ -1,0 +1,24 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndTransmutationPotion(params)
+	var mobile := params[1];
+
+    var cfg_elem := TS_GetCfgElem("TransmutationPotion");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	var points := GetObjProperty(mobile, "TransmutationPotion");
+	AP_ModifyStatMod(mobile, DEXTERITY, -points.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, -points.int);
+	AP_ModifyStatMod(mobile, STRENGTH, -points.str);
+	//mobile.ar_mod := mobile.ar_mod - points.ar_mod;
+
+	EraseObjProperty(mobile, "TransmutationPotion");
+    mobile.delbuff(buff_icon);
+
+	return 1;
+endprogram
+

@@ -1,0 +1,28 @@
+/*
+This powerful ability requires a complementary skill to activate. Successful use of Shadowstrike
+deals extra damage to the target and renders the attacker invisible. Only those who are Adept (80)
+at the art of stealth will be able to use this ability. Weapon hit does an extra 25% damage, and hides the attacker.
+
+
+Для активации этой мощной способности требуется дополнительный навык.
+
+Успешное использование Shadowstrike наносит дополнительный урон цели и делает атакующего невидимым.
+
+Только те, кто является адептом (80) в искусстве скрытности, смогут использовать эту способность.
+
+Удар оружием наносит дополнительно 25% урона и скрывает атакующего.
+*/
+
+
+program ability_shadowStrike(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var damage := CInt(params[3]);
+
+	var percent := 25;
+	var newdamage := damage + (damage * percent / 100);
+
+    attacker.hidden := 1;
+    attacker.stealthsteps := 10; //моя иницеатива
+    return struct{ damage := newdamage };
+endprogram

@@ -1,0 +1,39 @@
+use http;
+use os;
+use uo;
+
+
+program multis()
+    var data := array;
+    var multis := ListMultisInBox( 6144, 4096, -50, 0, 0, 50 );
+
+    foreach multi in multis
+
+        var sign := multi.components[2];
+        var owner := SystemFindObjectBySerial(sign.GetOwnerSerial(), SYSFIND_SEARCH_OFFLINE_MOBILES);
+
+        var prop := struct;
+        prop.+x := multi.x;
+        prop.+y := multi.y;
+        prop.+z := multi.z;
+
+        prop.+numsecure := 1;
+       // prop.+numsecure := 1;
+        prop.+numlockdowns := 1;
+
+        prop.+objtype := Hex(multi.objtype);
+        prop.+multiid := multi.multiid;
+        prop.+dimensions := GetMultiDimensions( multi.multiid );
+        if(owner)
+            prop.+owner := owner.name;
+            prop.+owner_acctname := owner.acctname;
+            prop.+owner_ip := owner.ip;
+        endif
+
+        data.append(prop);
+    endforeach
+
+    WriteHtml( PackJSON(data) );
+
+    return 1;
+endprogram

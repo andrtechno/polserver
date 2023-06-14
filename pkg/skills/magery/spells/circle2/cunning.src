@@ -3,19 +3,19 @@ use os;
 use util;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 include ":magery:spells";
-include "include/client";
+include ":charclasses:classes";
 
 program cast_CUNNING( parms )
     var caster := parms[1];
     var info := parms[2];
     var cast_on;
-    cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+    cast_on := MS_Target(caster, info, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
     endif
     if (!cast_on)
-        SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
     if ( !MS_MobileCheck(caster, cast_on) )
@@ -24,24 +24,35 @@ program cast_CUNNING( parms )
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-  PlaySoundEffect(cast_on, SFX_SPELL_CUNNING);
-  PlayObjectCenteredEffect( cast_on, FX_BLESS_EFFECT, 7,7);
-    
-  if (CanMod(cast_on, "#cast_cunning"))
-	SendSysMessage(caster,"Already under the influence!");
-	return;
-  endif
-  var magery := GetAttribute(caster, MAGERY);
-  var mod_amount := GetModAmount( magery );
-  var duration := GetModDuration( magery );
-  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
-
-  if(GetObjProperty(caster,"classid") == ID_MAGE)
-    mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10));
-    duration := (60 * classlevel) * 10;
-  endif
+	if ( GetObjProperty(cast_on, "Cunning") )
+        SendSysMessage(cast_on, "Already under the influence!");
+		return 0;
+	endif
+	MS_PlaySpellSFX(info.spell_id, cast_on);
+	MS_PlaySpellGFX(info.spell_id, cast_on, caster);
 
 
+    var EvalInt := AP_GetSkill(caster, EVALUATING_INTELLIGENCE);
+    var Magery := AP_GetSkill(caster, MAGERY);
+	if(caster.IsA(POLCLASS_NPC))
+        EvalInt := 150;
+        Magery := 150;
+	endif
 
-  DoTempMod(cast_on, "#cast_cunning", mod_amount, duration);
+	// Int increase % = (Eval / 10 + 1)
+	var percent := CDbl(EvalInt / 10) + 1;
+	var points := CInt(Magery * (percent / 100));
+
+	// Duration: ((Evaluating Intelligence / 5) + 1) * 6 seconds.
+	var duration := CInt(((EvalInt / 5) + 1) * 6);
+
+    if(GetObjProperty(caster,"classid") == ID_MAGE)
+        var val := (info.classlevel * 10);
+        //points := RandomIntMinMax(val, (val + 10));
+        points := GetBuffAmount( caster, info );
+        duration := 60 * val;
+    endif
+
+	TS_StartTimer(cast_on, "Cunning", duration, points, caster);
+	return 1;
 endprogram

@@ -1,13 +1,11 @@
+
 use uo;
 use util;
+use cliloc;
 
 include "include/client";
 include ":attributes:attributes";
 include "include/trainingskill";
-
-
-var npccfgfile := ReadConfigFile("::npcdesc");
-
 
 program skill_stealth( who )
     var data := {};
@@ -17,41 +15,54 @@ program skill_stealth( who )
     SetObjProperty(who, "LastUsedSkill", data );
     TrainingSkill(who, data[3]);
 
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  if(GetAttribute(who, HIDING) < 80)
-    PrintTextAbovePrivate( who, "You are not good enough at Hiding to do that", who );
-    return;
-  endif
-  if(!who.hidden)
-    PrintTextAbovePrivate( who, "You must be hidden to use stealth", who );
-    return;
-  endif
-  var mount := GetEquipmentByLayer(who, LAYER_MOUNT );
-  if(mount)
-
-
-	var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount, "serial")));
-    if(animal.npctemplate != "stealthhorse")
-       who.hidden := 0;
-       PrintTextAbovePrivate( who, "You cant stealth while riding a horse!", who );
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    if(GetAttribute(who, HIDING) < 80)
+        PrintTextAbovePrivateCL(who, who, 502726, color := 33); // You are not hidden well enough.  Become better at hiding.
         return;
     endif
+    if(!who.hidden)
+        PrintTextAbovePrivateCL(who, who, 502725, color := 33); // You must hide first (вы должны быть под свойством hidden.)
+        return;
+    endif
+    var mount := GetEquipmentByLayer(who, LAYER_MOUNT );
+    if(mount)
+        //who.hidden := 0;
+        //PrintTextAbovePrivateCL(who, who, 1061089, color := 33); // You must dismount first.
+        //return;
+
+        var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount, "serial")));
+        if(animal.npctemplate != "stealthhorse")
+            who.hidden := 0;
+            PrintTextAbovePrivate( who, "You cant stealth while riding a horse!", who );
+            return;
+        endif
+
+    endif
+    var skill := CInt(GetAttribute(who, STEALTH) / 5);
+
+    if(skill > 35)
+        skill := 35;
+    endif
+    if(SkillCheck( who, STEALTH, -1, skill ) > 0)
+        //skill := (skill / 10);
+        //who.stealthsteps := skill + RandomInt(skill);
+        skill := (skill + RandomInt(skill));
 
 
-  endif
-  var skill := CInt(GetAttribute(who, STEALTH) / 10) + 10;
+        var premium := who.IsPremium();
+        case(premium)
+            1: skill += 2;
+            2: skill += 5;
+            3: skill += 8;
+        endcase
 
 
-  if(skill > 35)
-    skill := 35;
-  endif
-  if(SkillCheck(who, STEALTH, -1, skill))
-    skill := (skill + RandomInt(skill));
-    who.stealthsteps := skill;
-    PrintTextAbovePrivate( who, "You are now moving "+who.stealthsteps+" steps", who );
-  else
-    who.hidden := 0;
-    PrintTextAbovePrivate( who, "You have revealed yourself!", who );
+        who.stealthsteps := skill;
+        //PrintTextAbovePrivateCL(who, who, 502730, color := 66); // You begin to move quietly.
+        PrintTextAbovePrivate( who, "You are now moving "+who.stealthsteps+" steps", who );
+    else
+        who.hidden := 0;
+        PrintTextAbovePrivateCL(who, who, 500814, color := 33); // You have been revealed!
   endif
 endprogram

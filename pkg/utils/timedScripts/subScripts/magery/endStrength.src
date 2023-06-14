@@ -14,10 +14,10 @@ program TimedScript_EndCunning(params)
 	var cfg_elem := TS_GetCfgElem("Strength");
     var buff_icon := CInt( cfg_elem.BuffIcon );
 	var points := struct;	
-	points := GetObjProperty(mobile, "StrengthMod");	
+	points := GetObjProperty(mobile, "Strength");
 	AP_ModifyStatMod(mobile, STRENGTH, -points.str);
 	mobile.delbuff(buff_icon);
-	EraseObjProperty(mobile, "StrengthMod");
+	EraseObjProperty(mobile, "Strength");
 	
 	return 1;
 endprogram

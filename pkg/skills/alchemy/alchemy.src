@@ -7,7 +7,7 @@ use os;
 include "include/client";
 include ":alchemy:potion";
 include "include/canAccess";
-include "include/noto";
+include ":virtue:noto";
 
 const REAGENT_START := 0x0f78;
 const REAGENT_STOP := 0x0f91;
@@ -35,6 +35,7 @@ program use_mortar (who, mortar)
   else
     SendSysMessage( who, "What would you like to use that on?" );
     make_the_potion(who, mortar);
+
   endif
   EraseObjProperty(mortar, "#IsMixing");
 endprogram

@@ -1,0 +1,53 @@
+/* $Id$
+ *
+ */
+
+use uo;
+use unicode;
+
+include ":moongates:moongate";
+include "include/client";
+
+program Install()
+	return 1;
+endprogram
+
+exported function IsMoonGate(moongate)
+	moongate := moongate;
+	return 1;
+endfunction
+
+exported function SetDestination(moongate, x, y, z, realm)
+	var coords := struct;
+	coords.+x := CInt(x);
+	coords.+y := CInt(y);
+	coords.+z := CInt(z);
+	coords.+realm := CStr(realm);
+	
+	return SetObjProperty(moongate, "Destination", coords);
+endfunction
+
+exported function GetDestination(moongate)
+	return GetObjProperty(moongate, "Destination");
+endfunction
+
+exported function SendToDestination(moongate, object)
+	var dest := GetDestination(moongate);
+	if ( !dest )
+		return error{"errortext":="moongate has no destination set."};
+	endif
+
+    var items := ListItemsNearLocation( dest.x, dest.y, LIST_IGNORE_Z, 10, dest.realm );
+    foreach it in items
+        //if(it.objtype in {0x6A5})
+        if(it.IsA(POLCLASS_DOOR))
+            if(CInt(GetObjProperty(it, "houseserial")))
+                SendSysMessageUC(object, "Нельзя заходить в порталы, открытые вблизи дверей.", "RUS", 3, MESSAGE_COLOR_BAD);
+                return;
+            endif
+        endif
+    endforeach
+
+
+	return MoveObjectToLocation(object, dest.x, dest.y, dest.z, dest.realm, MOVEOBJECT_FORCELOCATION);
+endfunction

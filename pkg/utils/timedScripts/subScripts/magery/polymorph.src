@@ -7,18 +7,42 @@ use uo;
 use os;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 
 program TimedScript_Polymorph(params)
 	var mobile := params[1];
-	var color := params[2];
-	var gfx := params[3];
-		
-	if ( GetObjProperty(mobile, "Polymorph") == error )
-		SetObjProperty(mobile, "Polymorph", mobile.color);
-	endif
-	
-	mobile.graphic := gfx;
-	mobile.color := color;
+	var point := params[3];
+	var duration := params[4];
+	var origin := params[2];
+
+	var graphic := origin[1];
+	var color := origin[2];
+
+	var cfg_elem := TS_GetCfgElem("Polymorph");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+
+	var points := struct;
+	points.+dex := CInt(point);
+	points.+int := CInt(point);
+	points.+str := CInt(point);
+	points.+ar_mod := CInt(point);
+
+	points.+graphic := graphic;
+	points.+color := color;
+
+
+	AP_ModifyStatMod(mobile, DEXTERITY, points.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, points.int);
+	AP_ModifyStatMod(mobile, STRENGTH, points.str);
+
+    mobile.ar_mod := mobile.ar_mod + points.ar_mod;
+    var level3 := CStr(point)+"\t"+CStr(point)+"\t"+CStr(point);
+
+    mobile.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, level3);
+	SetObjProperty(mobile, "Polymorph", points);
 	
 	return 1;
 endprogram

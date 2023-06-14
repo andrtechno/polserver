@@ -1,0 +1,19 @@
+use uo;
+use os;
+use polsys;
+
+program textcmd_light(who, level)
+    if(!level)
+        level := 0;
+    endif
+    var mobilesList := ListMobilesNearLocationEx( who.x, who.y, who.z, 15, LISTEX_FLAG_NORMAL, who.realm);
+    foreach mobile in mobilesList
+        if(!mobile.isa(POLCLASS_NPC))
+            mobile.setLightLevel (level, 10800);
+            PlayObjectCenteredEffect(mobile, 0x373a, 10,10);
+	    endif
+
+    endforeach
+
+    return 1;
+endprogram;

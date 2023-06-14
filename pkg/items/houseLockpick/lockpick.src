@@ -1,0 +1,63 @@
+use uo;
+use os;
+use util;
+use attributes;
+
+include "include/client";
+include ":attributes:attributes";
+
+program lockpick(who, lockpick)
+  EraseObjProperty(who, "IsMeditating");
+  EraseObjProperty(who, "HealTimer");
+  SendSysMessage(who, "Select a target.");
+  var victim := Target(who);
+  if(!victim)
+    SendSysMessage(who, "Aborted.");
+    return;
+  endif
+  if(Distance(victim, who) > 1)
+    SendSysMessage(who, "That is too far away.");
+    return;
+  endif
+  if(!victim.locked)
+    SendSysMessage(who, "That is not locked.");
+    return;
+  endif
+
+  var difficulty := 150;
+
+  if ( SkillCheck(who, LOCKPICKING,difficulty,10) )
+      var diff := CInt(GetObjProperty(victim,"houseserial"));
+      var lockid := CInt(GetObjProperty(victim,"LockID"));
+      if(diff)
+         victim.locked:=0;
+         PrintTextAbovePrivate(victim, "*Unlocked!*", who);
+         PrintTextAbovePrivate(victim, "60 seconds.", who);
+
+         DoTempModDoor(victim, 60);
+         SubtractAmount(lockpick, 1);
+        return;
+      else
+        SendSysMessage(who, "You cannot pick that");
+        return;
+      endif
+
+      else
+      SendSysMessage(who, "You fail to pick the lock.");
+      SubtractAmount(lockpick, 1);
+ endif
+
+endprogram
+
+
+function DoTempModDoor(who, duration)
+    var mod;
+    mod := "#hack_unlocked";
+    SetObjProperty(who,mod,1);
+    var parms := {};
+    parms[1] := who;
+    parms[2] := duration;
+    parms[3] := "#hack_unlocked";
+    parms[4] := who.serial;
+    start_script(":houseLockpick:unmod", parms);
+endfunction

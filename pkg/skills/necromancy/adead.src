@@ -1,13 +1,12 @@
 // Deviates from official spell
 
 include ":magery:summon";
-
+include ":damage:damage";
 
 program animate_dead( params )
 	var caster := params[1];
-	var info := params[2]; // Struct containing additional info about the spell.
-	var spellID := params[3];
-
+	//var info := params[2]; // Struct containing additional info about the spell.
+	//var spellID := params[3];
 
 	SendSysMessage(caster, "Animate what corpse?", 1, 88);
 	var cast_on := Target(caster);
@@ -23,9 +22,34 @@ program animate_dead( params )
 		return 0;
 	endif
 
+    var template := GetObjProperty(cast_on, "npctemplate");
+
+    var deadnpc := CreateNpcFromTemplate(template, cast_on.x, cast_on.y, cast_on.z, 0, cast_on.realm);
+    deadnpc.SetMaster(caster);
+    deadnpc.script := "tamed";
+	deadnpc.color := 1154;
+	RestartScript(deadnpc);
+
+    var name := deadnpc.name;
+    name["a "] := "a Reanimated ";
+
+	deadnpc.name := name;
+	PlaySoundEffect(deadnpc, 0x1FB);
+	PlayObjectCenteredEffectEx( cast_on, 0x3789, 1, 40, 9907, 33, 7, 7 );
+	SetObjProperty(deadnpc, "Type", "Undead" );
+	SetObjProperty(deadnpc, "noloot", 1 );
+	SetObjProperty(deadnpc, "master", caster.serial );
+	SetObjProperty(deadnpc, "script", deadnpc.script );
+    SetObjProperty(deadnpc, "summoned", 1);
+	DestroyItem(cast_on);
+	Detach();
+	sleep(200);
+	MoveObjectToLocation(deadnpc,0,0,0, deadnpc.realm, MOVEOBJECT_FORCELOCATION);
+	KillMobile(deadnpc);
 
 
-	var deadnpc := CreateNpcFromTemplate("zombie", cast_on.x, cast_on.y, cast_on.z, 0, cast_on.realm);
+
+	/*var deadnpc := CreateNpcFromTemplate("zombie", cast_on.x, cast_on.y, cast_on.z, 0, cast_on.realm);
 	deadnpc.script := "KillNPCs";
 	PlaySoundEffect(deadnpc, 0x1FB);
 	PlayObjectCenteredEffectEx( cast_on, 0x3789, 1, 40, 9907, 33, 7, 7 );
@@ -35,8 +59,6 @@ program animate_dead( params )
 	DestroyItem(cast_on);
 	Detach();
 	sleep(200);
-	MoveObjectToLocation(deadnpc,0,0,0, "britannia", MOVEOBJECT_FORCELOCATION);
-	ApplyRawDamage(deadnpc, GetHp(deadnpc) + 20);
-
-
+	MoveObjectToLocation(deadnpc,0,0,0, deadnpc.realm, MOVEOBJECT_FORCELOCATION);
+	KillMobile(deadnpc);*/
 endprogram

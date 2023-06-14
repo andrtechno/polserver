@@ -1,0 +1,95 @@
+use uo;
+use os;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+program textcmd_regs( who)
+
+	var items := EnumerateItemsInContainer(who.backpack);
+
+    var regs := {0xF7A, 0xF7B, 0xF8C, 0xF8D, 0xF84, 0xF85, 0xF86, 0xF88};
+    var necroRegs := {0xF78};
+    var dataList := {};
+    var bloodmoss := 0;
+    var sulphurous := 0;
+    var spidersilk := 0;
+    var nightshades := 0;
+    var garlics := 0;
+    var mandrake := 0;
+    var ginsengs := 0;
+    var blackpearl := 0;
+
+
+
+    foreach item in items
+        if(item.objtype == 0xF7B)
+            bloodmoss += item.amount;
+        elseif(item.objtype == 0xF8C)
+            sulphurous += item.amount;
+        elseif(item.objtype == 0xF8D)
+            spidersilk += item.amount;
+        elseif(item.objtype == 0xF88)
+            nightshades += item.amount;
+        elseif(item.objtype == 0xF84)
+            garlics += item.amount;
+        elseif(item.objtype == 0xF86)
+            mandrake += item.amount;
+        elseif(item.objtype == 0xF85)
+            ginsengs += item.amount;
+        elseif(item.objtype == 0xF7A)
+            blackpearl += item.amount;
+        endif
+    endforeach
+
+    foreach reg in regs
+        if(reg==0xF7B)
+            dataList.append(struct{tile := reg, name := "Bloodmoss", count := bloodmoss});
+        elseif(reg==0xF8C)
+            dataList.append(struct{tile := reg, name := "Sulphurous Ash", count := sulphurous});
+        elseif(reg==0xF8D)
+            dataList.append(struct{tile := reg, name := "Spider's silk", count := spidersilk});
+        elseif(reg==0xF88)
+            dataList.append(struct{tile := reg, name := "Nightshades", count := nightshades});
+        elseif(reg==0xF84)
+            dataList.append(struct{tile := reg, name := "Garlics", count := garlics});
+        elseif(reg==0xF86)
+            dataList.append(struct{tile := reg, name := "Mandrakes", count := mandrake});
+        elseif(reg==0xF85)
+            dataList.append(struct{tile := reg, name := "Ginsengs", count := ginsengs});
+        elseif(reg==0xF7A)
+            dataList.append(struct{tile := reg, name := "Black pearls", count := blackpearl});
+        endif
+    endforeach
+
+
+
+
+    GFCloseGumpOnMoved ( who, who.x, who.y, GetPid());
+    var x := 10;
+    var y := 15;
+	var gump := GFCreateGump( 20, 50 );
+	GFDisposable(gump, 1);
+
+	GFPage( gump, 1 );
+	var widthGump := 250;
+    var heightGump := 270;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+    GFTextLine(gump, 15, y, 33, "Regs" );
+    y += 30;
+    foreach data in dataList
+        GFTextLine(gump, x+50, y, 2100, data.name);
+        var color := 2100;
+        if(data.count < 10)
+            color := 33;
+        endif
+        GFTextLine(gump, x+200, y, color, data.count);
+	    GFTilePic(gump, x, y, data.tile, 0);
+        y+=25;
+    endforeach
+
+    var input := GFSendGump( who, gump );
+
+    return;
+
+endprogram

@@ -8,6 +8,5 @@ program setcolor(who, color)
 		SendSysMessage(on, "Canceled.", 1, 33);
 		return;
 	endif
-	print(color);
 	on.color := CInt(color);
 endprogram

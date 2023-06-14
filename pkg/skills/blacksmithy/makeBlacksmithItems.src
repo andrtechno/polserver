@@ -1,534 +1,311 @@
 use cfgfile;
 use util;
 
+
 include ":oldstyle-gumps:gumps";
 include ":attributes:attributes";
 include "include/gumpUtil";
-include "include/dist";
 include "util/repair";
-include "include/client";
-include "include/objtype";
 include "include/client";
 include "include/objtype";
 include "include/canAccess";
 include "include/toolEquip";
 include ":itemutils:toolWear";
-include "include/noto";
-include ":mining:const";
+include "include/sounds";
+include ":virtue:noto";
+include "include/math";
 
-var itemcfg   := ReadConfigFile(":combat:itemdesc");
+//var itemcfg   := ReadConfigFile(":combat:itemdesc");
 var smith_cfg := ReadConfigFile("blacksmithy");
-var miningcfg := ReadConfigFile(":mining:itemdesc");
+//var miningcfg := ReadConfigFile(":mining:itemdesc");
 gfref.x := 50;
 gfref.y := 50;
-var O := 501;
 
+var resource;
 program use_hammer(who, hammer)
-  if(!can_access(who, hammer))
-    return;
-  endif
-  if(!hammer.movable)
-    SendSysMessage(who, "You cannot use that");
-    return;
-  endif
-  if(!ReserveItem(hammer))
-    SendSysMessage(who, "You cannot use that.");
-    return;
-  endif
-
-  if(!IsToolEquipped(who, hammer))
-    SendSysMessage(who,"You have to equip that to blacksmith!");
-    return;
-  endif
-
-  GFInitGump(0, 0);
-  GFNoDispose();
-  GFNoClose();
-  GFPage(0);
-  GFResizePic(0, 60, 2600, 500, 400);
-  GFGumpPic( 20, 120, 5100);
-  GFGumpPic( 28, 120, 5101);
-  GFGumpPic(118, 120, 5101);
-  GFGumpPic(208, 120, 5101);
-  GFGumpPic(298, 120, 5101);
-  GFGumpPic(370, 120, 5101);
-  GFGumpPic(460, 120, 5102);
-  GFGumpPic( 20, 128, 5103);
-  GFGumpPic( 28, 128, 5104);
-  GFGumpPic(118, 128, 5104);
-  GFGumpPic(208, 128, 5104);
-  GFGumpPic(298, 128, 5104);
-  GFGumpPic(370, 128, 5104);
-  GFGumpPic(460, 128, 5105);
-  GFGumpPic( 20, 136, 5058);
-  GFGumpPic(118, 136, 5058);
-  GFGumpPic(232, 136, 5058);
-  GFGumpPic(350, 136, 5058);
-  GFGumpPic( 20, 136, 5106);
-  GFGumpPic( 28, 136, 5107);
-  GFGumpPic(118, 136, 5107);
-  GFGumpPic(208, 136, 5107);
-  GFGumpPic(298, 136, 5107);
-  GFGumpPic(370, 136, 5107);
-  GFGumpPic(460, 136, 5108);
-  GFGumpPic( 28, 278, 5104);
-  GFGumpPic(118, 278, 5104);
-  GFGumpPic(208, 278, 5104);
-  GFGumpPic(298, 278, 5104);
-  GFGumpPic(368, 278, 5104);
-  GFGumpPic( 20, 278, 5103);
-  GFGumpPic(460, 278, 5105);
-  GFGumpPic( 20, 226, 5058);
-  GFGumpPic(118, 226, 5058);
-  GFGumpPic(232, 226, 5058);
-  GFGumpPic(350, 226, 5058);
-  GFGumpPic( 20, 366, 5106);
-  GFGumpPic( 28, 366, 5107);
-  GFGumpPic(118, 366, 5107);
-  GFGumpPic(208, 366, 5107);
-  GFGumpPic(298, 366, 5107);
-  GFGumpPic(370, 366, 5107);
-  GFGumpPic(460, 366, 5108);
-  GFGumpPic( 20, 350, 5100);
-  GFGumpPic( 28, 350, 5101);
-  GFGumpPic(118, 350, 5101);
-  GFGumpPic(208, 350, 5101);
-  GFGumpPic(298, 350, 5101);
-  GFGumpPic(370, 350, 5101);
-  GFGumpPic(460, 350, 5102);
-  GFTextLine(110,  80, 900, "BLACKSMITH SELECTION MENU");
-  GFTextLine( 30, 121,   0, "Ringmail");
-  GFTextLine(150, 121,   0, "Chainmail");
-  GFTextLine(260, 121,   0, "Platemail");
-  GFTextLine(370, 121,   0, "Helmets");
-  GFTextLine( 30, 351,   0, "Shields");
-  GFTextLine(120, 351,   0, "Bladed");
-  GFTextLine(205, 351,   0, "Axes");
-  GFTextLine(275, 351,   0, "Polearms");
-  GFTextLine(375, 351,   0, "Bashing");
-  GFTextLine( 90, 380, 900, "Make Last");
-  GFTextLine(320, 380, 900, "Repair Item");
-  var repair  := GFButtonID(300, 384,   3, 4, 97);
-  var lastitm := GFButtonID( 70, 384,   3, 4, 99);
-  var close   := GFButtonID(410, 380, 242, 241, 1);
-  GFButtonPage(110, 123, 5209, 5209,  2);
-  GFButtonPage(230, 123, 5209, 5209,  3);
-  GFButtonPage(340, 123, 5209, 5209,  4);
-  GFButtonPage(435, 123, 5209, 5209,  5);
-  GFButtonPage( 90, 353, 5209, 5209,  6);
-  GFButtonPage(180, 353, 5209, 5209,  7);
-  GFButtonPage(250, 353, 5209, 5209,  8);
-  GFButtonPage(345, 353, 5209, 5209,  9);
-  GFButtonPage(440, 353, 5209, 5209, 10);
-  GFTextLine(  300, 420, 900, "How Many?");
-  GFGumpPic(390, 417, 2443);
-  var sa := GetObjProperty(who, "#SmithAmt");
-  if(!sa)
-    sa := 1;
-  endif
-  var ct := GFTextEntry(400, 420, 100, 30, 0, sa);
-  ComposeSubMenu(who);
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  var res := GFSendGump(who);
-  if((res[0] == 999) || (res[close.keyid]))
-    SendSysMessage(who, "Cancelled");
-    return;
-  endif
-  var amt := CInt(SplitWords(res[ct.keyid])[2]);
-  if(!amt)
-    amt := 1;
-  elseif(amt > 10)
-    SendSysMessage(who, "You can only make up to 10 at a time.");
-    return;
-  endif
-  SetObjProperty(who, "#SmithAmt", amt);
-  var cont := hammer.container;
-  if((!cont) || (cont.serial == who.serial))
-    cont := who.backpack;
-  endif
-  var the_objtype := res[0];
-  if(res[repair.keyid])
-    repair_this(who);
-    return;
-  elseif(res[lastitm.keyid])
-    the_objtype := GetObjProperty(who, "LastBlacksmithItem");
-    if(!the_objtype)
-      SendSysMessage(who, "You have never smithed before.");
+    if(!can_access(who, hammer))
+        return;
+    endif
+    if(!hammer.movable)
+        SendSysMessage(who, "You cannot use that");
+        return;
+    endif
+    if(!ReserveItem(hammer))
+        SendSysMessage(who, "You cannot use that.");
+        return;
+    endif
+    var mount;
+    mount := GetEquipmentByLayer(who, 25);
+    if(mount)
+      SendSysMessage(who,"you cannot chop wood while on horseback.");
       return;
     endif
-  endif
-  SetObjProperty(who, "LastBlacksmithItem", the_objtype);
-  makeBlacksmithItems(who, the_objtype, amt, cont, hammer);
+    SendSysMessage(who, "Select the ingots you wish to use.");
+    resource := Target(who);
+    if(!resource)
+        SendSysMessage(who, "Cancelled");
+        return;
+    endif
+
+
+    if(!can_access(who, resource))
+        return;
+    endif
+    if(!Accessible(who, resource) || (Distance(who, resource) > 2))
+        SendSysMessage(who, "You cannot use that.");
+        return;
+    endif
+    var is_ingot := 0;
+    case(resource.objtype)
+        UOBJ_INGOT_COPPER:       is_ingot := 1;
+	    UOBJ_INGOT_IRON:         is_ingot := 1;
+        UOBJ_INGOT_STEEL:        is_ingot := 1;
+        UOBJ_INGOT_ANRA:         is_ingot := 1;
+        UOBJ_INGOT_VALORITE:     is_ingot := 1;
+        UOBJ_INGOT_LAVAROCK:     is_ingot := 1;
+        UOBJ_INGOT_ICEROCK:      is_ingot := 1;
+        UOBJ_INGOT_SHADOW:       is_ingot := 1;
+        UOBJ_INGOT_AZURITE:      is_ingot := 1;
+        UOBJ_INGOT_DOOM:         is_ingot := 1;
+        UOBJ_INGOT_BLUESTEEL:    is_ingot := 1;
+        UOBJ_INGOT_DARKRUBY:     is_ingot := 1;
+        UOBJ_INGOT_CRYSTALIT:    is_ingot := 1;
+        UOBJ_INGOT_ONYX:         is_ingot := 1;
+        UOBJ_INGOT_MIFRIL:       is_ingot := 1;
+    endcase
+    if(is_ingot == 0)
+        SendSysMessage(who, "You can only use that on ingots!");
+        return;
+    endif
+    if(resource.movable == 0)
+        SendSysMessage(who, "You cannot smith that.");
+        return;
+    endif
+    if(!checkSkillForDifferentMetals(who, resource))
+        SendSysMessage(who, "You have no chance to successfully work with that metal.");
+        return;
+    endif
+    if(!Accessible(who, resource))
+        SendSysMessage(who, "You don't have any ingots!");
+        return;
+    endif
+    if(!ReserveItem(resource))
+        SendSysMessage(who, "That item is already in use.");
+        return;
+    endif
+
+    if(!IsToolEquipped(who, hammer))
+        SendSysMessage(who,"You have to equip that to blacksmith!");
+        return;
+    endif
+
+    GFInitGump(0, 0);
+    GFNoDispose();
+    GFNoClose();
+    GFPage(0);
+    GFResizePic(0, 60, 2600, 500, 400);
+    GFGumpPic(20, 120, 5100);
+    GFGumpPic(28, 120, 5101);
+    GFGumpPic(118, 120, 5101);
+    GFGumpPic(208, 120, 5101);
+    GFGumpPic(298, 120, 5101);
+    GFGumpPic(370, 120, 5101);
+    GFGumpPic(460, 120, 5102);
+    GFGumpPic(20, 128, 5103);
+    GFGumpPic(28, 128, 5104);
+    GFGumpPic(118, 128, 5104);
+    GFGumpPic(208, 128, 5104);
+    GFGumpPic(298, 128, 5104);
+    GFGumpPic(370, 128, 5104);
+    GFGumpPic(460, 128, 5105);
+    GFGumpPic(20, 136, 5058);
+    GFGumpPic(118, 136, 5058);
+    GFGumpPic(232, 136, 5058);
+    GFGumpPic(350, 136, 5058);
+    GFGumpPic(20, 136, 5106);
+    GFGumpPic(28, 136, 5107);
+    GFGumpPic(118, 136, 5107);
+    GFGumpPic(208, 136, 5107);
+    GFGumpPic(298, 136, 5107);
+    GFGumpPic(370, 136, 5107);
+    GFGumpPic(460, 136, 5108);
+    GFGumpPic(28, 278, 5104);
+    GFGumpPic(118, 278, 5104);
+    GFGumpPic(208, 278, 5104);
+    GFGumpPic(298, 278, 5104);
+    GFGumpPic(368, 278, 5104);
+    GFGumpPic(20, 278, 5103);
+    GFGumpPic(460, 278, 5105);
+    GFGumpPic(20, 226, 5058);
+    GFGumpPic(118, 226, 5058);
+    GFGumpPic(232, 226, 5058);
+    GFGumpPic(350, 226, 5058);
+    GFGumpPic(20, 366, 5106);
+    GFGumpPic(28, 366, 5107);
+    GFGumpPic(118, 366, 5107);
+    GFGumpPic(208, 366, 5107);
+    GFGumpPic(298, 366, 5107);
+    GFGumpPic(370, 366, 5107);
+    GFGumpPic(460, 366, 5108);
+    GFGumpPic(20, 350, 5100);
+    GFGumpPic(28, 350, 5101);
+    GFGumpPic(118, 350, 5101);
+    GFGumpPic(208, 350, 5101);
+    GFGumpPic(298, 350, 5101);
+    GFGumpPic(370, 350, 5101);
+    GFGumpPic(460, 350, 5102);
+    GFTextLine(110,  80, 900, "BLACKSMITH SELECTION MENU");
+    GFTextLine(30, 121,   0, "Ringmail");
+    GFTextLine(150, 121,   0, "Chainmail");
+    GFTextLine(260, 121,   0, "Platemail");
+    GFTextLine(370, 121,   0, "Helmets");
+    GFTextLine(30, 351,   0, "Shields");
+    GFTextLine(120, 351,   0, "Bladed");
+    GFTextLine(205, 351,   0, "Axes");
+    GFTextLine(275, 351,   0, "Polearms");
+    GFTextLine(375, 351,   0, "Bashing");
+    GFTextLine(90, 380, 900, "Make Last");
+    GFTextLine(320, 380, 900, "Repair Item");
+    var repair  := GFButtonID(300, 384,   3, 4, 97);
+    var lastitm := GFButtonID( 70, 384,   3, 4, 99);
+    var close   := GFButtonID(410, 380, 242, 241, 1);
+    GFButtonPage(110, 123, 5209, 5209,  2);
+    GFButtonPage(230, 123, 5209, 5209,  3);
+    GFButtonPage(340, 123, 5209, 5209,  4);
+    GFButtonPage(435, 123, 5209, 5209,  5);
+    GFButtonPage(90, 353, 5209, 5209,  6);
+    GFButtonPage(180, 353, 5209, 5209,  7);
+    GFButtonPage(250, 353, 5209, 5209,  8);
+    GFButtonPage(345, 353, 5209, 5209,  9);
+    GFButtonPage(440, 353, 5209, 5209, 10);
+    GFTextLine(300, 420, 900, "How Many?");
+    GFGumpPic(390, 417, 2443);
+    var sa := GetObjProperty(who, "#SmithAmt");
+    if(!sa)
+        sa := 1;
+    endif
+    var ct := GFTextEntry(400, 420, 100, 30, 0, sa);
+    ComposeSubMenu(who);
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    var res := GFSendGump(who);
+    if((res[0] == 999) || (res[close.keyid]))
+        SendSysMessage(who, "Cancelled");
+        return;
+    endif
+    var amt := CInt(SplitWords(res[ct.keyid])[2]);
+    if(!amt)
+        amt := 1;
+    elseif(amt > 10)
+        SendSysMessage(who, "You can only make up to 10 at a time.");
+        return;
+    endif
+    SetObjProperty(who, "#SmithAmt", amt);
+    var cont := hammer.container;
+    if((!cont) || (cont.serial == who.serial))
+        cont := who.backpack;
+    endif
+    var the_objtype := res[0];
+    if(res[repair.keyid])
+        repair_this(who);
+        return;
+    elseif(res[lastitm.keyid])
+        the_objtype := GetObjProperty(who, "LastBlacksmithItem");
+        if(!the_objtype)
+            SendSysMessage(who, "You have never smithed before.");
+            return;
+        endif
+    endif
+    SetObjProperty(who, "LastBlacksmithItem", the_objtype);
+    makeBlacksmithItems(who, the_objtype, amt, cont, hammer);
 endprogram
 
 function ComposeSubMenu(who)
-  var num := 2;
-  var skill := (AP_GetSkill(who, BLACKSMITHY) + 20);
-  var color := 0;
-  var cfg := ReadConfigFile(":blacksmithy:blacksmithy");
-  while(num < 11)
-    case(num)
-       2: GFPage(2);        // Page 2 (Ringmail)
-          if(skill >= CInt(cfg[5106]."skill"))
+    var num := 2;
+    var skill := (AP_GetSkill(who, BLACKSMITHY) + 20);
+    var color := 0;
+    var cfg := ReadConfigFile(":blacksmithy:blacksmithy");
+    while(num < 11)
+        case(num)
+            2:  GFPage(2);        // Page 2 (Ringmail)
+                var list := {0x13f2, 0x13ee, 0x13f0, 0x13ec};
+                GFList(skill, list);
+
+            3:  GFPage(3);        // Page 3 (Chainmail)
+                var list := {0x13bb, 0x13be, 0x13bf};
+                GFList(skill, list);
+
+            4:  GFPage(4);        // Page 4 (Platemail)
+                var list := {0x1413, 0x1414, 0x1410, 0x1411, 0x1415, 0x1c04};
+                GFList(skill, list);
+
+            5:  GFPage(5);        //Page 5 (Helmets)
+                var list := {0x140a, 0x140c, 0x140e, 0x1408, 0x1412};
+                GFList(skill, list);
+
+            6:  GFPage(6);        //Page 6 (Shields)
+                var list := {0x1b73, 0x1b72, 0x1b7b, 0x1b74, 0x1b78, 0x1b76};
+                GFList(skill, list);
+
+            7:  GFPage(7);        //Page 7 (Bladed)
+                var list := {0x0f51, 0x1440, 0x13fe, 0x1401, 0x13b5, 0x0f5e, 0x0f60, 0x13b9};
+                GFList(skill, list);
+
+            8:  GFPage(8);        //Page 8 (Axes)
+                var list := {0x0f47, 0x0f45, 0x1442, 0x0f4b, 0x0f49, 0x13af, 0x13fa};
+                GFList(skill, list);
+
+            9:  GFPage(9);        //Page 9 (Polearms)
+                var list := {0x1402, 0x0f63, 0x1404, 0x0f4e, 0x143e};
+                GFList(skill, list, 3, 55);
+            10: GFPage(10);       //Page 10 (Bashing)
+                var list := {0x0f5c, 0x143a, 0x1406, 0x1438, 0x143c};
+                GFList(skill, list);
+        endcase
+        num := num + 1;
+    endwhile
+    return;
+endfunction
+
+function GFList(skill, list, row := 3, tileSize := 45)
+    var y:= 135;
+    var x:= 20;
+    var color := 0;
+    var colored := 0;
+    var counter := 0;
+    foreach item in list
+        if(counter % row == 0)
+            y += 20;
+            x := 25;
+        endif
+
+        if(skill >= Cint(smith_cfg[item]."skill"))
             color := 900;
-            GFButtonIDC(150, 200, 210, 211, 1, 5106);
-          endif
-          GFTextLine( 90, 175, color, "ringmail gloves");
-          GFTilePic( 100, 200, 5099);
-          color := 0;
-          if(skill >= CInt(cfg[5102]."skill"))
-            color := 900;
-            GFButtonIDC(300, 200, 210, 211, 1, 5102);
-          endif
-          GFTextLine(240, 175, color, "ringmail sleeves");
-          GFTilePic( 250, 200, 5103);
-         color := 0;
-          if(skill >= CInt(cfg[5104]."skill"))
-            color := 900;
-            GFButtonIDC(150, 295, 210, 211, 1, 5104);
-          endif
-          GFTextLine( 90, 270, color, "ringmail leggings");
-          GFTilePic( 100, 295, 5104);
-          color := 0;
-          if(skill >= CInt(cfg[5100]."skill"))
-            color := 900;
-            GFButtonIDC(300, 295, 210, 211, 1, 5100);
-          endif
-          GFTextLine(240, 270, color, "ringmail tunic");
-          GFTilePic( 250, 295, 5100);
-          color := 0;
-       3: GFPage(3);        // Page 3 (Chainmail)
-          if(skill >= CInt(cfg[5051]."skill"))
-            color := 900;
-            GFButtonIDC(150, 200, 210, 211, 1, 5051);
-          endif
-          GFTextLine( 90, 175, color, "chainmail coif");
-          GFTilePic( 100, 200, 5051);
-          color := 0;
-          if(skill >= CInt(cfg[5054]."skill"))
-            color := 900;
-            GFButtonIDC(300, 200, 210, 211, 1, 5054);
-          endif
-          GFTextLine(240, 175, color, "chainmail leggings");
-          GFTilePic( 250, 200, 5054);
-          color := 0;
-          if(skill >= CInt(cfg[5055]."skill"))
-            color := 900;
-            GFButtonIDC(150, 295, 210, 211, 1, 5055);
-          endif
-          GFTextLine( 90, 270, color, "chainmail tunic");
-          GFTilePic( 100, 295, 5055);
-          color := 0;
-       4: GFPage(4);        // Page 4 (Platemail)
-          if(skill >= CInt(cfg[5139]."skill"))
-            color := 900;
-            GFButtonIDC(100, 200, 210, 211, 1, 5139);
-          endif
-          GFTextLine( 60, 175, color, "platemail gorget");
-          GFTilePic(  70, 200, 5139);
-          color := 0;
-          if(skill >= CInt(cfg[5140]."skill"))
-            color := 900;
-            GFButtonIDC(260, 200, 210, 211, 1, 5140);
-          endif
-          GFTextLine(200, 175, color, "platemail gloves");
-          GFTilePic( 210, 200, 5140);
-          color := 0;
-          if(skill >= CInt(cfg[5136]."skill"))
-            color := 900;
-            GFButtonIDC(400, 200, 210, 211, 1, 5136);
-          endif
-          GFTextLine(340, 175, color, "platemail arms");
-          GFTilePic( 350, 200, 5136);
-          color := 0;
-          if(skill >= CInt(cfg[5137]."skill"))
-            color := 900;
-            GFButtonIDC(120, 295, 210, 211, 1, 5137);
-          endif
-          GFTextLine( 60, 270, color, "platemail leggings");
-          GFTilePic(  70, 295, 5137);
-          color := 0;
-          if(skill >= CInt(cfg[5141]."skill"))
-            color := 900;
-            GFButtonIDC(260, 295, 210, 211, 1, 5141);
-          endif
-          GFTextLine(200, 270, color, "breastplate");
-          GFTilePic( 210, 295, 5141);
-          color := 0;
-          if(skill >= CInt(cfg[7172]."skill"))
-            color := 900;
-            GFButtonIDC(400, 295, 210, 211, 1, 7172);
-          endif
-          GFTextLine(340, 270, color, "female plate");
-          GFTilePic( 350, 295, 7172);
-          color := 0;
-       5: GFPage(5);        //Page 5 (Helmets)
-          if(skill >= CInt(cfg[5130]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 5130);
-          endif
-          GFTextLine( 65, 175, color, "helmet");
-          GFTilePic(  60, 200, 5130);
-          color := 0;
-          if(skill >= CInt(cfg[5132]."skill"))
-            color := 900;
-            GFButtonIDC(210, 200, 210, 211, 1, 5132);
-          endif
-          GFTextLine(160, 175, color, "bascinet");
-          GFTilePic( 160, 200, 5132);
-          color := 0;
-          if(skill >= CInt(cfg[5134]."skill"))
-            color := 900;
-            GFButtonIDC(310, 200, 210, 211, 1, 5134);
-          endif
-          GFTextLine(260, 175, color, "nose helm");
-          GFTilePic( 260, 200, 5134);
-          color := 0;
-          if(skill >= CInt(cfg[5128]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 5128);
-          endif
-          GFTextLine(360, 175, color, "close helmet");
-          GFTilePic( 360, 200, 5128);
-          color := 0;
-          if(skill >= CInt(cfg[5138]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 5138);
-          endif
-          GFTextLine( 65, 270, color, "plate helm");
-          GFTilePic(  60, 295, 5138);
-          color := 0;
-       6: GFPage(6);        //Page 6 (Shields)
-          if(skill >= CInt(cfg[7027]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 7027);
-          endif
-          GFTextLine( 65, 175, color, "buckler");
-          GFTilePic(  60, 200, 7027);
-          color := 0;
-          if(skill >= CInt(cfg[7026]."skill"))
-            color := 900;
-            GFButtonIDC(210, 200, 210, 211, 1, 7026);
-          endif
-          GFTextLine(160, 175, color, "bronze shield");
-          GFTilePic( 160, 200, 7026);
-          color := 0;
-          if(skill >= CInt(cfg[7035]."skill"))
-            color := 900;
-            GFButtonIDC(310, 200, 210, 211, 1, 7035);
-          endif
-          GFTextLine(260, 175, color, "metal shield");
-          GFTilePic( 260, 200, 7035);
-          color := 0;
-          if(skill >= CInt(cfg[7028]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 7032);
-          endif
-          GFTextLine(360, 175, color, "kite shield");
-          GFTilePic( 360, 200, 7032);
-          color := 0;
-          if(skill >= CInt(cfg[7032]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 7028);
-          endif
-          GFTextLine( 65, 270, color, "kite shield");
-          GFTilePic(  60, 295, 7028);
-          color := 0;
-          if(skill >= CInt(cfg[7030]."skill"))
-            color := 900;
-           GFButtonIDC(210, 295, 210, 211, 1, 7030);
-          endif
-          GFTextLine(160, 270, color, "heater shield");
-          GFTilePic( 160, 295, 7030);
-          color := 0;
-       7: GFPage(7);        //Page 7 (Bladed)
-          if(skill >= CInt(cfg[3921]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 3921);
-          endif
-          GFTextLine( 65, 175, color, "dagger");
-          GFTilePic(  60, 200, 3921);
-          color := 0;
-          if(skill >= CInt(cfg[5184]."skill"))
-            color := 900;
-            GFButtonIDC(210, 200, 210, 211, 1, 5184);
-          endif
-          GFTextLine(160, 175, color, "cutlass");
-          GFTilePic( 160, 200, 5185);
-          color := 0;
-          if(skill >= CInt(cfg[5118]."skill"))
-            color := 900;
-            GFButtonIDC(310, 200, 210, 211, 1, 5118);
-          endif
-          GFTextLine(260, 175, color, "katana");
-          GFTilePic( 260, 200, 5119);
-          color := 0;
-          if(skill >= CInt(cfg[5121]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 5121);
-          endif
-          GFTextLine(360, 175, color, "kryss");
-          GFTilePic( 360, 200, 5121);
-          color := 0;
-          if(skill >= CInt(cfg[5045]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 5045);
-          endif
-          GFTextLine( 65, 270, color, "scimitar");
-          GFTilePic(  60, 295, 5046);
-          color := 0;
-          if(skill >= CInt(cfg[3934]."skill"))
-            color := 900;
-            GFButtonIDC(210, 295, 210, 211, 1, 3934);
-          endif
-          GFTextLine(160, 270, color, "broadsword");
-          GFTilePic( 160, 295, 3934);
-          color := 0;
-          if(skill >= CInt(cfg[3936]."skill"))
-            color := 900;
-            GFButtonIDC(310, 295, 210, 211, 1, 3936);
-          endif
-          GFTextLine(260, 270, color, "longsword");
-          GFTilePic( 245, 295, 3937);
-          color := 0;
-          if(skill >= CInt(cfg[5049]."skill"))
-            color := 900;
-            GFButtonIDC(410, 295, 210, 211, 1, 5049);
-          endif
-          GFTextLine(360, 270, color, "viking sword");
-          GFTilePic( 360, 295, 5049);
-          color := 0;
-       8: GFPage(8);        //Page 8 (Axes)
-          if(skill >= CInt(cfg[3911]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 3911);
-          endif
-          GFTextLine( 65, 175, color, "battle axe");
-          GFTilePic(  60, 200, 3911);
-          color := 0;
-          if(skill >= CInt(cfg[3909]."skill"))
-            color := 900;
-            GFButtonIDC(260, 200, 210, 211, 1, 3909);
-          endif
-          GFTextLine(200, 175, color, "executioner's axe");
-          GFTilePic( 200, 200, 3909);
-          color := 0;
-          if(skill >= CInt(cfg[5186]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 5186);
-          endif
-          GFTextLine(360, 175, color, "two handed axe");
-          GFTilePic( 360, 200, 5187);
-          color := 0;
-          if(skill >= CInt(cfg[3915]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 3915);
-          endif
-          GFTextLine( 65, 270, color, "double axe");
-          GFTilePic(  60, 295, 3915);
-          color := 0;
-          if(skill >= CInt(cfg[3913]."skill"))
-            color := 900;
-            GFButtonIDC(210, 295, 210, 211, 1, 3913);
-          endif
-          GFTextLine(180, 270, color, "axe");
-          GFTilePic( 160, 295, 3913);
-          color := 0;
-          if(skill >= CInt(cfg[5039]."skill"))
-            color := 900;
-            GFButtonIDC(310, 295, 210, 211, 1, 5039);
-          endif
-          GFTextLine(260, 270, color, "war axe");
-          GFTilePic( 255, 295, 5040);
-          color := 0;
-          if(skill >= CInt(cfg[5114]."skill"))
-            color := 900;
-            GFButtonIDC(410, 295, 210, 211, 1, 5114);
-          endif
-          GFTextLine(360, 270, color, "large battle axe");
-          GFTilePic( 360, 295, 5115);
-          color := 0;
-       9: GFPage(9);        //Page 9 (Polearms)
-          if(skill >= CInt(cfg[5122]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 5122);
-          endif
-          GFTextLine( 65, 175, color, "short spear");
-          GFTilePic(  55, 200, 5123);
-          color := 0;
-          if(skill >= CInt(cfg[3939]."skill"))
-            color := 900;
-            GFButtonIDC(210, 200, 210, 211, 1, 3939);
-          endif
-          GFTextLine(160, 175, color, "spear");
-          GFTilePic( 105, 200, 3938);
-          color := 0;
-          if(skill >= CInt(cfg[5124]."skill"))
-            color := 900;
-            GFButtonIDC(310, 200, 210, 211, 1, 5124);
-          endif
-          GFTextLine(260, 175, color, "war fork");
-          GFTilePic( 260, 200, 5125);
-          color := 0;
-          if(skill >= CInt(cfg[3918]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 3918);
-          endif
-          GFTextLine(360, 175, color, "bardiche");
-          GFTilePic( 325, 200, 3917);
-          color := 0;
-          if(skill >= CInt(cfg[5182]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 5182);
-          endif
-          GFTextLine( 65, 270, color, "halberd");
-          GFTilePic(  10, 295, 5183);
-          color := 0;
-      10: GFPage(10);       //Page 10 (Bashing)
-          if(skill >= CInt(cfg[3932]."skill"))
-            color := 900;
-            GFButtonIDC(110, 200, 210, 211, 1, 3932);
-          endif
-          GFTextLine( 65, 175, color, "mace");
-          GFTilePic(  60, 200, 3932);
-          color := 0;
-          if(skill >= CInt(cfg[5178]."skill"))
-            color := 900;
-            GFButtonIDC(210, 200, 210, 211, 1, 5178);
-          endif
-          GFTextLine(160, 175, color, "maul");
-          GFTilePic( 160, 200, 5179);
-          color := 0;
-          if(skill >= CInt(cfg[5126]."skill"))
-            color := 900;
-            GFButtonIDC(310, 200, 210, 211, 1, 5126);
-          endif
-          GFTextLine(260, 175, color, "war mace");
-          GFTilePic( 260, 200, 5127);
-          color := 0;
-          if(skill >= CInt(cfg[5176]."skill"))
-            color := 900;
-            GFButtonIDC(410, 200, 210, 211, 1, 5176);
-          endif
-          GFTextLine(360, 175, color, "war hammer");
-          GFTilePic( 360, 200, 5176);
-          color := 0;
-          if(skill >= CInt(cfg[5180]."skill"))
-            color := 900;
-            GFButtonIDC(110, 295, 210, 211, 1, 5180);
-          endif
-          GFTextLine( 65, 270, color, "hammer pick");
-          GFTilePic(  60, 295, 5181);
-          color := 0;
-    endcase
-    num := num + 1;
-  endwhile
-  return;
+            GFButtonIDC(x + tileSize, y, 210, 211, 1, item);
+        endif
+        GFTextLine(x + tileSize, y + 20, color, smith_cfg[item].name);
+        if(CInt(smith_cfg[item].colored))
+            colored := resource.color;
+        endif
+
+        var tile := item;
+        if(CInt(smith_cfg[item].tileView))
+            tile := CInt(smith_cfg[item].tileView);
+        endif
+        GFTilePic(x, y, tile, colored);
+        color := 0;
+
+        counter+=1;
+        if(counter % row == 0)
+            y += 40;
+        endif
+        x += (500 - 20) / row;
+    endforeach
+
 endfunction
 
 function GFButtonIDC(x, y, release, press, close, retval)
-	var line := "button " + CStr(gfref.x + CInt(x)) + " " + CStr(gfref.y + CInt(y));
+    var line := "button " + CStr(gfref.x + CInt(x)) + " " + CStr(gfref.y + CInt(y));
 	line := line + " " + CStr(CInt(release)) + " " + CStr(CInt(press)) + " ";
 	line := line + CStr(CInt(close)) + " 0 ";
 	line := line + CStr(CInt(retval));
@@ -536,397 +313,376 @@ function GFButtonIDC(x, y, release, press, close, retval)
 endfunction
 
 function repair_this(who)
-  SendSysMessage(who, "Select an item to repair.");
-  var use_on := Target(who);
-  if(!can_access(who, use_on))
-    return;
-  endif
-  if(use_on.movable == 0)
-    SendSysMessage(who, "You cannot repair that.");
-    return;
-  endif
-  if(!Accessible(who, use_on))
-    SendSysMessage(who, "You cannot reach that.");
-    return;
-  elseif(dist(who, use_on) > 2)
-    SendSysMessage(who, "That is too far away.");
-    return;
-  endif
-  if(is_weapon_armor(use_on.objtype))
-    var near_items := ListItemsNearLocation(who.x, who.y, who.z,3);
-    foreach item in near_items
-      if ((item.objtype == UOBJ_ANVIL1) || (item.objtype == UOBJ_ANVIL2))
-        repair_item( who, use_on, SKILLID_BLACKSMITHY );
+    SendSysMessage(who, "Select an item to repair.");
+    //var use_on := metal;
+
+    var use_on := Target(who);
+    if(!can_access(who, use_on))
         return;
-      endif
-    endforeach
-    SendSysMessage( who, "You must be near an anvil to repair items!" );
+    endif
+    if(use_on.movable == 0)
+        SendSysMessage(who, "You cannot repair that.");
+        return;
+    endif
+    if(!Accessible(who, use_on))
+        SendSysMessage(who, "You cannot reach that.");
+        return;
+    elseif(Distance(who, use_on) > 2)
+        SendSysMessage(who, "That is too far away.");
+        return;
+    endif
+
+    if(is_weapon_armor(use_on.objtype))
+        var near_items := ListItemsNearLocation(who.x, who.y, who.z, 3);
+        foreach item in near_items
+            if ((item.objtype == UOBJ_ANVIL1) || (item.objtype == UOBJ_ANVIL2))
+                repair_item( who, use_on, SKILLID_BLACKSMITHY );
+                return;
+            endif
+        endforeach
+        SendSysMessage( who, "You must be near an anvil to repair items!" );
+        return;
+    else
+        SendSysMessage(who, "You cannot repair that");
+    endif
     return;
-  else
-    SendSysMessage(who, "You cannot repair that");
-  endif
-  return;
 endfunction
 
 function is_weapon_armor(what)
-  var elem := FindConfigElem(itemcfg, what);
-  var repairable := GetConfigInt(elem,"repairable");
-  if (repairable == 1)
-    return 1;
-  else
-    return 0;
-  endif
+    var elem := FindConfigElem(smith_cfg, what);
+    var repairable := GetConfigInt(elem,"repairable");
+    if (repairable == 1)
+        return 1;
+    else
+        return 0;
+    endif
 endfunction
 
 function makeBlacksmithItems(who, what, amt, cont, hammer)
-  var anvil_near := 0;
-  foreach item in ListItemsNearLocation(who.x, who.y, who.z, 3, who.realm)
-    if((item.objtype == 0x0faf) || (item.objtype == 0x0fb0))
-      anvil_near := 1;
-      break;
+    var anvil_near := 0;
+    foreach item in ListItemsNearLocation(who.x, who.y, who.z, 3, who.realm)
+        if((item.objtype == 0x0faf) || (item.objtype == 0x0fb0))
+            anvil_near := 1;
+            break;
+        endif
+    endforeach
+    if(anvil_near == 0)
+        SendSysMessage(who, "You must be near an anvil to smith items.");
+        return;
     endif
-  endforeach
-  if(anvil_near == 0)
-    SendSysMessage(who, "You must be near an anvil to smith items.");
-    return;
-  endif
-  var tname, skil, material, pts, points, maxhp, itemname;
-  var nme, excmod, val, num, rint, word, theitem, holder;
-  SendSysMessage(who, "Select the ingots you wish to use.");
-  var use_on := Target(who);
-  if(!can_access(who, use_on))
-    return;
-  endif
-  if(!Accessible(who, use_on) || (Distance(who, use_on) > 2))
-    SendSysMessage(who, "You cannot use that.");
-    return;
-  endif
-  var is_ingot := 0;
-  var ptmod := 0;
-  case(use_on.objtype)
-    INGOT_COPPER:       is_ingot := 1; ptmod := 0;
-	INGOT_IRON:         is_ingot := 1; ptmod := 160;
-    INGOT_STEEL:        is_ingot := 1; ptmod := 160;
-    INGOT_ANRA:         is_ingot := 1; ptmod := 160;
-    INGOT_VALORITE:     is_ingot := 1; ptmod := 160;
-    INGOT_LAVAROCK:     is_ingot := 1; ptmod := 160;
-    INGOT_ICEROCK:      is_ingot := 1; ptmod := 160;
-    INGOT_SHADOW:       is_ingot := 1; ptmod := 160;
-    INGOT_AZURITE:      is_ingot := 1; ptmod := 160;
-    INGOT_DOOM:         is_ingot := 1; ptmod := 160;
-    INGOT_BLUESTEEL:    is_ingot := 1; ptmod := 160;
-    INGOT_DARKRUBY:     is_ingot := 1; ptmod := 160;
-    INGOT_CRYSTALIT:    is_ingot := 1; ptmod := 160;
-    INGOT_ONYX:         is_ingot := 1; ptmod := 160;
-    INGOT_MIFRIL:       is_ingot := 1; ptmod := 160;
-  endcase
-  if(is_ingot == 0)
-    SendSysMessage(who, "You can only use that on ingots!");
-    return;
-  endif
-  if(use_on.movable == 0)
-    SendSysMessage(who, "You cannot smith that.");
-    return;
-  endif
-  if(!checkSkillForDifferentMetals(who, use_on))
-    SendSysMessage(who, "You have no chance to successfully work with that metal.");
-    return;
-  endif
-  if(!Accessible(who, use_on))
-    SendSysMessage(who, "You don't have any ingots!");
-    return;
-  endif
-  if(!ReserveItem(use_on))
-    SendSysMessage(who, "That item is already in use.");
-    return;
-  endif
-  if(!what)
-    SendSysMessage(who, "Targetting cancelled");
-    return;
-  endif
-
-    var mount;
-    mount := GetEquipmentByLayer(who, 25);
-    if(mount)
-      SendSysMessage(who,"you cannot chop wood while on horseback.");
-      return;
-    endif
-  maxhp    := smith_cfg[what].maxhp;
-  itemname := smith_cfg[what].name;
-  material := CInt(smith_cfg[what].material);
-  skil     := CInt(smith_cfg[what].skill);
-  points   := CInt(smith_cfg[what].points) * 2;
-  var counter := 0;
-  var x := who.x;
-  var y := who.y;
-  var skchk := AP_GetSkill(who, BLACKSMITHY);
-  pts := getPoints(who, skil, pts);
-  excmod := CInt(AP_GetSkill(who, BLACKSMITHY) / 5);
-
-
-  var modpts := 0;
-  if(skchk > (skil - 20))
-    modpts := (skchk - skil);
-  endif
-
-  while(counter < amt)
-    if((who.x != x) || (who.y != y))
-      SendSysMessage(who, "You stop smithing.");
-      break;
-    endif
-    if(!hammer)
-      break;
+    var tname, skil, material, pts, points, maxhp, itemname;
+    var nme, excmod, val, num, rint, word, theitem, holder;
+    // SendSysMessage(who, "Select the ingots you wish to use.");
+    //var use_on := Target(who);
+    var use_on := resource;
+    var ptmod := 0;
+    var is_ingot:=0;
+    case(resource.objtype)
+        UOBJ_INGOT_COPPER:       is_ingot := 1; ptmod := 0;
+        UOBJ_INGOT_IRON:         is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_STEEL:        is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_ANRA:         is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_VALORITE:     is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_LAVAROCK:     is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_ICEROCK:      is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_SHADOW:       is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_AZURITE:      is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_DOOM:         is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_BLUESTEEL:    is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_DARKRUBY:     is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_CRYSTALIT:    is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_ONYX:         is_ingot := 1; ptmod := 160;
+        UOBJ_INGOT_MIFRIL:       is_ingot := 1; ptmod := 160;
+    endcase
+    if(!what)
+        SendSysMessage(who, "Targetting cancelled");
+        return;
     endif
 
-    if(GetAmount(use_on) >= material)
-		PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
-		sleep(1);
-		PlaySoundEffect(who, SFX_ANVIL);
-		PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
-		sleep(1);
-		PlaySoundEffect(who, SFX_ANVIL);
-		PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
-		sleep(1);
-		PlaySoundEffect(who, SFX_ANVIL);
-      pts := CInt(points + ptmod);
-                  var ar_mod := 0;
-                  var dmg_mod := 0;
-      if(SkillCheck(who, BLACKSMITHY, skil, pts))
-        nme := "";
+    maxhp    := smith_cfg[what].maxhp;
+    itemname := smith_cfg[what].name;
+    material := CInt(smith_cfg[what].material);
+    skil     := CInt(smith_cfg[what].skill);
+    points   := CInt(smith_cfg[what].points) * 2;
+    var counter := 0;
+    var x := who.x;
+    var y := who.y;
+    var skchk := AP_GetSkill(who, BLACKSMITHY);
+    pts := getPoints(who, skil, pts);
+    excmod := CInt(AP_GetSkill(who, BLACKSMITHY) / 5);
 
-        theitem := CreateItemInContainer(cont, what, 1);
-        if(theitem)
-          CheckToolWear(who, hammer, BLACKSMITHY);
-          //if(!theitem.isa(POLCLASS_WEAPON))
-            case(use_on.objtype)
-              INGOT_COPPER:     nme := ""              + itemname;
-	          INGOT_IRON:       nme := "iron "         + itemname; ar_mod:=1; dmg_mod:=1;
-              INGOT_STEEL:      nme := "steel "        + itemname; ar_mod:=2; dmg_mod:=2;
-              INGOT_ANRA:       nme := "anra "         + itemname; ar_mod:=3; dmg_mod:=3;
-              INGOT_VALORITE:   nme := "valorite "     + itemname; ar_mod:=4; dmg_mod:=4;
-              INGOT_LAVAROCK:   nme := "lavarock "     + itemname; ar_mod:=5; dmg_mod:=5;
-              INGOT_ICEROCK:    nme := "icerock "      + itemname; ar_mod:=6; dmg_mod:=6;
-              INGOT_SHADOW:     nme := "shadow "       + itemname; ar_mod:=7; dmg_mod:=7;
-              INGOT_AZURITE:    nme := "azurite "      + itemname; ar_mod:=8; dmg_mod:=8;
-              INGOT_DOOM:       nme := "doom "         + itemname; ar_mod:=9; dmg_mod:=9;
-              INGOT_BLUESTEEL:  nme := "bluesteel "    + itemname; ar_mod:=10; dmg_mod:=10;
-              INGOT_DARKRUBY:   nme := "darkruby "     + itemname; ar_mod:=11; dmg_mod:=11;
-              INGOT_CRYSTALIT:  nme := "crystalit "    + itemname; ar_mod:=12; dmg_mod:=12;
-              INGOT_ONYX:       nme := "onyx "         + itemname; ar_mod:=13; dmg_mod:=13;
-              INGOT_MIFRIL:     nme := "mifril "       + itemname; ar_mod:=14; dmg_mod:=14;
-            endcase
-         // else
-         //   nme := itemname;
-         // endif
 
-          theitem.color := use_on.color;
-          if(!SubtractAmount(use_on, material))
-            DestroyItem(theitem);
-            return;
-          endif
-          pts:=0;
-          AwardRawSkillPoints(who, SKILLID_BLACKSMITHY, pts);
-          rint := randomint(100);
-          SendSysMessage(who, "excmod: "+(excmod + modpts));
+    var modpts := 0;
+    if(skchk > (skil - 20))
+        modpts := (skchk - skil);
+    endif
 
-          if(rint <= 99) //(excmod + modpts) >= rint
-            theitem.quality := 1.2;
-            theitem.hp      := theitem.maxhp;
-            //theitem.ar      := ar_mod;
-            //theitem.ar_base      := ar_mod;
-            theitem.ar_mod      := (ar_mod * 2);
+    while(counter < amt)
+        if((who.x != x) || (who.y != y))
+            SendSysMessage(who, "You stop smithing.");
+            break;
+        endif
+        if(!hammer)
+            break;
+        endif
 
-            //weapon
-            theitem.dmg_mod := dmg_mod + 5;
-            //SetObjProperty(theitem,"Weapon_Speed",32767); //it work!
+        if(GetAmount(use_on) >= material)
+            PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
+            sleep(1);
+            PlaySoundEffect(who, SFX_ANVIL);
+            PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
+            sleep(1);
+            PlaySoundEffect(who, SFX_ANVIL);
+            PerformAction(who, ANIM_ATTACK_1HAND_WIDE);
+            sleep(1);
+            PlaySoundEffect(who, SFX_ANVIL);
+            pts := CInt(points + ptmod);
+            var ar_mod := 0;
+            var dmg_mod := 0;
+            var maxhp_mod := 0;
+            var quality_mod := 0;
+            if(SkillCheck(who, BLACKSMITHY, skil, pts))
+                nme := "";
 
-            ExceptionalFameMod(who, skchk, skil, CInt(points / 2));
-            SendSysMessage(who, "You make an exceptional item and put it in your pack");
-            tname := "an exceptional " + nme;
-            if(AP_GetSkill(who, BLACKSMITHY) >= 99)
-             // tname := "an exceptional " + nme + " [Crafted by " + who.name + "]";
-              SetObjProperty(theitem,"craftername",who.name);
-            //else
+                theitem := CreateItemInContainer(cont, what, 1);
+                if(theitem)
+                    CheckToolWear(who, hammer, BLACKSMITHY);
+                    //if(!theitem.isa(POLCLASS_WEAPON))
+                    case(use_on.objtype)
+                        UOBJ_INGOT_COPPER:     nme := ""              + itemname;
+                        UOBJ_INGOT_IRON:       nme := "iron "         + itemname; ar_mod:=1; dmg_mod:=1; maxhp_mod:=1; quality_mod:=0.1;
+                        UOBJ_INGOT_STEEL:      nme := "steel "        + itemname; ar_mod:=2; dmg_mod:=2; maxhp_mod:=2; quality_mod:=0.2;
+                        UOBJ_INGOT_ANRA:       nme := "anra "         + itemname; ar_mod:=3; dmg_mod:=3; maxhp_mod:=3; quality_mod:=0.3;
+                        UOBJ_INGOT_VALORITE:   nme := "valorite "     + itemname; ar_mod:=4; dmg_mod:=4; maxhp_mod:=4; quality_mod:=0.4;
+                        UOBJ_INGOT_LAVAROCK:   nme := "lavarock "     + itemname; ar_mod:=5; dmg_mod:=5; maxhp_mod:=5; quality_mod:=0.5;
+                        UOBJ_INGOT_ICEROCK:    nme := "icerock "      + itemname; ar_mod:=6; dmg_mod:=6; maxhp_mod:=6; quality_mod:=0.6;
+                        UOBJ_INGOT_SHADOW:     nme := "shadow "       + itemname; ar_mod:=7; dmg_mod:=7; maxhp_mod:=7; quality_mod:=0.7;
+                        UOBJ_INGOT_AZURITE:    nme := "azurite "      + itemname; ar_mod:=8; dmg_mod:=8; maxhp_mod:=8; quality_mod:=0.8;
+                        UOBJ_INGOT_DOOM:       nme := "doom "         + itemname; ar_mod:=9; dmg_mod:=9; maxhp_mod:=9; quality_mod:=1.0;
+                        UOBJ_INGOT_BLUESTEEL:  nme := "bluesteel "    + itemname; ar_mod:=10; dmg_mod:=10; maxhp_mod:=10; quality_mod:=1.1;
+                        UOBJ_INGOT_DARKRUBY:   nme := "darkruby "     + itemname; ar_mod:=11; dmg_mod:=11; maxhp_mod:=11; quality_mod:=1.2;
+                        UOBJ_INGOT_CRYSTALIT:  nme := "crystalit "    + itemname; ar_mod:=12; dmg_mod:=12; maxhp_mod:=12; quality_mod:=1.3;
+                        UOBJ_INGOT_ONYX:       nme := "onyx "         + itemname; ar_mod:=13; dmg_mod:=13; maxhp_mod:=13; quality_mod:=1.4;
+                        UOBJ_INGOT_MIFRIL:     nme := "mifril "       + itemname; ar_mod:=14; dmg_mod:=14; maxhp_mod:=14; quality_mod:=1.5;
+                    endcase
+                    // else
+                        //   nme := itemname;
+                    // endif
 
-            endif
-          else
-            theitem.dmg_mod := dmg_mod;
-            rint := randomint(100);
-            holder := GetBaseMod(skchk, skil, (excmod - 3));
-            if(rint < holder)
-              SendSysMessage( who, "You create the item, but it's quality is below average." );
-              val := randomint(2) + 1;
-              case(val)
-                1: theitem.quality := 0.7;
-                2: theitem.quality := 0.8;
-                3: theitem.quality := 0.9;
-              endcase
-              theitem.hp := theitem.maxhp;
+                    theitem.color := use_on.color;
+                    if(!SubtractAmount(use_on, material))
+                        DestroyItem(theitem);
+                        return;
+                    endif
+                    pts:=0;
+                    AwardRawSkillPoints(who, SKILLID_BLACKSMITHY, pts);
+                    rint := RandomInt(99)+1;
+                    SendSysMessage(who, "excmod: "+(excmod + modpts));
+
+                    var premium := who.IsPremium();
+                    var excmod := 10;
+                    case(premium)
+                        1: excmod := add_percent(excmod, 5);
+                        2: excmod := add_percent(excmod, 10);
+                        3: excmod := add_percent(excmod, 15);
+                    endcase
+
+                    if(rint <= excmod) //(excmod + modpts) >= rint
+                        var q:=1.2;
+                        theitem.quality := q + quality_mod;
+                        theitem.hp          := theitem.maxhp;
+                        theitem.ar_mod      := (ar_mod * 2);
+
+                        //weapon
+                        theitem.dmg_mod := dmg_mod;
+                        //SetObjProperty(theitem,"Weapon_Speed",32767); //it work!
+
+                        ExceptionalFameMod(who, skchk, skil, CInt(points / 2));
+                        SendSysMessage(who, "You make an exceptional item and put it in your pack");
+                        tname := "an exceptional " + nme;
+                        if(AP_GetSkill(who, BLACKSMITHY) >= 99)
+                         // tname := "an exceptional " + nme + " [Crafted by " + who.name + "]";
+                          SetObjProperty(theitem,"craftername",who.name);
+                        //else
+                    endif
+                else
+                    theitem.dmg_mod := dmg_mod;
+                    rint := randomint(100);
+                    holder := GetBaseMod(skchk, skil, (excmod - 3));
+                    if(rint < holder)
+                        SendSysMessage( who, "You create the item, but it's quality is below average." );
+                        val := randomint(2) + 1;
+                        case(val)
+                            1: theitem.quality := 0.7;
+                            2: theitem.quality := 0.8;
+                            3: theitem.quality := 0.9;
+                        endcase
+                        theitem.hp := theitem.maxhp;
+                    else
+                        SendSysMessage( who, "You create the item and place it in your pack." );
+                        theitem.quality := 1.0;
+                        theitem.hp := theitem.maxhp;
+                    endif
+                    theitem.ar_mod      := 10;
+                    theitem.ar_base      := 10;
+                    if((nme[1] == "a") || (nme[1] == "e") || (nme[1] == "i") || (nme[1] == "o") || (nme[1] == "u"))
+                        word := "an ";
+                    else
+                        word := "a ";
+                    endif
+                    tname := "" + word + nme;
+                endif
+                SetName(theitem, tname);
             else
-              SendSysMessage( who, "You create the item and place it in your pack." );
-              theitem.quality := 1.0;
-              theitem.hp := theitem.maxhp;
+                SendSysMessage(who, "Could not fit item in backpack. Aborting.");
+                break;
             endif
-            theitem.ar_mod      := 10;
-            theitem.ar_base      := 10;
-            if((nme[1] == "a") || (nme[1] == "e") || (nme[1] == "i") || (nme[1] == "o") || (nme[1] == "u"))
-              word := "an ";
-            else
-              word := "a ";
-            endif
-            tname := "" + word + nme;
-          endif
-          SetName(theitem, tname);
         else
-          SendSysMessage(who, "Could not fit item in backpack. Aborting.");
-          break;
+            var baseskill := GetBaseSkillBaseValue(who, SKILLID_BLACKSMITHY);
+            if(baseskill < 100)
+                pts := pts / 2;
+                AwardPoints( who, SKILLID_BLACKSMITHY, pts);
+            endif
+            num := CInt(randomint(material) /2);
+            SubtractAmount(use_on, num);
+            SendSysMessage(who, "You destroy some ingots.");
         endif
-      else
-        var baseskill := GetBaseSkillBaseValue(who, SKILLID_BLACKSMITHY);
-        if(baseskill < 100)
-          pts := pts / 2;
-          AwardPoints( who, SKILLID_BLACKSMITHY, pts);
-        endif
-        num := CInt(randomint(material) /2);
-        SubtractAmount(use_on, num);
-        SendSysMessage(who, "You destroy some ingots.");
-      endif
     else
-      SendSysMessage(who, "You don't have enough ingots!");
-      return;
+        SendSysMessage(who, "You don't have enough ingots!");
+        return;
     endif
     counter := counter + 1;
-  endwhile
+    endwhile
 endfunction
 
 function GetBaseMod(skill, diff, emod)
-  var holder := 0;
-  var smax := diff + 20;
-  var smin := diff - 20;
-  if(skill > smax)
-    holder := 20;
-  elseif((skill <= smax) and (skill >= smin))
-    holder := 20 + CInt((smax - skill) / 2);
-  else
-    holder :=  40;
-  endif
-  return CInt(holder - emod);
+    var holder := 0;
+    var smax := diff + 20;
+    var smin := diff - 20;
+    if(skill > smax)
+        holder := 20;
+    elseif((skill <= smax) and (skill >= smin))
+        holder := 20 + CInt((smax - skill) / 2);
+    else
+        holder :=  40;
+    endif
+    return CInt(holder - emod);
 endfunction
 
 function ExceptionalFameMod(who, skill, diff, points)
-  if(skill > diff - 20)
-    diff := diff + 20;
-    if((skill - diff) <= 5)
-      points := points;
-    elseif((skill - diff) <= 10)
-      points := (points * 3) / 4;
-    elseif((skill - diff) <= 15)
-      points := points / 2;
-    elseif((skill - diff) <= 20)
-      points := points / 4;
-    else
-      points := 0;
+    if(skill > diff - 20)
+        diff := diff + 20;
+        if((skill - diff) <= 5)
+            points := points;
+        elseif((skill - diff) <= 10)
+            points := (points * 3) / 4;
+        elseif((skill - diff) <= 15)
+            points := points / 2;
+        elseif((skill - diff) <= 20)
+            points := points / 4;
+        else
+            points := 0;
+        endif
+        points := CInt(points);
+        var fame := CInt(GetObjProperty(who, "Fame"));
+        var famegain := fame + points;
+        SetObjProperty(who, "Fame", famegain);
+        var msgtext := "You have ";
+        if(points < 0)
+            msgtext := msgtext + "lost ";
+            points := Abs(points);
+        else
+            msgtext := msgtext + "gained ";
+        endif
+        if(points > 150)
+            msgtext := msgtext + "a great amount of ";
+        elseif(points > 125)
+            msgtext := msgtext + "alot of ";
+        elseif(points > 75)
+            msgtext := msgtext + "a good amount of ";
+        elseif(points > 30)
+            msgtext := msgtext + "some ";
+        elseif(points > 0)
+            msgtext := msgtext + "a little ";
+        else
+            return 0;
+        endif
+        msgtext := msgtext + "Fame.";
+        SendSysMessage(who, msgtext);
+        var karma := CInt(GetObjProperty(who, "Karma"));
+        var kmod := GetKarmaLevel(karma);
+        var fmod := GetFameLevel(famegain);
+        var newtitle := nototitles[ (kmod) ];
+        newtitle := "The " + CStr(newtitle[fmod]) + " ";
+        if(newtitle["None"])
+            newtitle := "";
+        endif
+        if(fmod == 5)
+            if(who.gender == 1)
+                newtitle := newtitle + "Lady ";
+            else
+                newtitle := newtitle + "Lord ";
+            endif
+        endif
+        if(newtitle != who.title_prefix)
+            who.title_prefix := newtitle;
+            SendSysMessage(who, "You are now known as " + newtitle + who.name);
+        endif
+        SetNotoTitle(who, karma, fame);
     endif
-    points := CInt(points);
-    var fame := CInt(GetObjProperty(who, "Fame"));
-    var famegain := fame + points;
-    SetObjProperty(who, "Fame", famegain);
-    var msgtext := "You have ";
-    if(points < 0)
-      msgtext := msgtext + "lost ";
-      points := Abs(points);
-    else
-      msgtext := msgtext + "gained ";
-    endif
-    if(points > 150)
-      msgtext := msgtext + "a great amount of ";
-    elseif(points > 125)
-      msgtext := msgtext + "alot of ";
-    elseif(points > 75)
-      msgtext := msgtext + "a good amount of ";
-    elseif(points > 30)
-      msgtext := msgtext + "some ";
-    elseif(points > 0)
-      msgtext := msgtext + "a little ";
-    else
-      return 0;
-    endif
-    msgtext := msgtext + "Fame.";
-    SendSysMessage(who, msgtext);
-    var karma := CInt(GetObjProperty(who, "Karma"));
-    var kmod := GetKarmaLevel(karma);
-    var fmod := GetFameLevel(famegain);
-    var newtitle := nototitles[ (kmod) ];
-    newtitle := "The " + CStr(newtitle[fmod]) + " ";
-    if(newtitle["None"])
-      newtitle := "";
-    endif
-    if(fmod == 5)
-      if(who.gender == 1)
-        newtitle := newtitle + "Lady ";
-      else
-        newtitle := newtitle + "Lord ";
-      endif
-    endif
-    if(newtitle != who.title_prefix)
-      who.title_prefix := newtitle;
-      SendSysMessage(who, "You are now known as " + newtitle + who.name);
-    endif
-    SetNotoTitle(who, karma, fame);
-  endif
 endfunction
 
 function getPoints(who, diff, pts)
-  var skill := AP_GetSkill(who, BLACKSMITHY);
-  if(diff > 20)
-    diff := diff - 20;
-  else
-    diff := 1;
-  endif
-  if(skill > diff)
-    if((skill - diff) <= 5)
-      pts := pts;
-    elseif((skill - diff) <= 10)
-      pts := (pts * 3) / 4;
-    elseif((skill - diff) <= 15)
-      pts := pts / 2;
-    elseif((skill - diff) <= 20)
-      pts := pts / 4;
+    var skill := AP_GetSkill(who, BLACKSMITHY);
+    if(diff > 20)
+        diff := diff - 20;
     else
-      pts := 0;
+        diff := 1;
     endif
-  endif
-  return pts;
+    if(skill > diff)
+        if((skill - diff) <= 5)
+            pts := pts;
+        elseif((skill - diff) <= 10)
+            pts := (pts * 3) / 4;
+        elseif((skill - diff) <= 15)
+            pts := pts / 2;
+        elseif((skill - diff) <= 20)
+            pts := pts / 4;
+        else
+            pts := 0;
+        endif
+    endif
+    return pts;
 endfunction
 
 function checkSkillForDifferentMetals(who, ingot)
-  case( ingot.objtype )
-    INGOT_COPPER:       return(checkHisSkill(who,  0)); //copper
-	INGOT_IRON:         return(checkHisSkill(who, 60)); //iron
-    INGOT_STEEL:        return(checkHisSkill(who, 70)); //Steel
-    INGOT_ANRA:         return(checkHisSkill(who, 80)); //Anra
-    INGOT_VALORITE:     return(checkHisSkill(who, 90)); //Valurit
-    INGOT_LAVAROCK:     return(checkHisSkill(who, 95)); //Lavarock
-    INGOT_ICEROCK:      return(checkHisSkill(who, 100)); //Icerock
-    INGOT_SHADOW:       return(checkHisSkill(who, 105)); //Shadow
-    INGOT_AZURITE:      return(checkHisSkill(who, 110)); //Azurite
-    INGOT_DOOM:         return(checkHisSkill(who, 115)); //Doom
-    INGOT_BLUESTEEL:    return(checkHisSkill(who, 120)); //BlueSteel
-    INGOT_DARKRUBY:     return(checkHisSkill(who, 128)); //DarkRuby
-    INGOT_CRYSTALIT:    return(checkHisSkill(who, 135)); //Crystalit
-    INGOT_ONYX:         return(checkHisSkill(who, 140)); //Onyx
-    INGOT_MIFRIL:       return(checkHisSkill(who, 145)); //Mifril
-    default:  SendSysMessage(who, "You can't forge that.");
-  endcase
+    case( ingot.objtype )
+        UOBJ_INGOT_COPPER:       return(checkHisSkill(who,  0)); //copper
+        UOBJ_INGOT_IRON:         return(checkHisSkill(who, 60)); //iron
+        UOBJ_INGOT_STEEL:        return(checkHisSkill(who, 70)); //Steel
+        UOBJ_INGOT_ANRA:         return(checkHisSkill(who, 80)); //Anra
+        UOBJ_INGOT_VALORITE:     return(checkHisSkill(who, 90)); //Valurit
+        UOBJ_INGOT_LAVAROCK:     return(checkHisSkill(who, 95)); //Lavarock
+        UOBJ_INGOT_ICEROCK:      return(checkHisSkill(who, 100)); //Icerock
+        UOBJ_INGOT_SHADOW:       return(checkHisSkill(who, 105)); //Shadow
+        UOBJ_INGOT_AZURITE:      return(checkHisSkill(who, 110)); //Azurite
+        UOBJ_INGOT_DOOM:         return(checkHisSkill(who, 115)); //Doom
+        UOBJ_INGOT_BLUESTEEL:    return(checkHisSkill(who, 120)); //BlueSteel
+        UOBJ_INGOT_DARKRUBY:     return(checkHisSkill(who, 128)); //DarkRuby
+        UOBJ_INGOT_CRYSTALIT:    return(checkHisSkill(who, 135)); //Crystalit
+        UOBJ_INGOT_ONYX:         return(checkHisSkill(who, 140)); //Onyx
+        UOBJ_INGOT_MIFRIL:       return(checkHisSkill(who, 145)); //Mifril
+        default:  SendSysMessage(who, "You can't forge that.");
+    endcase
 endfunction
 
 function checkHisSkill(who, skill)
-  var his_skill := AP_GetSkill(who, BLACKSMITHY);
-  if(his_skill >= skill)
-    return 1;
-  else
-    return 0;
-  endif
+    var his_skill := AP_GetSkill(who, BLACKSMITHY);
+    if(his_skill >= skill)
+        return 1;
+    else
+        return 0;
+    endif
 endfunction
 
 

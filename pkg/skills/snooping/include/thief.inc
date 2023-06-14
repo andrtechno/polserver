@@ -29,9 +29,9 @@ function needGloves(who)
 endfunction
 
 function tellplayers(who)
-	var targets:=ListMobilesNearLocation(who.x, who.y, who.z, 10,who.realm);
+	var targets:=ListMobilesNearLocation(who.x, who.y, who.z, 10, who.realm);
 	foreach mobile in targets
-		if ((mobile.serial!=who.serial) && (mobile.dead==0) && (!mobile.criminal))
+		if ((mobile.serial!=who.serial) && (mobile.dead==0) && (!mobile.criminal) && (!mobile.npctemplate))
 			SendSysMessage(mobile, "You notice "+who.name+" stealing!");
 		elseif(mobile.serial==who.serial)
 			SendSysMessage(who, "You are caught stealing!");
@@ -50,9 +50,11 @@ endfunction
 
 function GetDiff(who, victim)
     var skill := GetEffectiveSkill( who, SKILLID_SNOOPING );
+print("skill"+skill);
     var whoskill := CInt(skill/4) + CInt(GetDexterity(who)/4);                     // max 60
+print("whoskill"+whoskill);
     var victimskill := CInt(GetDexterity(victim)/6) + CInt(GetIntelligence(victim)/4) + 10; // max 60
     var chance := victimskill - whoskill + 50;
-    //SendSysMessage(who, "chance: "+chance);
+    SendSysMessage(who, "chance: "+chance);
     return chance;
 endfunction

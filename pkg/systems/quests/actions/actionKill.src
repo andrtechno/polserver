@@ -53,7 +53,6 @@ program actionKill(params)
 
     //var test:=EncodeBase64(currentActions);
     //var test2:=EncodeBase64(killActions);
-    //print(test);
-    //print(test2);
+
 
 endprogram

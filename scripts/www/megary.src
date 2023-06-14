@@ -1,0 +1,49 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+use PolSys;
+use os;
+
+include "include/client";
+
+WriteHtml( "<html><head><meta charset=\"utf-8\"><title>Commands</title></head>" +
+    "<body>");
+var npccfgfile := ReadConfigFile(":magery:spells");
+var list := GetConfigStringKeys( npccfgfile );
+WriteHtml( "<h1 name=\"title\">magery</h1>" +
+    "<table border=1 cellspacing=0 cellpadding=5>" +
+    "<tr bgcolor=#99CCFF><th>Название</th><th>Круг</th><th>Мана</th><th>Каст на ходу</th><th>DamageType</th><th>damage</th><th>Reags</th></tr>");
+
+	foreach spell in ( list )
+        var elem := FindConfigElem(npccfgfile, spell);
+        var regs := GetConfigStringArray(elem, "RegCost");
+        WriteHtml("<tr>" +
+                "<td>"+npccfgfile[spell].Name+"<br>"+npccfgfile[spell].PowerWords+" </td>" +
+                "<td>"+npccfgfile[spell].Circle+" </td>" +
+                "<td>"+npccfgfile[spell].ManaCost+"</td>" +
+                "<td>"+((npccfgfile[spell].CastSpot) ?"no":"yes")+"</td>" +
+                "<td>"+npccfgfile[spell].DamageType+"</td>" +
+                "<td>"+npccfgfile[spell].MinBaseDamage+" - "+npccfgfile[spell].MaxBaseDamage+"</td>" +
+                "<td>"+reags(regs)+"</td>" +
+        "</tr>");
+
+	endforeach
+	
+WriteHtml( "</table>" );
+
+
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+function reags(regs)
+    var result := "";
+	foreach reg in ( regs )
+	    var regsp := SplitWords(reg);
+	    print(regsp);
+	    result += regsp[1]+" - "+regsp[2]+"<br>";
+	endforeach
+	return result;
+endfunction

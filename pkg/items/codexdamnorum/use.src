@@ -1,0 +1,49 @@
+use uo;
+use os;
+use cfgfile;
+
+//include "include/spelldata";
+
+program use_scroll(who, scroll)
+
+    if(!ReserveItem(scroll))
+		SendSysMessage(who, "This scroll is in use");
+		return;
+    endif
+
+
+    var scroll_objtype := scroll.objtype;
+
+	set_critical(1);
+	//if (scroll.amount)
+		var spellid := CInt(GetObjProperty(scroll, "SpellID"));
+		SubtractAmount(scroll, 1);
+		//SetObjProperty(who, "CastingOpts", "NOREGS");
+
+
+		var spellcfg := ReadConfigFile( ":codexdamnorum:spells" );
+    	//var script := spellcfg[spellid].script;
+
+    	//var spell := GetScript( spellid );
+        //var spell := ":codexdamnorum:" + script;
+
+
+
+		//SetObjProperty( who, "#Casting", 1 );
+
+		//start_script( spell, who );
+
+
+
+        var script := Start_Script(":magery:spellStarter", {who, spellid, scroll_objtype});
+        if ( script.errortext )
+            SendSysMessage(who, "Error - Could not start spell starter ->"+script.errortext);
+            return 0;
+        endif
+
+		//while( GetObjProperty( who, "#Casting" ) )
+		//	sleepms( 250 );
+		//endwhile
+	//endif
+	return 1;
+endprogram

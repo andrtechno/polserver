@@ -1,0 +1,32 @@
+use uo;
+use os;
+use unicode;
+
+include "include/client";
+
+
+program textcmd_use( who, text )
+    var obj;
+    case(text)
+        "tamla":    obj := 0x2dc19;
+        "invis":    obj := 0x2DC22;
+        "cure":     obj := 0x2DC16;
+        "refresh":  obj := 0x2DC0E;
+    endcase
+
+    if(!obj)
+        SendSysMessage(who, "Error object.", 3, MESSAGE_COLOR_BAD);
+        return;
+    endif
+
+    var item := FindObjtypeInContainer(who.backpack, obj);
+    if(!item)
+        SendSysMessageUC(who, "Объект "+text+" не найден.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return;
+    endif
+
+    UseItem( item, who );
+
+    return 1;
+endprogram
+

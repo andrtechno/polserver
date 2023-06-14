@@ -1,6 +1,6 @@
 use uo;
 use os;
-use cfgfile;
+use datafile;
 
 include ":gumps:requestGump";
 include ":timeutils:time";
@@ -8,25 +8,65 @@ include ":timeutils:time";
 
 program textcmd_bug_reporter_script( who )
 
-
-    var prop1 := {};
-    var log1 := {};
-    var w1, description, elemkey;
+    var w1, description;
 	var time := FormatTime(GetTimeStruct(GetTime()), "<HH>:<MM>:<SS> on <DAY>-<MON>-<YY>");
 
-    description := RequestGump2(who, "Enter a description of the bug:", "", "", 1);
+    w1 := TargetCoordinates(who);
+
+    if (!w1)
+        SendSysMessage (who, "Cancelled.", color := 33);
+        return;
+    endif
+    SendSysMessage( who, "X=" + w1.x + ", Y=" + w1.y + ", Z=" + w1.z + ", Realm: " +  w1.realm, color := 88 );
+    description := RequestGumpEx(who, "Enter a description of the bug:", "", "", 1);
 
 	if(description == error)
 		SendSysMessage(who, "Cancelled.", color := 33);
 		return 0;
 	endif
-	
-    prop1 .+ pname := "Date and time: " + time + " - " + who.x + " " + who.y + " " + who.z;
-        prop1 .+ pvalue := w1.realm + " - Player Account: " + who.acctname;
 
-    elemkey := description;
-    log1[1] := prop1;
-    AppendConfigFileElem( "bug_reports", "Location: ", elemkey, log1 );
-    UnloadConfigFile("map_issues");
+
+    var data_file := TT_GetDataFile();
+    var data_elem_settings := TT_GetDatafileElem("Settings");
+    data_elem_settings.SetProp("nextKey", CInt(data_elem_settings.GetProp("nextKey")) + 1);
+    var nextKey := CInt(data_elem_settings.GetProp("nextKey"));
+
+    var data_elem := TT_GetDatafileElem(nextKey);
+
+    data_elem.SetProp("Account", who.acctname);
+    data_elem.SetProp("PlayerName", who.name);
+    data_elem.SetProp("Time", time);
+    data_elem.SetProp("Realm", w1.realm);
+    data_elem.SetProp("Description", description);
+    data_elem.SetProp("TargetLocation", w1.x + " " + w1.y + " " + w1.z);
 
 endprogram
+
+
+
+
+function TT_GetDataFile()
+    var datafile := OpenDataFile( "bugmap" );
+    if( !datafile )
+        CreateDataFile( "bugmap" , DF_KEYTYPE_STRING );
+        datafile := OpenDataFile( "bugmap"  );
+    endif
+    return datafile;
+endfunction
+
+
+function TT_GetDatafileElem(elem_name )
+
+    var datafile := TT_GetDataFile();
+    var data_elem := datafile.FindElement( CStr( elem_name ) );
+    if( !data_elem )
+        data_elem := datafile.CreateElement( CStr( elem_name ) );
+    endif
+
+    if( data_elem.errortext )
+        SysLog( "Error::TT_GetDatafileElem() - Unable to find elem ["+elem_name+"] -> "+data_elem.errortext );
+        return error{"errortext":="Error::TT_GetDatafileElem() - Unable to find elem ["+elem_name+"] -> "+data_elem.errortext};
+    endif
+
+    return data_elem;
+endfunction

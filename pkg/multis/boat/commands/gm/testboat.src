@@ -1,0 +1,28 @@
+use uo;
+use os;
+use boat;
+include "include/client";
+include ":attributes:attributes";
+
+program textcmd_WhereBoat( mobile )
+
+
+    AwardRawSkillPoints(mobile, SKILLID_BLACKSMITHY, 1.0);
+
+    var i := 3;
+    var boat := SystemFindBoatBySerial(0x4010b3cf);
+    //MoveObjectToLocation(boat, boat.x, boat.y, -5, boat.realm, MOVEOBJECT_NORMAL);
+    var z := boat.z;
+    var counter := 0;
+    while ( counter < 3 )
+        //MoveObjectToLocation(boat, boat.x, boat.y, z - i, boat.realm, MOVEOBJECT_NORMAL);
+        sleep(1);
+        i -= 1;
+        counter+=1;
+    endwhile
+
+    //print(boat.multiid);
+   // print(boat);
+
+	return 1;
+endprogram

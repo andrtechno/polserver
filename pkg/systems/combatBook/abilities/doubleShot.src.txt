@@ -1,0 +1,15 @@
+use uo;
+use unicode;
+
+//include ":itemUtils:itemtypes";
+include ":damage:damage";
+
+program ability_doubleShot(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var damage := params[3];
+
+    ApplyRawDamageEX(defender, damage/2, DMG_FORCED, attacker);
+
+    return 1;
+endprogram

@@ -1,0 +1,10 @@
+use uo;
+
+include ":merchantSpawn:merchantSpawn";
+
+program textcnd_removevendors(who)
+
+    foreach thing in ListItemsInBoxOfObjType( 0x1887A, 0, 0, -100, 6143, 4095, 100, who.realm )
+        DestroyItem(thing);
+    endforeach
+endprogram

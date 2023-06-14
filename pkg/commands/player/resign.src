@@ -2,7 +2,7 @@ use uo;
 use os;
 use guilds;
 
-include "include/yesNo";
+include ":gumps:confirmationSizable";
 
 program use_guild_stone(who)
   EraseObjProperty(who, "IsMeditating");
@@ -14,9 +14,9 @@ endprogram
 
 function resign(guild,who)
   SendSysMessage(who, "Are you sure you want to resign?",3,34);
-  var answer:=YesNo(who, "Quit Guild?");
+  var answer:=confirmationSizable(who, "Quit Guild?");
   if(!answer)
-    SendSysMessage(who, "Cancelled.",3,34);
+    SendSysMessage(who, "Canceled.",3,34);
     return;
   endif
   var gm:=findgm(guild);

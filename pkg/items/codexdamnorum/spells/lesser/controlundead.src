@@ -1,0 +1,105 @@
+use uo;
+use os;
+
+include "include/math";
+include ":charclasses:classes";
+include "include/client";
+include ":attributes:attributes";
+include ":magery:spells";
+include ":guards:areas";
+
+
+program cast_controlundead( parms )
+
+print("cast_controlundead");
+	var caster := parms[1];
+	var info := parms[2];
+	var circle := info.circle;
+	var cast_on;
+	var fromhit;
+
+	if (parms[1] == "#MOB")
+		caster := parms[2];
+		cast_on := parms[3];
+		if (parms[4])
+			circle := parms[4];
+		endif
+		if (parms[5])
+			fromhit := parms[5];
+		endif
+
+	else
+		caster := parms;
+		/*if( TryToCast( caster, SPELLID_CONTROL_UNDEAD ) != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+
+		if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+            SendSysMessage(caster, "You cannot cast this kind of spell here.");
+	        return 0;
+        endif
+
+
+
+        cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS + TGTOPT_HARMFUL);
+        if (!cast_on) // If no cast_on then get cast_on from params[4]. Used mostly for NPC casting.
+            cast_on := parms[4];
+        endif
+	endif
+
+
+
+		//cast_on := Reflected( caster, cast_on, circle );
+				    if(Reflected(cast_on, caster, struct{}))
+                        cast_on := caster;
+                    endif
+
+
+
+	if( GetObjProperty( cast_on, "Type" ) != "Undead" )
+		SendSysMessage( caster, "That isn't an undead!" );
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif
+
+	if( GetObjProperty( cast_on, "untamable" ) )
+		SendSysMessage( caster, "You can't take the control of this creature." );
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif
+
+	PlaySoundEffect( caster, 0 );
+
+	/*var protected := IsProtected( caster, cast_on, circle );
+	if( protected == IMMUNED )
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif*/
+
+	//var duration := ModifyWithMagicEfficiency( caster, GetEffectiveSkill( caster, SKILLID_MAGERY ) * 3 );
+	var duration := 10;
+	/*var protect := GetResultingPlaneProtection( cast_on, plane );
+	if( protect )
+		duration := duration - ( duration * protect * 0.25 );
+		if( duration < 1 )
+			SendSysMessage( caster, "This undead is immuned to your spell!" );
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif
+	endif*/
+
+	var oldscript := cast_on.script;
+	SetObjProperty( cast_on, "master", caster.serial );
+	SetObjProperty( cast_on, "Charmed", 1 );
+	cast_on.script := "tamed";
+	RestartScript( cast_on );
+
+	EraseObjProperty( caster, "#Casting" );
+	sleep( duration );
+
+	cast_on.script := oldscript;
+	RestartScript( cast_on );
+	EraseObjProperty( cast_on, "master" );
+
+endprogram

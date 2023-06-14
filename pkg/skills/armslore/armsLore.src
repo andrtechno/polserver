@@ -24,14 +24,14 @@ program do_armslore( who )
     SendSysMessage(who, "Targetting cancelled.");
     return;
   endif
-  var cfg := ReadConfigFile(":combat:itemdesc");
-  var entry := cfg[the_item.objtype];
-  if(!entry)
+  if( (!the_item.IsA(POLCLASS_ARMOR)) && (!the_item.IsA(POLCLASS_WEAPON)) )
     SendSysMessage(who, "You can only use this skill on weapons or armor!");
     return;
   endif
-  var pts := CInt(GetAttribute(who, ARMSLORE)) + 15;
-  if(SkillCheck(who,ARMSLORE, -1, pts/3))
+  var cfg := ReadConfigFile(":*:itemdesc");
+  var entry := cfg[the_item.objtype];
+  var pts := CInt(GetAttribute(who, ARMS_LORE)) + 15;
+  if(SkillCheck( who,ARMS_LORE, -1, pts/3 ) > 0)
     var item_max_hp := the_item.maxhp;
     var max_hp := item_max_hp;
     var hp := the_item.hp;
@@ -69,6 +69,10 @@ program do_armslore( who )
       quality_descr := "low";
     endif
     SendSysMessage(who, "This item is of " + quality_descr + " quality, and is in " + damage_descr + " condition.");
+    print("max_hp"+max_hp);
+    print("hp"+hp);
+    the_item.hp := max_hp;
+    //the_item.hp := the_item.hp - 1;
   else
     SendSysMessage(who, "I can't quite tell . . .");
   endif

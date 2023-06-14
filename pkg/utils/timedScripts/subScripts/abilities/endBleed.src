@@ -1,0 +1,20 @@
+use cliloc;
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include "include/client";
+
+program TimedScript_EndBleed(params)
+	var mobile := params[1];
+	
+	var cfg_elem := TS_GetCfgElem("Bleed");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Bleed");
+	SendSysMessageCL(mobile, 1060167, font := 3, color := MESSAGE_COLOR_GOOD);
+	return 1;
+endprogram
+

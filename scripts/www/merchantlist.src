@@ -1,10 +1,12 @@
 use os;
 use uo;
 use http;
+use storage;
 
-include "include/myUtil";
+include "include/utility";
 
-WriteHtml("<html><head><title>Zulu Shard Merchants</title>" );
+
+WriteHtml("<html><head><title>Merchants</title>" );
 WriteHtml("<body bgcolor=FFFFFF text=000000 link=0000FF vlink=800080 alink=FF0000>" );
 Writehtml("<p>");
 
@@ -40,3 +42,13 @@ foreach merchantserial in playermerchantlist
 endforeach
 
 WriteHTML ("</body></html>");
+
+function ListRootItemsInContainer(container)
+  var ret := { };
+  foreach item in EnumerateItemsInContainer(container)
+    if (item.container.serial == container.serial)
+	  ret.append(item);
+    endif
+  endforeach
+  return ret;
+endfunction

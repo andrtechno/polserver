@@ -15,7 +15,6 @@ exported function HandleDoubleClick( mobile, byref packet )
 		// Change the cprop name...
 		if( GetObjProperty( mobile, "FarSightInfo" ) )
 			SendSysMessageCL( mobile, 1078497, color := 33); // You cannot use that right now.
-			print("HandleDoubleClick");
 			return 1;
 		endif
 	endif

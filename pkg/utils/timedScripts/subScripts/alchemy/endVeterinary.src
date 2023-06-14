@@ -1,0 +1,17 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndVeterinary(params)
+	var mobile := params[1];
+
+    var cfg_elem := TS_GetCfgElem("Veterinary");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	EraseObjProperty(mobile, "Veterinary");
+    mobile.delbuff(buff_icon);
+	return 1;
+endprogram
+

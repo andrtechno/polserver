@@ -1,6 +1,6 @@
 use uo;
 
-include "util/key";
+include ":keys:key";
 
 program relock( who )
 
@@ -19,10 +19,10 @@ program relock( who )
        return;
     endif
 
-    var lockid := GetObjProperty(key, "lockid");
+    var LockID := key.GetLockId();
 
-    SetObjProperty( lockeditem, "lockid", lockid );
-   
+    SetObjProperty( lockeditem, "LockID", LockID );
+
     SendSysMessage( who, "Changed the item to match that key." );
 
 endprogram

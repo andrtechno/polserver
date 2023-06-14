@@ -37,7 +37,6 @@ program textcmd_setskill( who, text )
 	endif
 	
 	if( SetBaseSkillBaseValue( mobile, skillid, Cint(level*10.0) ) )
-	    VitalClassCharacter(mobile, skillid);
 		SendSysMessage( who, "New Effective Skill is " + GetTrueEffectiveSkill( mobile, skillid ) );
 	else
 		SendSysMessage( who, "Unable to set the skill." );

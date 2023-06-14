@@ -7,24 +7,27 @@ include ":saver:saveOpts";
 include "util/bank";
 
 while (1)
-  sleep( MINUTES_BETWEEN_SAVES * 60 );
-  BroadcastUC(CAscZ("Сохранение игрового мира поизойдёт через 60 секунд."), "RUS", 3, 0x25);
-  sleep(60);
-  accountcheck();
-  syslog( "Saving World State" );
- // Broadcast( "Saving World State" );
-  BroadcastUC(CAscZ("Сохранение игрового мира..."), "RUS", 3, 0x25);
-  var duration := ReadGameClock();
-  var res := SaveWorldState();
-  duration := ReadGameClock() - duration;
-  BroadcastUC(CAscZ("Сохранение завершено."), "RUS", 3, 0x25);
-  if (res)
-    SetGlobalProperty( "#:saver:lastsave", ReadGameClock() );
-    syslog( "World state saved (" + duration + " seconds)" );
-  else
-    Broadcast( "Error saving world state!  Oh, the humanity!" );
-    syslog( "Error saving world state: " + res );
-  endif
+    sleep( MINUTES_BETWEEN_SAVES * 60 );
+    BroadcastUC("Сохранение игрового мира поизойдёт через 60 секунд.", "RUS", 3, 0x25);
+    sleep(60);
+		var verify_NPCs := Start_Script( ":npcs:verifySpecialNPCs", {} );
+		if( !verify_NPCs )
+			Print( "Error --> saver.src - Could not start verifySpecialNPCs.src." );
+		endif
+    accountcheck();
+    syslog( "Saving World State" );
+    BroadcastUC("Сохранение игрового мира...", "RUS", 3, 0x25);
+    var duration := ReadGameClock();
+    var res := SaveWorldState();
+    duration := ReadGameClock() - duration;
+    BroadcastUC("Сохранение завершено.", "RUS", 3, 0x25);
+    if (res)
+        SetGlobalProperty( "#:saver:lastsave", ReadGameClock() );
+        syslog( "World state saved (" + duration + " seconds)" );
+    else
+        Broadcast( "Error saving world state!  Oh, the humanity!" );
+        syslog( "Error saving world state: " + res );
+    endif
 endwhile
 
 function accountcheck()
@@ -76,7 +79,7 @@ function DeleteAccount(acctname, act);
           if(thing.objtype == 0x1F021)
             ms := GetObjProperty(thing, "serial");
             mt := SystemFindObjectBySerial(ms);
-            ApplyRawDamage(mt, 2000);
+            mt.Kill();
           endif
           MoveItemToContainer(thing, chr.backpack);
         endif

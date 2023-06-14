@@ -1,0 +1,74 @@
+use uo;
+use os;
+use unicode;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":tournamentTeam:stone_red";
+
+program useItem(who, item)
+
+var players;
+    var opponentStone := GetObjProperty(item, "OpponentStone");
+var remove_index;
+    if(opponentStone == "Blue")
+        players := TT_Players("Red");
+        remove_index := 2000;
+    else
+        players := TT_Players("Blue");
+        remove_index := 1000;
+    endif
+
+    var access := 1;
+    var pl := TT_Players(opponentStone);
+    foreach player in TT_Players(opponentStone)
+        if(player == who.serial)
+            access:=0;
+            break;
+        endif
+    endforeach
+
+    if(!access)
+        SendSysMessageUC(who, "Вы не являетесь участником этой команды.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return;
+    endif
+
+
+
+	var gump := GFCreateGump( 20, 50 );
+
+	GFPage( gump, 0 );
+
+	// Background 1
+	GFResizePic( gump, 0, 0, 9200, 500, 500 );
+
+
+    var startTop:=15;
+
+    GFGumpListPlayers(who, gump, 15, 30, players, remove_index);
+
+
+
+
+	var input := GFSendGump( who, gump );
+
+
+
+    foreach key in ( input.keys )
+        if ( key == 100)
+            SendSysMessage(who, CStr(key), color := 88);
+
+            return;
+        elseif(key >= 200 && key < 300)
+            SendSysMessage(who, "333 "+CStr(key), color := 88);
+        elseif(input >= 2000)
+            removePlayer((input - 2000), "Blue");
+        elseif(input >= 1000)
+            removePlayer((input - 1000), "Red");
+        endif
+    endforeach
+
+
+endprogram
+
+

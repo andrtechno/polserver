@@ -1,0 +1,26 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+
+program TimedScript_Veterinary(params)
+	var mobile := params[1];
+	var point := params[3];
+	var duration := params[4];
+
+
+	var cfg_elem := TS_GetCfgElem("Veterinary");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+	var cliloc_string := CStr("Veterinary") + "\t" + CStr(point);
+
+    SetObjProperty(mobile, "Veterinary", 1);
+    mobile.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, cliloc_string);
+
+	return 1;
+endprogram
+

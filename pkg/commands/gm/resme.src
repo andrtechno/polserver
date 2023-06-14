@@ -1,15 +1,12 @@
 use os;
 use uo;
 use boat;
-
+include "include/res";
 
 program textcmd_resme( who )
   if(who.dead)
     Resurrect( who );
-      var robe := GetEquipmentByLayer( who, 22 );
-      if(robe)
-      DestroyItem(robe);
-      endif
+    DestroyRobe(who);
     foreach item in ListItemsNearLocation(who.x, who.y, who.z, 0, who.realm)
       if(GetObjProperty(item,"serial") == who.serial)
 //        foreach thing in ListEquippedItems(who)

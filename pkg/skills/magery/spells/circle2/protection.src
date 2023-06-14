@@ -1,25 +1,33 @@
-////////////////////////////////////
-// Need to get this compatible with Distro or else leave alone.
-
 use uo;
 use os;
 use cfgfile;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include ":timedScripts:buffIcon";
+include ":damage:damage";
 include ":magery:spells";
-include "include/client";
+include ":charclasses:classes";
+
+var mods := struct;
+var ts_cfg_elem := TS_GetCfgElem("Protection");
+var buff_icon := CInt( ts_cfg_elem.BuffIcon );
+var cliloc_name :=  CInt(ts_cfg_elem.cliloc_name);
+var cliloc_desc :=  CInt(ts_cfg_elem.cliloc_desc);
 
 
-program cast_protection(parms)
-    var caster := parms[1];
-    var info := parms[2];
+program cast_protection(params)
+    var caster := params[1];
+    var info := params[2];
+
     var cast_on;
-    cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+    if(!params[4])
+        cast_on := MS_Target(caster, info, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+    endif
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
-        cast_on := parms[4];
+        cast_on := params[4];
     endif
     if (!cast_on)
-        SendSysMessage (caster, "Cancelled.", color := 33);
         return 0;
     endif
     if ( !MS_MobileCheck(caster, cast_on) )
@@ -28,40 +36,119 @@ program cast_protection(parms)
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
+	if ( GetObjProperty(cast_on, "Protection") )
+        SendSysMessage(cast_on,"Already under the influence!");
+		return 0;
+	endif
 
-  PlaySoundEffect(cast_on, SFX_SPELL_PROTECTION);
-  PlayObjectCenteredEffect(cast_on, FX_BLESS_EFFECT, 7,7);
-  if (CanMod(cast_on, "#cast_protection"))
-	SendSysMessage(caster,"Already under the influence!");
-	return;
-  endif
-  var magery := GetAttribute(caster, MAGERY);
-  var mod_amount := 0;
-  var duration := GetModDuration(magery);
-  var classlevel := CInt(GetObjProperty(caster,"classlevel"));
+    var EvalInt := AP_GetSkill(caster, EVALUATING_INTELLIGENCE);
+    var Magery := AP_GetSkill(caster, MAGERY);
+	if(caster.IsA(POLCLASS_NPC))
+        EvalInt := 150;
+        Magery := 150;
+	endif
 
-  if(GetObjProperty(caster,"classid") == ID_MAGE)
-    mod_amount := (GetModAmount(magery) / 2) * CInt(GetObjProperty(caster,"classlevel"));
-    ///mod_amount := RandomIntMinMax((classlevel*10),(classlevel*10+10)); //(GetModAmount(magery) * 2) * classlevel;
-    duration := (60 * classlevel) * 10;
-  else
-    mod_amount := (GetModAmount(magery) / 2);
-  endif
+	// Str increase % = (Eval / 10 + 1)
+	var percent := CDbl(EvalInt / 10) + 1;
+	var points := CInt(Magery * (percent / 100));
 
+	// Duration: ((Eval / 5) + 1) * 6
+	var duration := ((EvalInt / 5) + 1) * 6;
 
 
+	MS_PlaySpellSFX(info.spell_id, caster);
+	MS_PlaySpellGFX(info.spell_id, caster, caster);
 
 
+    if(GetObjProperty(caster,"classid") == ID_MAGE)
+        var val := (info.classlevel * 10);
+        //points := RandomIntMinMax(val, (val + 10));
+        points := GetBuffAmount( caster, info );
+        duration := 60 * val;
+    endif
 
-  var itmcfg := ReadConfigFile(":*:itemdesc");
-  var arpoints := 0;
-  foreach thing in ListEquippedItems(cast_on)
-    arpoints := arpoints + (CInt(itmcfg[thing.objtype].AR) / 12);
-  endforeach
-  if(mod_amount > arpoints)
-    mod_amount := mod_amount - arpoints;
-  else
-    mod_amount := 0;
-  endif
-  DoTempMod(cast_on, "#cast_protection", mod_amount, duration);
+
+    // Same as casting agility, cunning and strength all at once.
+    // Bless should probably not be able to stack with Agility, etc. So we do it this way.
+    TS_StartTimer(cast_on, "ProtectionNew", duration, points, caster);
+
+	return 1;
 endprogram
+
+function ApplyProtection(caster)
+
+	// Get effective Physical Damage Resistance.
+	var phys_resist_amt := caster.resist_physical + caster.resist_physical_mod;
+
+	// Get effective Resisting Spells skill level.
+	var resist_spells_amt := AP_GetSkill(caster, RESISTING_SPELLS);
+
+	// Get the amount caster's Inscription skill will negate the penalties for Protection.
+	//var  inscr_help := CInt(AP_GetSkill(caster, INSCRIPTION) / 20);
+
+	// Calculate the Physical Resistance penalty.
+	var phys_resist_penalty := 10 + (RandomInt(6));
+
+	// Calculate the Resisting Spells penalty.
+	var resist_spells_penalty := CDbl(30 + RandomInt(6));
+
+	// Now we determine if the penalty will cause Physical Resistance to go below zero.
+	// If not, no problem. If so we drop it to zero.
+	if(phys_resist_amt - phys_resist_penalty >= 0)
+		caster.resist_physical_mod := caster.resist_physical_mod - phys_resist_penalty;
+	else
+		caster.resist_physical_mod := caster.resist_physical_mod - phys_resist_amt;
+		phys_resist_penalty := phys_resist_amt;
+	endif
+	// Now we determine if the penalty will cause Spell Resistance to go below zero.
+	// If not, no problem. If so we drop it to zero.
+	if(resist_spells_amt - resist_spells_penalty >= 0)
+		AP_ModifySkillMod(caster, RESISTING_SPELLS, AP_GetSkillMod(caster, RESISTING_SPELLS) - resist_spells_penalty);
+	else
+		AP_ModifySkillMod(caster, RESISTING_SPELLS, AP_GetSkillMod(caster, RESISTING_SPELLS) - resist_spells_amt);
+		resist_spells_penalty := resist_spells_amt;
+	endif
+
+	mods.+ phys_resist_penalty := phys_resist_penalty;
+	mods.+ resist_spells_penalty := resist_spells_penalty;
+	// At present there is no determined way to modify casting speed and other stats:
+	// ModifyMagicProperties(caster, "FasterCastSpeed", -2);
+	SetObjProperty(caster, "Protection", mods);
+	caster.addBuff(buff_icon, 0, cliloc_name, cliloc_desc, "");
+
+
+endfunction
+
+function RemoveProtection(caster)
+
+	mods := GetObjProperty(caster, "Protection");
+	caster.resist_physical_mod := caster.resist_physical_mod + mods.phys_resist_penalty;
+	//AP_ModifySkillMod(caster, RESISTING_SPELLS, (AP_GetSkillMod(caster, RESISTING_SPELLS) + mods.resist_spells_penalty));
+	AP_ModifySkillMod(caster, RESISTING_SPELLS, mods.resist_spells_penalty);
+	// At present there is no determined way to modify casting speed and other stats:
+	// ModifyMagicProperties(caster, "FasterCastSpeed", 2);
+	EraseObjProperty(caster, "Protection");
+	caster.delbuff(buff_icon);
+
+endfunction
+
+/*
+ * This from uoguide.com on the protection spell:
+ * Characters under the Protection spell effect can no longer have their
+ * spells "disrupted" when hit. As a result, those affected by the spell
+ * experience: decreased physical resistance value between -15 to -10;
+ * a reduction of their Resisting Spells skill value between -35 to -30;
+ * and a slower casting speed modifier of 2 points. The penalties for
+ * physical resist and Resisting Spells is lessened by +1 for each 20
+ * skill points of Inscription (including Jack of All Trades for humans.
+ * However, these penalties can lower neither Resisting Spells nor
+ * the casting speed below 0. While the modifier for Resisting Spells can
+ * be overcome by +skill on jewelry and/or armor, the FC penalty cannot.
+ * This FC modifier is applied after the cap takes effect, so additional
+ * FC above the cap will not counteract the negative effect of this spell.
+ * The protection spell has an indefinite duration, becoming active when cast,
+ * and deactivated when re-cast. This spell, along with Reactive Armor and
+ * Magic Reflection, will stay on even after logging out - until you
+ * turn it off by casting it again. The spell effect will be purged
+ * when dying, and Protection has to be re-cast after death.
+*/

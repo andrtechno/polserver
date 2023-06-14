@@ -1,31 +1,31 @@
 include ":attributes:attributes";
-include ":poisonwatcher:poisons";
+include ":timedScripts:poisonUtil";
 
 function process_combat_event(opponent)
-  if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 5))
+  if((AP_GetVital(me, VITALID_LIFE) < (AP_GetVitalMaximumValue(me, VITALID_LIFE) / 2)) && (RandomInt(8) >= 5))
     CastSpell(me, me, "greaterHeal");
-  elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 5))
+  elseif((TS_GetTimerNames(me, "P").size() > 0) && (RandomInt(8) >= 5))
     CastSpell(me, me, "cure");
   else
     spellattack(opponent);
   endif
-  if(((GetHp(me) * 100) / GetMaxHp(me)) < flee_point)
+  if(((AP_GetVital(me, VITALID_LIFE) * 100) / AP_GetVitalMaximumValue(me, VITALID_LIFE)) < flee_point)
     EraseObjProperty(me,"#flees");
     flee(opponent);
   endif
 endfunction
 
 function process_flee_event(opponent)
-  if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(8) >= 3))
+  if((AP_GetVital(me, VITALID_LIFE) < (AP_GetVitalMaximumValue(me, VITALID_LIFE) / 2)) && (RandomInt(8) >= 3))
     CastSpell(me, me, "greaterHeal");
     return 0;
-  elseif((ListPoisonsByType(me, "defaultPoison").size() > 0) && (RandomInt(8) >= 3))
+  elseif((TS_GetTimerNames(me, "P").size() > 0) && (RandomInt(8) >= 3))
     CastSpell(me, me, "cure");
     return 0;
   else
     spellattack(opponent);
   endif
-  if(((GetHp(me) * 100) / GetMaxHp(me)) >= flee_point)
+  if(((AP_GetVital(me, VITALID_LIFE) * 100) / AP_GetVitalMaximumValue(me, VITALID_LIFE)) >= flee_point)
     return 1;
   endif
 endfunction
@@ -33,7 +33,7 @@ endfunction
 function spellattack(opponent)
   if(LAST_BREATH > ReadGameClock())
     return;
-  elseif((CheckLineOfSight(me, opponent)) and (dist(me, opponent) <= 12))
+  elseif((CheckLineOfSight(me, opponent)) and (Distance(me, opponent) <= 12))
     cast_offensive_spell(me, opponent);
     LAST_BREATH := Cint(ReadGameClock() + (RandomInt(4) + 4));
   endif
@@ -49,10 +49,10 @@ function prepare_for_fight(opponent)
 endfunction
 
 function post_combat()
-  if((GetHp(me) < (GetMaxHP(me) / 2)) && (RandomInt(4) >= 2))
+  if((AP_GetVital(me, VITALID_LIFE) < (AP_GetVitalMaximumValue(me, VITALID_LIFE) / 2)) && (RandomInt(4) >= 2))
     CastSpell(me, me, "greaterHeal");
   endif
-  if(ListPoisonsByType(me, "defaultPoison").size() > 0)
+  if(TS_GetTimerNames(me, "P").size() > 0)
     CastSpell(me, me, "cure");
   endif
   DisableCombatEvents();

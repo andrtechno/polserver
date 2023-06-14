@@ -1,0 +1,128 @@
+use uo;
+use os;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include "util/bank";
+include "include/string";
+include ":magery:spells";
+
+program castNPC( params )
+    var who := params[1];
+    var me := params[2];
+    if(who.dead)
+        return 0;
+    endif
+
+    return CastMenu(who, me);
+
+endprogram
+
+function CastMenu(who, me)
+
+    var x := 10;
+    var y := 15;
+    GFCloseGumpOnMoved ( who, who.x, who.y, GetPid());
+	var gump := GFCreateGump( 20, 50 );
+	GFClosable(gump, 1);
+	var widthGump := 250;
+    var heightGump := 340;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+
+
+    var castlist := {
+        struct{name:="Bless", gump:=2256, cost:=1000},
+        struct{name:="Strength", gump:=2255, cost:=1000},
+        struct{name:="Agility", gump:=2248, cost:=1000},
+        struct{name:="Protection", gump:=2254, cost:=1000},
+        struct{name:="Cunning", gump:=2249, cost:=1000},
+        struct{name:="Dispel", gump:=2280, cost:=1000, disabled:=0},
+        struct{name:="Cure", gump:=2250, cost:=1000, disabled:=0}
+    };
+    var index := 1;
+    var disabled := 1;
+    var counter := 0;
+    GFAddButton(gump, widthGump - 32, 3, 4017, 4018, GF_CLOSE_BTN, 1);
+
+    GFTextLine(gump, x, y, 33, "Cast Menu" );
+	GFPage( gump, 1 );
+    y := 45;
+    foreach cast in castlist
+
+	    GFGumpPic(gump, x, y, cast.gump, 0);
+        GFTextLine(gump, x + 50, y + 25, 2100, AddCommas(cast.cost)+" gp." );
+        GFAddButton(gump, x, y, cast.gump, cast.gump, GF_CLOSE_BTN, _cast_iter + 100);
+        GFTextLine(gump, x + 50, y, 67, cast.name);
+        y += 55;
+        index += 1;
+        counter += 1;
+
+        if ( counter >= 5 && _cast_iter < castlist.size() )
+			GFAddButton( gump, widthGump - 30, heightGump - 30, 9903, 9904, GF_PAGE_BTN, gump.cur_page+1 );
+			GFPage( gump, gump.cur_page+1 );
+			GFAddButton( gump, widthGump - 50, heightGump - 30, 9909, 9910, GF_PAGE_BTN, gump.cur_page-1 );
+            counter := 0;
+            y := 45;
+        endif
+
+
+    endforeach
+
+    var input := GFSendGump( who, gump );
+    if(!input)
+        SendSysMessage(who, "Cancelled.", color := 33);
+        return;
+    endif
+
+    if(who.dead)
+        SendSysMessage(who, "Cancelled.", color := 33);
+        return 0;
+    endif
+    foreach key in ( input.keys )
+        if(key == 1)
+            SendSysMessage(who, "Cancelled.", color := 33);
+            return;
+        endif
+        if( key >= 100 )
+            if(SpendCoin(who, castlist[key - 100].cost, who.backpack, 0xEED) || SpendCoin(who, castlist[key - 100].cost, FindBankBox(who), 0xEED))
+                spell(who, me, CInt(MS_SpellNameToId(castlist[key - 100].name)));
+            else
+                SendSysMessage(who, "no gold coin ", color := 88);
+            endif
+        else
+
+        endif
+    endforeach
+
+    return CastMenu(who, me);
+endfunction
+
+
+
+function spell(who, me, spell_id)
+        	var spell_elem := MS_GetSpellsCfgElem(spell_id);
+
+            var info := struct;
+            info.+script := spell_elem.script;
+            info.+attribute := "Magery";
+            info.+skill_check := 1;
+            info.+castspot := 0;
+            info.+targ := 0;
+            info.+pid := GetPid();
+            info.+spell_Id := spell_id;
+            info.+circle := spell_elem.Circle;
+            info.+spell_config := spell_elem;
+            info.+damage_type := spell_elem.DamageType;
+            info.+classlevel := 6;
+            	SpeakPowerWords(me, spell_id);
+            var script := Start_Script(":magery:"+spell_elem.SpellScript, {me, info, spell_id, who});
+
+        /*Detach();
+        var script := Start_Script(":magery:spellStarter", {me, spell_id, 0, who});
+        if ( script.errortext )
+            SendSysMessage(who, "Error Buff - Could not start spell starter ->"+script.errortext);
+            //return 0;
+        endif
+        SleepMS(2000);*/
+
+endfunction

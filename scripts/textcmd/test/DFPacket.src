@@ -56,6 +56,6 @@ return 1;
 		var Length_ID := packet.GetSize();
 		packet.setint16(Length_ID, 0x1);
 	endif
-	print(packet);
+
 	packet.sendpacket(mobile);
 endprogram

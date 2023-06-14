@@ -6,19 +6,17 @@ use uo;
 include "include/eventID";
 include ":attributes:attributes";
 include "include/sysEvent";
-include "include/randName";
+include ":npcs:randName";
 include "include/utility";
 include "include/mrcSpawn";
-include "include/vetement";
-include "include/NPCBackpacks";
+include ":npcs:garment";
 include "include/client";
 include "include/anchors";
-include "include/dist";
 include "include/res";
 include "include/resPenalty";
 include "include/findCity";
 include "include/begging";
-include "include/trainSkill";
+include ":npcs:trainSkill";
 
 const SOUND_EFFECT_RES := 0x215;
 const ACTION_EFFECT_CAST2 := 0x11;
@@ -82,8 +80,8 @@ set_priority(50);
                                   else
                                     if(ev.text["buy"])
                                       TurnToward(ev.source);
-                                      var res := SendBuyWindow(ev.source, inv_fs, Self(), inv_pb);
-                                      foreach thing in ListRootItemsInContainer((ev.source).backpack)
+                                      SendBuyWindow(ev.source, inv_fs, Self(), inv_pb);
+                                      foreach thing in EnumerateItemsInContainer((ev.source).backpack, ENUMERATE_ROOT_ONLY)
                                         EraseObjProperty(thing, "ClearRestock");
                                       endforeach
                                     elseif (ev.text["sell"])
@@ -99,8 +97,7 @@ set_priority(50);
                                       endif
                                     elseif((txt["vendor train"]) || (txt["vendor teach"]) || (txt["merchant train"]) || (txt["merchant teach"]))
                                       TurnToward(ev.source);
-                                      // MerchantTrain(me, ev.source, ev.text);
-									  VendorTrain( me, ev.source, ev.text );
+                                      MerchantTrain(me, ev.source, ev.text);
                                     endif
                                   endif
         SYSEVENT_MERCHANT_BOUGHT: TurnToward(ev.source);
@@ -130,7 +127,7 @@ set_priority(50);
 	if(ReadGameClock() >= next_wander)
 	  begpurse(me);
       wander();
-      if(coordist(me.x, me.y, myanchor[1], myanchor[2]) > 5)
+      if(CoordinateDistance(me.x, me.y, myanchor[1], myanchor[2]) > 5)
         MoveObjectToLocation(me, myanchor[1], myanchor[2], myanchor[3], me.realm, MOVEOBJECT_FORCELOCATION);
       endif
       next_wander := ReadGameClock() + 30;
@@ -146,7 +143,7 @@ endfunction
 
 function lookiehere(who)
   var mobiles := ListMobilesNearLocation(who.x, who.y, who.z, 15);
-  var guard, num, i, hogcall, guardzone, element, range, timer, elem;
+  var num, hogcall, guardzone, element, range, timer, elem;
   var cfgfile := ReadConfigFile("::gzone");
   var entries := GetConfigStringKeys(cfgfile);
   foreach listing in entries

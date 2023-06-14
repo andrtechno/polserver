@@ -1,0 +1,46 @@
+use uo;
+
+include ":attributes:attributes";
+include "include/client";
+include ":charclasses:classes";
+
+program create_item(item)
+	var cfg := ReadConfigFile( ":*:itemdesc" );
+	var elem := FindConfigElem(cfg, item.objtype);
+    var value := 0.1;
+    var rint;
+    var classid;
+
+    case( elem.ClassID )
+        ID_BARD:
+        ID_CRAFTER:
+        ID_MAGE:
+        ID_RANGER:
+        ID_THIEF:
+        ID_WARRIOR:
+            classid := elem.ClassID;
+            var skill_list := GetClasseSkills( classid );
+            rint := skill_list[RandomIntMinMax(1, Len(skill_list))];
+        default:
+            rint := RandomIntMinMax(0, SKILLID__HIGHEST);
+            classid := GetClasseIdForSkill( rint );
+
+    endcase
+
+    case( classid )
+        ID_BARD:		item.color := 59;
+        ID_CRAFTER:	    item.color := 32;
+        ID_MAGE:		item.color := 22;
+        ID_RANGER:	    item.color := 62;
+        ID_THIEF:		item.color := 12;
+        ID_WARRIOR:	    item.color := 5;
+    endcase
+
+
+
+    SetObjProperty(item, "skilladv", rint);
+    SetObjProperty(item, "skilladvamount", value);
+    //item.name := item.name+ " of "+GetSkillConfigElem(rint).Attribute;
+    //item.name_suffix := "(+"+value+")";
+    return 1;
+endprogram

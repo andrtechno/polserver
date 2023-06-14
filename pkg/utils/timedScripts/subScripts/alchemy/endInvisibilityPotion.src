@@ -1,0 +1,22 @@
+use uo;
+use os;
+use unicode;
+include ":attributes:attributes";
+include "include/client";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndInvisibilityPotion(params)
+	var mobile := params[1];
+
+    var cfg_elem := TS_GetCfgElem("InvisibilityPotion");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+
+    mobile.hidden:=0;
+    PrintTextAbovePrivateUC(mobile, "Вы обнаружены!", "RUS", mobile, 6, MESSAGE_COLOR_BAD, JOURNAL_UC_PRINT_NAME);
+
+	EraseObjProperty(mobile, "InvisibilityPotion");
+    mobile.delbuff(buff_icon);
+	return 1;
+endprogram
+

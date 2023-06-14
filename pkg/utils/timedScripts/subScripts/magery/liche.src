@@ -1,0 +1,73 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include ":charclasses:classes";
+
+program TimedScript_Liche(params)
+	var mobile := params[1];
+	var percent := params[3];
+	var duration := params[4];
+	var origin := params[2];
+
+	var graphic := origin[1];
+	var color := origin[2];
+
+	var cfg_elem := TS_GetCfgElem("Liche");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+	params := {};
+
+
+
+
+
+	var casterskill	:= GetEffectiveSkill( mobile, SKILLID_MAGERY );
+	duration    := casterskill * 5;
+
+	var oldchargraphic	:= mobile.graphic;
+	SetObjProperty(mobile, "origform", oldchargraphic);
+	var str_modulation	:= 0 - CInt( GetStrength(mobile) / 2 );
+	var dex_modulation	:= 0 - CInt( GetDexterity(mobile) / 2 );
+	var int_modulation	:= GetIntelligence(mobile);
+
+	if( GetObjProperty( mobile, CLASSEID_MAGE ) )
+		duration	:= CInt( mobile * ClasseBonus( mobile ) );
+		str_modulation	:= CInt( str_modulation / ClasseBonus( mobile ) );
+		dex_modulation	:= CInt( dex_modulation / ClasseBonus( mobile ) );
+		int_modulation	:= CInt( int_modulation * ClasseBonus( mobile ) );
+	endif
+
+	PlayObjectCenteredEffect( mobile, FX_SPELL_LICHE, SPEED_SPELL_LICHE, LOOP_SPELL_LICHE );
+	PlaySoundEffect( mobile, LICHE_MORPH_SOUND );
+
+
+	var points := struct;
+	points.+dex := CInt(str_modulation);
+	points.+int := CInt(dex_modulation);
+	points.+str := CInt(int_modulation);
+	points.+graphic := graphic;
+	points.+color := color;
+
+	AP_ModifyStatMod(mobile, DEXTERITY, points.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, points.int);
+	AP_ModifyStatMod(mobile, STRENGTH, points.str);
+
+	mobile.graphic 	:= 0x18;
+	mobile.color	:= 0;
+
+	EraseObjProperty( mobile, "#Casting" );
+	SetObjProperty( mobile, "IsLiche", 1 );
+	if( !mobile.isA(POLCLASS_NPC) )
+		SetObjProperty( mobile, "Type", "Undead" );
+	endif
+
+
+	mobile.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, CStr(points.dex));
+	SetObjProperty(mobile, "Polymorph", points);
+	
+	return 1;
+endprogram
+

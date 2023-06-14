@@ -1,0 +1,133 @@
+use uo;
+
+include "include/math";
+//include "include/spelldata";
+//include "include/attributes";
+//include "include/dotempmods";
+include "include/packets";
+//include ":attributes:attributes";
+//include ":magery:spellRestrictions";
+include ":magery:spells";
+include ":guards:areas";
+include ":codexdamnorum:spelldata";
+
+const SPELL_EFFECT_TYPE_MOVING 	:= MOVING_SPELL_DARKNESS;
+const SPELL_EFFECT_ID		:= FX_SPELL_DARKNESS;
+const SPELL_EFFECT_SPEED	:= SPEED_SPELL_DARKNESS;
+const SPELL_EFFECT_LOOP		:= LOOP_SPELL_DARKNESS;
+
+program cast_darkness( parms )
+
+	//var circle := GetCircle( SPELLID_DARKNESS );
+
+	var caster := parms[1];
+	var info := parms[2];
+	var circle := info.circle;
+	var cast_on;
+	var fromhit;
+
+
+
+		/*if( TryToCast( caster, SPELLID_DARKNESS ) != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+		
+        if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+            SendSysMessage(caster, "You cannot cast this kind of spell here.");
+            return 0;
+        endif
+
+        cast_on := MS_Target(caster, info.targ, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HARMFUL);
+        if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
+            cast_on := parms[4];
+        endif
+
+
+	if( !fromhit )
+		EraseObjProperty( caster, "#Casting" );
+		//cast_on := Reflected( caster, cast_on, circle );
+		//cast_on := Reflected( cast_on );
+
+		    //if(Reflected(cast_on, caster, struct{}))
+            //    cast_on := caster;
+            //endif
+
+	else
+		PlayObjectCenteredEffect(cast_on, SPELL_EFFECT_ID, SPELL_EFFECT_SPEED, SPELL_EFFECT_LOOP);
+	endif
+
+    PlaySoundEffect(caster, SFX_SPELL_DARKNESS );
+print("DARKNERS 2");
+	//var immunity := IsProtected( caster, cast_on, circle );
+	//if( immunity == IMMUNED )
+	//	EraseObjProperty( caster, "#Casting" );
+	//	return;
+	//endif
+
+	var magery	:= GetEffectiveSkill( caster, SKILLID_MAGERY );
+	var level	:= 3; //ModifyWithMagicEfficiency( caster, 20 + CInt( magery / 15 ) );
+	var duration	:= 10; //GetModDuration( caster );
+
+	if( level > 30 )
+		level	 := 30;
+	endif
+
+	//if( immunity == CURSED )
+	//	duration := duration * 2;
+	//	level	 := 30;
+	//endif
+
+	//var protection := GetResultingPlaneProtection( cast_on, plane );
+	var protection := 10;
+	if( protection )
+		var modifier := 100 - (protection * 20);
+		if( modifier < 1 )
+			modifier := 0;
+		endif
+
+		//duration := CInt( duration * modifier / 100 );
+
+		//if( !duration )
+		//	PrintTextAbovePrivate( cast_on, "The nature of the target prevent it from being affected by that spell!", caster );
+		//	EraseObjProperty( caster, "#Casting" );
+		//	return;
+		//endif
+	endif
+
+/*var counter := 0;
+while(1)
+SpecialEffect( caster, 4);
+counter+=1;
+
+sleepms(200);
+if(counter >= 10)
+break;
+endif
+endwhile*/
+	if( !GetObjProperty( cast_on, "#PermNightSight" ) )
+
+		cast_on.setLightLevel( 30, 3000 );
+        SetObjProperty( cast_on, "#Blinded", 1 );
+    else
+        	SendSysMessage( cast_on, "You're protected from the spell effect." );
+    endif
+       
+    EraseObjProperty( caster, "#Casting" );
+    sleep( CInt( duration / 2 ) );
+    EraseObjProperty( cast_on, "#Blinded" );
+
+endprogram
+
+
+function SpecialEffect( who, type:=2 )
+    var packetString := "70";
+    packetString := packetString + fixPacketLength(hex(4),1); //  0x04 = special effects
+    packetString := packetString + fixPacketLength(hex(0),4);
+    packetString := packetString + fixPacketLength(hex(0),4);
+    packetString := packetString + fixPacketLength(hex(type),2); // (for type = 0x04 use 0x00 - 0x04 values for different special flash effects
+    // 0 - Fade out, 1 - Fade in, 2 - Flash, 3 - Fade In&Out, 4 - very short Black Flash
+    packetString := packetString + fixPacketLength(hex(0),16);
+    print(packetString);
+    SendPacket( who, packetString );
+endfunction

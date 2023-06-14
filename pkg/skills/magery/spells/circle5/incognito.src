@@ -4,64 +4,32 @@ use util;
 use cfgfile;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 include ":magery:spells";
+include ":virtue:virtue";
 
-program cast_incognito(parms)
-    var caster := parms[1];
-    var info := parms[2];
-    var duration:= 60 * CInt(GetAttribute( caster, MAGERY )/10 );
-    duration:=10;
+program cast_incognito(params)
+	var caster := params[1];
+    var info := params[2];
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-    if (!GetObjProperty( caster, "realname"))
-	    SetObjProperty( caster, "realname", caster.name );
+	if ( GetObjProperty(caster, "Incognito") )
+        SendSysMessage(caster, "Already under the influence!");
+		return 0;
+	endif
+	MS_PlaySpellSFX(info.spell_id, caster);
+	MS_PlaySpellGFX(info.spell_id, caster, caster);
+
+	// Duration: ((Eval / 5) + 1) * 6
+	var duration := AP_GetSkill(caster, MAGERY) * 1.2;
+    duration := 60;
+    if(GetObjProperty(caster,"classid") == ID_MAGE)
+        var val := info.classlevel;
+        duration := 60 * val;
     endif
-    var newname := AssignName(caster);
-    SetName( caster, newname );
-    PlaySoundEffect(caster, 0x1e1);
-  //BuffDebuff_AddIcon(caster,1032,duration);
+	TS_StartTimer(caster, "Incognito", duration, 0, caster);
+	VS_AdjustVirtue(caster, "Honesty", -1, 100);
 
-    caster.addBuff(1032, duration, 1075819, "adssad",{});
-    Detach();
-    set_critical(1);
-    sleep( duration );
-    SetName( caster, GetObjProperty( caster, "realname" ) );
-    EraseObjProperty( caster, "realname" );
- // BuffDebuff_removeIcon(caster,1032);
-    caster.delBuff(1032);
+	return 1;
 endprogram
-
-function AssignName( me )
-  var index := "MALE";
-  if (me.graphic == 401)
-	index := "FEMALE";
-  endif
-  var cfg := ReadConfigFile( "incognito" );
-  if (!cfg)
-	SendSysMessage(me,"Unable to read incognito.cfg");
-	return;
-  endif
-  var elem := FindConfigElem( cfg, index );
-  var number := GetConfigInt( elem, "Count" );
-  var dice_str := "1d" + CStr(number);
-  var choice := RandomDiceRoll( dice_str );
-  var entry := "Name" + choice;
-  var str := GetConfigString( elem, entry );
-  var title := PreserveTitle( me );
-  str := str + title;
-  return( str );
-endfunction
-
-function PreserveTitle( me )
-  var myname := me.name;
-  var start := find( myname, ">", 1 );
-  if( !start )
-    return;
-  endif
-  var title := myname[ start+1, (len( myname ) - 8) ];
-  if( !title )
-    return("");
-  endif
-  return( title );
-endfunction

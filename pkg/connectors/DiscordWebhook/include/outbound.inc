@@ -11,9 +11,11 @@
  */
 use uo;
 use os;
+use cfgfile;
+use file;
 
 /*
- * PresetDiscordMessage( content, presetType )
+ * PresetDiscordMessage( content, presetType, embeds := {} )
  *
  * Purpose
  * Sends a message to a discord server based on the presetType defined in the settings.cfg file.
@@ -28,7 +30,7 @@ use os;
  * Failure - Returns error message.
  *
  */
-function PresetDiscordMessage( content, presetType:= "Default")
+function PresetDiscordMessage( content, presetType:= "Default", embeds := {}, voice:=0 )
 
 	var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
 	if( settings_cfg.errortext )
@@ -44,7 +46,7 @@ function PresetDiscordMessage( content, presetType:= "Default")
 	var username := CheckAndGetConfig( cfg_elem, default_cfg_elem, "username" );
 	var avatar_url := CheckAndGetConfig( cfg_elem, default_cfg_elem, "avatar_url" );
 
-	PackAndSendMessage(channel_id, token, content, username, avatar_url);
+	PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice);
 	return 1;
 
 endfunction
@@ -62,13 +64,40 @@ function CheckAndGetConfig( cfg, default_cfg, elem )
 	return res;
 endfunction
 
-function PackAndSendMessage(channel_id, token, content, username, avatar_url)
+function PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice)
+    var data := struct;
+    data.+content := content;
+    data.+username := username;
+    data.+avatar_url := avatar_url;
+    if(voice)
+        data.+tts := Boolean(1);
+    endif
+
+
+
+
+    if(embeds.size() > 0)
+        data.+embeds := {embeds};
+    endif
 
 	HTTPRequest(
-  	"https://discordapp.com/api/webhooks/"+channel_id+"/"+token,
+        "https://discord.com/api/webhooks/"+channel_id+"/"+token,
+        "POST",
+        struct{
+            data := PackJSON( data ),
+            headers := struct{"Content-Type" := "application/json"}
+        }
+    );
+
+endfunction
+
+function PackAndSendMessage2(channel_id, token, content, username, avatar_url)
+
+	HTTPRequest(
+  	"https://discord.com/api/webhooks/"+channel_id+"/"+token,
   	"POST",
   	struct{
-  data := "{\"content\":\""+content+"\",\n\"username\":\""+username+"\",\n\"avatar_url\":\""+avatar_url+"\"\n}",
+  data := "{\"content\":\""+content+"\",\"username\":\""+username+"\",\"avatar_url\":\""+avatar_url+"\"}",
   headers := struct{
     "Content-Type" := "application/json"
   }} );

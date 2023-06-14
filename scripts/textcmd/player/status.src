@@ -1,0 +1,191 @@
+use uo;
+use unicode;
+use Math;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":timedScripts:timedScripts";
+include ":attributes:attributes";
+include ":itemUtils:itemtypes";
+
+    var statLeft := 80;
+    var m := 70;
+    var strLeft := statLeft + m * 1;
+    var dexLeft := statLeft + m * 2;
+    var intLeft := statLeft + m * 3;
+    var arLeft := statLeft + m * 4;
+    var timeLeft := statLeft + m * 5;
+    var leftPadding := 20;
+
+program textcmd_status(who)
+    /*var on := Target(who);
+    if (!on)
+        on := who;
+    endif
+    if (!on)
+        SendSysMessage (who, "Cancelled.");
+        return 0;
+    endif*/
+    var on := who;
+        SendSysMessage (who, "status.");
+
+	var widthGump := 500;
+	var gump := GFCreateGump(40,40);
+	GFPage(gump, 0);
+
+
+
+	GFResizePic(gump, 0, 0, GetCfgConst("Defaults", "BackGround2"), widthGump, 400);
+
+
+
+    var buffs := {"Bless", "Agility", "Cunning","Strength","Protection","ProtectionNew"};
+
+
+    GFTextLine(gump, 150, 15, 30, "Статискика: "+on.name);
+
+    GFTextLine(gump, strLeft, 40, 33, "Str");
+    GFTextLine(gump, dexLeft, 40, 53, "Dex");
+    GFTextLine(gump, intLeft, 40, 3, "Int");
+    GFTextLine(gump, arLeft, 40, 2100, "Ar");
+    GFTextLine(gump, timeLeft, 40, 2100, "Time (min)");
+
+
+    var line := 40;
+    listen(on,gump,buffs,line);
+
+
+
+
+	var mount := GetEquipmentByLayer( on, LAYER_MOUNT );
+	//print(GetObjProperty(mount,"str"));
+	var mountData := struct;
+	mountData.+str := "-";
+	mountData.+dex := "-";
+	mountData.+int := "-";
+	mountData.+ar := 0;
+	if(CInt(GetObjProperty(mount,"str")))
+	    mountData.str := CInt(GetObjProperty(mount,"str"));
+	endif
+    if(CInt(GetObjProperty(mount,"dex")))
+	    mountData.dex := CInt(GetObjProperty(mount,"dex"));
+	endif
+    if(CInt(GetObjProperty(mount,"int")))
+	    mountData.int := CInt(GetObjProperty(mount,"int"));
+	endif
+    if(CInt(GetObjProperty(mount,"ar")))
+	    mountData.ar := CInt(GetObjProperty(mount,"ar"));
+	endif
+
+
+    addLine(gump, line, "Mount", mountData);
+    line := line + 30;
+    GFTextLine(gump, 150, line, 30, "Bottle");
+    var bottles := {"StrengthPotion","AgilityPotion"};
+    listen(on,gump,bottles,line);
+
+    line:=line + 30;
+    GFTextLine(gump, leftPadding, line + 5, 2100, "Всего");
+
+    GFTextLine(gump, strLeft-6, line + 5, 33, "+"+GetStrengthMod(who));
+    GFTextLine(gump, dexLeft-6, line + 5, 53, "+"+GetDexterityMod(who));
+    GFTextLine(gump, intLeft-6, line + 5, 3, "+"+GetIntelligenceMod(who));
+    GFTextLine(gump, arLeft-6, line + 5, 2100, "+"+who.ar_mod);
+
+    var input := GFSendGump(on, gump);
+    LogToFile("::log/use_textcmd.log", who.name+": .status", LOG_DATETIME);
+endprogram
+
+function addLine(byref gump, byref line, name, data)
+    line:=line + 30;
+
+    GFTextLine(gump, leftPadding, line, 2100, name);
+    //str
+    GFTextLine(gump, strLeft, line, 33, data.str);
+    //dex
+    GFTextLine(gump, dexLeft, line, 53, data.dex);
+    //int
+    GFTextLine(gump, intLeft, line, 3, data.int);
+endfunction
+
+
+function listen(on, byref gump, list, byref line)
+    line:=line + 30;
+    foreach obj in list
+            var str := "-";
+            var dex := "-";
+            var int := "-";
+            var ar := "-";
+            var time := "-";
+            //  line := (startX + i);
+            GFTextLine(gump, leftPadding, line, 2100, obj);
+            if(GetObjProperty(on, obj))
+                var p := GetObjProperty(on,obj);
+                if(p.str)
+                    str := p.str;
+                endif;
+                if(p.dex)
+                    dex := p.dex;
+                endif
+                if(p.int)
+                    int := p.int;
+                endif
+                if(p.ar_mod)
+                    ar := p.ar_mod;
+                endif
+            endif
+
+
+            var timer_info := TS_GetTimerInfo(on, obj);
+            if(timer_info)
+
+                var sec_num := CInt(floor((timer_info.endtime - ReadGameClock()))); // don't forget the second param
+                var hours   := floor(sec_num / 3600);
+                var minutes := floor((sec_num - (hours * 3600)) / 60);
+                var seconds := sec_num - (hours * 3600) - (minutes * 60);
+
+
+                time := "";
+                if(hours)
+                    if (hours < 10)
+                        hours := "0"+hours;
+                    endif
+                time+=hours+":";
+                endif
+                if(minutes)
+                    if (minutes < 10)
+                        minutes := "0"+minutes;
+                    endif
+                time+=minutes+":";
+                endif
+                if(seconds)
+                    if (seconds < 10)
+                        seconds := "0"+seconds;
+                    endif
+                time+=seconds;
+                endif
+
+                //time := floor((timer_info.endtime - ReadGameClock()) / 60);
+
+                    // time := hours+":"+minutes+":"+seconds;
+
+            endif
+
+
+
+        //str
+        GFTextLine(gump, strLeft, line, 33, str);
+        //dex
+        GFTextLine(gump, dexLeft, line, 53, dex);
+        //int
+        GFTextLine(gump, intLeft, line, 3,int);
+
+        //ar
+        GFTextLine(gump, arLeft, line, 2100, ar);
+
+        //time
+        GFTextLine(gump, timeLeft, line, 2100, time);
+
+                line:= line + 18;
+    endforeach
+endfunction

@@ -5,30 +5,29 @@
 */
 use uo;
 use os;
-use polsys;
 
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
 include ":datafile:datafile";
-include ":moongates:moongates";
+include ":moongates:moongate";
 include ":jailKeeper:jailKeeper";
 
 program Get_Out_Jail( mobile )
 
-        var gump := GFCreateGump();
+    /*var gump := GFCreateGump();
         
 	BuildGumpForGate( gump );
  
-        var input := GFSendGump( mobile, gump );
-        if( !input[0x10] )
+    var input := GFSendGump( mobile, gump );
+    if( !input[0x10] )
 		var script := start_script( ":jailKeeper:getOutJail", mobile );
-                if( script.errortext )
-                         SendSysMessage( mobile, "Error starting script <:jailKeeper:getOutJail> -->"+script.errortext );
-                         return 0;
-                endif
-                
-	        return 0;
+        if( script.errortext )
+            SendSysMessage( mobile, "Error starting script <:jailKeeper:getOutJail> -->"+script.errortext );
+            return 0;
         endif
+                
+        return 0;
+    endif
 
 	var select := 0;
 	foreach key in ( input.Keys )
@@ -37,26 +36,29 @@ program Get_Out_Jail( mobile )
 			break;
 		endif
 		SleepMS(2);
-	endforeach
+	endforeach*/
 
-	var dest := MG_FindDestination( select );
-        SetObjProperty( mobile, "#Teleported", ReadMillisecondClock() );
-        
-	var result := MoveObjectToLocation( mobile, dest.x, dest.y, dest.z, dest.realm, MOVEOBJECT_FORCELOCATION );
+
+
+	//var dest := MG_FindDestination( select );
+    SetObjProperty( mobile, "#Teleported", ReadMillisecondClock() );
+
+    var result := MoveObjectToLocation( mobile, 1260, 1745, 0, mobile.realm, MOVEOBJECT_FORCELOCATION );
+	/*var result := MoveObjectToLocation( mobile, dest.x, dest.y, dest.z, dest.realm, MOVEOBJECT_FORCELOCATION );
 	if( result.errortext )
 		var script := start_script( ":jailKeeper:getOutJail", mobile );
-                if( script.errortext )
-                         SendSysMessage( mobile, "Error starting script <:jailKeeper:getOutJail> -->"+script.errortext );
-                         return 0;
-                endif
+        if( script.errortext )
+            SendSysMessage( mobile, "Error starting script <:jailKeeper:getOutJail> -->"+script.errortext );
+            return 0;
+        endif
                 
-	        return 0;
-	endif
+        return 0;
+	endif*/
 
-        var data_elem := DFFindElement( g_datafile, mobile.serial );
-        data_elem.EraseProp( "JailReleaseTime" );
-        data_elem.EraseProp( "JailCell" );
-        EraseObjProperty( mobile, "NoGains" );
+    var data_elem := DFFindElement( g_datafile, mobile.serial );
+    data_elem.EraseProp( "JailReleaseTime" );
+    data_elem.EraseProp( "JailCell" );
+    EraseObjProperty( mobile, "NoGains" );
 
-        return 1;
+    return 1;
 endprogram

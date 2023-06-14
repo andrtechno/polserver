@@ -1,0 +1,27 @@
+use uo;
+use os;
+use util;
+
+include "include/recursive";
+
+program textcmd_wipeitem(who)
+    var targ := Target(who);
+
+    var containers := ListObjectsInBoxOfClass( POLCLASS_CONTAINER, 0, 0, 125, 5119, 4095, -125);
+    //ListItemsInBoxOfObjType( objtype, 0, 0, 125, 5119, 4095, -125)
+    foreach con in containers
+        //print(con.name);
+        var finditem := FindObjtypeInContainer( con, 0x13d4);
+        //print("finditem "+finditem.name);
+
+
+
+    endforeach
+
+
+    var list := {};
+            var test := RecursiveFind(targ, 0x13d4, list);
+            print(test);
+
+
+endprogram

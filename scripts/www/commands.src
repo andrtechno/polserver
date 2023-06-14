@@ -1,0 +1,146 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+use PolSys;
+use os;
+
+include "include/client";
+
+
+var cmdLevel:=array{0, 1, 2, 3, 4, 5, 6};
+var cmdPlayer:={};
+var cmdHelper:={};
+var cmdCoun:={};
+var cmdSeer:={};
+var cmdGm:={};
+var cmdAdmin:={};
+var cmdTest:={};
+
+	foreach package in ( ListTextCommands() )
+		//Print("Pkg:"+_package_iter);
+        //print(package);
+
+
+		foreach level in ( package )
+            //cmdLevel[_level_iter] := {};
+			//Print(" CmdLvl:"+_level_iter);
+
+
+			foreach command in ( level )
+				//Print("     "+command);
+				var cmd := command.script;
+				cmd[".ecl"] := "";
+
+
+    var description:="";
+    var icp_cfg := ReadConfigFile(":"+_package_iter+":icp");
+    icp_cfg := icp_cfg["Register"];
+    if ( icp_cfg )
+
+        foreach line in  GetConfigStringArray(icp_cfg, "Command")
+            var split := SplitWords(line, "|");
+            if(split[1] == cmd)
+                description := split[2];
+                SleepMS(2);
+            endif
+        endforeach
+
+    endif
+
+
+
+
+
+				if(_level_iter == 0)
+				    var description:="";
+				    cmdPlayer.append(struct{cmd:=cmd,description:=description});
+				elseif(_level_iter == 1)
+				    var description:="";
+				    cmdHelper.append(struct{cmd:=cmd,description:=description});
+                elseif(_level_iter == 2)
+                    var description:="";
+				    cmdCoun.append(struct{cmd:=cmd,description:=description});
+                elseif(_level_iter == 3)
+                    var description:="";
+				    cmdSeer.append(struct{cmd:=cmd,description:=description});
+                elseif(_level_iter == 4)
+                    var description:="";
+				    cmdGm.append(struct{cmd:=cmd,description:=description});
+                elseif(_level_iter == 5)
+                    var description:="";
+				    cmdAdmin.append(struct{cmd:=cmd,description:=description});
+                elseif(_level_iter == 6)
+
+
+/*    var description:="";
+    var cfg := ReadConfigFile("::www_cmd_info");
+      //  var ssss := cfg["create"];
+
+    if ( cfg )
+        var elem :=FindConfigElem(cfg, cmd);
+var ss := cfg.""+cmd;
+print(ss);
+        if(elem)
+            print(elem);
+            description := GetConfigString(elem, "text");
+        endif
+    endif*/
+//print(description);
+
+				    cmdTest.append(struct{cmd:=cmd,description:=description});
+                endif
+				SleepMS(2);
+			endforeach
+			SleepMS(2);
+		endforeach
+		SleepMS(2);
+        //break;
+	endforeach
+	
+
+WriteHtml( "<html><head><meta charset=\"utf-8\"><title>Commands</title></head>" +
+    "<body>");
+
+List("Player",cmdPlayer);
+
+List("Helper",cmdHelper);
+List("Coun",cmdCoun);
+List("Seer",cmdSeer);
+List("GM",cmdGm);
+List("Admin",cmdAdmin);
+List("Test",cmdTest);
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+function List(title, listed)
+WriteHtml( "<h1 name=\"title\">"+title+"</h1>" +
+    "<table border=1 cellspacing=0 cellpadding=5>" +
+    "<tr bgcolor=#99CCFF><th>Описание</th><th>CMD</th></tr>");
+
+    var i := 1;
+    foreach issue_key in (listed)
+
+
+        WriteHtml("<tr>" +
+                "<td>"+i+"</td>" +
+                "<td>."+issue_key.cmd+" "+issue_key.description+"</td>" +
+        "</tr>");
+
+        i+=1;
+    endforeach
+
+WriteHtml( "</table>" );
+
+endfunction
+
+
+function GetCfgValue(byref cfg_elem, value)
+	value := GetConfigString(cfg_elem, value);
+	if ( !value )
+		value := "";
+	endif
+	return value;
+endfunction

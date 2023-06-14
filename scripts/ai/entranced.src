@@ -6,7 +6,6 @@ use uo;
 include "include/eventID";
 include ":attributes:attributes";
 include "include/sysEvent";
-include "include/dist";
 
 var me := Self();
 
@@ -31,7 +30,7 @@ program entranced()
 
 	EraseObjProperty(me, "bardmaster");
 
-	while (GetHp(me))
+	while (AP_GetVital(me, VITALID_LIFE))
 
 	WalkToward(follower);
 

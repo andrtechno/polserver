@@ -1,0 +1,41 @@
+use os;
+use uo;
+use util;
+
+include ":alchemy:drinkPotion";
+include "include/canAccess";
+include "include/statMod";
+
+program drink_intellect(who, potion)
+  EraseObjProperty(who, "IsMeditating");
+  EraseObjProperty(who, "HealTimer");
+  if(!can_access(who, potion))
+    return;
+  endif
+  if(potion.movable == 0)
+    SendSysMessage(who, "You cannot drink that.");
+    return;
+  endif
+  if(CanMod(who, "#p_int"))
+	SendSysMessage(who,"Already under the influence!");
+	return;
+  endif
+  if(!CheckToDrink(who, "intellect"))
+    return;
+  endif
+
+  PlaySoundEffect(who, 0x1ef);
+  PlayObjectCenteredEffect(who, 0x373a, 7,7);
+  case(potion.objtype)
+    0x1DC23:
+        empty_bottle(who, potion);
+        DoTempMod(who, "#p_int", 10, 180); print("10");
+    0x1DC24:
+        empty_bottle(who, potion);
+        DoTempMod(who, "#p_int", 20, 180); print("20");
+    0x1DC25:
+        empty_bottle(who, potion);
+        DoTempMod(who, "#p_int", 30, 180); print("30");
+  endcase
+SendSysMessage(who, "intellect.");
+endprogram

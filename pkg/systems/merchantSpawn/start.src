@@ -1,0 +1,6 @@
+use uo;
+
+//include ":merchantSpawn:merchantSpawn";
+
+//print("Initializing merchantSpawn");
+//CreateMerchantSpawn();

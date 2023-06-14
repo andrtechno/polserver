@@ -276,7 +276,8 @@ function TS_StartTimer(mobile, timer_name, duration, level := 0, attacker := 0)
 	event.+type := EVENT_ADD_TIMER;
 	event.+name := CStr(timer_name);
 	event.+amount := duration;
-	event.+level := CInt(level);
+    //event.+level := CInt(level);
+    event.+level := level;
 	event.+attacker := attacker;
 
 	var process := TS_GetControllerProcess(mobile, START_CONTROLLER);

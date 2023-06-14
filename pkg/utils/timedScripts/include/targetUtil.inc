@@ -35,7 +35,9 @@ function TS_TargetEX(mobile, duration:=0, flags := TGTOPT_CHECK_LOS+TGTOPT_NEUTR
 	endif
 
 	var targ := Target(mobile, flags);
-
+    if(mobile.hidden)
+        return;
+    endif
 	if ( duration > 0 )
 		// Remove the target timer so new targets can be set up.
 		if ( CInt(TS_GetTimerDuration(mobile, "TargetControl")) > 0 )
@@ -75,7 +77,9 @@ function TS_TargetCoordinatesEX(mobile, duration:=0, flags := TGTOPT_NOCHECK_LOS
 	endif
 
 	var targ := TargetCoordinates(mobile);
-
+    if(mobile.hidden)
+        return;
+    endif
 	if ( duration > 0 )
 		// Remove the target timer so new targets can be set up.
 		if ( CInt(TS_GetTimerDuration(mobile, "TargetControl")) > 0 )

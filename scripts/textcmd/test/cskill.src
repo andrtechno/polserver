@@ -1,0 +1,18 @@
+use os;
+use uo;
+
+include ":attributes:attributes";
+
+program textcmd_buy(who)
+   // var ss := SkillCheck( who, ARMS_LORE, 10, 3 );
+   // SendSysMessage(who, "RESULT "+ss);
+
+
+
+   	var hunger := CInt(AP_GetVital(who, "Hunger"));
+
+            SendSysMessage(who, "Invisible: "+CStr(hunger), 3, 110);
+endprogram
+
+
+

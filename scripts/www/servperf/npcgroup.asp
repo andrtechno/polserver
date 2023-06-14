@@ -62,7 +62,7 @@ function top_ten_npc_zones()
 						zone.npc_count := npc_count;
 						zones.insert( i, zone );
 						zones.erase( 11 );
-						// print( zones );
+
 						break;
 					endif
 				endfor

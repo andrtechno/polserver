@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+program Install()
+
+endprogram
+
+exported function unHide(who)
+    return 1;
+endfunction
+

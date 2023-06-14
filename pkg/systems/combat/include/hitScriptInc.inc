@@ -5,6 +5,7 @@ use util;
 use math;
 use cfgfile;
 use vitals;
+
 include ":damage:damage";
 
 // DealDamage(defender, attacker, rawdamage)
@@ -102,8 +103,8 @@ function AdjustDamageFactor(weapon, defender, attacker)
 			factor := factor * 0.5;
 		elseif ("silver" in immune)
 			factor := 0;
-		endif	
-	endif	
+		endif
+	endif
 
 	if ( (GetObjProperty(weapon, "Magic") != error) or (GetObjProperty(weapon, "magic") != error) )
 		if ("magic" in vulnerable)
@@ -112,7 +113,7 @@ function AdjustDamageFactor(weapon, defender, attacker)
 			factor := factor * 0.5;
 		elseif ( ("magic" in immune) and (!silver) )
 			factor := 0;
-		endif	
+		endif
 	else
 		if ("nonmagic" in vulnerable)
 			factor := factor * 1.5;
@@ -120,8 +121,8 @@ function AdjustDamageFactor(weapon, defender, attacker)
 			factor := factor * 0.5;
 		elseif ( ("nonmagic" in immune) and (!silver) )
 			factor := 0;
-		endif	
-	endif	
+		endif
+	endif
 
 	if (factor == 0)
 		SendSysMessage(attacker, "Your weapon does not seem to be effective...");

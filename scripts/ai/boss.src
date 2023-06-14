@@ -6,12 +6,11 @@ use cfgfile;
 include "include/eventID";
 include ":attributes:attributes";
 include "include/sysEvent";
-include "include/randName";
-include "include/vetement";
+include ":npcs:randName";
 include "include/NPCUtil";
 include "include/objtype";
-include "include/dist";
-include "include/NPCCast";
+include ":npcs:NPCCast";
+include ":npcs:garment";
 include "include/anchors";
 include "ai/main/bossLoop";
 include "ai/combat/bossFight";
@@ -19,6 +18,7 @@ include "ai/combat/bossEvent";
 include "ai/setup/spellSetup";
 include "ai/main/loot";
 include "ai/main/sleepModeBoss";
+
 
 
 const HALT_THRESHOLD := 15;
@@ -29,15 +29,12 @@ var idlesnd1 := CInt(npccfgfile[me.npctemplate].idlesound1);
 var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
 
 program KillPlayers()
-  if (GetObjProperty(me, "frozen"))
-	me.frozen := 1;
-  endif
-  SetWarMode( 0 );
-  var anch := GetObjProperty(me,"Anchor");
-  if(!anch)
+    if (GetObjProperty(me, "frozen"))
+        me.frozen := 1;
+    endif
+    SetWarMode( 0 );
     drop_anchor();
-  endif
-  main_AI_loop();
+    main_AI_loop();
 endprogram
 
 function CloseDistance( opponent )
@@ -53,12 +50,12 @@ function CloseDistance( opponent )
 endfunction
 
 function Opendoors(me)
-  foreach door in ListItemsNearLocation(me.x, me.y, me.z, 1, me.realm)
-    if(door.isa(POLCLASS_DOOR))
-      if(!GetObjProperty(door, "WhenOpened" ))
-        start_script(":doors:openDoor", door);
-      endif
-      EraseObjProperty(door, "#inuse");
-    endif
-  endforeach
+    foreach door in ListItemsNearLocation(me.x, me.y, me.z, 1, me.realm)
+        if(door.isa(POLCLASS_DOOR))
+            if(!GetObjProperty(door, "WhenOpened" ))
+                start_script(":doors:openDoor", door);
+            endif
+            EraseObjProperty(door, "#inuse");
+        endif
+    endforeach
 endfunction

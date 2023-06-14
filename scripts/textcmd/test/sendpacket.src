@@ -3,6 +3,9 @@ use uo;
 use polsys;
 
 program textcmd_spack(who)
+SendPacket(who, "BF0006002603"); //runaway off ;)
+
+return;
 //traget
 /*
 var outp := CreatePacket(0x6C,19);
@@ -77,8 +80,6 @@ paquete.SetInt8(1, 3); // season flag: 4 - desolation
 paquete.SetInt8(2, 1); // don´t play sound
 //SendPacket(who, "BC0301");
 
-//print(upper(paquete));
-//print(typeof(paquete));
 //BC0401
 
 
@@ -139,7 +140,6 @@ function PlayCharAnim(who)
 
 	foreach chr in ListMobilesNearLocation(who.x, who.y, who.z, 16, who.realm);
 		SendPacket(chr, packetString);
-		print(packetString);
 	endforeach
 endfunction
 
@@ -151,6 +151,6 @@ packetString := packetString + fixPacketLength(hex(0),4);
 packetString := packetString + fixPacketLength(hex(type),2); // (for type = 0x04 use 0x00 - 0x04 values for different special flash effects
 // 0 - Fade out, 1 - Fade in, 2 - Flash, 3 - Fade In&Out, 4 - very short Black Flash
 packetString := packetString + fixPacketLength(hex(0),16);
-	print(packetString);
+
 SendPacket( who, packetString );
 endfunction

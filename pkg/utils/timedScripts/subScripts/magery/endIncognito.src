@@ -34,6 +34,7 @@ program TimedScript_EndIncognito(params)
 	var orig_hair := CreateItemInBackpack(mobile, original.hair);
 	orig_hair.color := original.hair_color;
 	EquipItem(mobile, orig_hair);
+	EraseObjProperty(mobile, "Incognito");
 
 	return 1;
 endprogram

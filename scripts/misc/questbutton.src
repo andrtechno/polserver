@@ -6,8 +6,9 @@ use DataFile;
 
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
+include ":gumps:confirmationSizable";
 include ":quests:quests";
-include "include/yesNo";
+//include "include/yesNo";
 
 program questButton(who)
     //SendSysMessage(who, "Quests in developer (c) panic", 3, 40);
@@ -15,7 +16,7 @@ program questButton(who)
 
             /*foreach package in Packages()
                 if(Find(package.name, "quest_", 0))
-                    print(package.name);
+                    //print(package.name);
                 endif
             endforeach*/
 
@@ -30,15 +31,22 @@ program questButton(who)
         var action := ReadConfigFile(":quest_"+activeQuest+":action");
         var missionsCount := GetConfigMaxIntKey(action);
         var actionText := action[qAction].Text;
+        var talkNpc := action[qAction].TalkNpc;
 
 
 	    var	missionElem := FindConfigElem( action, qAction );
 	    var	missionAward := GetConfigStringArray( missionElem, "Award" );
 
 
-        GFTextLine(gump, 15, 15, 1500, qlist[GetActiveQuest(who)][1]+" ("+(qAction)+"/"+(missionsCount)+")" );
+        GFTextLine(gump, 15, 15, 1500, qlist[GetActiveQuest(who)]+" ("+(qAction)+"/"+(missionsCount)+")" );
         //GFTextLine(gump, 250, 15, 0, "Статус: Активный");
 
+
+        if(talkNpc)
+            var npc := SystemFindObjectBySerial(talkNpc);
+            actionText["[TalkNpc]"] := npc.name;
+
+        endif
 
         var y_pos:=90;
         GFTextLine(gump, 15, y_pos - 25, 67, "Задание:" );
@@ -83,7 +91,7 @@ program questButton(who)
         endif
         GFAddButton(gump, 180, 460, 2071, 2072, GF_CLOSE_BTN, CInt(100));
 
-        var input := GFSendGump ( who, gump, 2);
+        var input := GFSendGump ( who, gump); //, 2 arg need add
         input := CInt(input[0]);
         case(input)
             100:

@@ -14,7 +14,7 @@ program ondelete(who)
     WipeBankBox( who, "magicbag_" );
     return 1;
   else
-    print("too young");
+    print("too young ondelete");
     return 0;
   endif
 endprogram

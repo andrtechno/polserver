@@ -1,0 +1,96 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+use datafile;
+use unicode;
+use os;
+
+include "include/client";
+include "include/log";
+include "util/bank";
+
+var data := struct{};
+data.+"success" := Boolean(0);
+data.+"message" := "";
+var QueryAccount := QueryParam("account");
+var QueryChar := QueryParam("char");
+var QueryAmount := CInt(QueryParam("amount"));
+var QueryIPAddress := QueryIP();
+
+
+//print(data);
+//return;
+
+
+var acc := FindAccount( QueryAccount );
+var member;
+
+    var i:=1;
+    for (i:=1; i<=5; i:=i+1)
+        member := acc.getcharacter(i);
+        if(member.name == QueryChar)
+
+            data.success := Boolean(1);
+            break;
+        endif
+    endfor
+
+
+if(!member || !QueryAmount)
+    data.success := Boolean(0);
+endif
+if(!member)
+    data.message := "no find account or char";
+endif
+
+if(!QueryAmount)
+    data.message := "error amount";
+endif
+
+if(data.success)
+    WriteHtml( "GOOD!");
+    data.message := "success!!!!";
+
+var am := QueryAmount;
+    var bonus := 0;
+    if(QueryAmount >= 400)
+        bonus := 20;
+    elseif(QueryAmount >= 300)
+        bonus := 15;
+    elseif(QueryAmount >= 200)
+        bonus := 10;
+    elseif(QueryAmount >= 100)
+        bonus := 5;
+    endif
+
+    if(bonus)
+        am := am + CInt(QueryAmount * bonus / 100);
+    endif
+
+    SendSysMessageUC(member, "[SERVER]: Вам в банк начислено "+am+" donate coins.", "RUS", color := 67);
+
+    var item := CreateItemInInventory( FindBankBox(member), "donatecoin", am );
+    if(!item)
+        data.success := Boolean(0);
+        data.message := "ERROR";
+        SendSysMessageUC(member, "[SERVER]: У вас полный банк.", "RUS", color := 33);
+        item := CreateItemInBackpack( member, "donatecoin", am );
+        if(!item)
+            data.success := Boolean(0);
+            data.message := "ERROR";
+            SendSysMessageUC(member, "[SERVER]: У вас полный бэкбак.", "RUS", color := 33);
+        endif
+    endif
+    if(item)
+        LogDonate(member, am);
+    endif
+
+
+endif
+
+
+
+
+
+    WriteHtml( PackJSON(data) );

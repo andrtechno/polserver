@@ -1,0 +1,32 @@
+/*
+Applies scaling direct damage between 10-15 based on weapon speed. Ranged weapons mana drain max 50% and return max 40%.
+Melee weapons mana drain max 80% and return max 70%. Two handed melee weapons mana drain max 80% and returned max 40%.
+
+Применяет масштабирование прямого урона между 10-15 в зависимости от скорости оружия.
+Оружие дальнего боя истощает максимум 50% маны и возвращает максимум 40%.
+
+Оружие ближнего боя истощает максимум 80% маны и возвращает максимум 70%.
+Двуручное оружие ближнего боя истощает максимум 80% маны и возвращает максимум 40%.
+
+*/
+
+include ":weapons:weaponInfo";
+
+program ability_сoncussionBlow(params)
+    var attacker := params[1];
+    var defender := params[2];
+
+	var wpn_range := CInt( CS_GetWeaponInfo( attacker.weapon, "MaxRange" ));
+    var wpn_speed := CInt( CS_GetWeaponInfo( attacker.weapon, "Speed" ));
+    print("wpn_speed :"+wpn_speed);
+
+    if(wpn_range > 2)
+        //ranger
+        print("wpn_range :"+wpn_range);
+    endif
+
+   // print(" RANGE :"+attacker.weapon);
+
+
+    return 1;
+endprogram

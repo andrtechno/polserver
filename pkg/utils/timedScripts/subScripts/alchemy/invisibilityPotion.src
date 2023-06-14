@@ -1,0 +1,48 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":alchemy:drinkPotion";
+include "include/canAccess";
+include "include/client";
+include ":timedScripts:timedScripts";
+
+const TIME_IN_HIDE := 20;
+
+program TimedScript_InvisibilityPotion(params)
+	var mobile := params[1];
+	var point := params[3];
+	var duration := params[4];
+
+    var th := duration;
+
+	var cfg_elem := TS_GetCfgElem("InvisibilityPotion");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+    SetObjProperty(mobile, "InvisibilityPotion", 1);
+    mobile.addBuff(buff_icon, 0, cliloc_name, cliloc_desc, "");
+    mobile.hidden := 1;
+    if(!mobile.hidden)
+        PrintTextAbovePrivateUC(mobile, "Вы успешно спрятались!", "RUS", mobile, 3, MESSAGE_COLOR_GOOD);
+    endif;
+    var oldx := mobile.x;
+    var oldy := mobile.y;
+    for( th:=duration; th>=1; th:= th - 1 )
+        if((oldx == mobile.x) && (oldy == mobile.y))
+            if(th <= 3)
+                SendSysMessageUC(mobile, "Вы будете обнаружены через: " + CStr(th)+" сек.", "RUS", 3, MESSAGE_COLOR_BAD);
+            endif
+            Sleep(1);
+        else
+            break;
+        endif
+    endfor
+
+    TS_LowerDuration(mobile, "InvisibilityPotion", -1);
+
+	return 1;
+endprogram
+

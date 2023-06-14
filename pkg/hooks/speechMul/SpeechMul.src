@@ -1,0 +1,16 @@
+use os;
+use uo;
+
+
+exported function Speech(character, speechtokens, msg)
+
+print("SpeechMUL!!!!!!!!!!!!!!!!!");
+    print("character " + character);
+    print("speechtokens " + speechtokens);
+    print("msg " + msg);
+    return 1;
+endfunction
+
+program Install()
+
+endprogram

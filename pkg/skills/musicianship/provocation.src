@@ -5,10 +5,8 @@ use cfgfile;
 
 include "include/client";
 include "include/objtype";
-//include "include/skillPoints";
 include "include/bard";
 include "include/eventID";
-include "include/dist";
 
 program bard_provoke(who)
   EraseObjProperty(who, "IsMeditating");
@@ -27,11 +25,11 @@ program bard_provoke(who)
   endif
   SendSysMessage(who, "Select the creature to provoke.");
   var thetarg := Target(who, TGTOPT_HARMFUL);
-  if((!thetarg) || (!thetarg.npctemplate))
+  if((!thetarg)) // || (!thetarg.npctemplate)
     SendSysMessage(who, "Targetting cancelled.");
     return;
   endif
-  if(dist(who, thetarg) > 10)
+  if(Distance(who, thetarg) > 10)
     SendSysMessage(who, "The target is too far away.");
     return;
   endif
@@ -39,16 +37,16 @@ program bard_provoke(who)
   var theobj:= thetarg.npctemplate;
   var elem := FindConfigElem(configfile, theobj);
   var difficulty;
-  if(elem)
+  /*if(elem)
 	difficulty := elem.provoke;
   else
     SendSysMessage(who, "You cannot provoke that!");
     return;
-  endif
+  endif*/
   if(!difficulty)
 	difficulty := 100;
   endif
-  var ev := array;
+  var ev := Struct;
   ev.+ type;
   ev.+ source;
   if(difficulty < 1)
@@ -63,7 +61,7 @@ program bard_provoke(who)
           SendSysMessage(who, "You can't provoke something onto itself!");
           return;
         endif
-	if((dist(thetarg, newtarg) > 10) || (dist(who, newtarg) > 10))
+	if((Distance(thetarg, newtarg) > 10) || (Distance(who, newtarg) > 10))
 	  SendSysMessage(who, "The target is too far away.");
 	  return;
 	endif

@@ -27,7 +27,7 @@ program flasher(parms)
   PlayStationaryEffect( potion.x, potion.y, potion.z, 0x3728, 7, 10, 1, potion.realm);
   //PlaySoundEffect(potion, 0x25fd);
   SubtractAmount( potion, 1 );
-    print(location);
+
   // It damages everything near it.
   foreach critter in ListMobilesNearLocation( location.x, location.y, location.z, 15, who.realm );
     PlayObjectCenteredEffect( critter, 0x37c4, 7, 0x10 );

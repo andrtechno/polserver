@@ -62,8 +62,8 @@ program create_account()
             endcase
 			data.+"attribute" := "account";
         else
-            account.set_uo_expansion("TOL");
-            account.setProp("email", email);
+            account.set_uo_expansion("AOS");
+            account.setProp("Email", email);
             account.setProp("DateReg", ReadGameClock());
             data.+"success" := Boolean(1);
             data.+"message" := "Аккаунт успешно создан.";

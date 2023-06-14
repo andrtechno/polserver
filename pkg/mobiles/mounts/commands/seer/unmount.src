@@ -1,0 +1,15 @@
+use uo;
+use os;
+
+include ":mounts:mounts";
+
+program command_Mount( who )
+    SendSysMessage(who,"Select a mobile");
+    var mobile := Target(who);
+
+    if(!mobile)
+        SendSysMessage(who,"Cancelled.");
+        return;
+    endif
+    MP_Unmount( mobile );
+endprogram

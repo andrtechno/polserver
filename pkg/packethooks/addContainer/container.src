@@ -1,0 +1,50 @@
+use uo;
+
+const ITEMS_OFFSET      := 5;
+const BLOCK_LEN         := 19;
+const KR_BLOCK_LEN      := 20;
+
+program InstallHandleBuyItems()
+
+	Print("PacketHooks - Buy Items" );
+
+	return 1;
+endprogram
+
+exported function HandleAdd( mobile, byref newPacket )
+
+
+  var Packet := newPacket;
+  var Items := array;
+  var Count := Packet.GetInt16(3);
+  var i, Item, oOffset, nOffset;
+
+  /*for(i:=0; i<Count; i+=1)
+    Item := struct;
+    oOffset := ITEMS_OFFSET+i*BLOCK_LEN;
+    nOffset := ITEMS_OFFSET+i*KR_BLOCK_LEN;
+
+    Item.+serial := Packet.GetInt32(oOffset);
+    Item.+model  := Packet.GetInt16(oOffset+4);
+    Item.+amount := Packet.GetInt16(oOffset+7);
+    Item.+x      := Packet.GetInt16(oOffset+9);
+    Item.+y      := Packet.GetInt16(oOffset+11);
+    Item.+parent := Packet.GetInt32(oOffset+13);
+    Item.+color  := Packet.GetInt16(oOffset+17);
+
+    newPacket.SetInt32(nOffset, Item.serial);
+    newPacket.SetInt16(nOffset+4, Item.model);
+    newPacket.SetInt8(nOffset+6, 0);
+    newPacket.SetInt16(nOffset+7, Item.amount);
+    newPacket.SetInt16(nOffset+9, Item.x);
+    newPacket.SetInt16(nOffset+11, Item.y);
+    newPacket.SetInt8(nOffset+13, 0);
+    newPacket.SetInt32(nOffset+14, Item.parent);
+    newPacket.SetInt16(nOffset+18, Item.color);
+
+  endfor*/
+
+
+
+	return 0;
+endfunction

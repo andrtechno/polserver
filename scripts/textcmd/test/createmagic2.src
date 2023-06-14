@@ -1,0 +1,247 @@
+use cfgfile;
+use util;
+
+
+include ":oldstyle-gumps:gumps";
+include ":attributes:attributes";
+include "include/gumpUtil";
+include "include/client";
+include "include/startEqp";
+
+gfref.x := 50;
+gfref.y := 50;
+
+var metal;
+program use_hammer(who)
+
+    GFInitGump(0, 0);
+    GFNoDispose();
+    //GFNoClose();
+    GFPage(0);
+    GFResizePic(0, 60, 2600, 500, 400);
+    GFGumpPic(20, 120, 5100);
+    GFGumpPic(28, 120, 5101);
+    GFGumpPic(118, 120, 5101);
+    GFGumpPic(208, 120, 5101);
+    GFGumpPic(298, 120, 5101);
+    GFGumpPic(370, 120, 5101);
+    GFGumpPic(460, 120, 5102);
+    GFGumpPic(20, 128, 5103);
+    GFGumpPic(28, 128, 5104);
+    GFGumpPic(118, 128, 5104);
+    GFGumpPic(208, 128, 5104);
+    GFGumpPic(298, 128, 5104);
+    GFGumpPic(370, 128, 5104);
+    GFGumpPic(460, 128, 5105);
+    GFGumpPic(20, 136, 5058);
+    GFGumpPic(118, 136, 5058);
+    GFGumpPic(232, 136, 5058);
+    GFGumpPic(350, 136, 5058);
+    GFGumpPic(20, 136, 5106);
+    GFGumpPic(28, 136, 5107);
+    GFGumpPic(118, 136, 5107);
+    GFGumpPic(208, 136, 5107);
+    GFGumpPic(298, 136, 5107);
+    GFGumpPic(370, 136, 5107);
+    GFGumpPic(460, 136, 5108);
+    GFGumpPic(28, 278, 5104);
+    GFGumpPic(118, 278, 5104);
+    GFGumpPic(208, 278, 5104);
+    GFGumpPic(298, 278, 5104);
+    GFGumpPic(368, 278, 5104);
+    GFGumpPic(20, 278, 5103);
+    GFGumpPic(460, 278, 5105);
+    GFGumpPic(20, 226, 5058);
+    GFGumpPic(118, 226, 5058);
+    GFGumpPic(232, 226, 5058);
+    GFGumpPic(350, 226, 5058);
+    GFGumpPic(20, 366, 5106);
+    GFGumpPic(28, 366, 5107);
+    GFGumpPic(118, 366, 5107);
+    GFGumpPic(208, 366, 5107);
+    GFGumpPic(298, 366, 5107);
+    GFGumpPic(370, 366, 5107);
+    GFGumpPic(460, 366, 5108);
+    GFGumpPic(20, 350, 5100);
+    GFGumpPic(28, 350, 5101);
+    GFGumpPic(118, 350, 5101);
+    GFGumpPic(208, 350, 5101);
+    GFGumpPic(298, 350, 5101);
+    GFGumpPic(370, 350, 5101);
+    GFGumpPic(460, 350, 5102);
+    GFTextLine(110,  80, 900, "Magic item Menu");
+    GFTextLine( 30, 121,   0, "Weapons");
+    GFTextLine(140, 121,   0, "Armor");
+    GFTextLine(260, 121,   0, "Shields");
+    GFTextLine(370, 121,   0, "Cloths");
+    GFTextLine(30,  351,   0, "Misc");
+    GFTextLine(120, 351,   0, "Prof");
+
+
+    GFTextLine( 90, 380, 900, "Make Last");
+
+    var lastitm := GFButtonID( 70, 384,   3, 4, 99);
+    var close   := GFButtonID(410, 380, 242, 241, 1);
+    GFButtonPage(90, 123, 5209, 5209,  2);
+    GFButtonPage(190, 123, 5209, 5209,  3);
+    GFButtonPage(310, 123, 5209, 5209,  4);
+    GFButtonPage(435, 123, 5209, 5209,  5);
+    GFButtonPage(90, 353, 5209, 5209,  6);
+    GFButtonPage(180, 353, 5209, 5209,  7);
+
+
+
+    var ss := ComposeSubMenu();
+
+    var res := GFSendGump(who);
+    if((res[0] == 999) || (res[close.keyid]))
+        SendSysMessage(who, "Cancelled");
+        return;
+    endif
+
+
+    var the_objtype := res[0];
+    if(res[lastitm.keyid])
+        the_objtype := GetObjProperty(who, "LastMagicItem");
+        if(!the_objtype)
+            SendSysMessage(who, "You have never smithed before.");
+            return;
+        endif
+    endif
+    SetObjProperty(who, "LastMagicItem", the_objtype);
+
+
+              var canbemagic := MISC;
+              var magicadjustment:=6;
+    var item := CreateItemInBackpack( who, the_objtype, 1 );
+var magic := ApplyMagic(who, item, magicadjustment, canbemagic);
+
+endprogram
+
+function ComposeSubMenu()
+    var num := 2;
+    var list := {};
+    var type := 0; //////
+    while(num < 9)
+        case(num)
+            2:
+                GFPage(2);  // Page 2 (weapons)
+                list := {
+                    struct{checkboxID := 3921, text := "Dagger"},
+                    struct{checkboxID := 3936, text := "Long sword"},
+                    struct{checkboxID := 5126, text := "War mace"},
+                    struct{checkboxID := 5122, text := "Spear"},
+                    struct{checkboxID := 5124, text := "War fork"},
+                    struct{checkboxID := 3934, text := "Broad sword"},
+                    struct{checkboxID := 5121, text := "Kryss"},
+                    struct{checkboxID := 5184, text := "Cutlass"},
+                    struct{checkboxID := 5118, text := "Katana"},
+                    struct{checkboxID := 5176, text := "War hammer"},
+                    struct{checkboxID := 5180, text := "Hammer pick"},
+                    struct{checkboxID := 3939, text := "Spear"},
+                    struct{checkboxID := 5045, text := "Scimitar"},
+                    struct{checkboxID := 5122, text := "Short spear"},
+                    struct{checkboxID := 3932, text := "Mace"},
+                    struct{checkboxID := 5178, text := "Maul"},
+                    struct{checkboxID := 5182, text := "Halberd"},
+                    struct{checkboxID := 5049, text := "Viking sword"}
+                };
+
+                GFList(list);
+            3:
+                GFPage(3);  // Page 3 (Armor)
+                list := {
+                    struct{checkboxID := 5139, text := "Platemail Gorget"},
+                    struct{checkboxID := 5140, text := "Platemail Gloves"},
+                    struct{checkboxID := 5136, text := "Platemail Arms"},
+                    struct{checkboxID := 5137, text := "Platemail Leggings"},
+                    struct{checkboxID := 5141, text := "Breastplate"},
+                    struct{checkboxID := 7172, text := "Female Plate"},
+                    struct{checkboxID := 5138, text := "Plate Helm"},
+                    struct{checkboxID := 5130, text := "Helmet"},
+                    struct{checkboxID := 5132, text := "Bascinet"},
+                    struct{checkboxID := 5134, text := "Nose Helm"},
+                    struct{checkboxID := 5128, text := "Close Helmet"}
+
+                };
+                GFList(list);
+
+            4:
+                GFPage(4);  // Page 4 (shields)
+                list := {
+                    struct{checkboxID := 7027, text := "Buckler"},
+                    struct{checkboxID := 7026, text := "Bronze shield"},
+                    struct{checkboxID := 7035, text := "Metal shield"},
+                    struct{checkboxID := 7032, text := "Kite shield"},
+                    struct{checkboxID := 7028, text := "Kite shield (2)"},
+                    struct{checkboxID := 7030, text := "Heater shield"}
+                };
+                GFList(list);
+            5:
+                GFPage(5);  //Page 5 (Cloths)
+                list := {
+                    struct{checkboxID := 0, text := "Robe"},
+                    struct{checkboxID := 0, text := "Cloak"},
+                    struct{checkboxID := 0, text := "Leather Boots"},
+                    struct{checkboxID := 0, text := "Thigh Boots"}
+                };
+                GFList(list);
+
+            6:
+                GFPage(6);        //Page 6 (Misc)
+                list := {
+                    struct{checkboxID := 0x108A, text := "ring"},
+                    struct{checkboxID := 0x1086, text := "bracelet"},
+                    struct{checkboxID := 0x1087, text := "earings"},
+                    struct{checkboxID := 0x1085, text := "necklace"},
+                    struct{checkboxID := 0x1088, text := "goldnecklace"},
+                    struct{checkboxID := 0x1089, text := "goldnecklace2"},
+                    struct{checkboxID := 0x1f0a, text := "silvernecklace"}
+                };
+
+
+
+                GFList(list);
+            7:
+                GFPage(7);        //Page 7 (Bladed)
+
+
+
+        endcase
+        num := num + 1;
+    endwhile
+
+
+
+
+
+    return num;
+endfunction
+
+
+function GFList(list)
+    var y:= 135;
+    var x:= 25;
+    var counter := 0;
+    foreach item in list
+        if(counter % 3 == 0)
+            y += 25;
+            x := 25;
+        endif
+        GFButtonIDC(x, y, 210, 211, 1, item.checkboxID);
+        GFTextLine(x+25, y, 2100, item.text);
+        counter+=1;
+        x += 150;
+    endforeach
+
+endfunction
+
+function GFButtonIDC(x, y, release, press, close, retval)
+    var line := "button " + CStr(gfref.x + CInt(x)) + " " + CStr(gfref.y + CInt(y));
+	line := line + " " + CStr(CInt(release)) + " " + CStr(CInt(press)) + " ";
+	line := line + CStr(CInt(close)) + " 0 ";
+	line := line + CStr(CInt(retval));
+	gflayout.append( line );
+endfunction
+
+

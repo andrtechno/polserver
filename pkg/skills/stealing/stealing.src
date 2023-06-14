@@ -24,9 +24,15 @@ program skill_stealing(who)
     data[2] := ReadGameClock();
     data[3] := SKILLID_STEALING;
     SetObjProperty(who, "LastUsedSkill", data );
-
-
     TrainingSkill(who, data[3]);
+
+//@todo Сделать пролверку на (Returns CharRef of Player holding item, Error if not being held) под вопросом. вроде работает и так.
+
+//@todo Добавить если чар вышел.
+//The player is no longer online.
+
+
+
 
 	SendSysMessage(who, "Who would you like to steal?");
     mex := who.x;
@@ -38,29 +44,49 @@ program skill_stealing(who)
     endif
 
 
-	if(Distance(who, victim) > 1)
+
+    var reali := GetObjProperty(victim, "realitem");
+
+	if(Distance(who, victim) > 2)
 		SendSysMessage(who, "You need to stay close to "+ victim.name+" !");
+		return;
 	endif
 
-    if((who.x != mex) || (who.y != mey))
-        //DestroyItem(SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"),0));
+    if (!reali)
+        //SendSysMessage(who, "No need to steel this.");
+        SendSysMessage(who, "You cannot steal that.");
         return;
     endif
 
-    var realitem := SystemFindObjectBySerial(GetObjProperty(victim,"realitem"),0);
+    var realitem := SystemFindObjectBySerial(reali,0);
 
-    var pts := CInt(GetAttribute(who, STEALING)) + 15;
+    var pts := CInt(GetDexterity(who)/2);
+    SendSysMessage(who, "pts: "+pts);
 
-	if (SkillCheck(who, STEALING, GetDiff(who, victim), pts))
+	if (SkillCheck(who, STEALING, -1))
         victim.movable:= 1;
         MoveItemToContainer(realitem, who.backpack);
         DestroyItem(victim);
         SendSysMessage(who, "You have successfully stolen the item.");
     else
 	    tellplayers(who);
-	    callguard(who);
+	    //callguard(who);
 	    who.setCriminal(1);
         SendSysMessage(who, "fail stealing.");
 	endif
 
 endprogram
+
+
+function GetDiff23(item, who)
+    print("-------------- "+who.name);
+    print("weight: "+item.weight);
+    var skill := GetEffectiveSkill( who, SKILLID_STEALING );
+    print("skill "+skill);
+
+
+    var chance := item.weight;
+
+    SendSysMessage(who, "chance: "+chance);
+    return chance;
+endfunction

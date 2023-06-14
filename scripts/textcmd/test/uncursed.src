@@ -1,0 +1,13 @@
+use uo;
+
+
+function textcmd_uncurse( who )
+
+	var item := Target(who);
+	//EraseObjProperty( item, "cursed" );
+
+	if(GetObjProperty( item, "type" ) == "cursed")
+	    EraseObjProperty( item, "type" );
+	endif
+
+endfunction

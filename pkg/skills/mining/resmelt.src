@@ -5,7 +5,7 @@ use cfgfile;
 include "include/canAccess";
 include ":attributes:attributes";
 include "include/client";
-include "include/const";
+include "include/objtype";
 
 program resmelt(who)
   var itemcfg   := ReadConfigFile(":mining:itemdesc");
@@ -104,20 +104,20 @@ program resmelt(who)
 
 
     var valid_ingot := {
-    INGOT_IRON,
-    INGOT_STEEL,
-    INGOT_ANRA,
-    INGOT_VALORITE,
-    INGOT_LAVAROCK,
-    INGOT_ICEROCK,
-    INGOT_SHADOW,
-    INGOT_AZURITE,
-    INGOT_DOOM,
-    INGOT_BLUESTEEL,
-    INGOT_DARKRUBY,
-    INGOT_CRYSTALIT,
-    INGOT_ONYX,
-    INGOT_MIFRIL
+    UOBJ_INGOT_IRON,
+    UOBJ_INGOT_STEEL,
+    UOBJ_INGOT_ANRA,
+    UOBJ_INGOT_VALORITE,
+    UOBJ_INGOT_LAVAROCK,
+    UOBJ_INGOT_ICEROCK,
+    UOBJ_INGOT_SHADOW,
+    UOBJ_INGOT_AZURITE,
+    UOBJ_INGOT_DOOM,
+    UOBJ_INGOT_BLUESTEEL,
+    UOBJ_INGOT_DARKRUBY,
+    UOBJ_INGOT_CRYSTALIT,
+    UOBJ_INGOT_ONYX,
+    UOBJ_INGOT_MIFRIL
     };
 
     foreach entry in valid_ingot

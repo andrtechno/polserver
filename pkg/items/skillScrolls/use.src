@@ -1,0 +1,20 @@
+use uo;
+
+include ":attributes:attributes";
+include "include/client";
+
+program use_item(who, item)
+    var skill := CInt(GetObjProperty(item, "skilladv"));
+    var skill_value := CDbl(GetObjProperty(item, "skilladvamount"));
+    var skill_name := GetSkillConfigElem(skill).Attribute;
+    var new_value := AP_GetTrueSkill(who, skill_name) + skill_value;
+
+    if(new_value < 150)
+        SendSysMessage(who, "Your skill "+skill_name+" is up +"+skill_value, color := MESSAGE_COLOR_GOOD);
+        AP_SetTrueSkill( who, skill_name, new_value );
+    else
+            SendSysMessage(who, "Your skill "+skill_name+" is full.", color := MESSAGE_COLOR_BAD);
+    endif
+
+    DestroyItem(item);
+endprogram

@@ -1,0 +1,39 @@
+use os;
+use uo;
+include ":gumps:selectionGump";
+
+program textcmd_iplist(who)
+    var targ := Target(who);
+    if (!targ)
+        return 0;
+    endif
+	var char;
+    var playersList := array;
+	var online_players := EnumerateOnlineCharacters();
+    var online_players_names := {};
+    var i := 1;
+    foreach player in online_players
+        if(player.ip == targ.ip)
+            if(who.cmdlevel > 3)
+                online_players_names.append(i+". [acc: "+player.acctname+"] "+player.name);
+            else
+                online_players_names.append(i+". "+player.name);
+            endif
+
+            playersList.append(player);
+            i+=1;
+        endif
+    endforeach
+
+
+    var selection := SelectionGump( who, "IP: "+targ.ip, online_players_names, BTN_TYPE_RADIO );
+    foreach thing in online_players_names
+        if(thing == selection)
+            char := online_players[_thing_iter];
+            break;
+        endif
+    endforeach
+    MoveObjectToLocation(who, char.x, char.y, char.z, char.realm);
+
+    return 1;
+endprogram

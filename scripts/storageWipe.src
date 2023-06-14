@@ -3,6 +3,8 @@ use uo;
 use vitals;
 use storage;
 
+include ":damage:damage";
+
 program storagewipe()
 
 	set_critical(0);//without list line it runs fast, goes RunAway, makes megalag.
@@ -23,7 +25,7 @@ program storagewipe()
 	endnum := npctest.serial;
 	RevokePrivilege( npctest, "invul" );
 	SetObjProperty(npctest, "guardkill", 1);
-	ApplyRawDamage( npctest, 510 );
+	KillMobile(npctest);
 
 	print("Wiping orphaned storage locations");
 	var tamedstorage, merchantstorage, inv_fs, inv_pb, inv_1c;
@@ -31,7 +33,6 @@ program storagewipe()
 	merchantstorage := FindStorageArea( "Merchant Storage" );
 
 	var containername;
-	var container;
 	var num := 0;
 	var mercs := 0;
 	var i;
@@ -49,7 +50,7 @@ program storagewipe()
 			if (DestroyRootItemInStorageArea( merchantstorage, inv_fs))
 				DestroyRootItemInStorageArea( merchantstorage, inv_pb);
 				DestroyRootItemInStorageArea( merchantstorage, inv_fs);
-				print("Merchant Storage destroyed for "+i);
+				print("Merchant_Storage destroyed for "+i);
 				mercs := mercs +1;
 			endif
 		endif
@@ -59,5 +60,4 @@ program storagewipe()
 	print("Searched from " + startnum + " through " + endnum);
 	print("Total Tamed areas destroyed: "+num);
 	print("Total Merc areas destroyed: "+mercs);
-
 endprogram

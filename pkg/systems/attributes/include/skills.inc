@@ -13,7 +13,7 @@
 use uo;
 
 include "include/eventID";
-
+include ":charclasses:classes";
 /*
  * AP_GetSkill(mobile, skill_name)
  *
@@ -89,14 +89,13 @@ endfunction
  */
 function AP_SetTrueSkill( mobile, skill_name, points )
 
-    var result;
+        var result;
 	if( points >= 0 )
 		result := SetAttributeBaseValue( mobile, skill_name, CInt( CDbl( points ) * 10.0 + 0.1 ));
 	else
 		result := SetAttributeBaseValue( mobile, skill_name, CInt( CDbl( points ) * 10.0 - 0.1 ));
 	endif
-    VitalClassCharacter(mobile, AP_AttributeNameToSkillId(skill_name));
-
+    AssignClasse( mobile );
 	RecalcVitals( mobile );
 	return result;
 endfunction
@@ -119,7 +118,7 @@ endfunction
  */
 function AP_SetSkillMod( mobile, skill_name, points )
 
-	var result := SetAttributeTemporaryMod( mobile, skill_name, CInt( CDbl( points ) * 10 ));
+	var result := SetAttributeTemporaryMod( mobile, skill_name, CInt( CDbl( points ) * 10.0 ));
 	RecalcVitals( mobile );
 	return result;
 endfunction
@@ -196,6 +195,20 @@ function AP_GetSkillStats( attribute_name )
 	return stat_entries;
 endfunction
 
+/*
+ * AP_GetSkillDefaultAward(skill_name)
+ *
+ * Purpose
+ * Retrieves the default points awarded for a skill if SkillCheck
+ * is successful.
+ *
+ * Parameters
+ * skill_name:	Name of the skill to retrieve default points for.
+ *
+ * Return value
+ * Returns an integer or error if the skill has no AwardDefault entry.
+ *
+ */
 function AP_GetSkillDefaultAward( skill_name )
 
 	var elem_info := AP_GetAttributeCfgElem( skill_name );
@@ -211,10 +224,12 @@ function AP_GetSkillDefaultAward( skill_name )
 endfunction
 
 /*
- * AP_GetSkillCap(skill_name)
+ * AP_GetSkillCapByName(skill_name:="")
  *
  * Purpose
  * Gets the number a skill caps at.
+ * If no skill_name specified it retrieves the general
+ * skill cap.
  *
  * Parameters
  * skill_name: Name of the skill to check
@@ -226,11 +241,11 @@ endfunction
 function AP_GetSkillCapByName(skill_name:="")
 	var cfg_elem := AP_GetSettingsCfgElem("Skills");
 	var cap_val;
-	
+
 	if ( skill_name )
 		// Check if there is a cap for that particular skill.
 		cap_val := GetConfigReal(cfg_elem, skill_name);
-	
+
 		if ( !cap_val )
 			// No skill specific cap so get the general one.
 			cap_val := GetConfigReal(cfg_elem, "SkillCap");
@@ -238,7 +253,7 @@ function AP_GetSkillCapByName(skill_name:="")
 	else
 		cap_val := GetConfigReal(cfg_elem, "SkillCap");
 	endif
-	
+
 	return cap_val;
 endfunction
 
@@ -347,7 +362,7 @@ function AwardPoints(who, skillid, skillpoints)
     elseif(Cint(skillid)== error)
 		return 0;
     endif
-	
+
     // Make the skillid an integer
     skillid := Cint(skillid);
     // Reads the info from skillsdef.cfg to determine which stats will be affected by the skills being used.
@@ -497,7 +512,7 @@ function AwardPoints(who, skillid, skillpoints)
     elseif(Cint(skillid)== error)
       return 0;
     endif
-	
+
     // Make the skillid an integer
     skillid := Cint(skillid);
     // Reads the info from skillsdef.cfg to determine which stats will be affected by the skills being used.
@@ -638,8 +653,8 @@ function AwardRawSkillPoints(who, skillid, rawpoints)
 endfunction
 */
 function GetSkillConfigElem(skillid)
-//  var skdefcfg := ReadConfigFile(":attributes:uoskills");
-  var skdefcfg := ReadConfigFile(":attributes:skills");
+  var skdefcfg := ReadConfigFile(":attributes:uoskills");
+//var skdefcfg := ReadConfigFile(":attributes:skills");
   if(!skdefcfg)
     return skdefcfg;
   else
@@ -647,4 +662,26 @@ function GetSkillConfigElem(skillid)
   endif
 endfunction
 
+//////////////////////////////////////////////////////////////////////////////////////////
+//
+//	AP_GetPlayerTotalSkillPoints( player )
+//
+//	Purpose:	Totals all of the attribute (skill) points for a player.
+//
+//	Parameter:	mobileref::player
+//
+//	Returns:	The aggregate of a player's skill points.
+//
+//	Created:	2022-10-08 18:44:06 by Yukiko
+//
+//////////////////////////////////////////////////////////////////////////////////////////
+function AP_GetPlayerTotalSkillPoints( player )
 
+	var attrib_names := AP_ListAttributesByType( "Skill" );
+	var attrib_points := 0;
+	foreach attrib_name in attrib_names
+		attrib_points := attrib_points + GetAttributeBaseValue( player, attrib_name );
+	endforeach
+	return attrib_points;
+
+endfunction

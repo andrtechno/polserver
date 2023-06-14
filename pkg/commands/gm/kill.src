@@ -1,8 +1,9 @@
 use os;
 use uo;
 use boat;
-include ":attributes:attributes";
 
+include ":attributes:attributes";
+include ":damage:damage";
 
 program textcmd_kill( who )
     var tgt := TargetCoordinates( who );
@@ -11,12 +12,8 @@ program textcmd_kill( who )
 
         if (!mob.dead)
             RevokePrivilege( mob, "invul" );
-            var s := mob.script;
-            if((mob.npctemplate) && (s == "merchant") || (s == "stablemaster") || (s == "auctioneer") || (s == "barber") || (s == "battleMage"))
-                SetObjProperty(mob, "guardkill", 1);
-            endif
-
-            ApplyRawDamage( mob, CInt(AP_GetVital(mob, HITS)) + 1000 );
+            SetObjProperty(mob, "guardkill", 1);
+            KillMobile(mob);
         else
             SendSysMessage( who, "That Tickles!" );
         endif

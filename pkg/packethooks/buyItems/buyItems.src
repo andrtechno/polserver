@@ -1,0 +1,55 @@
+use uo;
+
+use storage;
+include "include/utility";
+
+program InstallHandleBuyItems()
+
+	Print("PacketHooks - Buy Items" );
+
+	return 1;
+endprogram
+
+exported function HandleBuyItems( mobile, byref packet )
+
+    var blockSize := packet.GetInt16( 1 );
+    var vendorID := packet.GetInt32( 3 );
+    var flag := packet.GetInt8( 4 );
+
+    var vendor := SystemFindObjectBySerial(vendorID);
+    var storage := find_or_create_storage("Merchant Storage");
+
+    print("HandleBuyItems vendorID" + vendorID);
+    print("HandleBuyItems blockSize" + blockSize);
+    print("HandleBuyItems flag" + flag);
+
+    var myanchor     := GetObjProperty(vendor, "Anchor");
+    var merchant_type := GetObjProperty(vendor, "MerchantType");
+    var spawnname := merchant_type + " " + myanchor[1] + " " + myanchor[2] + " " + myanchor[3];
+
+    var inv_fs := FindRootItemInStorageArea(storage, spawnname + " FS");
+    var inv_pb := FindRootItemInStorageArea(storage, spawnname + " PB");
+    var inv_1c := FindRootItemInStorageArea(storage, spawnname + " 1C");
+    var inv_rs := FindRootItemInStorageArea(storage, spawnname + " RS");
+
+    print(inv_fs.name);
+    print(inv_pb.name);
+    print(inv_1c.name);
+    print(inv_rs.name);
+
+    foreach it in EnumerateItemsInContainer( inv_fs, flags := 0 )
+        print("inv_fs "+it.name+"/"+it.amount);
+            var test := packet.GetInt8( 4 );
+
+                print(test);
+    endforeach
+
+
+    foreach it in EnumerateItemsInContainer( inv_rs, flags := 0 )
+       // print("inv_rs "+it.name+"/"+it.amount);
+    endforeach
+    //SendOpenSpecialContainer( mobile, inv_rs );
+    //SendOpenSpecialContainer( mobile, inv_fs );
+
+	return flag;
+endfunction

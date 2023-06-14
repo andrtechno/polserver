@@ -1,4 +1,8 @@
+
+
 include ":attributes:attributes";
+include ":damage:damage";
+
 function sleepmode()
   foreach critter in ListMobilesNearLocation( me.x,me.y,me.z, 15, me.realm);
     if(!critter.isA(POLCLASS_NPC))
@@ -8,8 +12,8 @@ function sleepmode()
   endforeach
   if(GetObjProperty(me,"killme"))
     SetObjProperty(me, "guardkill", 1);
-    MoveObjectToLocation(me, 5276, 1185, 0, "britannia_alt", MOVEOBJECT_FORCELOCATION);
-    ApplyRawDamage(me, GetHp(me)+1);
+    MoveObjectToLocation(me, 5276, 1185, 0, _DEFAULT_REALM, MOVEOBJECT_FORCELOCATION);
+    KillMobile(me);
   endif
   EraseObjProperty(me,"#flees");
   DisableMainEvents();

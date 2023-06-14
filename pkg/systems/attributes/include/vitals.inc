@@ -244,15 +244,15 @@ function GetMana(who)
 endfunction
 
 function GetMaxHp(who)
-  return Cint(GetVitalMaximumValue(who, VITALID_LIFE)/ 100);
+  return Cint(GetVitalMaximumValue(who, VITALID_LIFE) / 100);
 endfunction
 
 function GetMaxMana(who)
-  return Cint(GetVitalMaximumValue(who, VITALID_MANA)/ 100);
+  return Cint(GetVitalMaximumValue(who, VITALID_MANA) / 100);
 endfunction
 
 function GetMaxStamina(who)
-  return Cint(GetVitalMaximumValue(who, VITALID_STAMINA)/ 100);
+  return Cint(GetVitalMaximumValue(who, VITALID_STAMINA) / 100);
 endfunction
 
 

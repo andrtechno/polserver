@@ -1,0 +1,9 @@
+use uo;
+
+program textcmd_spellweaving( who )
+    var book := CreateItemInBackpack(who,0x2D50, 1);
+    var i;
+    for (i := 0x2D51; i <= 0x2D60; i := i + 1)
+        CreateItemInContainer(book,  i, 1);
+    endfor
+endprogram

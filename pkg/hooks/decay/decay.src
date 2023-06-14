@@ -1,0 +1,25 @@
+use os;
+use uo;
+
+
+exported function decay(item)
+    //sleep(60);
+        /*
+            local theitems := EnumerateItemsInContainer(object);
+            if (len(theitems) > 0)
+            local i;
+            for ( i:= 1; i <= len(theitems); i := i + 1)
+            createitematlocation(object.x, object.y, object.z, theitems[i].objtype, theitems[i].amount);
+            destroyitem(object);
+            endfor
+        */
+    //DestroyItem(object);
+    //sleep(60);
+    DestroyItem(item);
+    print("misc decay hoook");
+    return 1;
+endfunction
+
+program Install()
+
+endprogram

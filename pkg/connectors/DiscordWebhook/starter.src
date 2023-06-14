@@ -1,0 +1,14 @@
+Use uo;
+use os;
+
+include ":DiscordWebhook:outbound";
+
+program start_discord()
+    sleep(5);
+	var outbound := PresetDiscordMessage( "@everyone Сервер Онлайн!", "Default");
+
+	if(outbound == error)
+		print("DiscordWebhook start:"+outbound.errortext );
+	endif
+
+endprogram

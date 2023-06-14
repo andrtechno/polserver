@@ -24,13 +24,13 @@ program use_dyes(who, dyes)
     SendSysMessage(who, "You cannot reach that!");
     return;
   endif
-  if((dyetub.objtype != 0x1B00f) && (dyetub.objtype != 0x0fab))
+  if((dyetub.objtype != 0x2B00F) && (dyetub.objtype != 0x0fab))
     SendSysMessage(who, "That is not a dye tub!");
     return;
   endif
   var color := SelectColor(who, dyetub);
   if( color > 1001 )
-    var account := who.acct;
+//    var account := who.acct;
     SendSysMessage( who, "Bug abusers aren't tolerated here." );
     who.frozen := 1;
     SendSysMessage(who, "You have been banned for exploiting.");

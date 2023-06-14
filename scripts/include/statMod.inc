@@ -1,13 +1,12 @@
 use uo;
 use util;
 include ":attributes:attributes";
-include "include/buff";
 
 function GetModAmount(magery)
   var mod_amount := CInt(RandomInt(3) +(magery/10));
-  //if(mod_amount > 10)
-  //  mod_amount := 10;
-  //endif
+  if(mod_amount > 10)
+    mod_amount := 10;
+  endif
   return mod_amount;
 endfunction
 
@@ -16,87 +15,40 @@ function GetModDuration(magery)
   return(duration);
 endfunction
 
-function CanMod(who, mod)
-    if(GetObjProperty(who, mod))
-        return 1;
-    else
-        return 0;
-    endif
+function CanMod(who, stat)
+  var mod;
+  case(stat)
+    "str": mod := "#ss";
+    "dex": mod := "#dd";
+    "int": mod := "#ii";
+    "p"  : mod := "#pp";
+    "ar" : mod := "#ar";
+  endcase
+  if(GetObjProperty(who, mod))
+    return 0;
+  else
+    return 1;
+  endif
 endfunction
 
-function DoTempMod(who, mod, amt, duration)
-
+function DoTempMod(who, stat, amt, duration)
+  var mod;
+  case(stat)
+    "str":  mod := "#ss";  AP_SetStatMod(who, STRENGTH, AP_GetStatMod(who, STRENGTH) + amt);
+    "dex":  mod := "#dd";  AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) + amt);
+    "int":  mod := "#ii";  AP_SetStatMod(who, INTELLIGENCE, AP_GetStatMod(who, INTELLIGENCE) + amt);
+    "ar" :  mod := "#ar";  who.ar_mod           := who.ar_mod + amt;
+	"p"  :  mod := "#pp";  who.setParalyzed(1);
+  endcase
+  SetObjProperty(who,mod,1);
   var parms := {};
   parms[2] := who;
-  parms[1] := mod;
+  parms[1] := stat;
   parms[3] := amt;
   parms[4] := duration;
-  parms[5] := ReadGameClock() + duration;
-
+  parms[5] := who.serial;
   start_script("::/misc/unmod", parms);
-
 endfunction
-
-
-function undo_mod(who, mod, amt)
-if(CanMod(who,mod))
-  case(mod)
-    "#int":
-    "#p_int":
-    "#cast_cunning":
-    "#intbonus":
-        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-
-    "#cast_feeblemind":
-        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-
-    "#p" :  who.setParalyzed(0);
-    "#cast_bless":
-        SetStrengthMod(who, GetStrengthMod(who) - amt);
-        SetDexterityMod(who, GetDexterityMod(who) - amt);
-        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-
-    "#cast_agility":
-    "#dexbonus":
-    "#p_dex":
-    "#dex":
-    "#cast_clumsy":
-        SetDexterityMod(who, GetDexterityMod(who) - amt);
-
-    "#cast_strength":
-    "#str":
-    "#p_str":
-    "#strbonus":
-    "#cast_weaken":
-        SetStrengthMod(who, GetStrengthMod(who) - amt);
-
-    "#cast_protection":
-    "#ar":
-        who.ar_mod := who.ar_mod - amt;
-
-    "#cast_poly":
-        SetStrengthMod(who, GetStrengthMod(who) - amt);
-        SetDexterityMod(who, GetDexterityMod(who) - amt);
-        SetIntelligenceMod(who, GetIntelligenceMod(who) - amt);
-        who.ar_mod := who.ar_mod - amt;
-        who.graphic := who.objtype;
-        who.color := who.truecolor;
-        EraseObjProperty(who,"poly");
-
-  endcase
-
-    var modd := GetObjProperty( who, mod );
-    if(modd.buff_id)
-       // BuffDebuff_removeIcon(who,modd.buff_id);
-        who.delBuff(modd.buff_id);
-    endif
-
-  EraseObjProperty(who, mod);
-  PlaySoundEffect(who, 0x01eb);
-  PlayObjectCenteredEffect(who, 0x373a, 10,10);
-endif
-endfunction
-
 
 function SpellCheck(who, modType, effect, duration, value, description)
 
@@ -149,11 +101,11 @@ function SpellCheck(who, modType, effect, duration, value, description)
 							SendSysMessage(who, "Nothing happens: the " + description + " is weaker than the " + CStr(effectDescriptions[i]) + " that is already affecting you.");
 						elseif (effectValues[i] < 0)
 							SendSysMessage(who, "The " + description + " has countered the effects of the " + CStr(effectDescriptions[i]) + " that was affecting you.");
-							SetDexterityMod(who, GetDexterityMod(who) - effectValues[i]);
+							AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) - effectValues[i]);
 							effectValues[i] := 0;
 							effectExpirations[i] := (ReadGameClock() + duration);
 						else
-							SetDexterityMod(who, GetDexterityMod(who) + (value - effectValues[i]) );
+							AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) + (value - effectValues[i]) );
 							SendSysMessage(who, "You sense that you are quicker and more agile.");
 							effectValues[i] := value;
 							effectExpirations[i] := (ReadGameClock() + duration);
@@ -163,7 +115,7 @@ function SpellCheck(who, modType, effect, duration, value, description)
 					endif
 				endfor
 			else
-				SetDexterityMod(who, GetDexterityMod(who) + value);
+				AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) + value);
 				SendSysMessage(who, "You sense that you are quicker and more agile.");
 				i := len(effectTypes)+1;
 				effectTypes[i] := effect;
@@ -180,11 +132,11 @@ function SpellCheck(who, modType, effect, duration, value, description)
 							SendSysMessage(who, "Nothing happens: the " + description + " is weaker than the " + CStr(effectDescriptions[i]) + " that is already affecting you.");
 						elseif (effectValues[i] > 0)
 							SendSysMessage(who, "The " + description + " has countered the effects of the " + CStr(effectDescriptions[i]) + " that was affecting you.");
-							SetDexterityMod(who, GetDexterityMod(who) - effectValues[i]);
+							AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) - effectValues[i]);
 							effectValues[i] := 0;
 							effectExpirations[i] := (ReadGameClock() + duration);
 						else
-							SetDexterityMod(who, GetDexterityMod(who) + (value - effectValues[i]) );
+							AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) + (value - effectValues[i]) );
 							SendSysMessage(who, "You sense that you are slower and less agile.");
 							effectValues[i] := value;
 							effectExpirations[i] := (ReadGameClock() + duration);
@@ -194,7 +146,7 @@ function SpellCheck(who, modType, effect, duration, value, description)
 					endif
 				endfor
 			else
-				SetDexterityMod(who, GetDexterityMod(who) + value);
+				AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) + value);
 				SendSysMessage(who, "You sense that you are slower and less agile.");
 				i := len(effectTypes)+1;
 				effectTypes[i] := effect;
@@ -208,7 +160,7 @@ function SpellCheck(who, modType, effect, duration, value, description)
 			for(i:=1; i<=len(effectTypes); i:=i+1)
 				if (effectTypes[i] == effect)
 					if (effectExpirations[i] <= ReadGameClock() )
-						SetDexterityMod(who, GetDexterityMod(who) - effectValues[i]);
+						AP_SetStatMod(who, DEXTERITY, AP_GetStatMod(who, DEXTERITY) - effectValues[i]);
 						if (effectValues[i] > 0)
 							SendSysMessage(who, "You feel a bit slower as the " + CStr(effectDescriptions[i]) + " wear off.");
 						elseif (effectValues[i] < 0)

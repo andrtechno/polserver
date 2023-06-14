@@ -1,0 +1,25 @@
+use uo;
+use os;
+
+program demod(parms)
+    var mod := lower(parms[3]);
+    var who := parms[1];
+    var duration := parms[2];
+    var serial := parms[4];
+    sleep(duration);
+    undo_mod(who, mod, serial);
+endprogram
+
+function undo_mod(who, mod, serial)
+    if(!who)
+        who := SystemFindObjectBySerial(serial, SYSFIND_SEARCH_OFFLINE_MOBILES);
+    endif
+    EraseModFlags(who, mod);
+endfunction
+
+function EraseModFlags(who, mod)
+    if(who)
+        EraseObjProperty(who, mod);
+        who.locked:=1;
+    endif
+endfunction

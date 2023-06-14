@@ -1,0 +1,57 @@
+use uo;
+use os;
+use unicode;
+
+include "include/client";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":DiscordWebhook:outbound";
+
+program textcmd_restartserver(who)
+
+	var counter := 0;
+	var y_pos := 45;
+    var gump := GFCreateGump(100, 100);
+	GFPage( gump, 0 );
+	GFResizePic( gump, 0, 0, GFGetCfgConst( "Defaults", "BackGround" ), 370, 420 );
+	GFResizePic( gump, 15, 15, GFGetCfgConst( "Defaults", "ForeGround" ), 340, 390 );
+
+    var list := {1,3,5,10,30,60};
+
+	foreach time in (list)
+
+        GFTextCrop(gump, 25, y_pos, 330, 50, 2100, "Рестрат сервера через "+time+" мин.");
+        GFAddButton( gump, 330, y_pos, 2117, 2118, GF_CLOSE_BTN, time );
+
+		y_pos += 20;
+		counter += 1;
+
+
+    endforeach
+
+
+	var input := GFSendGump( who, gump );
+	input := input[0];
+	if( !input )
+		SendSysMessage( who, "Cancelled." );
+		return 0;
+	endif
+
+	PresetDiscordMessage( "@everyone Рестрат сервера через **"+input+" мин.**", "default");
+
+    var restartTimer := CInt(input);
+
+    while (restartTimer > 0)
+        BroadcastUC( "Рестарт сервера произойдет через " + restartTimer + " мин.", "RUS", 3, 33 );
+        sleep(60);
+        restartTimer := restartTimer -1;
+    endwhile
+
+    BroadcastUC("Рестарт сервера...", "RUS", 3, 33);
+	PresetDiscordMessage( "Рестарт сервера...", "default");
+    sleep(1);
+    SaveWorldState();
+    sleep(1);
+    Shutdown();
+
+endprogram

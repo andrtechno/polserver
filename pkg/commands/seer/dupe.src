@@ -1,25 +1,57 @@
 use uo;
 
+include "include/recursive";
+include "include/log";
 
 program textcmd_dupe( who )
-  var items;
-  var newitem;
-  var copyitem;
+    var items;
+    var newitem;
+    var copyitem;
   
     SendSysMessage( who, "What do you want to dupe?" );
 
     var what := Target( who, TGTOPT_NOCHECK_LOS );
     
     if (what.isA(POLCLASS_ITEM))
+        LogStaff(who, ".dupe", what);
+        var copyitem := CreateItemCopyAtLocation(who.x, who.y, who.z, what);
+        if(!copyitem.stackable)
+            SetObjProperty(copyitem, "Dupe", who.acctname+"/"+who.name);
+            SetObjProperty(copyitem, "DupeAt", StrFormatTime("%Y-%d-%m %H:%M:%S",polcore().systime));
+            if(!GetObjProperty(copyitem, "Created"))
+                SetObjProperty(copyitem, "Created", "None");
+            endif
+            if(!GetObjProperty(copyitem, "CreatedAt"))
+                SetObjProperty(copyitem, "CreatedAt", "None");
+            endif
+        endif
+        RecursiveCopy(who, what, copyitem);
+    endif
+    LogLine(who);
+endprogram
+
+
+
+/*
+program textcmd_dupe( who )
+  var items;
+  var newitem;
+  var copyitem;
+
+    SendSysMessage( who, "What do you want to dupe?" );
+
+    var what := Target( who, TGTOPT_NOCHECK_LOS );
+
+    if (what.isA(POLCLASS_ITEM))
       copyitem := CreateItemCopyAtLocation(who.x, who.y, who.z, what);
-      
+
       if (what.isA(POLCLASS_CONTAINER))
         items := EnumerateItemsInContainer(what);
         foreach item in items
           newitem := CreateItemCopyAtLocation(who.x,who.y,who.z,item);
           MoveItemToContainer(newitem, copyitem, item.x, item.y);
         endforeach
-     
+
       endif
     endif
-endprogram
+endprogram*/

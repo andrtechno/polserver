@@ -1,11 +1,9 @@
 use uo;
 
-include "include/objtype";
-
 program textcmd_spellbook( who )
-    var book := CreateItemInBackpack(who,UOBJ_SPELLBOOK, 1);
+    var book := CreateItemInBackpack(who,0x0efa, 1);
     var i;
-    for (i := 0x1f2d; i <= 0x1f72; i := i + 1)
+    for (i := 0x1f2d; i <= 0x1f6c; i := i + 1)
         CreateItemInContainer(book,  i, 1);
     endfor
 endprogram

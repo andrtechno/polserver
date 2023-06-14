@@ -4,14 +4,13 @@ const ATTRIBUTEID_DEXTERITY        := "Dexterity";
 const ATTRIBUTEID_INTELLIGENCE     := "Intelligence";
 const ATTRIBUTEID_STRENGTH         := "Strength";
 const VITALID_LIFE                 := "Life";
-const HITS                         := VITALID_LIFE;
 const VITALID_MANA                 := "Mana";
 const VITALID_STAMINA              := "Stamina";
 
 
 
 enum VITALS
-//	HITS			:= "Hits",
+	HITS			:= "Hits",
 	MANA			:= "Mana",
 	STAMINA			:= "Stamina",
 	HUNGER			:= "Hunger"
@@ -24,15 +23,15 @@ enum STATS
 endenum
 
 enum SKILLS
-	ALCHEMY			:= "Alchemy",
-	ANATOMY			:= "Anatomy",
-	ANIMALLORE		:= "AnimalLore",
+	ALCHEMY				:= "Alchemy",
+	ANATOMY				:= "Anatomy",
+	ANIMAL_LORE			:= "AnimalLore",
 	ITEM_IDENTIFICATION	:= "ItemIdentification",
-	ARMSLORE		:= "ArmsLore",
+	ARMS_LORE		:= "ArmsLore",
 	PARRYING			:= "Parry",
 	BEGGING			:= "Begging",
 	BLACKSMITHY		:= "Blacksmithy",
-	BOWCRAFT	:= "BowcraftFletching",
+	BOWCRAFT_FLETCHING	:= "BowcraftFletching",
 	PEACEMAKING		:= "Peacemaking",
 	CAMPING			:= "Camping",
 	CARPENTRY		:= "Carpentry",
@@ -56,7 +55,7 @@ enum SKILLS
 	MUSICIANSHIP		:= "Musicianship",
 	POISONING		:= "Poisoning",
 	ARCHERY			:= "Archery",
-	SPIRITSPEAK		:= "SpiritSpeak",
+	SPIRIT_SPEAK		:= "SpiritSpeak",
 	STEALING		:= "Stealing",
 	TAILORING		:= "Tailoring",
 	TAMING		:= "AnimalTaming",
@@ -72,17 +71,17 @@ enum SKILLS
 	MINING			:= "Mining",
 	MEDITATION		:= "Meditation",
 	STEALTH			:= "Stealth",
-	REMOVETRAP		:= "RemoveTrap",
+	REMOVE_TRAP		:= "RemoveTrap",
 	NECROMANCY		:= "Necromancy",
 	FOCUS		:= "BattleFocus",
 	CHIVALRY		:= "Chivalry",
-  BUSHIDO       := "Bushido",
-  NINJITSU      := "Ninjitsu",
-  SPELLWEAVING := "Spellweaving",
-  MYSTICISM     := "Mysticism",
-  IMBUING       := "Imbuing",
-  THROWING      := "Throwing"
-
+	BUSHIDO       := "Bushido",
+	NINJITSU      := "Ninjitsu",
+	SPELLWEAVING := "Spellweaving",
+	MYSTICISM     := "Mysticism",
+	IMBUING       := "Imbuing",
+    THROWING      := "Throwing",
+    TESTSKILL     := "TestSkill"
 endenum
 
 //const SKILLID__HIGHEST := 48;
@@ -91,4 +90,4 @@ var List_of_Skills := array{"Alchemy", "Anatomy", "AnimalLore", "ItemIdentificat
                   "ForensicEvaluation", "Herding", "Hiding", "Provocation", "Inscription", "Lockpicking", "Magery", "ResistingSpells", "Tactics", "Snooping",
                   "Musicianship", "Poisoning", "Archery", "SpiritSpeak", "Stealing", "Tailoring", "AnimalTaming", "TasteIdentification", "Tinkering",
                   "Tracking", "Veterinary", "Swordsmanship", "MaceFighting", "Fencing", "Wrestling", "Lumberjacking", "Mining", "Meditation", "Stealth",
-                  "RemoveTrap", "Necromancy", "BattleFocus", "Chivalry", "Bushido", "Ninjitsu", "Spellweaving", "Mysticism", "Imbuing", "Throwing"};
+                  "RemoveTrap", "Necromancy", "BattleFocus", "Chivalry", "Bushido", "Ninjitsu", "Spellweaving", "Mysticism", "Imbuing", "Throwing", "TestSkill"};

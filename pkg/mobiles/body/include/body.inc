@@ -54,6 +54,11 @@ function BODY_ListBodiesByType( type:="" )
 	return data_elem.GetProp( type );
 endfunction
 
+function HasPaperdoll( byref graphic )
+
+    return ( graphic in { 400, 401, 402, 403, 605, 606, 607, 608, 666, 667, 695, 694, 987 } );
+endfunction
+
 function IsMonster( graphic )
 	return ( graphic in BODY_ListBodiesByType( "monster" ) );
 endfunction

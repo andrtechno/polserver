@@ -2,18 +2,17 @@ use uo;
 use os;
 use util;
 
-include "include/NPCBackpacks";
+include ":npcs:NPCBackpacks";
 include ":attributes:attributes";
-include "include/statMod";
-include "include/noto";
+include ":virtue:noto";
 include "include/reportMurder";
-include ":poisonwatcher:poisons";
+include ":timedScripts:poisonUtil";
 
 program chrdeath(corpse,ghost)
   EraseObjProperty(ghost, "IsMeditating");
   ghost.SetPoisoned(0);
-  while(ListPoisonsByType(ghost, "defaultPoison").size() > 0)
-      CurePoison(ghost, "defaultPoison", 120, 1);
+  while(TS_GetTimerNames(ghost, "P").size() > 0)
+		TS_CurePoison(ghost, 10000, "P", 6);
   endwhile
   var killer := GetObjProperty(ghost, "LastHit");
   if(killer != error)
@@ -40,9 +39,9 @@ endprogram
 function CheckForAutoRes(who, corpse)
   if(CInt(GetObjProperty(corpse, "AutoRes")) == 1)
 	Resurrect(who);
-	SetHp(who, GetMaxHP(who));
-	SetMana(who, GetMaxMana(who));
-	SetStamina(who, GetMaxStamina(who));
+	AP_SetVital(who, VITALID_LIFE, AP_GetVitalMaximumValue(who, VITALID_LIFE));
+	AP_SetVital(who, VITALID_MANA, AP_GetVitalMaximumValue(who, VITALID_MANA));
+	AP_SetVital(who, VITALID_STAMINA, AP_GetVitalMaximumValue(who, VITALID_STAMINA));
 	var mypack := who.backpack;
     if(!mypack)
       return;
@@ -65,7 +64,6 @@ function CheckForDivineRes(who, corpse)
     PrintTextAbove(who, who.name + " has been restored by the Gods!");
     PlaySoundEffect(who, 0x11e);
     var itemlist := EnumerateItemsInContainer(corpse);
-    var x;
     var mypack := GetEquipmentByLayer(who, 0x15);
     foreach x in itemlist
       if (!EquipItem(who, x) )
@@ -74,9 +72,9 @@ function CheckForDivineRes(who, corpse)
         endif
       endif
     endforeach
-    SetHp(who, who.maxhp);
-    SetMana(who, who.maxmana);
-    SetStamina(who, who.maxstamina);
+    AP_SetVital(who, VITALID_LIFE, who.maxhp);
+    AP_SetVital(who, VITALID_MANA, who.maxmana);
+    AP_SetVital(who, VITALID_STAMINA, who.maxstamina);
   endif
 endfunction
 
@@ -107,6 +105,6 @@ function remove_poison (cast_on)
         CurePoison(cast_on, 120, "defaultPoison", 4);
     endif
   endif
-  
+
 endfunction
 

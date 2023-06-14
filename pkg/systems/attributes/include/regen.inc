@@ -43,7 +43,42 @@ function AP_SetVitalRegenRateMod( mobile, vital_name, number )
 	endif
 
 	AP_SaveVitalRegenRateProp( mobile, regen_prop );
- 
+
+	return 1;
+endfunction
+
+/*
+ * AP_ModifyVitalRegenRateMod(mobile, vital_name, number)
+ *
+ * Purpose
+ * Modifies the regeneration rate modifier for an vital.
+ * Base values are in settings.cfg (multiply by 100)
+ *
+ * Parameters
+ * mobile:	Mobile reference to set the modifier on.
+ * skill_name:	Name of the vital to set the regen modifier for.
+ * number:	Modifier (+/-) points to set for the regen rate.
+ *
+ * Return value
+ * Returns 1
+ *
+ */
+function AP_ModifyVitalRegenRateMod( mobile, vital_name, number )
+
+	vital_name := Lower( vital_name );
+	number := CInt( number );
+
+	var regen_prop := AP_LoadVitalRegenRateProp( mobile );
+
+	if( number == 0 )
+		// Remove keys with no modifier
+		regen_prop.Erase( vital_name );
+	else
+		regen_prop[vital_name] += CInt( number );
+	endif
+
+	AP_SaveVitalRegenRateProp( mobile, regen_prop );
+
 	return 1;
 endfunction
 
@@ -70,22 +105,25 @@ function AP_GetVitalRegenRateMod( mobile, vital_name )
 endfunction
 
 /*
- * AP_GetVitalRegenRateMod(mobile, vital_name)
+ * AP_LoadVitalRegenRateProp( mobile )
  *
  * Purpose
- * Gets the regeneration rate modifier for a vital.
+ * Gets the regeneration rates dictionary from a character.
  *
  * Parameters
  * mobile:	Mobile reference to get the regen information from.
- * vital_name:	Name of the vital to get the regeneration rate for.
  *
  * Return value
- * Returns an integer.
+ * Returns a dictionary of regenerations rates or
+ * if none set returns an empty dictionary.
  *
  */
 function AP_LoadVitalRegenRateProp( mobile )
 
 	var regen_prop := GetObjProperty( mobile, "%RegenRates%" );
+    //if(mobile.isa(POLCLASS_NPC))
+    //    regen_prop := GetObjProperty( mobile, "%NPC_Vitals%" );
+    //endif
 	if( Lower( TypeOf( regen_prop )) != "dictionary" )
 		regen_prop := dictionary;
 	endif
@@ -115,6 +153,9 @@ function AP_SaveVitalRegenRateProp( mobile, byref regen_prop )
 	endif
 
 	var result := SetObjProperty( mobile, "%RegenRates%", regen_prop );
+    //if(mobile.isa(POLCLASS_NPC))
+    //    result := SetObjProperty( mobile, "%NPC_Vitals%", regen_prop );
+    //endif
 	if( result != error )
 		RecalcVitals( mobile );
 	endif

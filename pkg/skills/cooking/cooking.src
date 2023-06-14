@@ -4,81 +4,81 @@ use cfgfile;
 
 include "include/client";
 include ":attributes:attributes";
-include "include/yesNo";
+//include "include/yesNo";
 include "include/canAccess";
 
 program cook(who, item)
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  if(!can_access(who, item))
-    return;
-  endif
-  if(!ReserveItem(item))
-    return;
-  endif
-  if(cookon(who, item))
-    cookit(who, item);
-  endif
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    if(!can_access(who, item))
+        return;
+    endif
+    if(!ReserveItem(item))
+        return;
+    endif
+    if(cookon(who, item))
+        cookit(who, item);
+    endif
 endprogram
 
 function cookon(who, item)
-  if(!item)
-    return 0;
-  endif
-  SendSysMessage(who, "Select the heat source to cook that on.");
-  var trg := Target(who);
-  if(!trg)
-    SendSysMessage(who, "cancelled.");
-    return 0;
-  endif
-  if(!Accessible(who, trg))
-    SendSysMessage(who, "You cannot reach that.");
-    return 0;
-  endif
-  if((trg.objtype >= 0x08cf) && (trg.objtype <= 0x08df))
-    return 1;
-  elseif((trg.objtype >= 0x092b) && (trg.objtype <= 0x096c))
-    return 1;
-  elseif((trg.objtype >= 0x45d) && (trg.objtype <= 0x48e))
-    return 1;
-  elseif((trg.objtype >= 0x0de3) && (trg.objtype <= 0x0de9))
-    return 1;
-  elseif((trg.objtype >= 0x0e31) && (trg.objtype <= 0x0e33))
-    return 1;
-  elseif((trg.objtype >= 0x1849) && (trg.objtype <= 0x1850))
-    return 1;
-  elseif((trg.objtype >= 0x197a) && (trg.objtype <= 0x19a9))
-    return 1;
-  elseif((trg.objtype >= 0x0de3) && (trg.objtype <= 0x0de9))
-    return 1;
-  elseif((trg.objtype == 0x19bb) || (trg.objtype == 0x0fb1))
-    return 1;
-  else
-    SendSysMessage(who, "You cannot cook food on that.");
-    return 0;
-  endif
+    if(!item)
+        return 0;
+    endif
+    SendSysMessage(who, "Select the heat source to cook that on.");
+    var trg := Target(who);
+    if(!trg)
+        SendSysMessage(who, "cancelled.");
+        return 0;
+    endif
+    if(!Accessible(who, trg))
+        SendSysMessage(who, "You cannot reach that.");
+        return 0;
+    endif
+    if((trg.objtype >= 0x08cf) && (trg.objtype <= 0x08df))
+        return 1;
+    elseif((trg.objtype >= 0x092b) && (trg.objtype <= 0x096c))
+        return 1;
+    elseif((trg.objtype >= 0x45d) && (trg.objtype <= 0x48e))
+        return 1;
+    elseif((trg.objtype >= 0x0de3) && (trg.objtype <= 0x0de9))
+        return 1;
+    elseif((trg.objtype >= 0x0e31) && (trg.objtype <= 0x0e33))
+        return 1;
+    elseif((trg.objtype >= 0x1849) && (trg.objtype <= 0x1850))
+        return 1;
+    elseif((trg.objtype >= 0x197a) && (trg.objtype <= 0x19a9))
+        return 1;
+    elseif((trg.objtype >= 0x0de3) && (trg.objtype <= 0x0de9))
+        return 1;
+    elseif((trg.objtype == 0x19bb) || (trg.objtype == 0x0fb1))
+        return 1;
+    else
+        SendSysMessage(who, "You cannot cook food on that.");
+        return 0;
+    endif
 endfunction
 
 function cookit(who,item);
-  var cfg := ReadConfigFile(":cooking:cooking");
-  var skill_needed := -1;
-  var points       := cfg[item.objtype].points;
-  var elem      := FindConfigElem(cfg, item.objtype);  
-  var products  := GetConfigStringArray(elem,"product");
-  var product   := Cint(products[RandomInt(len(products))+1]);
-  var ingredients := GetConfigStringArray(elem, "ingredient");
-  var theIngredients := {};
-  var newitem;
-  if (ingredients)
-    theIngredients := GetIngredients(who, ingredients);
-    if (theIngredients == error)
-      SendSysMessage(who, "You do not have the proper ingredients.");
-      return;
+    var cfg := ReadConfigFile(":cooking:cooking_old");
+    var skill_needed := -1;
+    var points       := cfg[item.objtype].points;
+    var elem      := FindConfigElem(cfg, item.objtype);
+    var products  := GetConfigStringArray(elem,"product");
+    var product   := Cint(products[RandomInt(len(products))+1]);
+    var ingredients := GetConfigStringArray(elem, "ingredient");
+    var theIngredients := {};
+    var newitem;
+    if (ingredients)
+        theIngredients := GetIngredients(who, ingredients);
+        if (theIngredients == error)
+            SendSysMessage(who, "You do not have the proper ingredients.");
+            return;
+        endif
     endif
-  endif
-  if(!points)
-    points := AP_GetSkill(who, COOKING) * 2;
-  endif
+    if(!points)
+        points := AP_GetSkill(who, COOKING) * 2;
+    endif
 
     var count := 1;
     var requireMinSkill := 30;
@@ -155,6 +155,7 @@ function cookit(who,item);
     if(SkillCheck( who, COOKING, skill_needed, points));
       var amt := item.amount;
       if(SubtractAmount(item,count))
+      print("product "+product);
         newitem := CreateItemInBackpack(who, product, count);
         if(newitem)
 	      SendSysMessage(who, "You put the item in your pack");

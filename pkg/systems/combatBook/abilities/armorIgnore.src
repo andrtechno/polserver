@@ -1,0 +1,42 @@
+/*
+This special move allows the skilled warrior to bypass all of their target’s armor resistance, for one shot only.
+The Armor Ignore shot does slightly less damage than normal (90% of normal damage).
+Against a heavily armored opponent, this ability is a big win, but when used against a very lightly
+armored foe, it might be better to use a standard strike.
+PvP Only: Armor Ignore direct damage cap on melee weapons is 35, on ranged weapons is 30.
+This cap applies not only to the player but also to the player’s mount, if the mount is a one slot creature.
+
+
+
+Этот особый прием позволяет опытному воину обойти все сопротивление брони своей цели всего за один выстрел.
+Выстрел с игнорированием брони наносит немного меньше урона, чем обычно (90% от обычного урона).
+
+Против сильно бронированного противника эта способность является большой победой, но при использовании против очень легко
+бронированного противника, возможно, лучше использовать стандартный удар.
+
+Только PvP: максимальное значение игнорирования брони для оружия ближнего боя составляет 35, а для оружия дальнего боя — 30.
+
+Это ограничение применяется не только к игроку, но и к средству передвижения игрока,
+если средство передвижения — одноячейковое существо.
+
+*/
+
+
+
+
+program ability_ArmorIgnore(params)
+    var attacker := params[1];
+    var defender := params[2];
+    var damage := params[3];
+
+    print("ability_ArmorIgnore");
+
+
+    var percent := 90;
+    var rawdamage := damage + (damage * percent / 100);
+
+
+    return struct{ damage := rawdamage };
+
+    return 1;
+endprogram

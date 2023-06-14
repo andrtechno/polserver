@@ -6,151 +6,204 @@ use math;
 
 include "include/client";
 include ":attributes:attributes";
-include "include/dist";
 include "include/math";
 include "include/objtype";
 include "include/startEqp";
 include "include/canAccess";
 include ":itemutils:toolWear";
 include "include/eventID";
+include "include/autoloop";
 
 program use_fishpole(who, fishingpole)
-  if(!can_access(who, fishingpole))
-    return;
-  endif
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  if(fishingpole.movable == 0)
-    SendSysMessage(who, "You cannot use that.");
-    return;
-  endif
-  if(!ReserveItem(fishingpole))
-    return;
-  endif
-  if(! IsFishingPoleEquipped(who, fishingpole))
-    SendSysMessage(who, "You have to equip that to go fishing!");
-    return;
-  endif
-  var targetsquare := TargetCoordinates(who);
-  if(!targetsquare)
-   return;
-  endif
-  var locinfo:= GetMapInfo( targetsquare.x, targetsquare.y, who.realm );
-  if(IsValidTarget(who, targetsquare, locinfo))
-    PerformAction(who, 0x9);
-    var newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352d, 1, who.realm);
-    newsplash.movable := 0;
-    PlaySoundEffect(who, 0x240);
-    sleepms(400);
-    set_critical(1);
-    DestroyItem(newsplash);
-    set_critical(0);
-    newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352e, 1, who.realm);
-    newsplash.movable := 0;
-    sleepms(400);
-    set_critical(1);
-    DestroyItem(newsplash);
-    set_critical(0);
-    newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352f, 1, who.realm);
-    newsplash.movable := 0;
-    sleepms(400);
-    set_critical(1);
-    DestroyItem(newsplash);
-    set_critical(0);
-    newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x3530, 1, who.realm);
-    newsplash.movable := 0;
-    sleepms(400);
-    set_critical(1);
-    DestroyItem(newsplash);
-    set_critical(0);
-    sleepms(1500);
-    if(!isSOS(who, targetsquare))
-      var difficulty;
-      if(targetsquare.objtype)
-        difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);
-      else
-        difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);
-      endif
-      if(difficulty == error)
-        SendSysMessage(who, "There doesn't seem to be any fish here");
-        return 0;
-      endif
-      var successrate := SkillCheck(who, FISHING, difficulty, 30);
-      if(successrate > 0)
-        var fishreturned := HarvestResource("fish", targetsquare.x, targetsquare.y, 1, 1, who.realm);
-        if(!fishreturned)
-          SendSysMessage(who, "Oops, you let that one get away!");
-          return 0;
-        endif
-        var catchtype := GetTheCatch(who);
-        if(CreateItemInContainer(who.backpack, catchtype, 1))
-          CheckToolWear (who, fishingpole, FISHING);
-          skillgain(who, difficulty * 10);
-        endif
-      else
-        if(RandomInt(100)< 1)
-          CriticalFailure(who, targetsquare);
-        else
-          SendSysMessage(who, "They don't seem to be biting today");
-        endif
-      endif
+    if(!can_access(who, fishingpole))
+        return;
     endif
-  endif
-  return 1;
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    if(fishingpole.movable == 0)
+        SendSysMessage(who, "You cannot use that.");
+        return;
+    endif
+    if(!ReserveItem(fishingpole))
+        return;
+    endif
+    if(! IsFishingPoleEquipped(who, fishingpole))
+        SendSysMessage(who, "You have to equip that to go fishing!");
+        return;
+    endif
+    var targetsquare := TargetCoordinates(who);
+    if(!targetsquare)
+        return;
+    endif
+    var locinfo:= GetMapInfo( targetsquare.x, targetsquare.y, who.realm );
+
+    var premium := who.IsPremium();
+    /*var herv := 10;
+    var loop := 6;
+    case(premium)
+        1: herv := 8;   loop := 7;
+        2: herv := 7;   loop := 8;
+        3: herv := 6;   loop := 9;
+    endcase
+    herv := CInt(Ceil(herv));*/
+    var loop := 6;
+    var herv := 1;
+    Autoloop_init(who, loop);
+
+    var classLevel := CInt(GetObjProperty(who,"classlevel"));
+    var amount := 1;
+    /*if(classLevel)
+        amount := classLevel + 1;
+    endif*/
+
+    case(premium)
+        1: amount += 1;
+        2: amount += 2;
+        3: amount += 3;
+    endcase
+
+    if(IsValidTarget(who, targetsquare, locinfo))
+        while (Autoloop_more() && not who.dead)
+
+
+            PerformAction(who, 0x9);
+            var newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352d, 1, who.realm);
+            newsplash.movable := 0;
+            PlaySoundEffect(who, 0x240);
+            sleepms(150);
+            set_critical(1);
+            DestroyItem(newsplash);
+            set_critical(0);
+            newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352e, 1, who.realm);
+            newsplash.movable := 0;
+            sleepms(150);
+            set_critical(1);
+            DestroyItem(newsplash);
+            set_critical(0);
+            newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x352f, 1, who.realm);
+            newsplash.movable := 0;
+            sleepms(150);
+            set_critical(1);
+            DestroyItem(newsplash);
+            set_critical(0);
+            newsplash := CreateItemAtLocation(targetsquare.x, targetsquare.y, targetsquare.z,  0x3530, 1, who.realm);
+            newsplash.movable := 0;
+            sleepms(150);
+            set_critical(1);
+            DestroyItem(newsplash);
+            set_critical(0);
+            sleepms(150);
+
+
+            var x := who.x;
+            var y := who.y;
+
+            var loop := 2;
+
+            while ( (who.x==x) && (who.y==y) && loop >0)
+                sleepms(100);
+                loop := loop-1;
+            endwhile
+            if(loop)
+                SendSysMessage(who, "You must be patient while fishing");
+                Autoloop_finish();
+                return 0;
+            endif
+
+            if(!isSOS(who, targetsquare))
+                var difficulty;
+                if(targetsquare.objtype)
+                    difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, targetsquare.objtype, who.realm);
+                else
+                    difficulty := GetHarvestDifficulty("fish", targetsquare.x, targetsquare.y, locinfo.landtile, who.realm);
+                endif
+                if(difficulty == error)
+                    SendSysMessage(who, "There doesn't seem to be any fish here");
+                    Autoloop_finish();
+                    return 0;
+                endif
+                var successrate := SkillCheck(who, FISHING, difficulty, 30);
+                if(successrate > 0)
+                    var fishreturned := HarvestResource("fish", targetsquare.x, targetsquare.y, 1, 1, who.realm);
+                    if(!fishreturned)
+                        SendSysMessage(who, "Oops, you let that one get away!");
+                        Autoloop_finish();
+                        return 0;
+                    endif
+                    var catchtype := GetTheCatch(who);
+                    if(CreateItemInContainer(who.backpack, catchtype, amount))
+                        CheckToolWear (who, fishingpole, FISHING);
+                        skillgain(who, difficulty * 10);
+                    endif
+                else
+                    if(RandomInt(100)< 1)
+                        CriticalFailure(who, targetsquare);
+                    else
+                        SendSysMessage(who, "They don't seem to be biting today");
+                    endif
+                endif
+            endif
+        endwhile
+    endif
+
+
+    Autoloop_finish();
+    SendSysMessage(who, "You stop fishing.");
+    return 1;
 endprogram
 
 function skillgain(who, points)
-  var diff := points / 10;
-  var skill := GetAttribute(who, FISHING);
-  if(skill > (diff - 20))
-    if((skill - diff) <= 5)
-      points := points;
-    elseif((skill - diff) <= 10)
-      points := (points * 3) / 4;
-    elseif((skill - diff) <= 15)
-      points := points / 2;
-    elseif((skill - diff) <= 15)
-      points := points / 4;
-    else
-      points := 0;
+    var diff := points / 10;
+    var skill := GetAttribute(who, FISHING);
+    if(skill > (diff - 20))
+        if((skill - diff) <= 5)
+            points := points;
+        elseif((skill - diff) <= 10)
+            points := (points * 3) / 4;
+        elseif((skill - diff) <= 15)
+            points := points / 2;
+        elseif((skill - diff) <= 15)
+            points := points / 4;
+        else
+            points := 0;
+        endif
     endif
-  endif
-  AwardRawSkillPoints(who, SKILLID_FISHING, points);
+    AwardRawSkillPoints(who, SKILLID_FISHING, points);
 endfunction
 
 function IsInRange(who, x, y, z)
-  z := z;
-  var xd, yd;
-  var retval := 1;
-  xd := Abs(who.x - x);
-  yd := Abs(who.y - y);
-  if((xd > 6)||(yd > 6))
-    retval := 0;
-  endif
-  return retval;
+    z := z;
+    var xd, yd;
+    var retval := 1;
+    xd := Abs(who.x - x);
+    yd := Abs(who.y - y);
+    if((xd > 6)||(yd > 6))
+        retval := 0;
+    endif
+    return retval;
 endfunction
 
 function IsWater(thistile, locinfo)
-  if(thistile.objtype)
-    if((thistile.objtype >= 0x1797)&&(thistile.objtype <= 0x179c))
-      return 1;
-    elseif((thistile.objtype >= 0x346e)&&(thistile.objtype <= 0x3485))
-      return 1;
-    elseif((thistile.objtype >= 0x3490)&&(thistile.objtype <= 0x34ab))
-      return 1;
-    elseif((thistile.objtype >= 0x34b5)&&(thistile.objtype <= 0x34d5))
-      return 1;
+    if(thistile.objtype)
+        if((thistile.objtype >= 0x1797)&&(thistile.objtype <= 0x179c))
+            return 1;
+        elseif((thistile.objtype >= 0x346e)&&(thistile.objtype <= 0x3485))
+            return 1;
+        elseif((thistile.objtype >= 0x3490)&&(thistile.objtype <= 0x34ab))
+            return 1;
+        elseif((thistile.objtype >= 0x34b5)&&(thistile.objtype <= 0x34d5))
+            return 1;
+        endif
+    else
+        if((locinfo.landtile >= 0x00a8)&&(locinfo.landtile <= 0x00ab))
+            return 1;
+        elseif((locinfo.landtile >= 0x0136)&&(locinfo.landtile <= 0x0137))
+            return 1;
+        elseif((locinfo.landtile >= 0x3ff0)&&(locinfo.landtile <= 0x3ff3))
+            return 1;
+        endif
     endif
-  else
-    if((locinfo.landtile >= 0x00a8)&&(locinfo.landtile <= 0x00ab))
-      return 1;
-    elseif((locinfo.landtile >= 0x0136)&&(locinfo.landtile <= 0x0137))
-      return 1;
-    elseif((locinfo.landtile >= 0x3ff0)&&(locinfo.landtile <= 0x3ff3))
-      return 1;
-    endif
-  endif
-  return 0;
+    return 0;
 endfunction
 
 function IsValidTarget(who, targetsquare, locinfo)
@@ -229,7 +282,7 @@ endfunction
 
 function GetSOSTreasure(who, targetsquare, sosmsg)
   targetsquare := targetsquare;
-  if(SkillCheck(who, FISHING, 80, 200))
+  if( SkillCheck( who, FISHING, 80, 200) > 0 )
     var itemcfg := ReadConfigFile(":*:itemdesc");
     var it, oldname;
     if(RandomInt(100)< 75)

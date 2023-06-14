@@ -1,0 +1,78 @@
+use uo;
+use os;
+
+include "include/client";
+include ":charclasses:classes";
+include ":codexdamnorum:spelldata";
+include ":guards:areas";
+include ":magery:spells";
+
+program cast_spectretouch( parms )
+
+	//var circle := GetCircle( SPELLID_SPECTER_TOUCH );
+
+	var caster := parms[1];
+	var info := parms[2];
+    var circle := info.circle;
+	var cast_on;
+	var fromhit;
+
+	if (parms[1] == "#MOB")
+		caster := parms[2];
+		cast_on := parms[3];
+		if (parms[4])
+			circle := parms[4];
+		endif
+		if (parms[5])
+			fromhit := parms[5];
+		endif
+
+	else
+
+		/*if( TryToCast( caster, SPELLID_SPECTER_TOUCH ) != SUCCESS )
+			EraseObjProperty( caster, "#Casting" );
+			return;
+		endif*/
+
+	
+		if(IsInArea(caster, AREAID_TRINSIC) || IsInArea(caster, AREAID_CRAFTMINE))
+	  SendSysMessage(caster, "You cannot cast this kind of spell here.");
+	    return 0;
+	endif
+		SendSysMessage( caster, "Select a target." );
+		//cast_on := CanTargetArea( caster, circle );
+		cast_on := Target( caster );
+	endif
+		
+	if( !cast_on )
+		EraseObjProperty( caster, "#Casting" );
+		return;
+	endif
+
+	var dmg;
+	var range := ModifyWithMagicEfficiency( caster, CInt( GetEffectiveSkill( caster, SKILLID_MAGERY ) / 30 ) );
+	var victims := ListMobilesNearLocation( CInt(cast_on.x), CInt(cast_on.y), CInt(cast_on.z), range );
+	//EraseObjProperty( caster, "#Casting" );
+
+	foreach mobile in victims
+
+		if( CheckLosAt( mobile, CInt(cast_on.x), CInt(cast_on.y), CInt(cast_on.z) ) && mobile.dead == 0 )
+			var immunity := IsProtected( caster, mobile, circle );
+			var circ := circle;
+			if( immunity != IMMUNED )
+				if( immunity == CURSED )
+					circ := circ * 2;
+				endif
+		
+				dmg := CalcSpellDamage( caster, mobile, circ );
+				Send_attack( mobile, caster, info.spell_id );
+				PlaySoundEffect( mobile, 0x01f2 );
+				PlayStationaryEffect( CInt(mobile.x), CInt(mobile.y), CInt(mobile.z), 0x37c3, 0xa, 0x1e );
+				//ApplyplanarDamage( caster, mobile, circ, dmg, plane );
+				ApplyDamageEX(cast_on, dmg, DMG_PHYSICAL, caster);
+			endif
+		endif
+
+	endforeach
+
+endprogram

@@ -1,7 +1,9 @@
 use uo;
 use os;
 use util;
+
 include ":attributes:attributes";
+include ":damage:damage";
 
 program spawnpointcontrol(spawnpoint)
   var spawn := GetObjProperty(spawnpoint, "Spawn");
@@ -73,7 +75,7 @@ function KillChildren(spawnpoint)
         i := SystemFindObjectBySerial(x);
         SetObjProperty(i, "summoned", 1);
         RevokePrivilege(i, "invul" );
-        ApplyRawDamage(i, GetHp(i)+3);
+        KillMobile(i);
       endif
     endforeach
   endif
@@ -119,7 +121,7 @@ function CreateSpawn(spawnpoint)
     spawn := GetCritter(spawn);
   endif
   var range := GetObjProperty(spawnpoint, "Range");
-  var x, y, z, thingy, success := 0;
+  var x, y, z, success := 0;
   var i := 1;
   while(success == 0)
     if(range == 0)
@@ -136,10 +138,7 @@ function CreateSpawn(spawnpoint)
       z := spawnpoint.z;
     endif
     if(!loscheck)
-	thingy := CreateItemAtLocation(6102, 20, 0, 0xeed, 1, "britannia_alt");
-	thingy.invisible := 1;
-	MoveObjectToLocation(thingy, x, y, z, spawnpoint.realm, MOVEOBJECT_FORCELOCATION);
-      if(CheckLineOfSight(spawnpoint, thingy))
+	  if(CheckLosBetween( spawnpoint.x, spawnpoint.y, spawnpoint.z, x, y, z, spawnpoint.realm ))
         var i := CreateNpcFromTemplate(spawn, x, y, z, 0, spawnpoint.realm);
         success := 1;
         return CInt(i.serial);

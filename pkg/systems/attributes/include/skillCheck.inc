@@ -30,7 +30,7 @@ const ADV_DISABLE	:= 0x4; // 4 - because the default is ADV_ALL.
  * Parameters
  * mobile:		Mobile reference to do the skill check for.
  * attribute_name:	Name of the attribute to perform the check on.
- * difficulty:  
+ * difficulty:
  * award_diff:		Advanced as if the difficulty were this value - defaults to difficulty.
  * advance_flags:	Controls the turning on/off of stat and skill advancements for the check.
  *
@@ -41,12 +41,13 @@ const ADV_DISABLE	:= 0x4; // 4 - because the default is ADV_ALL.
 function SkillCheck( mobile, attrib_name, difficulty, award_diff:="", advance_flags:=ADV_ALL )
 
     var skill_check_result := 0;
-
 	if( mobile.dead )
-		SendSysMessage( mobile, "You can't use skills while dead." );
+		SendSysMessage( mobile, "You can't use skills while dead.", 3, 33 );
+        print("Skill Check Failed Because Player Dead");
 		return -100;
 	elseif( GetObjProperty( mobile, "NoGains" ))
-		SendSysMessage( mobile, "Your skills are disabled." );
+		SendSysMessage( mobile, "Your skills are disabled.", 3, 33 );
+        print("Skill Check Failed Because Player Dead");
 		return -100;
 	elseif( mobile.IsA( POLCLASS_NPC ))
         if( GetObjProperty( mobile, "CanTrain" ))
@@ -63,21 +64,35 @@ function SkillCheck( mobile, attrib_name, difficulty, award_diff:="", advance_fl
 
     var effective_skill := AP_GetSkill( mobile, attrib_name ),
     pass_chance := CalcSuccessPercent( mobile, attrib_name, difficulty, effective_skill ),
-    check_roll := RandomDiceRoll( "1d100+1" );
+    check_roll := RandomDiceRoll( "1d150+1" );
 
     if( !mobile.IsA( POLCLASS_NPC ) ) // && !mobile.cmdlevel
         var hunger := CInt( AP_GetVital( mobile, HUNGER ));
-        if( !hunger )
-            hunger := 1;
-        endif
+
 
         var hc_settings := AP_GetSettingsCfgElem( "Hunger" ),
         hunger_setting := CInt( hc_settings.MaxHungerAffect ),
         hunger_value := CInt( pass_chance * CDbl( hunger_setting ));
 
-        pass_chance -= CInt( hunger_value - CDbl( hunger_value * CDbl( hunger / 10 )));
-    endif
+        /*case (hunger)
+            0: hunger := 10;
+            1: hunger := 9;
+            2: hunger := 8;
+            3: hunger := 7;
+            4: hunger := 6;
+            5: hunger := 5;
+            6: hunger := 4;
+            7: hunger := 3;
+            8: hunger := 2;
+            9: hunger := 1;
+            10: hunger := 0;
+        endcase*/
 
+
+        //pass_chance -= CInt( hunger_value + CDbl( hunger_value * CDbl( hunger / 10 )));
+        //pass_chance := pass_chance - hunger;
+    endif
+    //SendSysMessage(mobile, "pass_chance with hungry: "+pass_chance);
 	// Ensure skill- and stat-gain if it's a -1 skillcheck
 	// Do this AFTER the CalcSuccessPercent() call so '-1' isn't messed up
 
@@ -86,22 +101,27 @@ function SkillCheck( mobile, attrib_name, difficulty, award_diff:="", advance_fl
 	endif
 
 	if( award_diff == "" )
-		award_diff := AP_GetSkillDefaultAward( attrib_name );
+        award_diff := AP_GetSkillDefaultAward( attrib_name );
 	endif
+
+
 
 	if( advance_flags & ADV_SKILL )
 		CheckSkillAdvance( mobile, attrib_name, difficulty, CInt( award_diff ));
 	endif
 
 	if( advance_flags & ADV_STATS )
-		CheckStatsForSkill( mobile, attrib_name );
+		CheckStatsForSkill( mobile, attrib_name);
 	endif
 
-  skill_check_result := (( pass_chance - check_roll ) + 1 );
-  if( skill_check_result < 0)
-    skill_check_result := 0;
-  endif
-  
+    skill_check_result := (( pass_chance - check_roll ) + 1 );
+    //SendSysMessage(mobile, "pass_chance/check_roll: "+pass_chance+"/"+check_roll);
+
+
+    if( skill_check_result < 0)
+        skill_check_result := 0;
+    endif
+
 	return skill_check_result;
 endfunction
 
@@ -117,41 +137,74 @@ endfunction
  * Returns 1
  *
  */
-function CalcSuccessPercent( mobile, attrib_name, difficulty, effective_skill )
+function CalcSuccessPercent( unused mobile, unused attrib_name, difficulty, effective_skill )
+	var sc_settings := AP_GetSettingsCfgElem( "Skills" );
+	var min_chance := CInt( sc_settings.MinChance );
+	var max_chance := CInt( sc_settings.MaxChance );
+    var percent := CInt( 50.0 + (( effective_skill - difficulty ) * 1.5 )); // For every 5 points difference there will be a +-10 for percent
 
-	var sc_settings := AP_GetSettingsCfgElem( "Skills" ),
-  min_chance := CInt( sc_settings.MinChance ),
-  max_chance := CInt( sc_settings.MaxChance ),
-  percent := CInt( 50.0 + (( effective_skill - difficulty ) * 1.5 )); // For every 5 points difference there will be a +-10 for percent
-            
+    // Note: variable declaration was wrong so this may need some testing
+	/*
+		Previous version redeclared percent inside if so it was local only.
+
+		var neg1chance := CInt( sc_settings.MaxNeg1Chance ), <<< that little coma instead of semicolon :-)
+		percent := CInt( neg1chance * effective_skill / 150 );
+		After change we now have new formula that may need checking for difficulty == -1
+	*/
 	if( difficulty == -1 )
-		var neg1chance := CInt( sc_settings.MaxNeg1Chance ),
-		percent := CInt( neg1chance * effective_skill / 100 );
-  endif
-
+		var neg1chance := CInt( sc_settings.MaxNeg1Chance );
+		percent := CInt( neg1chance * effective_skill / 150 );
+	endif
 	if( percent < min_chance )
 		percent := min_chance;
 	elseif( percent > max_chance )
 		percent := max_chance;
 	endif
-
 	return percent;
 endfunction
-
+/*
+ * DifficultyTooEasy( effective_skill, difficulty )
+ *
+ * Purpose
+ * Determines if the efective_skill versus the difficulty
+ * is too easy to accomplish the task.
+ *
+ * Parameters
+ * effective_skill - The effective skill of the character.
+ * difficulty - The difficulty of the task.
+ *
+ * Return value
+ * Returns 0 if not too easy. Returns 1 if it is too easy.
+ *
+ */
 function DifficultyTooEasy( effective_skill, difficulty )
-
 	var sc_settings := AP_GetSettingsCfgElem( "Skills" );
-
         var max_diff := difficulty + CDbl( sc_settings.TooEasy );
         if( max_diff > effective_skill )
                 return 0;
         endif
-
 	return 1;
 endfunction
-
+/*
+ * DifficultyTooHard( effective_skill, difficulty )
+ *
+ * Purpose
+ * Determines if the efective_skill versus the difficulty
+ * is too hard to accomplish the task.
+ *
+ * Parameters
+ * effective_skill - The effective skill of the character.
+ * difficulty - The difficulty of the task.
+ *
+ * Return value
+ * Returns 0 if not too hard. Returns 1 if it is too hard.
+ *
+ */
 function DifficultyTooHard(effective_skill, difficulty)
 	var settings := AP_GetSettingsCfgElem("Skills");
-	return ( (effective_skill + CDbl(settings.TooHard)) < difficulty );
+	var max_diff := difficulty + CDbl( sc_settings.TooHard );
+	if( max_diff <= effective_skill )
+		return 0;
+	endif
+	return 1;
 endfunction
-

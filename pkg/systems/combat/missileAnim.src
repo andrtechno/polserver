@@ -1,0 +1,14 @@
+use uo;
+use os;
+
+program missile_anim(params)
+
+	var attacker := params[1];
+	var defer := params[2];
+	var weaponElement := params[3];
+
+	//PlayMovingEffect(attacker, defer, GetObjProperty(attacker.weapon, "ProjectileAnim"), 10, 0);
+    PerformAction(attacker, CInt(weaponElement.Anim) );
+    PlayMovingEffect(attacker, defer, weaponElement.ProjectileAnim, 10);
+    Sleepms(800);
+endprogram

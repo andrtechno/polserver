@@ -29,6 +29,7 @@ program do_res(parms)
 	  PlaySoundEffect(who, SOUND_EFFECT_RES);
       Resurrect(mobile);
       ResPenalties(mobile);
+      DestroyRobe(mobile);
     endif
     EraseObjProperty(mobile, "#ResMenu");
 //  elseif((GetPoisonByType(who, "DefaultPoison").size() > 0) && CheckLineOfSight(who, mobile))

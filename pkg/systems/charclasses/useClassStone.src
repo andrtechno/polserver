@@ -1,0 +1,62 @@
+use uo;
+use os;
+
+
+include ":charclasses:classes";
+include ":attributes:attributeConstants";
+include ":attributes:attributes";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":attributes:skills";
+include ":npcs:skillLists";
+
+program use_classstone(who, item)
+
+    var x := 15;
+    var y := 15;
+	var gump := GFCreateGump( 20, 50 );
+	GFPage( gump, 1 );
+	var widthGump := 250;
+    var heightGump := 210;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+    GFTextLine(gump, 15, y, 33, "Set Class Menu" );
+    var classesList := {ID_BARD,ID_MAGE,ID_WARRIOR,ID_THIEF,ID_CRAFTER,ID_RANGER};
+
+	GFSetRadioGroup(gump, 1);
+    y+=35;
+    var index := 1;
+    foreach cls in classesList
+        GFRadioButton( gump, x, y, 208, 209, 0, CInt(cls) );
+        GFTextLine(gump, x + 25, y, 2100, GetClasseName(cls));
+        y+=20;
+        index+=1;
+    endforeach
+
+    y:= 50;
+    GFTextLine(gump, 150, y, 2100, "Level: max 6" );
+    //GFResizePic(gump, 150, y +25, 2620, 130, 30);
+    GFGumpPic(gump, 150, y +25, 2443);
+    GFTextEntry(gump, 150 + 8, y + 26, 135, 20, 2100, 1, 100);
+
+
+	GFAddButton(gump, (widthGump / 2) - 30, heightGump - 35, 247, 248, GF_CLOSE_BTN, 1);
+
+    var input := GFSendGump( who, gump );
+    var lvl := CInt(GFExtractData(input, 100));
+    if(!(lvl in {1,2,3,4,5,6}))
+        SendSysMessage( who, "Cancelled. Max level 6", 3, 33 );
+        return;
+    endif
+    foreach key in ( input.keys )
+
+        if( key >= 1 && key <= 6 )
+            SetCMDClass(who, key, lvl);
+        endif
+    endforeach
+
+
+    return 1;
+endprogram
+
+
+

@@ -1,0 +1,30 @@
+/**
+Make your opponent bleed profusely with this wicked use of  your weapon. When successful, the target will bleed for several seconds, taking damage as time passes for up to ten seconds. The rate of damage slows down as time passes, and the blood loss can be completely staunched with the use of bandages. Applies a total of 15-31 physical damage to the target over the next 10 seconds. This damage is not reduced by armor and can only be avoided through healing with bandages. Grants five second effect reduction once removed. Attempts to reapply Bleed while the player is under effect reduction will scale the duration base on the last successful Bleed.
+
+
+Заставьте вашего противника обильно истекать кровью этим нечестивым использованием вашего оружия.
+
+В случае успеха цель будет истекать кровью в течение нескольких секунд, получая урон по прошествии времени до десяти секунд.
+
+Скорость повреждения замедляется с течением времени, а кровопотерю можно полностью остановить с помощью повязок.
+
+Наносит в общей сложности 15-31 физического урона цели в течение следующих 10 секунд. Этот урон не уменьшается броней,
+и его можно избежать только с помощью лечения с помощью бинтов. Дает пятисекундное уменьшение эффекта после удаления.
+
+Попытки повторно применить кровотечение, пока игрок находится под действием уменьшения эффекта, будут масштабировать
+продолжительность в зависимости от последнего успешного кровотечения.
+
+*/
+
+include ":combatBook:combatAbility";
+include ":timedScripts:timedScripts";
+//include ":attributes:attributes";
+
+program ability_BleedAttack(params)
+    var attacker := params[1];
+    var defender := params[2];
+
+    TS_StartTimer(defender, "Bleed", 10, {}, attacker);
+    //RemoveAbility(attacker);
+    return 1;
+endprogram

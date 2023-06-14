@@ -1,4 +1,4 @@
-include "include/NPCBackpacks";
+include ":npcs:NPCBackpacks";
 
 const STARTHAIR := 0x2030;
 const ENDHAIR := 0x2060;
@@ -31,27 +31,34 @@ function grabloot()
       if((item.objtype == UOBJ_CORPSE) && (!GetObjProperty(item.objtype, "npctemplate")))
         var items := { };
         foreach thingie in EnumerateItemsInContainer(item)
-          if((thingie.objtype < STARTHAIR || thingie.objtype > ENDHAIR) &&(!CInt(GetObjProperty(thingie,"#ignoreit"))))
+          if((thingie.objtype < STARTHAIR || thingie.objtype > ENDHAIR) && (!CInt(GetObjProperty(thingie,"#ignoreit"))))
             items[len(items) + 1] := thingie;
           endif
         endforeach
         if(len(items))
           RunToIt(me,item);
           if(Distance(me, item) < 2)
+
             foreach thingie in items
+
               // Adjusted to stop any form of script lag causing items to be looted after being
               // moved to the player's backpack.
-              if(thingie.container == item.container)
+
+
+
+              //if(thingie.container == item.container)
                 // Changed from mypack to me.backpack. Upon death npcs would not have the item
                 // on them for loot, causing looted stuff to be left in their storage. BAD NPC!
+
                 if(MoveItemToContainer(thingie, me.backpack))
                   say("You notice " + me.name + " rummage through a corpse and take an item.");
                   sleep(2);
                   break;
                 else
+print("loot ignoreit");
                   SetObjProperty(thingie,"#ignoreit",1);
                 endif
-              endif
+              //endif
             endforeach
           endif
         else
@@ -73,4 +80,4 @@ function RunToIt(me,item)
     endif
     look_around();
   endfor
-endfunction 
+endfunction

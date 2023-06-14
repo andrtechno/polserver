@@ -4,7 +4,7 @@ var bountyfile := DFOpenDataFile("BountySystem", 1);
 
 function AddBounty(killer, amt)
   var entry := DFFindElement(bountyfile, CStr(killer.serial), 1);
-  print(entry);
+
   entry.SetProp("Name", killer.name);
   entry.SetProp("Bounty", CInt(DFGetProp(entry, "Bounty", 1, 0) + amt));
   entry.SetProp("Murders", CInt(DFGetProp(entry, "Murders", 1, 0) + 1));
@@ -56,4 +56,3 @@ function MaintainBountySystem()
   print("// Removed " + count + " expired bounties.");
   print("//////////////////////////////////////////");
 endfunction
-

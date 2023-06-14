@@ -14,6 +14,7 @@ program missionNpcTalk(params)
     var npcSerial := GetConfigString( missionElem, "TalkNpc" );
 
     if(CInt(npcSerial) != npc.serial)
+    SendSysMessageUC(who, "Ошибка!!! TalkNpc", "RUS", 3, 67);
         return;
     endif
 

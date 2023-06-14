@@ -1,0 +1,30 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+
+program TimedScript_Homeric(params)
+	var mobile := params[1];
+	var points := params[3];
+	params := 0;
+	
+	// Prevents mod from being applied twice.
+	if ( GetObjProperty(mobile, "HomericPotionMod") )
+		return 0;
+	endif
+
+	var pointsData := struct;
+	pointsData.+dex := points;
+	pointsData.+int := points;
+	pointsData.+str := points;
+
+
+
+	SetObjProperty(mobile, "HomericPotionMod", pointsData);
+	AP_ModifyStatMod(mobile, DEXTERITY, pointsData.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, pointsData.int);
+	AP_ModifyStatMod(mobile, STRENGTH, pointsData.str);
+	
+	return 1;
+endprogram
+

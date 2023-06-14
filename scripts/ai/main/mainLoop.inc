@@ -1,8 +1,8 @@
 function main_AI_loop(next_wander := 0)
-  var ev;
-  var looter := GetObjProperty(me, "looter");
-  var wanders := 60;
-  look_around();
+    var ev;
+    var looter := GetObjProperty(me, "looter");
+    var wanders := 60;
+    look_around();
   EnableMainEvents();
   while(1)
     ev := os::wait_for_event(5);
@@ -12,9 +12,11 @@ function main_AI_loop(next_wander := 0)
         SYSEVENT_DAMAGED:     if(ev.source)
                                 Fight(ev.source);
                                 endif
-        SYSEVENT_ENTEREDAREA: if((!critter.npctemplate) ||(critter.script == "tamed") || (critter.script == "employed"))
-                                Fight(ev.source);
-                              endif
+        SYSEVENT_ENTEREDAREA:	if((!critter.npctemplate) ||(critter.script == "tamed") || (critter.script == "employed"))
+									if(CheckLineOfSight( me, ev.source ))
+										Fight(ev.source);
+									endif
+								endif
         EVID_HERDING:         Herd(ev);
       endcase
     until(!(ev := os::wait_for_event(5)));
@@ -36,33 +38,33 @@ function main_AI_loop(next_wander := 0)
 endfunction
 
 function look_around()
-  foreach critter in ListMobilesInLineOfSight(me, HALT_THRESHOLD)
-    if((!critter.npctemplate) ||(critter.script == "tamed") || (critter.script == "employed"))
-      Fight(critter);
-      return;
-    endif
-  endforeach
+    foreach critter in ListMobilesInLineOfSight(me, HALT_THRESHOLD)
+        if((!critter.npctemplate) ||(critter.script == "tamed") || (critter.script == "employed"))
+            Fight(critter);
+            return;
+        endif
+    endforeach
 endfunction
 
 function EnableMainEvents()
-  EnableEvents(EVID_HERDING);
-  EnableEvents(SYSEVENT_ENTEREDAREA + SYSEVENT_DAMAGED + SYSEVENT_ENGAGED, HALT_THRESHOLD);
+    EnableEvents(EVID_HERDING);
+    EnableEvents(SYSEVENT_ENTEREDAREA + SYSEVENT_DAMAGED + SYSEVENT_ENGAGED, HALT_THRESHOLD);
 endfunction
 
 function DisableMainEvents()
-  DisableEvents(SYSEVENT_ENGAGED);
-  DisableEvents(SYSEVENT_DAMAGED);
-  DisableEvents(SYSEVENT_ENTEREDAREA);
-  cleareventque();
+    DisableEvents(SYSEVENT_ENGAGED);
+    DisableEvents(SYSEVENT_DAMAGED);
+    DisableEvents(SYSEVENT_ENTEREDAREA);
+    cleareventque();
 endfunction
 
 function EVALUATING_INTELLIGENCE(ev)
-  var holder := ev.data;
-  var lx := holder[1];
-  var ly := holder[2];
-  var loops := 0;
-  var opponent;
-  var waittime := 0;
+    var holder := ev.data;
+    var lx := holder[1];
+    var ly := holder[2];
+    var loops := 0;
+    var opponent;
+    var waittime := 0;
   while(1)
 	if(!CloseIn(me, lx, ly))
 	  loops := loops + 1;
@@ -71,7 +73,7 @@ function EVALUATING_INTELLIGENCE(ev)
 	  loops := 0;
 	  waittime := 1;
 	endif
-	if((loops >= 30) or (coordist(me.x, me.y, lx, ly) <= 1))
+	if((loops >= 30) or (CoordinateDistance(me.x, me.y, lx, ly) <= 1))
 	  break;
 	endif
 	ev := wait_for_event(waittime);
@@ -88,9 +90,10 @@ function EVALUATING_INTELLIGENCE(ev)
 endfunction
 
 function CloseIn(me, lx, ly)
-  case (coordist(me.x, me.y, lx, ly))
-    0:       return 1;
-    default: WalkTowardLocation(lx, ly);
-             return 0;
-  endcase
+    case (CoordinateDistance(me.x, me.y, lx, ly))
+        0:  return 1;
+        default:
+            WalkTowardLocation(lx, ly);
+            return 0;
+    endcase
 endfunction

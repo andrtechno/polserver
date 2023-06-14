@@ -8,14 +8,16 @@ use uo;
 include ":timedScripts:timedScripts";
 
 program WalkOn(mobile, unused spiderweb)
-	if ( mobile.cmdlevel >= 2 )
+	/*if ( mobile.cmdlevel >= 2 )
 		return 0;
-	elseif ( mobile.dead )
+	endif*/
+
+	if ( mobile.dead )
 		return 0;
 	endif
 
 	SendSysMessage(mobile, "You become caught in the sticky web.");
-	TS_StartTimer(mobile, "paralysis", 30);
+	TS_StartTimer(mobile, "paralysis", 5);
 
 	return 1;
 endprogram

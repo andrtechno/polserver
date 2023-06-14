@@ -5,16 +5,13 @@ include ":attributes:attributes";
 
 program TimedScript_Strength(params)
 	var mobile := params[1];
-	var points := params[3];
+	var point := params[3];
 	params := 0;
 	
-	// Prevents mod from being applied twice.
-	if ( GetObjProperty(mobile, "StrengthMod") )
-		return 0;
-	endif
-	
-	SetObjProperty(mobile, "StrengthMod", points);
-	AP_ModifyStatMod(mobile, STRENGTH, points);
+	var points := struct;
+    points.+str := CInt(point);
+	SetObjProperty(mobile, "StrengthPotion", points);
+	AP_ModifyStatMod(mobile, STRENGTH, points.str);
 	
 	return 1;
 endprogram

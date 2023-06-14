@@ -20,7 +20,7 @@ program TimedScript_EndAgility(params)
 	AP_ModifyStatMod(mobile, INTELLIGENCE, points.int);
 	AP_ModifyStatMod(mobile, STRENGTH, points.str);
 	mobile.delbuff(buff_icon);
-	EraseObjProperty(mobile, "CurseMod");
+	EraseObjProperty(mobile, "MassCurseMod");
 
 	return 1;
 endprogram

@@ -1,0 +1,62 @@
+/*
+ * $Id: combatAdv.src 373 2006-06-17 18:27:33Z austinheilman $
+ *
+ */
+use uo;
+
+program hook_startup()
+	print("INSTALLING: Combat Advancement hook... ");
+	return 1;
+endprogram
+
+//
+// NOTE: This function is called EVEN IF THE ATTACK DIDN'T SUCCEED!
+//
+exported function CombatAdvancement(attacker, weapon, defender)
+	// Eliminates compiler warnings
+	attacker := attacker;
+	weapon := weapon;
+	defender := defender;
+
+
+
+	/*
+	//this is grab classic-distro
+  var attribid;
+  var cfg;
+  if(attacker.npctemplate)
+    cfg := ReadConfigFile(":*:npcdesc");
+    attribid := cfg[attacker.npctemplate].AttackAttribute;
+  else
+    cfg := ReadConfigFile(":*:itemdesc");
+    attribid := cfg[Hex(weapon.objtype)].Attribute;
+  endif
+  if(!attribid)
+    return;
+  endif
+	SkillCheck(attacker, attribid, -1, "", ADV_ALL);
+	SkillCheck(attacker, TACTICS, -1, "", ADV_ALL);
+	SkillCheck(defender, TACTICS, -1, "", ADV_ALL);*/
+
+
+
+
+
+
+	// Advancement currently handled in mainHitScript
+	return 1;
+endfunction
+
+
+
+function FindSkillidByIdentifier(attribid)
+  var retval;
+  case(attribid)
+    "Wrestling":        retval := AP_AttributeNameToSkillId(WRESTLING);
+    "Fencing":          retval := AP_AttributeNameToSkillId(FENCING);
+    "Swordsmanship":    retval := AP_AttributeNameToSkillId(SWORDSMANSHIP);
+    "Macefighting":     retval := AP_AttributeNameToSkillId(MACEFIGHTING);
+    "Archery":          retval := AP_AttributeNameToSkillId(ARCHERY);
+  endcase
+  Return retval;
+endfunction

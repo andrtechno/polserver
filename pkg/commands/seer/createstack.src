@@ -1,8 +1,9 @@
 use uo;
 use file;
+use util;
 
 include ":timeutils:time";
-include "include/crafting";
+include ":itemUtils:itemdesc";
 
 program textcmd_createstack( who, text )
     var dmy, month, hms, junk, what;
@@ -26,17 +27,27 @@ program textcmd_createstack( who, text )
 	while (junk<numstacks)
 		what := CreateItemInBackpack( who, objtype, amount );
 		if (what)
-//		SetObjProperty(what, "Created", who.name);
-		PrintTextAbovePrivate( who, "Created " + what.desc + " in my backpack.", who );
-		dmy := FormatTime(GetTimeStruct(GetTime()), "<DAY>-<MON>-<YY>");
-		hms := FormatTime(GetTimeStruct(GetTime()), "<HH>:<MM>:<SS>");
-		month := FormatTime(GetTimeStruct(GetTime()), "<MON>-<YY>");
-		LogToFile("::log/createstack_" + month + ".log", "On " + dmy + " at " + hms + " " +  who.name +" on account " + who.acctname + " created  " + amount + " of " + get_item_name(what.objtype, 1));
-	
+			if(!what.stackable)
+                SetObjProperty(what, "Created", who.acctname+"/"+who.name);
+                SetObjProperty(what, "CreatedAt", StrFormatTime("%Y-%d-%m %H:%M:%S",polcore().systime));
+                if(!GetObjProperty(what, "Dupe"))
+                    SetObjProperty(what, "Dupe", "None");
+                endif
+                if(!GetObjProperty(what, "DupeAt"))
+                    SetObjProperty(what, "DupeAt", "None");
+                endif
+            endif
+            PrintTextAbovePrivate( who, "Created " + what.desc + " in my backpack.", who );
+            dmy := FormatTime(GetTimeStruct(GetTime()), "<DAY>-<MON>-<YY>");
+            hms := FormatTime(GetTimeStruct(GetTime()), "<HH>:<MM>:<SS>");
+            month := FormatTime(GetTimeStruct(GetTime()), "<MON>-<YY>");
+            LogToFile("::log/createstack_" + month + ".log", "On " + dmy + " at " + hms + " " +  who.name +" on account " + who.acctname + " created  " + amount + " of " + GetObjTypeDesc(what.objtype, 1));
+
 		else
 			PrintTextAbovePrivate( who, "Couldn't create that: " + what.errortext, who );
 			return 0;
 		endif
+
 		junk := junk + 1;
 	endwhile
 		

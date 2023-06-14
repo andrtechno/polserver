@@ -28,3 +28,10 @@ function ResNow(who)
     return 0;
   endif
 endfunction
+
+function DestroyRobe(who)
+    var robe := GetEquipmentByLayer( who, 22 );
+    if(robe)
+        DestroyItem(robe);
+    endif
+endfunction

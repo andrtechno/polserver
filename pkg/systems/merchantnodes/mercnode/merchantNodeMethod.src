@@ -1,0 +1,46 @@
+use uo;
+use os;
+
+include "include/mrcSpawn";
+
+exported function IsNode(item)
+
+	item := item;
+	return 1;
+
+endfunction
+
+//EraseObjProperty
+exported function Insert(item, npc, data)
+    var type := GetObjProperty(item, "Type");
+    var template := CInt(GetObjProperty(item, "Template"));
+
+    if(len(type) >= 10)
+        Print("Type len limit");
+        return 0;
+    endif
+
+    var tmparray := array;
+    var holder := array;
+
+    tmparray.append(npc);
+    tmparray.append(array(data.x, data.y, data.z));
+    var merctype := FindMerchantType(npc);
+    if(!merctype && (template == 1))
+        Print("That is an invalid template");
+        return 0;
+    endif
+    create_node_merc(merctype, merctype + " " + data.x + " " + data.y + " " + data.z);
+
+
+    tmparray.append(1);
+    holder.append(tmparray);
+    foreach thing in type
+        holder.append(thing);
+    endforeach
+
+	return SetObjProperty(item, "Type", holder);
+
+endfunction
+
+

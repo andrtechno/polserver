@@ -31,7 +31,7 @@ function WriteNews(me)
 	newsline := SendTextEntryGump( me, "NEWS: ", TE_CANCEL_DISABLE,TE_STYLE_NORMAL, 80);
 	prompt := newsline;
 	if (!prompt)
-		SendSysMessage(me,"Cancelled.");
+		SendSysMessage(me,"Canceled");
 		return;
 	endif
 

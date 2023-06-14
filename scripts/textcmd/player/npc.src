@@ -1,0 +1,68 @@
+use uo;
+use os;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":attributes:attributes";
+
+var npcdesc        := ReadConfigFile("npcdesc");
+
+program textcmd_npc( who)
+    var victim := Target(who);
+    if(!victim)
+        SendSysMessage(who, "Cancelled.", color := 33);
+        return;
+    endif
+
+    if(!victim.isA(POLCLASS_NPC))
+            SendSysMessage(who, "not npc.", color := 33);
+            return;
+    endif
+    var list := {
+        struct{param := "AttackSpeed", name := "Скорость атаки"},
+        struct{param := "AttackAttribute", name := "Оружие"},
+        struct{param := "AttackDamage", name := "DMG"},
+        struct{param := "lootgroup", name := "Loot"}
+    };
+    var listVitals := {
+
+        struct{name := "Сила", value := AP_GetStat(victim, STRENGTH)},
+        struct{name := "Интелект", value := AP_GetStat(victim, INTELLIGENCE)},
+        struct{name := "Ловкость", value := AP_GetStat(victim, DEXTERITY)},
+        struct{name := "HP", value := AP_GetVital(victim, VITALID_LIFE) + "/" + AP_GetVitalMaximumValue(victim, VITALID_LIFE)}
+
+    };
+
+
+
+
+    //AttackSpeed                 1000
+    //AttackDamage                5d15
+    //AttackAttribute             Archery
+
+    var x := 10;
+    var y := 15;
+    GFCloseGumpOnMoved ( who, who.x, who.y, GetPid());
+	var gump := GFCreateGump( 20, 50 );
+	GFClosable(gump, 1);
+	var widthGump := 250;
+    var heightGump := 340;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+
+
+    foreach info in list
+        var elem := FindConfigElem(npcdesc, victim.npctemplate);
+        var param := GetConfigString(elem, info.param);
+        GFTextLine(gump, x, y + 25, 2100, info.name+": "+param+"");
+        y += 25;
+    endforeach
+
+    foreach info in listVitals
+        GFTextLine(gump, x, y + 25, 2100, info.name+": "+info.value+"");
+        y += 25;
+    endforeach
+    var input := GFSendGump( who, gump );
+
+
+endprogram
+

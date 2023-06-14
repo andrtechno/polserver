@@ -1,0 +1,30 @@
+use uo;
+use unicode;
+
+program use_premium(who, item)
+
+
+    var prem := who.IsPremium();
+
+    var level := 0;
+    case(item.objtype)
+        0x21210: level := 1;
+        0x21211: level := 2;
+        0x21212: level := 3;
+    endcase
+
+    if(prem)
+        if(prem <> level)
+            SendSysMessageUC(who, "У вас премиум другого уровня.", "RUS", 3, 37);
+            return;
+        endif
+    endif
+
+    if(level)
+        who.SetPremium(level, 1);
+        if(!SubtractAmount(item, 1))
+            DestroyItem(item);
+        endif
+    endif
+    return 1;
+endprogram

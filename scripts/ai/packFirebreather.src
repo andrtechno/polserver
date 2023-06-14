@@ -7,11 +7,9 @@ use cfgfile;
 include "include/eventID";
 include ":attributes:attributes";
 include "include/sysEvent";
-include "include/randName";
+include ":npcs:randName";
 include "include/NPCUtil";
 include "include/objtype";
-include "include/dist";
-include "include/dist";
 include "include/anchors";
 include "ai/main/packKillPCsLoop";
 include "ai/combat/packFight";
@@ -32,7 +30,7 @@ program KillPlayers()
 endprogram
 
 function CloseDistance( opponent )
-  var sleepdelay := 300 - (CInt(GetDexterity(me)) * 1.5);
+  var sleepdelay := 300 - (CInt(AP_GetStat(me, DEXTERITY)) * 1.5);
   if (sleepdelay < 0)
 	sleepdelay := 0;
   endif

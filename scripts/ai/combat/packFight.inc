@@ -1,4 +1,8 @@
+
+
 include ":attributes:attributes";
+include ":damage:damage";
+
 function Fight( opponent )
   if ((opponent.cmdlevel > 0) || (opponent.serial == me.serial))
     SetWarMode(0);
@@ -11,14 +15,14 @@ function Fight( opponent )
       return;
     endif
   endif
-  var oldprio := set_priority(50);
+  set_priority(50);
   SetOpponent( opponent );
   prepare_for_fight( opponent );
   TurnToward( opponent );
   var loops := 0;
   var ev;
   var waittime := 0;
-  while ( (opponent) && not (opponent.dead || opponent.hidden || opponent.concealed) && (dist(me,opponent) < 20) )
+  while ( (opponent) && not (opponent.dead || opponent.hidden || opponent.concealed) && (Distance(me,opponent) < 20) )
     if (!CloseDistance( opponent ) )
       loops := loops + 1;
       waittime := 0;
@@ -94,7 +98,7 @@ function flee(opponent)
     if ( numflees > 10 )
       MoveObjectToLocation(me,5288,1176,0,"britannia_alt",MOVEOBJECT_FORCELOCATION);
       SetObjProperty(me,"guardkill",1);
-      ApplyRawDamage( me, GetMaxHp(me) + 3 );
+      KillMobile(me);
     else
       numflees := numflees + 1;
     endif

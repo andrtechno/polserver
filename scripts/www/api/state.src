@@ -1,0 +1,106 @@
+use http;
+use uo;
+use basic;
+use guilds;
+use util;
+
+program players()
+    var data := struct{};
+
+
+	var core_ref := POLCore();
+    data.+core_ref:=core_ref.verstr;
+    data.+time:=StrFormatTime("%b %d, %Y %I:%M %p", core_ref.systime);
+    data.+accounts:=ListAccounts().Size();
+    data.+items:=core_ref.itemcount;
+    data.+mobiles:=core_ref.mobilecount;
+    data.+sysload:=core_ref.sysload+"%";
+    data.+uptime:=FormatSeconds(core_ref.uptime);
+
+    data.+bytes_received:=FormatBytes(core_ref.bytes_received);
+    data.+bytes_sent:=FormatBytes(core_ref.bytes_sent);
+
+
+
+
+    data.+guilds:=ListGuilds().size();
+    data.+online:=EnumerateOnlineCharacters().size();
+
+
+    WriteHtml( PackJSON(data) );
+endprogram
+
+
+function FormatSeconds(seconds)
+	CONST SEC_PER_HOUR := 3600.0;
+	CONST SEC_PER_DAY := 86400.0;
+	CONST SEC_PER_WEEK := 604800.0;
+
+	var formatted := "";
+
+	if ( seconds >= SEC_PER_WEEK )
+		var weeks := CInt(seconds/SEC_PER_WEEK);
+		if ( weeks > 1 )
+			formatted := CStr(weeks) + " weeks, ";
+		else
+			formatted := "1 week, ";
+		endif
+
+		seconds := seconds - (weeks * SEC_PER_WEEK);
+	endif
+
+	if ( seconds >= SEC_PER_DAY )
+		var days := CInt(seconds/SEC_PER_DAY);
+		if (days > 1)
+			formatted := formatted + CStr(days) + " days, ";
+		else
+			formatted := formatted + "1 day, ";
+		endif
+		seconds := seconds - (days * SEC_PER_DAY);
+	endif
+
+	if ( seconds >= SEC_PER_HOUR )
+		var hours := CInt(seconds/SEC_PER_HOUR);
+		if (hours > 1)
+			formatted := formatted + CStr(hours) + " hours, ";
+		else
+			formatted := formatted + " 1 hour, ";
+		endif
+		seconds := seconds - (hours * SEC_PER_HOUR);
+	endif
+
+	var minutes := CInt(seconds/60.0);
+	if ( minutes )
+		formatted := formatted + CStr(minutes) + " minutes, ";
+		seconds := seconds - (minutes * 60);
+	endif
+	if ( seconds )
+		if ( seconds == 1 )
+			formatted := formatted + " 1 second";
+		else
+			formatted := formatted + CStr(seconds) + " seconds";
+		endif
+	endif
+
+	return formatted;
+endfunction
+
+function FormatBytes(bytes)
+	CONST BYTES_IN_KILO	:= 1024.0;
+	CONST BYTES_IN_MEG	:= 1048576.0;
+
+	var mb := CDbl(bytes) / BYTES_IN_MEG;
+	var type := "MB";
+
+	if ( mb < 1.0 )
+		mb := CDbl(bytes) / BYTES_IN_KILO;
+		type := "KB";
+
+		if ( mb < 1.0 )
+			mb := bytes;
+			type := "bytes";
+		endif
+	endif
+
+	return CStr(mb)+" "+type;
+endfunction

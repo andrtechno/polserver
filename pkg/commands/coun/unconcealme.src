@@ -15,6 +15,13 @@ program unconcealme( who )
     PlayStationaryEffect(who.x + 1, who.y - 1, who.z, 0x3709, 0, 0x1e);
 
 	PlaySoundEffect(who,0xf8);
+
+    foreach mobile in (ListMobilesNearLocation( who.x, who.y, who.z, 15))
+        if(!mobile.isa(POLCLASS_NPC))
+            mobile.setlightlevel (0, 3600);
+            PlayObjectCenteredEffect(mobile, 0x373a, 10,10);
+	    endif
+    endforeach
 /*
 
 	var connect := mysql_connect("localhost","root","47228960");
@@ -37,11 +44,9 @@ program unconcealme( who )
 //var test := mysql_field_name(res,0);
 //var test;
 //while (test == res);
-//print(test);
+
 //endwhile;
-print(name);
-print(fields);
-print(num);
+
 SendSysMessage(who,"hello");
 //SendSysMessageUC(who, res[1], "RUS");
     endif;

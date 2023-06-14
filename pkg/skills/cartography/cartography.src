@@ -7,7 +7,7 @@ include "include/client";
 include "include/canAccess";
 include ":attributes:attributes";
 
-program go_go_gadget_map(who)
+program skill_Cartography(who)
   EraseObjProperty(who, "IsMeditating");
   EraseObjProperty(who, "HealTimer");
   var blank := Target(who);

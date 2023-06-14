@@ -58,39 +58,39 @@ const UOBJ_BLUE_MOONGATE    := 0x0f6c;
 //  Reagents
 ///////////////////
 
-const UOBJ_BLACKMOOR		        := 0x0f79;          //Powdered
-const UOBJ_BONE			        := 0x0f7e;          //Powdered
-const UOBJ_BRIMSTONE		        := 0x0f7f;          //Powdered
-const UOBJ_DEMON_BONE		        := 0x0f80;          //Powdered
-const UOBJ_DEAD_WOOD		        := 0x0f90;          //Powdered
-const UOBJ_FERTILE_DIRT		        := 0x0f81;          //Powdered
+const UOBJ_BLACKMOOR          := 0x0f79;          //Powdered
+const UOBJ_BONE               := 0x0f7e;          //Powdered
+const UOBJ_BRIMSTONE          := 0x0f7f;          //Powdered
+const UOBJ_DAEMON_BONE        := 0x0f80;          //Powdered
+const UOBJ_DEAD_WOOD          := 0x0f90;          //Powdered
+const UOBJ_FERTILE_DIRT       := 0x0f81;          //Powdered
 const UOBJ_OBSIDIAN		        := 0x0f89;          //Powdered
 const UOBJ_PIG_IRON		        := 0x0f8a;          //Powdered
-const UOBJ_PUMICE		        := 0x0f8b;          //Powdered
-const UOBJ_SERPENT_SCALE	        := 0x0f8e;          //Powdered
-const UOBJ_VOLCANIC_ASH		        := 0x0f8f;          //Powdered
+const UOBJ_PUMICE             := 0x0f8b;          //Powdered
+const UOBJ_SERPENT_SCALE      := 0x0f8e;          //Powdered
+const UOBJ_VOLCANIC_ASH       := 0x0f8f;          //Powdered
 
 const UOBJ_BATWING		        := 0x0f78;          //Essence
-const UOBJ_BLOODSPAWN		        := 0x0f7c;          //Essence
-const UOBJ_DRAGONS_BLOOD	        := 0x0f82;          //Essence
-const UOBJ_EXECUTIONERS_CAP	        := 0x0f83;          //Essence
-const UOBJ_EYE_OF_NEWT		        := 0x0f87;          //Essence
-const UOBJ_VIAL_OF_BLOOD	        := 0x0f7d;          //Essence
-const UOBJ_WYRMS_HEART		        := 0x0f91;          //Essence
+const UOBJ_BLOODSPAWN         := 0x0f7c;          //Essence
+const UOBJ_DRAGONS_BLOOD      := 0x0f82;          //Essence
+const UOBJ_EXECUTIONERS_CAP   := 0x0f83;          //Essence
+const UOBJ_EYE_OF_NEWT        := 0x0f87;          //Essence
+const UOBJ_VIAL_OF_BLOOD      := 0x0f7d;          //Essence
+const UOBJ_WYRMS_HEART        := 0x0f91;          //Essence
 
-const UOBJ_BLACK_PEARL                  := 0x0f7a;
-const UOBJ_BLOOD_MOSS                   := 0x0f7b;
-const UOBJ_GARLIC                       := 0x0f84;
-const UOBJ_GINSENG                      := 0x0f85;
-const UOBJ_MANDRAKE_ROOT                := 0x0f86;
-const UOBJ_NIGHTSHADE                   := 0x0f88;
-const UOBJ_SULFUROUS_ASH                := 0x0f8c; // CHECKME spelling
-const UOBJ_SPIDER_SILK                  := 0x0f8d;
-const UOBJ_SULPHUROUS_ASH               := 0x0f8c;
+const UOBJ_BLACK_PEARL        := 0x0f7a;
+const UOBJ_BLOOD_MOSS         := 0x0f7b;
+const UOBJ_GARLIC             := 0x0f84;
+const UOBJ_GINSENG            := 0x0f85;
+const UOBJ_MANDRAKE_ROOT      := 0x0f86;
+const UOBJ_NIGHTSHADE         := 0x0f88;
+const UOBJ_SULFUROUS_ASH      := 0x0f8c; // CHECKME spelling
+const UOBJ_SPIDER_SILK        := 0x0f8d;
+const UOBJ_SULPHUROUS_ASH     := 0x0f8c;
 
-const UOBJ_REAPER_HEARTWOOD	        := 0x1706f;
-const UOBJ_ENT_HEARTWOOD	        := 0x1706e;
-const UOBJ_ENCHANTED_BONE	        := 0x1a153;
+const UOBJ_REAPER_HEARTWOOD   := 0x1706f;
+const UOBJ_ENT_HEARTWOOD      := 0x1706e;
+const UOBJ_ENCHANTED_BONE     := 0x1a153;
 
 ///////////
 //  Gems //
@@ -162,11 +162,11 @@ const UOBJ_SEXTANT_PARTS                := 0x1059;
 const UOBJ_AXLE                         := 0x105b;
 const UOBJ_SPRINGS                      := 0x105d;
 
-const UOBJ_WAX				:= 0x1422;
-const UOBJ_EMPTY_KETTLE		        := 0x09ed;
-const UOBJ_KETTLE_OF_WAX		:= 0x142a;
-const UOBJ_DIPPING_STICK		:= 0x1428;
-const UOBJ_SKULL			:= 0x1ae2;
+const UOBJ_WAX                          := 0x1422;
+const UOBJ_EMPTY_KETTLE                 := 0x09ed;
+const UOBJ_KETTLE_OF_WAX                := 0x142a;
+const UOBJ_DIPPING_STICK                := 0x1428;
+const UOBJ_SKULL                        := 0x1ae2;
 
 
 
@@ -174,23 +174,23 @@ const UOBJ_SKULL			:= 0x1ae2;
 // Tailoring items //
 /////////////////////
 
-const UOBJ_SEWING_KIT		        := 0x0f9d;
-const UOBJ_BOLT_OF_CLOTH		:= 0x0f95;
+const UOBJ_SEWING_KIT                   := 0x0f9d;
+const UOBJ_BOLT_OF_CLOTH                := 0x0f95;
 const UOBJ_CLOTH_BOLT                   := 0x0f95;
-const UOBJ_CLOTH			:= 0x1765;
-const UOBJ_WOOL			        := 0x0df8;
-const UOBJ_HIDE			        := 0x1078;
-const UOBJ_BROWN_HIDE		        := 0x17050;
-const UOBJ_RED_HIDE			:= 0x17051;
-const UOBJ_BLUE_HIDE		        := 0x17052;
+const UOBJ_CLOTH                        := 0x1765;
+const UOBJ_WOOL                         := 0x0df8;
+const UOBJ_HIDE                         := 0x1078;
+const UOBJ_BROWN_HIDE                   := 0x17050;
+const UOBJ_RED_HIDE                     := 0x17051;
+const UOBJ_BLUE_HIDE                    := 0x17052;
 const UOBJ_GREEN_HIDE		        := 0x17053;
 const UOBJ_SILVER_HIDE		        := 0x17054;
 const UOBJ_GREYDRAGON_HIDE		:= 0x1705a;
 const UOBJ_WHITEDRAGON_HIDE		:= 0x1705b;
 const UOBJ_BLACKDRAGON_HIDE		:= 0x1705c;
 const UOBJ_GREENDRAGON_HIDE		:= 0x1705d;
-const UOBJ_REDDEMON_HIDE		:= 0x1705e;
-const UOBJ_BLACKDEMON_HIDE		:= 0x1705f;
+const UOBJ_REDDAEMON_HIDE		:= 0x1705e;
+const UOBJ_BLACKDAEMON_HIDE		:= 0x1705f;
 const UOBJ_NIGHTMARE_HIDE		:= 0x17061;
 const UOBJ_SEASERPENT_HIDE		:= 0x17062;
 const UOBJ_POLERBEAR_HIDE		:= 0x17063;
@@ -329,59 +329,40 @@ const UOBJ_FORGE9       := 0x198a;
 const UOBJ_ANVIL1       := 0x0faf;
 const UOBJ_ANVIL2       := 0x0fb0;
 
-const UOBJ_IRON_ORE             := 0x16300;
-const UOBJ_DULLCOPPER_ORE       := 0x16301;
-const UOBJ_SHADOW_ORE		:= 0x16302;
-const UOBJ_COPPER_ORE		:= 0x16303;
-const UOBJ_BRONZE_ORE           := 0x16304;
-const UOBJ_KINDRED_ORE          := 0x16305;
-const UOBJ_AGAPITE_ORE          := 0x16306;
-const UOBJ_VERITE_ORE           := 0x16307;
-const UOBJ_VALORITE_ORE         := 0x16308;
+const UOBJ_ORE_COPPER       := 0x16300;
+const UOBJ_ORE_IRON         := 0x16301;
+const UOBJ_ORE_STEEL		:= 0x16302;
+const UOBJ_ORE_ANRA		    := 0x16303;
+const UOBJ_ORE_VALORITE     := 0x16304;
+const UOBJ_ORE_LAVAROCK     := 0x16305;
+const UOBJ_ORE_ICEROCK      := 0x16306;
+const UOBJ_ORE_SHADOW       := 0x16307;
+const UOBJ_ORE_AZURITE      := 0x16308;
+const UOBJ_ORE_DOOM         := 0x16309;
+const UOBJ_ORE_BLUESTEEL    := 0x16310;
+const UOBJ_ORE_DARKRUBY     := 0x16311;
+const UOBJ_ORE_CRYSTALIT    := 0x16312;
+const UOBJ_ORE_ONYX         := 0x16313;
+const UOBJ_ORE_MIFRIL       := 0x16314;
 
-const UOBJ_IRON_INGOT           := 0x16309;
-const UOBJ_DULLCOPPER_INGOT     := 0x1630a;
-const UOBJ_SHADOW_INGOT		:= 0x1630b;
-const UOBJ_COPPER_INGOT		:= 0x1630c;
-const UOBJ_BRONZE_INGOT         := 0x1630d;
-const UOBJ_KINDRED_INGOT        := 0x1630e;
-const UOBJ_AGAPITE_INGOT        := 0x1630f;
-const UOBJ_VERITE_INGOT         := 0x16310;
-const UOBJ_VALORITE_INGOT       := 0x16311;
 
-const UOBJ_VELVITE_ORE      	:= 0x16205;
-const UOBJ_CRIMSONITE_ORE	:= 0x16206;
-const UOBJ_CORAL_ORE         	:= 0x16207;
-const UOBJ_FLESH_ORE		:= 0x16208;
-const UOBJ_TEKRHAN_ORE		:= 0x16209;
-const UOBJ_ROYAL_ORE            := 0x1620a;
-const UOBJ_MALACHITE_ORE        := 0x1620b;
-const UOBJ_MOONSTONE_ORE	:= 0x1620c;
-const UOBJ_SUNSTONE_ORE		:= 0x1620d;
-const UOBJ_ELVEN_ORE		:= 0x1620e;
-const UOBJ_GLACIAL_ORE          := 0x1620f;
-const UOBJ_SILVER_ORE           := 0x16210;
-const UOBJ_GOLD_ORE          	:= 0x16211;
-const UOBJ_VOLCANIC_ORE		:= 0x16212;
-const UOBJ_ONYX_ORE             := 0x16213;
-const UOBJ_PYRITE_ORE           := 0x16214;
 
-const UOBJ_VELVITE_INGOT      	:= 0x16245;
-const UOBJ_CRIMSONITE_INGOT	:= 0x16246;
-const UOBJ_CORAL_INGOT         	:= 0x16247;
-const UOBJ_FLESH_INGOT		:= 0x16248;
-const UOBJ_TEKRHAN_INGOT	:= 0x16249;
-const UOBJ_ROYAL_INGOT          := 0x1624a;
-const UOBJ_MALACHITE_INGOT      := 0x1624b;
-const UOBJ_LUNAR_INGOT		:= 0x1624c;
-const UOBJ_SOLAR_INGOT		:= 0x1624d;
-const UOBJ_ELVEN_INGOT		:= 0x1624e;
-const UOBJ_GLACIAL_INGOT        := 0x1624f;
-const UOBJ_SILVER_INGOT         := 0x16250;
-const UOBJ_GOLD_INGOT        	:= 0x16251;
-const UOBJ_VOLCANIC_INGOT	:= 0x16252;
-const UOBJ_ONYX_INGOT           := 0x16253;
-const UOBJ_PYRITE_INGOT         := 0x16254;
+const UOBJ_INGOT_COPPER     := 0x1629F;
+const UOBJ_INGOT_IRON       := 0x1630a;
+const UOBJ_INGOT_STEEL		:= 0x1630b;
+const UOBJ_INGOT_ANRA		:= 0x1630c;
+const UOBJ_INGOT_VALORITE   := 0x1630d;
+const UOBJ_INGOT_LAVAROCK   := 0x1630e;
+const UOBJ_INGOT_ICEROCK    := 0x1630f;
+const UOBJ_INGOT_SHADOW     := 0x1631A;
+const UOBJ_INGOT_AZURITE    := 0x1631B;
+const UOBJ_INGOT_DOOM       := 0x1631C;
+const UOBJ_INGOT_BLUESTEEL  := 0x1631d;
+const UOBJ_INGOT_DARKRUBY   := 0x1631e;
+const UOBJ_INGOT_CRYSTALIT  := 0x1631f;
+const UOBJ_INGOT_ONYX       := 0x1632a;
+const UOBJ_INGOT_MIFRIL     := 0x1632b;
+
 
 
 /////////////////////////
@@ -601,14 +582,14 @@ const UOBJ_ENDHAIR			:= 0x204d;
 
 const UOBJ_RUNE                 := 0x1f14;
 const UOBJ_RECALL_RUNE          := 0x1f14;
-const UOBJ_RUNEBOOK             := 0x22C5; //0x16100 old
+const UOBJ_RUNEBOOK             := 0x22C5;
 
 const UOBJ_PARAFIELD_NS := 0x3967;
 const UOBJ_PARAFIELD_EW := 0x3979;
-const UOBJ_POISONFIELD_NS   := 0x3915;
+const UOBJ_POISONFIELD_NS   := 0x3914;
 const UOBJ_POISONFIELD_EW   := 0x3920;
-const UOBJ_EFIELD_NS        := 0x3946;
-const UOBJ_EFIELD_EW        := 0x3955;
+const UOBJ_EFIELD_NS        := 0x3947;
+const UOBJ_EFIELD_EW        := 0x3956;
 
 const GID_PLANK_EXTENDED_FACING_WEST   := 0x3ed5;
 const GID_PLANK_RETRACTED_FACING_WEST  := 0x3eb1;

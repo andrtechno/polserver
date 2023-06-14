@@ -8,6 +8,7 @@ var cfg  := ReadConfigFile( ":*:itemdesc" );
 
 program dyeable(who, dyetub)
   if(who.cmdlevel >= 2)
+    SendSysMessage (who, "Staff member using a dye tub. Choose the item:", color := 88);
     var item := Target(who);
     if(!item)
       SendSysMessage(who, "Cancelled");
@@ -17,9 +18,10 @@ program dyeable(who, dyetub)
     PlaySoundEffect(who, 0x23f);
     return;
   endif
-  if((dyetub.color > 1001) || (dyetub.color == 1))
+// this next piece of code kept players from using illegal colours
+/*  if(dyetub.color > 1001)
     dyetub.color := 38;
-  endif
+  endif */
   if(!can_access(who, dyetub))
     return;
   endif
@@ -36,24 +38,26 @@ program dyeable(who, dyetub)
     return;
   endif
   if(!ReserveItem(item))
-    SendSysMessage(who, "You cant use that!");
+    SendSysMessage(who, "That item is in use already!");
     return;
   elseif(!Accessible(who, item))
     SendSysMessage(who, "You cant reach that!");
     return;
   endif
+  if (item.objtype == 0xfab) // a dye tub
+      SendSysMessage(who, "You cannot dye a dye tub. Use dyes to mix a colour in the tub.", color := 33);
+      return;
+  endif
   var element  := FindConfigElem(cfg,  item.objtype);
   var dyeable  := GetConfigInt(element, "dyeable");
+    if(GetConfigInt(element, "ColorFast"))
+	dyeable := 0;
+    endif
   if(dyeable == 1)
-    if((item.objtype == 0xfab) and (dyetub.color == 1))
-      SendSysMessage(who, "You cannot duplicate black dye tubs");
-      return;
-    else
       item.color := dyetub.color;
       PlaySoundEffect(who, 0x23f);
-    endif
   else
-    SendSysMessage( who, "that item cannot be dyed");
+    SendSysMessage( who, "That item does not absorb the dye.", color := 33);
     return;
   endif
 endprogram

@@ -1,0 +1,22 @@
+use cfgfile;
+
+include ":combatBook:combatAbility";
+
+program logon(who)
+
+    var ability := CInt(GetObjProperty(who, "Ability"));
+
+    if(ability)
+
+        var cfgFile := ReadConfigFile(":combatBook:abilities");
+        var elem := FindConfigElem( cfgFile, ability );
+        var script := GetConfigString( elem, "Script" );
+
+        if(ability in {0x0A, 0x0D})
+            start_script(script, {who, 1});
+        endif
+    endif
+
+    //RemoveAbility(who);
+    return 1;
+endprogram

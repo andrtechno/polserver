@@ -13,7 +13,7 @@ program TimedScript_Curse(params)
 	var percent := params[3];
 	var duration := params[4];
 
-	var curse_elem := TS_GetCfgElem("Curse");
+	var curse_elem := TS_GetCfgElem("MassCurse");
     var buff_icon := CInt( curse_elem.BuffIcon );
     var cliloc_name :=  CInt(curse_elem.cliloc_name);
     var cliloc_desc :=  CInt(curse_elem.cliloc_desc);
@@ -27,11 +27,11 @@ program TimedScript_Curse(params)
 		return 0;
 	endif
 	// Prevents mod from being applied whilst Cursed.
-	if ( GetObjProperty(defender, "FeebleMod") )
+	if ( GetObjProperty(defender, "FeebleMindMod") )
 		return 0;
 	endif
 	// Prevents mod from being applied whilst Cursed.
-	if ( GetObjProperty(defender, "WeakenhMod") )
+	if ( GetObjProperty(defender, "WeakenMod") )
 		return 0;
 	endif
 

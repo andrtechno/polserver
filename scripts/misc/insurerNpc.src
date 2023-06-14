@@ -1,0 +1,39 @@
+use uo;
+use os;
+use unicode;
+
+include "include/client";
+
+program insurerNpc( params )
+    var who := params[1];
+    var me := params[2];
+    var x := params[3];
+    var y := params[4];
+
+    var targ := Target(who);
+    if(!targ)
+        SendSysMessage( who, "Cancelled.", 3, MESSAGE_COLOR_BAD );
+        return 0;
+    endif
+    if(who.x != x && who.y != y)
+        SendSysMessageUC( who, "Вы должны оставаться на месте.", "RUS", 3, MESSAGE_COLOR_BAD );
+        return 0;
+    endif
+    if(targ.isa(POLCLASS_CONTAINER))
+        SendSysMessageUC( who, "Запрещено страховать контейнеры.", "RUS", 3, MESSAGE_COLOR_BAD );
+        return 0;
+    endif
+    if(targ.newbie)
+        SendSysMessage( who, "Cancelled.", 3, MESSAGE_COLOR_BAD );
+        return 0;
+    endif
+    if(targ.insured)
+        SendSysMessage( who, "Already insured.", 3, MESSAGE_COLOR_BAD );
+        return 0;
+    endif
+
+    targ.insured := 1;
+    SendSysMessageUC( who, "Вы успешно застраховали.", "RUS", 3, MESSAGE_COLOR_GOOD );
+
+    return 1;
+endprogram

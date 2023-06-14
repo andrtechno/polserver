@@ -13,6 +13,7 @@ program receivercontrol(crystal);
   while(1)
     ev := os::wait_for_event( 3 );
     if(ev)
+    sleep(1);
       var IsOn := GetObjProperty(crystal, "Status");
       IsOn := CStr(IsOn);
       if (IsOn == "ON")

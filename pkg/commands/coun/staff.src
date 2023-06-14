@@ -1,0 +1,13 @@
+use uo;
+use unicode;
+
+program textcmd_staff(who, text)
+
+    foreach character in EnumerateOnlineCharacters()
+        if( who.cmdlevel >= character.cmdlevel)
+            SendSysMessageUC( character, who.name + ": " +text, "RUS", 3, 54 );
+        endif
+    endforeach
+
+    return 1;
+endprogram

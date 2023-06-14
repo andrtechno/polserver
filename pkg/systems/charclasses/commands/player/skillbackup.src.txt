@@ -18,7 +18,6 @@ const PERFORM_SKILL	:= 500;
 
 program textcmd_skill( who )
 
-	//SendSkillWindow( who, who );
 
 	var total	:= 0.0;
 	var bard	:= 0.0;

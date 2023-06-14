@@ -2,14 +2,13 @@ use npc;
 use os;
 use uo;
 
-include "include/NPCCast";
+include ":npcs:NPCCast";
 include ":attributes:attributes";
-include "include/NPCBackpacks";
-include "include/randName";
-include "include/vetement";
+include ":npcs:NPCBackpacks";
+include ":npcs:randName";
+include ":npcs:garment";
 include "include/eventID";
 include "include/sysEvent";
-include "include/dist";
 include "include/anchors";
 include "include/speech";
 include "include/client";
@@ -77,7 +76,7 @@ function Fight( opponent )
   SetOpponent(opponent);
   var waittime;
   outer:
-  while (opponent && not (opponent.dead || opponent.hidden || opponent.concealed) && (dist(me,opponent) < 15))
+  while (opponent && not (opponent.dead || opponent.hidden || opponent.concealed) && (Distance(me,opponent) < 15))
     waittime := CloseDistance(opponent) * 15;
     var ev := wait_for_event(waittime);
     repeat
@@ -85,7 +84,7 @@ function Fight( opponent )
        SYSEVENT_DISENGAGED:
        SYSEVENT_ENGAGED:
        SYSEVENT_DAMAGED:        PlaySoundEffect(me,dmgsound);
-                                if(GetHp(me) < (GetMaxHp(me)/2))
+                                if(AP_GetVital(me, VITALID_LIFE) < (AP_GetVitalMaximumValue(me, VITALID_LIFE)/2))
                                   CastSpell(me, me, "greaterHeal");
                                 endif
        SYSEVENT_OPPONENT_MOVED: break;

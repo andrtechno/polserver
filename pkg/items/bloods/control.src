@@ -1,0 +1,21 @@
+
+use uo;
+use os;
+use util;
+
+program controlScript(item)
+	/*SetObjProperty(item, "#PID", GetPid());
+
+	var creator := item.GetOwner();
+	if ( creator.IsA(POLCLASS_MOBILE) )
+		SetScriptController(creator);
+	endif*/
+
+	while ( item )
+		if ( item.IsExpired() )
+			DestroyItem(item);
+			return 1;
+		endif
+		sleepms(2);
+	endwhile
+endprogram

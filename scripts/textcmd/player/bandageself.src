@@ -1,0 +1,19 @@
+use uo;
+use os;
+use unicode;
+
+include "include/client";
+
+program textcmd_bandageself( who )
+
+    SetObjProperty(who, "Targetting", 1);
+    var item := FindObjtypeInContainer(who.backpack, 0xE21);
+    if(!item)
+        SendSysMessageUC(who, "Объект не найден.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return;
+    endif
+
+    UseItem( item, who );
+    return 1;
+endprogram
+

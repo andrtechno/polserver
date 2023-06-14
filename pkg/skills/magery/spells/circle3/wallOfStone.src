@@ -1,50 +1,90 @@
 use os;
 use uo;
 use util;
+use unicode;
 
-include ":attributes:attributes";
-include ":magery:spells";
 include "include/client";
-include "include/fields";
+include ":magery:spells";
+include ":magery:fields";
 
 program stonewall( parms )
     var caster := parms[1];
     var info := parms[2];
   
-    var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
+    var cast_on := MS_TargetCoordinates(caster, info, "Select a target.", ""); //TGTOPT_CHECK_LOS+TGTOPT_HARMFUL
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
     endif
-    if (!cast_on)
-        SendSysMessage (caster, "Cancelled.", color := 33);
+    if( !CheckLosAt( caster, cast_on.x, cast_on.y, cast_on.z ) )
+        SendSysMessage( caster, "You can't see that!" );
         return 0;
     endif
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-  var fields := {};
-  var duration;
-  var listeners := {};
-  var sufferers := {};
-  var x := cast_on.x;
-  var y := cast_on.y;
-  var z := cast_on.z;
-  case(get_direction(caster))
-	"NS" : fields:= CreateNorthSouthField(caster, 0x80, x, y, z, 5);
-	"EW" : fields:= CreateEastWestField(caster, 0x80, x, y, z, 5);
-  endcase
 
-  Detach();
-  duration := CInt(AP_GetSkill( caster, MAGERY ) )/2;
-  if (duration < 20)
-    duration := 20;
-  endif
-  var i;
-  for (i := 1; i <= 5; i := i + 1)
-    PlaySoundEffect(fields[i], SFX_SPELL_WALL_OF_STONE);
-  endfor
-  sleep(duration);
-  foreach fieldpart in fields
-    DestroyItem(fieldpart);
-  endforeach
+	MS_PlaySpellSFX(info.spell_id, cast_on);
+
+	var objtype := 0x80;
+	var direction := GetDirectionByFacing(caster);
+	case ( direction )
+		FIELD_SHAPE_HORIZONTAL: objtype := 0x80; break;
+		FIELD_SHAPE_VERTICAL: objtype := 0x80; break;
+	endcase
+
+	var size := GetConfigInt(info.spell_config, "AreaSize");
+	var coordinates := GetCoordinatesForField(cast_on.x, cast_on.y, direction, CInt(size/2));
+    var flag := 1;
+	foreach coord in ( coordinates )
+		var z := cast_on.z;
+		var cast_on_z := cast_on.z;
+		var standing_z := struct;
+		standing_z := GetStandingHeight(coord.x, coord.y, cast_on.z, caster.realm);
+		if ( cast_on_z < standing_z )
+			cast_on_z := GetStandingHeight(coord.x, coord.y, cast_on.z, caster.realm);
+		endif
+
+        var items := ListItemsNearLocation( coord.x, coord.y, cast_on.z, 1, caster.realm );
+
+        foreach it in items
+            if(it.objtype in {0x16201, 0x6009, 0x16200})
+               flag := 0;
+            endif
+            //if(CStr(GetObjProperty(it, "Owner")) == caster.serial)
+            //   flag := 1;
+            //endif
+        endforeach
+        if(!flag)
+            continue;
+        endif
+
+		var mobiles := ListMobilesNearLocationEx(coord.x, coord.y, cast_on.z, 0, LISTEX_FLAG_NORMAL+LISTEX_FLAG_HIDDEN, caster.realm);
+		if ( mobiles.Size() > 0 )
+			continue; // Dont create walls on top of mobiles.
+		/*elseif ( !CheckLosAt(caster, coord.x, coord.y, cast_on.z ) )
+			continue; // Only create a field piece if the caster has line of sight.
+			*/
+		endif
+
+		var item := CreateItemAtLocation(coord.x, coord.y, cast_on.z, objtype, 1, caster.realm);
+		if ( item.errortext )
+			SendSysMessage(caster, "Error - "+item.errortext);
+			continue;
+		endif
+
+		SetObjProperty(item, "SummonedField", caster.serial);
+		item.SetOwner(caster);
+		var duration := 30;
+        if(GetObjProperty(caster,"classid") == ID_MAGE)
+            var val := (info.classlevel * 10);
+            duration := duration + val;
+        endif
+
+		item.SetDuration(duration);
+
+	endforeach
+    if(!flag)
+        SendSysMessageUC(caster, "Запрещено размещать стены рядом с порталам воскрешение и гейтом", "RUS", 3, 33);
+    endif
+	return 1;
 endprogram

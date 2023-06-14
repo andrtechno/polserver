@@ -1,0 +1,12 @@
+use uo;
+use os;
+use cfgfile;
+
+program onInsert(who, scroll)
+
+ 	//flagregister := FlagSet( flagregister, flag );
+ 	//flagregister := CStr( flagregister );
+ 	//SetObjProperty( book, circle, flagregister );
+print("INSERT BOOK");
+	return 1;
+endprogram

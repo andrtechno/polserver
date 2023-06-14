@@ -3,186 +3,262 @@ use os;
 
 include "include/startEqp";
 include ":attributes:attributes";
-include "include/vetement";
-include "include/randName";
+include ":npcs:garment";
+include ":npcs:randName";
 include "include/client";
 
 var pncfg := ReadConfigFile("npcdesc");
 var equipt;
 
 program npckeep(who)
-  SetObjProperty(who, "AiSerial", cint(who.serial));
-  var colors := pncfg[who.npctemplate].colors;
-  if(colors)
-    colors := SplitWords(colors);
-    var clr := Cint(colors[RandomInt(Len(colors)) + 1]);
-    who.color := clr;
-    SetObjProperty(who, "Color", clr);
-  endif
-  if(who.name["<escortee>"])
-    var ttitle := "";
-    case(randomint(20) + 1)
-       0: ttitle := " the townsperson";           equipt := "peasant1";
-       1: ttitle := " the townsperson";           equipt := "peasant1";
-       2: ttitle := " the townsperson";           equipt := "peasant1";
-       3: ttitle := " the townsperson";           equipt := "peasant1";
-       4: ttitle := " the townsperson";           equipt := "peasant1";
-       5: ttitle := " the townsperson";           equipt := "peasant1";
-       6: ttitle := " the townsperson";           equipt := "peasant1";
-       7: ttitle := "";                           equipt := "peasant1";
-       8: ttitle := "";                           equipt := "peasant1";
-       9: ttitle := "";                           equipt := "peasant1";
-      10: ttitle := "";                           equipt := "peasant1";
-      11: ttitle := "";                           equipt := "peasant1";
-      12: ttitle := "";                           equipt := "peasant1";
-      13: ttitle := " the mage";                  equipt := "Mage";
-      14: ttitle := " the mage";                  equipt := "Mage";
-      15: ttitle := " the mage";                  equipt := "Mage";
-      16: ttitle := " the seeker of adventure";   equipt := "seeker";
-      17: ttitle := " the seeker of adventure";   equipt := "seeker";
-      18: ttitle := " the seeker of adventure";   equipt := "seeker";
-      19: ttitle := " the noble";                 equipt := "peasant2";
-      20: ttitle := " the noble";                 equipt := "peasant2";
-    endcase
-    pickdestination(who, equipt);
-    case(randomint(2))
-      0: who.graphic := 0x190;
-         who.gender := 0;
-         equipt := equipt + "M";
-      1: who.graphic := 0x191;
-         who.gender := 1;
-         equipt := equipt + "F";
-    endcase
-    SetObjProperty(who, "Graphic", cint(who.graphic));
-    SetName(who, RandomName(who));
-    SetName(who, who.name + ttitle);
-    if(equipt)
-      Habille(who, equipt);
-      EraseObjProperty(who, "Equipt");
-      var lewtgroup := pncfg[who.npctemplate].lootgroup;
-      if(lewtgroup)
-        MakeLoot(who, cint(lewtgroup));
-      endif
+    SetObjProperty(who, "AiSerial", cint(who.serial));
+    var colors := pncfg[who.npctemplate].colors;
+    var PvPPointChance := pncfg[who.npctemplate].PvPPointChance;
+    if(PvPPointChance)
+        SetObjProperty(who, "PvPPointChance", PvPPointChance);
     endif
-  elseif(who.name["<employee>"])
-    var cost := 0;
-    var ttitle := "";
-    case(randomint(15) + 1)
-       0: ttitle := " the fighter";   equipt := "Fighter1";   cost := 40;
-       1: ttitle := " the fighter";   equipt := "Fighter1";   cost := 40;
-       2: ttitle := " the thief";     equipt := "Thief";      cost := 50;
-       3: ttitle := " the thief";     equipt := "Thief";      cost := 50;
-       4: ttitle := " the mage";      equipt := "Mage";       cost := 70;
-       5: ttitle := " the mage";      equipt := "Mage";       cost := 70;
-       6: ttitle := " the paladin";   equipt := "Paladin";    cost := 80;
-       7: ttitle := " the paladin";   equipt := "Paladin";    cost := 80;
-       8: ttitle := " the fighter";   equipt := "Fighter2";   cost := 40;
-       9: ttitle := " the fighter";   equipt := "Fighter2";   cost := 40;
-      10: ttitle := " the fighter";   equipt := "Fighter3";   cost := 40;
-      11: ttitle := " the fighter";   equipt := "Fighter3";   cost := 40;
-      12: ttitle := " the fighter";   equipt := "Fighter4";   cost := 40;
-      13: ttitle := " the fighter";   equipt := "Fighter4";   cost := 40;
-      14: ttitle := " the beggar";    equipt := "Beggar";     cost := 30;
-      15: ttitle := " the beggar";    equipt := "Beggar";     cost := 30;
-    endcase
-    SetObjProperty(who, "MerchantType", equipt);
-    SetObjProperty(who, "HireCost", cint(cost));
-    Adjustment(who, equipt);
-    case(randomint(2))
-      0: who.graphic := 0x190;
-         who.gender := 0;
-         equipt := equipt + "M";
-      1: who.graphic := 0x191;
-         who.gender := 1;
-         equipt := equipt + "F";
-    endcase
-    SetObjProperty(who, "Graphic", cint(who.graphic));
-    SetName(who, RandomName(who));
-    SetName(who, who.name + ttitle);
-    pncfg := ReadConfigFile("npcdesc");
-    if(equipt)
-      Habille(who, equipt);
-      EraseObjProperty(who, "Equipt");
-      var lewtgroup := pncfg[who.npctemplate].lootgroup;
-      if(lewtgroup)
-        MakeLoot(who, cint(lewtgroup));
-      endif
+
+    if(colors)
+        colors := SplitWords(colors);
+        var clr := Cint(colors[RandomInt(Len(colors)) + 1]);
+        who.color := clr;
+        SetObjProperty(who, "Color", clr);
     endif
-  else
-    pncfg := ReadConfigFile("npcdesc");
-    equipt := GetObjProperty(who, "Equipt");
-    if(equipt)
-      if(who.graphic == 0x190)
-        case(randomint(2))
-          0: who.graphic := 0x190;
-             who.gender := 0;
-             equipt := equipt + "M";
-          1: who.graphic := 0x191;
-             who.gender := 1;
-             equipt := equipt + "F";
-        endcase
-      endif
-      SetObjProperty(who, "Graphic", cint(who.graphic));
-      Habille(who, equipt);
-      EraseObjProperty(who, "Equipt");
-      var lewtgroup := pncfg[who.npctemplate].lootgroup;
-      if(lewtgroup)
-        MakeLoot(who, cint(lewtgroup));
-      endif
-    endif
-    if(who.name["<random>"])
-      SetName(who, RandomName(who));
-      if(pncfg[who.npctemplate].title)
-        var title := randomint(20);
+
+
+    if(who.name["<escortee>"])
         var ttitle := "";
-        case(title)
-          0: ttitle := "";
-          1: ttitle := " the townsperson";
-          2: ttitle := " the farmer";
-          3: ttitle := " the sailor";
-          4: ttitle := " the drunkard";
-          5: ttitle := " the wanderer";
-          6: ttitle := " the villager";
-          7: ttitle := " the gypsie";
-          8: ttitle := " the vagabond";
-          9: ttitle := " the laborer";
-          default: ttitle := "";
+        case(randomint(20) + 1)
+            0: ttitle := " the townsperson";           equipt := "peasant1";
+            1: ttitle := " the townsperson";           equipt := "peasant1";
+            2: ttitle := " the townsperson";           equipt := "peasant1";
+            3: ttitle := " the townsperson";           equipt := "peasant1";
+            4: ttitle := " the townsperson";           equipt := "peasant1";
+            5: ttitle := " the townsperson";           equipt := "peasant1";
+            6: ttitle := " the townsperson";           equipt := "peasant1";
+            7: ttitle := "";                           equipt := "peasant1";
+            8: ttitle := "";                           equipt := "peasant1";
+            9: ttitle := "";                           equipt := "peasant1";
+            10: ttitle := "";                           equipt := "peasant1";
+            11: ttitle := "";                           equipt := "peasant1";
+            12: ttitle := "";                           equipt := "peasant1";
+            13: ttitle := " the mage";                  equipt := "Mage";
+            14: ttitle := " the mage";                  equipt := "Mage";
+            15: ttitle := " the mage";                  equipt := "Mage";
+            16: ttitle := " the seeker of adventure";   equipt := "seeker";
+            17: ttitle := " the seeker of adventure";   equipt := "seeker";
+            18: ttitle := " the seeker of adventure";   equipt := "seeker";
+            19: ttitle := " the noble";                 equipt := "peasant2";
+            20: ttitle := " the noble";                 equipt := "peasant2";
         endcase
+        pickdestination(who, equipt);
+        case(randomint(2))
+            0:
+                who.graphic := 0x190;
+                who.gender := 0;
+                equipt := equipt + "M";
+            1:
+                who.graphic := 0x191;
+                who.gender := 1;
+                equipt := equipt + "F";
+        endcase
+        SetObjProperty(who, "Graphic", cint(who.graphic));
+        SetName(who, RandomName(who));
         SetName(who, who.name + ttitle);
-      endif
-    elseif(who.name["<balron>"])
-      case(randomint(3) + 1)
-        1: SetName(who, "Lord of the Abyss");
-        2: SetName(who, "The Collector of Souls");
-        3: SetName(who, "The Slayer");
-      endcase
-	endif
-  endif
-  if(pncfg[who.npctemplate].ammotype)
-    var ammotype := pncfg[who.npctemplate].ammotype;
-    if(ammotype)
-      var ammoamount := pncfg[who.npctemplate].ammoamount;
-      if(!ammoamount)
-        ammoamount := 30;
-      endif
-      var theammo := CreateItemInBackpack(who, ammotype, ammoamount);
-      if(theammo.amount > ammoamount)
-        SubtractAmount(theammo, (theammo.amount - ammoamount));
-      endif
+        if(equipt)
+            Habille(who, equipt);
+            EraseObjProperty(who, "Equipt");
+            //New loot system
+            //var lewtgroup := pncfg[who.npctemplate].lootgroup;
+            //if(lewtgroup)
+            //    MakeLoot(who, cint(lewtgroup));
+            //endif
+        endif
+    elseif(who.name["<employee>"])
+        var cost := 0;
+        var ttitle := "";
+        case(randomint(15) + 1)
+            0: ttitle := " the fighter";   equipt := "Fighter1";   cost := 40;
+            1: ttitle := " the fighter";   equipt := "Fighter1";   cost := 40;
+            2: ttitle := " the thief";     equipt := "Thief";      cost := 50;
+            3: ttitle := " the thief";     equipt := "Thief";      cost := 50;
+            4: ttitle := " the mage";      equipt := "Mage";       cost := 70;
+            5: ttitle := " the mage";      equipt := "Mage";       cost := 70;
+            6: ttitle := " the paladin";   equipt := "Paladin";    cost := 80;
+            7: ttitle := " the paladin";   equipt := "Paladin";    cost := 80;
+            8: ttitle := " the fighter";   equipt := "Fighter2";   cost := 40;
+            9: ttitle := " the fighter";   equipt := "Fighter2";   cost := 40;
+            10: ttitle := " the fighter";   equipt := "Fighter3";   cost := 40;
+            11: ttitle := " the fighter";   equipt := "Fighter3";   cost := 40;
+            12: ttitle := " the fighter";   equipt := "Fighter4";   cost := 40;
+            13: ttitle := " the fighter";   equipt := "Fighter4";   cost := 40;
+            14: ttitle := " the beggar";    equipt := "Beggar";     cost := 30;
+            15: ttitle := " the beggar";    equipt := "Beggar";     cost := 30;
+        endcase
+        SetObjProperty(who, "MerchantType", equipt);
+        SetObjProperty(who, "HireCost", cint(cost));
+        Adjustment(who, equipt);
+        case(randomint(2))
+            0: who.graphic := 0x190;
+                who.gender := 0;
+                equipt := equipt + "M";
+            1: who.graphic := 0x191;
+                who.gender := 1;
+                equipt := equipt + "F";
+        endcase
+
+        SetObjProperty(who, "Graphic", cint(who.graphic));
+        SetName(who, RandomName(who));
+        SetName(who, who.name + ttitle);
+        pncfg := ReadConfigFile("npcdesc");
+        if(equipt)
+            Habille(who, equipt);
+            EraseObjProperty(who, "Equipt");
+            //New loot system
+            //var lewtgroup := pncfg[who.npctemplate].lootgroup;
+            //if(lewtgroup)
+            //    MakeLoot(who, cint(lewtgroup));
+            //endif
+        endif
+    else
+        pncfg := ReadConfigFile("npcdesc");
+        equipt := GetObjProperty(who, "Equipt");
+        if(equipt)
+            if(who.graphic == 0x190)
+                case(randomint(2))
+                    0: who.graphic := 0x190;
+                        who.gender := 0;
+                        equipt := equipt + "M";
+                    1: who.graphic := 0x191;
+                        who.gender := 1;
+                        equipt := equipt + "F";
+                endcase
+            endif
+            SetObjProperty(who, "Graphic", cint(who.graphic));
+            Habille(who, equipt);
+            EraseObjProperty(who, "Equipt");
+            //New loot system
+            //var lewtgroup := pncfg[who.npctemplate].lootgroup;
+            //if(lewtgroup)
+            //    MakeLoot(who, CInt(lewtgroup));
+            //endif
+        endif
+        if(who.name["<random>"])
+            SetName(who, RandomName(who));
+            if(pncfg[who.npctemplate].title)
+                var title := randomint(20);
+                var ttitle := "";
+                case(title)
+                    0: ttitle := "";
+                    1: ttitle := " the townsperson";
+                    2: ttitle := " the farmer";
+                    3: ttitle := " the sailor";
+                    4: ttitle := " the drunkard";
+                    5: ttitle := " the wanderer";
+                    6: ttitle := " the villager";
+                    7: ttitle := " the gypsie";
+                    8: ttitle := " the vagabond";
+                    9: ttitle := " the laborer";
+                    default: ttitle := "";
+                endcase
+                SetName(who, who.name + ttitle);
+            endif
+        elseif(who.name["<owner>"])
+            SetName(who, "<owner>");
+        elseif(who.name["<balron>"])
+            case(randomint(3) + 1)
+                1: SetName(who, "Lord of the Abyss");
+                2: SetName(who, "The Collector of Souls");
+                3: SetName(who, "The Slayer");
+            endcase
+        endif
     endif
-  endif
-//moved out so all templates can use this
-      if(pncfg[who.npctemplate].colorrange)
+    /*if(pncfg[who.npctemplate].ammotype)
+
+        var ammo_type := pncfg[who.npctemplate].ammotype;
+        var weapon;
+        if(ammo_type == 0xF3F) //arrow > bow
+
+            weapon := CreateItemInBackpack(who, 0x13B2, 1);
+
+        elseif(ammo_type == 0x1BFB)
+            var rint := RandomInt(100)+1;
+            var wobj;
+            if(rint >= 50)
+                wobj := 0x0f4f;
+            else
+                wobj := 0x13fd;
+            endif
+            weapon := CreateItemInBackpack(who, wobj, 1);
+        endif
+        if(weapon)
+            EquipItem(who, weapon);
+        endif
+
+        if(ammo_type)
+            var ammo_amount := pncfg[who.npctemplate].ammoamount;
+            if(!ammo_amount)
+                ammo_amount := 30;
+            endif
+            var the_ammo := CreateItemInBackpack(who, ammo_type, ammo_amount);
+            if(the_ammo.amount > ammo_amount)
+                SubtractAmount(the_ammo, (the_ammo.amount - ammo_amount));
+            endif
+        endif
+    endif*/
+
+if(lower(pncfg[who.npctemplate].AttackAttribute) == "archery")
+    var weapon;
+    var weaponObject := 0x13B2; //bow
+    var ammo_type := 0xF3F; //arrows
+    var ammorand := RandomInt(2);
+    if(ammorand)
+        ammo_type := 0x1BFB; //bolts
+        weaponObject := 0x0f4f;
+        if(RandomInt(100)+1 >= 50)
+            weaponObject := 0x13fd;
+        endif
+    else
+
+    endif
+
+    if(!GetEquipmentByLayer( who, LAYER_HAND1 ))
+
+
+        weapon := CreateItemInBackpack(who, weaponObject, 1);
+        if(weapon)
+            EquipItem(who, weapon);
+        endif
+
+
+        //var ammo_type := pncfg[who.npctemplate].ammotype;
+        if(ammo_type)
+            var ammo_amount := pncfg[who.npctemplate].ammoamount;
+            if(!ammo_amount)
+                ammo_amount := 30;
+            endif
+            var the_ammo := CreateItemInBackpack(who, ammo_type, ammo_amount);
+            the_ammo.newbie := 1;
+            if(the_ammo.amount > ammo_amount)
+                SubtractAmount(the_ammo, (the_ammo.amount - ammo_amount));
+            endif
+        endif
+    endif
+endif
+
+    //moved out so all templates can use this
+    if(pncfg[who.npctemplate].colorrange)
         var parms := splitwords(pncfg[who.npctemplate].colorrange);
         who.color := randomint(Cint(parms[2]) - Cint(parms[1]))+Cint(parms[1]);
-      endif
-      if(pncfg[who.npctemplate].mount)
-        var mymount := CreateItemAtLocation(5288,1176,0,0x1F021,1, "britannia");
+    endif
+    if(pncfg[who.npctemplate].mount)
+        var mymount := CreateItemAtLocation(5288, 1176, 0, 0x1F021, 1, _DEFAULT_REALM);
         var mountparms := splitwords(pncfg[who.npctemplate].mount);
         mymount.graphic := Cint(mountparms[1]);
         mymount.color := Cint(mountparms[2]);
         EquipItem(who, mymount);
-      endif
+    endif
+
 endprogram
 
 function Adjustment(who, type)
@@ -205,7 +281,7 @@ function Adjustment(who, type)
     SetBaseSkillBaseValue(who, SKILLID_FENCING,         1000);
     SetBaseSkillBaseValue(who, SKILLID_WRESTLING,       900);
     SetBaseSkillBaseValue(who, SKILLID_ANATOMY,         1000);
-    SetBaseStrength(who, 80);
+    AP_SetTrueStat(who, STRENGTH, 80);
   elseif((type == "Fighter1") || (type == "Fighter2") || (type == "Fighter3") || (type == "Fighter4"))
     SetBaseSkillBaseValue(who, SKILLID_RESISTING_SPELLS, 600);
     SetBaseSkillBaseValue(who, SKILLID_TACTICS,         900);

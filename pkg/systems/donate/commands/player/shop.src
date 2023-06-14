@@ -1,0 +1,115 @@
+use os;
+use uo;
+use cfgfile;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include "util/bank";
+include "include/string";
+
+
+program textcmd_premium(who)
+    var cfg := ReadConfigFile(":donate:shop");
+    var list := GetConfigIntKeys( cfg );
+    //var list := GetConfigStringKeys( cfg );
+    var currency := 0x0A21;
+    var currency_amount := 1;
+    var gump := GFCreateGump ( 100, 100 );
+    var widthGump := 400;
+    var heightGump := 500;
+    var y_pos:=60;
+
+    GFResizePic(gump, 0, 0, GetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+
+    GFTextLine(gump, 330, 15, 33, "Купить");
+
+    GFTextLine(gump, 15, 15, 2100, "У вас:");
+    GFTilePic(gump, 70, 15, currency);
+    GFTextLine(gump, 95, 15, 33, "33 donate coins.");
+
+    //GFTextLine(gump, 15, heightGump- 70, 33, "!!! Если предмет не влезет в вашу сумку он упадет под вас.!!!");
+
+
+//GFTextMid(gump, 15, heightGump- 70, widthGump, 33, "!!! Если предмет не влезет в вашу сумку он упадет под вас.!!!");
+//GFTextEntry(byref gump, x, y, width, height, txt_color, ini_text:="", txt_id:=0, lmt := 0)
+
+
+
+    var yy := heightGump - 100;
+	foreach line in ( GFWordWrap( "!!! Если предмет не влезет в вашу сумку он упадет под вас. !!!", 80 ))
+		GFTextLine( gump, 15, yy, 33, line );
+		yy += 20;
+		SleepMS(2);
+	endforeach
+
+
+    var counter := 0;
+    GFPage ( gump, 1);
+    foreach object in (list)
+
+        var elem := FindConfigElem( cfg, object );
+        GFTextLine(gump, 75, y_pos, 45, elem.name);
+        GFTextLine(gump, 75, y_pos + 25, 2100, ""+AddCommas(elem.amount)+" шт.");
+        var ret := GetItemDescriptor(elem.object);
+
+
+        GFResizePic(gump, 15, y_pos, GetCfgConst("BackGrounds", "GOLDTRIM"), 50, 50);
+        if(elem.TileView)
+            GFTilePic(gump, 15 + 5, y_pos+10, elem.TileView, ret.color);
+        else
+            GFTilePic(gump, 15 + 5, y_pos+10, ret.graphic, ret.color);
+        endif
+
+
+        if(elem.Currency)
+            var split := SplitWords(elem.Currency);
+            currency_amount := CInt(split[2]);
+            currency := CInt(split[1]);
+        endif
+
+        GFTilePic(gump, 310, y_pos + 30, 0x0A21);
+        GFTextLine(gump, 330, y_pos + 30 - 2, 67, currency_amount+" dc.");
+        GFAddButton(gump, 310, y_pos, 5544, 5543, GF_CLOSE_BTN, _object_iter);
+        y_pos += 60;
+
+        counter += 1;
+
+        if ( counter >= 5 && _object_iter < list.size() )
+			GFAddButton( gump, 60, heightGump - 30, 9903, 9904, GF_PAGE_BTN, gump.cur_page+1 );
+			GFPage( gump, gump.cur_page+1 );
+			GFAddButton( gump, 15, heightGump - 30, 9909, 9910, GF_PAGE_BTN, gump.cur_page-1 );
+            counter := 0;
+            y_pos := 60;
+        endif
+
+    endforeach
+
+
+    var input := GFSendGump ( who, gump);
+    input := CInt(input[0]);
+
+    if(input)
+        var elem := FindConfigElem( cfg, input );
+
+        if(elem.Currency)
+            var split := SplitWords(elem.Currency);
+            currency_amount := CInt(split[2]);
+            currency := CInt(split[1]);
+        endif
+
+        if(YesNo( who, "Купить "+elem.Name+" за "+currency_amount+" donate coin.?" ))
+                if(SpendCoin(who, currency_amount, who.backpack, currency) || SpendCoin(who, currency_amount, FindBankBox(who), currency))
+                var item := CreateItemInBackpack(who, elem.Object, elem.Amount);
+                if(!item)
+                    CreateItemAtLocation( who.x, who.y, who.z, elem.Object, elem.Amount, who.realm);
+                endif
+            else
+                SendSysMessage(who, "no gold coin ", color := 88);
+            endif
+        else
+            SendSysMessage(who, "Cancelled.", 3, 37);
+            return;
+        endif
+    endif
+
+endprogram

@@ -1,0 +1,6 @@
+use os;
+use uo;
+
+program canDestroy(  container )
+	return 1;
+endprogram

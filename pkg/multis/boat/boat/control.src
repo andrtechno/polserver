@@ -1,0 +1,14 @@
+use uo;
+use os;
+//no use
+program controlBoat(item)
+	var tillerman := item;
+    print("tillerman " +tillerman);
+
+	while( 1 )
+		sleep(1);
+		print("timer" +tillerman);
+		PrintTextAbove( tillerman, "TIMER" );
+	endwhile
+	return 1;
+endprogram

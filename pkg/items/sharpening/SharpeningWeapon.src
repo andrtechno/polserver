@@ -3,32 +3,34 @@ use unicode;
 use uo;
 use util;
 
+include "include/client";
+
 program SharpeningWeapon(who, item)
 	var victim  := Target(who);
 
     if (!victim)
-		SendSysMessage(who, "Cancelled.");
+		SendSysMessage(who, "Cancelled.", 3, MESSAGE_COLOR_BAD);
 		return;
 	endif
 
     if(!CheckLineOfSight(who, victim))
-        SendSysMessage(who, "You can't see that!", 0, 33);
+        SendSysMessage(who, "You can't see that!", 3, MESSAGE_COLOR_BAD);
         return;
     endif
 
     if(Distance(who, victim) > 2)
-        SendSysMessageUC(who, "Растояние слишком большое.", "RUS", 0, 33);
+        SendSysMessageUC(who, "Растояние слишком большое.", "RUS", 3, MESSAGE_COLOR_BAD);
         return;
     endif
 
-    if(victim.Attribute in {"Fencing", "Swordsmanship", "Macefighting", "Archery"})
+    if(Lower(victim.Attribute) in {"fencing", "swordsmanship", "macefighting", "archery"})
         var sharpening := CInt(GetObjProperty(victim, "Sharpening"));
         if(!sharpening)
             sharpening := 0;
         endif
         diff(who, item, victim, sharpening);
     else
-        SendSysMessageUC(who, "Не является оружием.", "RUS", 0, 33);
+        SendSysMessageUC(who, "Не является оружием.", "RUS", 3, MESSAGE_COLOR_BAD);
     endif
 
 endprogram
@@ -56,7 +58,8 @@ function diff(who, scroll, victim, sharpening)
     if(rint <= change)
         SetObjProperty(victim, "Sharpening", value);
         victim.name_suffix := "+" + value;
-        victim.hp := victim.hp + value;
+        victim.dmg_mod := victim.dmg_mod + 1;
+        victim.speed_mod := victim.speed_mod + value;
         victim.hit_chance_mod := victim.hit_chance_mod + value;
         victim.buyprice := victim.buyprice + 100;
        // victim.maxhp_mod := victim.hp + value;
@@ -68,7 +71,13 @@ function diff(who, scroll, victim, sharpening)
             //уменьшаем заточку
             SetObjProperty(victim, "Sharpening", sharpening - 1);
             victim.name_suffix := "+"+sharpening - 1;
-            victim.hp := victim.hp + sharpening - 1;
+            //victim.hp := victim.hp + sharpening - 1;
+
+        victim.dmg_mod := victim.dmg_mod - 1;
+        //victim.speed_mod := victim.speed_mod + value;
+        //victim.hit_chance_mod := victim.hit_chance_mod + value;
+
+
            // victim.maxhp_mod := victim.maxhp_mod + sharpening - 1;
         else
             SendSysMessageUC(who, "Не удалось улучшить оружие", "RUS", 0, 33);

@@ -1,3 +1,4 @@
+
 use uo;
 use util;
 use cfgfile;
@@ -7,9 +8,11 @@ include ":attributes:attributes";
 include "include/client";
 include "include/objtype";
 include "include/trainingskill";
+include "include/math";
 
 const MINKARMA := 4000;
 const MINFAME := 4000;
+const MONUTES := 5;
 
 var zPleas := {
   "Я так голоден, помогите пожалуйста!",
@@ -51,12 +54,11 @@ var zLowKarma := {
   "I do not give money to naughty evildoers!",
   "Thou dost not look trustworthy... no gold for thee today!"
 };
-
 const UOBJ_GOLDCOIN :=0x0eed;
 
 program skill_begging( who )
     //SendSysMessage( who, "Select the victim" );
-    SendSysMessageUC(who, CAscZ("У кого просить милостыни?"), "RUS", 3, MESSAGE_COLOR_GOOD);
+    SendSysMessageUC(who, "У кого просить милостыни?", "RUS", 3, MESSAGE_COLOR_GOOD);
 
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
@@ -67,10 +69,9 @@ program skill_begging( who )
     SetObjProperty(who, "LastUsedSkill", data );
     TrainingSkill(who, data[3]);
 
-
     var tgt := Target( who );
     if ( !tgt )
-        SendSysMessage( who, "Cancelled." );
+        SendSysMessage( who, "Cancelled" );
         return;
     endif
     if(tgt.serial == who.serial)
@@ -85,10 +86,14 @@ program skill_begging( who )
         SendSysMessage(who, "Perhaps talking to them would be a better idea.");
         return;
     endif
-  
+
     var cfgtemplate := ReadConfigFile("::npcdesc");
     var ismob := tgt.isa(POLCLASS_MOBILE);
-
+    /*if (ismob)
+        PrintTextAbove(who, "*looks at " + tgt.name + "*" );
+    else
+        PrintTextAbove( who, "*looks at " + tgt.desc + "*" );
+    endif*/
     if ((!ismob) || (!tgt.isa(POLCLASS_NPC)))
         return;
     endif
@@ -102,6 +107,7 @@ program skill_begging( who )
     PerformAction(who, ANIM_BOW);
     sleep(3);
 
+
     PrintTextAboveUC(who, "Помогите чем можете!", "RUS", 3, MESSAGE_COLOR_GOOD);
     PlaySoundEffect(who, SFX_58);
     PerformAction(who, ANIM_BOW);
@@ -112,12 +118,22 @@ program skill_begging( who )
     PerformAction(who, ANIM_BOW);
     sleep(3);
 
-    PrintTextAboveUC(who, "Палааалуйста!", "RUS", 3, MESSAGE_COLOR_GOOD);
+    PrintTextAboveUC(who, "Пааажалуйста!", "RUS", 3, MESSAGE_COLOR_GOOD);
     PlaySoundEffect(who, SFX_58);
     PerformAction(who, ANIM_BOW);
     sleep(3);
 
+    var lastBegging := CInt(GetObjProperty(tgt, "LastBegging"));
+    if(lastBegging)
+        if(ReadGameClock() < lastBegging)
+            PrintTextAboveUC(tgt, "Эйй, я не могу так часто раздавать добро, приходите позже!", "RUS", 3, MESSAGE_COLOR_BAD);
+            return;
+        endif
+    endif
 
+
+    //PrintRandomMessage( who, zPleas );
+    //sleep(1);
     var karma := GetObjProperty(who, "Karma");
     if (!karma)
         karma := 0;
@@ -137,14 +153,14 @@ program skill_begging( who )
         lb := 50;
         SetObjProperty(tgt, "begpurse", lb);
     endif
-    if(lb < 25)
-        PrintRandomMessage( tgt, zEmpty );
-        return;
-    endif
+    //if(lb < 25)
+    //  PrintRandomMessage( tgt, zEmpty );
+    //  return;
+    //endif
 
     var pts := CInt(GetAttribute(who, BEGGING)) + 15;
 
-    if(!SkillCheck(who,BEGGING, -1, pts/3))
+    if(!SkillCheck(who,BEGGING, -1, pts/3) > 0)
         PrintRandomMessage( tgt, zFails, MESSAGE_COLOR_BAD);
         SendSysMessageUC(who, "У вас не чего не получилось", "RUS", 3, MESSAGE_COLOR_BAD);
         return;
@@ -163,13 +179,15 @@ program skill_begging( who )
             return;
         "none":
             PrintRandomMessage( tgt , zNone );
-        return;
+            return;
     endcase
     if ((GetObjProperty(who, "Karma") > MINKARMA) and (GetObjProperty(who, "Fame") > MINFAME))
         gold := CInt(gold*1.3);
     endif
     lb := Cint(lb - gold);
     SetObjProperty(tgt, "begpurse", lb);
+    //PrintTextAbove( tgt, "*throws a few coins to " + who.name + "*" );
+
 
     var genderText := "Бедная женщина";
     if(who.gender)
@@ -181,20 +199,41 @@ program skill_begging( who )
     sleep(2);
     PrintTextAboveUC(tgt, "Вы тронули моё сердце вашей историей", "RUS", 3, MESSAGE_COLOR_GOOD);
     sleep(2);
-    PrintTextAboveUC(tgt, "Возьмите эту скромную сумму!", "RUS", 3, MESSAGE_COLOR_GOOD);
-    sleep(2);
-
-
-    if ( !CreateItemInBackpack( who, UOBJ_GOLDCOIN, gold ) )
-        SendSysMessage( who, "You miss and the coins bounce into cracks in the ground!" );
+    var premium := who.IsPremium();
+    var foodChange := 50;
+    var percentGold := 0;
+    case(premium)
+        1: percentGold := 25; foodChange := subtract_percent(foodChange, 10);
+        2: percentGold := 50; foodChange := subtract_percent(foodChange, 20);
+        3: percentGold := 75; foodChange := subtract_percent(foodChange, 30);
+    endcase
+    if(foodChange >= RandomInt(99)+1)
+        PrintTextAboveUC(tgt, "Возьмите это!", "RUS", 3, MESSAGE_COLOR_GOOD);
+        sleep(2);
+        var flist := {0x097A, 0x097B, 0x097C, 0x09C9, 0x09D0, 0x09D1, 0x09D2, 0x09EA};
+        CreateItemInBackpack( who, flist[RandomInt(flist.size())+1], 1 );
+        SendSysMessageUC(who, "Вы получили еду!", "RUS", 3, MESSAGE_COLOR_GOOD);
     else
-        var coinText := "золотых монет";
-        if (gold == 1)
-            coinText := "золотую монету";
+        PrintTextAboveUC(tgt, "Возьмите эту скромную сумму!", "RUS", 3, MESSAGE_COLOR_GOOD);
+        sleep(2);
+
+
+        if(percentGold)
+            gold := add_percent(gold, percentGold);
         endif
-        SendSysMessageUC(who, "Вы получили " + gold + " " + coinText + "!", "RUS", 3, MESSAGE_COLOR_GOOD);
+        print("original % "+gold);
+        if ( !CreateItemInBackpack( who, UOBJ_GOLDCOIN, gold ) )
+            SendSysMessage( who, "You miss and the coins bounce into cracks in the ground!" );
+        else
+            var coinText := "золотых монет";
+            if (gold == 1)
+                coinText := "золотую монету";
+            endif
+            SendSysMessageUC(who, "Вы получили " + gold + " " + coinText + "!", "RUS", 3, MESSAGE_COLOR_GOOD);
+        endif
     endif
 
+    SetObjProperty(tgt, "LastBegging", ReadGameClock() + (MONUTES * 60));
     if (GetObjProperty(who, "Karma") > 10)
         SendSysMessage(who, "You lose a little karma.");
         SetObjProperty(who, "Karma", GetObjProperty(who, "Karma")-10);
@@ -212,7 +251,7 @@ program skill_begging( who )
     return;
 endprogram
 
-function PrintRandomMessage( speaker, byref zSpeech, color:=MESSAGE_COLOR_MESSAGE )
+function PrintRandomMessage( speaker, byref zSpeech, color := MESSAGE_COLOR_MESSAGE )
     if(zSpeech.size())
         PrintTextAboveUC(speaker, zSpeech[RandomInt(zSpeech.size())+1], "RUS", 3, color);
     endif

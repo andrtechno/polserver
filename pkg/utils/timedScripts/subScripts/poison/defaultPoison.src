@@ -26,7 +26,7 @@ program TimedScript_DefaultPoison(params)
 	var time := 15;
 	case ( level )
 		default:
-		1: dmg := Cint(AP_GetVitalMaximumValue(defender, "Hits") / 40);
+		1: dmg := Cint(AP_GetVitalMaximumValue(defender, STRENGTH) / 40);
 		   if (dmg < 3 )
 			dmg := 3;
 		   endif
@@ -34,7 +34,7 @@ program TimedScript_DefaultPoison(params)
 		   viewermsg := "* - "+defender.name+" looks ill. - *";
 		   break;
 
-		2: dmg := Cint(AP_GetVitalMaximumValue(defender, "Hits") / 32);
+		2: dmg := Cint(AP_GetVitalMaximumValue(defender, STRENGTH) / 32);
 		   if ( dmg < 5 )
 			dmg := 5;
   		   endif
@@ -43,7 +43,7 @@ program TimedScript_DefaultPoison(params)
 		   time := 12;
 		   break;
 
-		3: dmg := Cint(AP_GetVitalMaximumValue(defender, "Hits") / 16);
+		3: dmg := Cint(AP_GetVitalMaximumValue(defender, STRENGTH) / 16);
 		   if ( dmg < 7 )
 			dmg := 7;
 		   endif
@@ -53,17 +53,17 @@ program TimedScript_DefaultPoison(params)
 		   time := 10;
 		   break;
 
-		4: dmg := Cint(AP_GetVitalMaximumValue(defender, "Hits") / 8);
-		   if ( dmg < 6 )
-			dmg := 6;
-		   endif
-		   stam := Cint(AP_GetVitalMaximumValue(defender, "Stamina") / 20);
-		   poisonedmsg := "You feel extremely weak and are in severe pain!";
-		   viewermsg := "* - "+defender.name+" is wracked with extreme pain! - *";
-		   time := 5;
-		   break;
+		4: dmg := Cint(AP_GetVitalMaximumValue(defender, STRENGTH) / 8);
+            if ( dmg < 6 )
+                dmg := 6;
+            endif
+            stam := Cint(AP_GetVitalMaximumValue(defender, "Stamina") / 20);
+            poisonedmsg := "You feel extremely weak and are in severe pain!";
+            viewermsg := "* - "+defender.name+" is wracked with extreme pain! - *";
+            time := 5;
+            break;
 
-		5: dmg := Cint(AP_GetVitalMaximumValue(defender, "Hits") / 4);
+		5: dmg := Cint(AP_GetVitalMaximumValue(defender, STRENGTH) / 4);
 		   if ( dmg < 12 )
 			dmg := 12;
 		   endif

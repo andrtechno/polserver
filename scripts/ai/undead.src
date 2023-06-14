@@ -6,11 +6,10 @@ use cfgfile;
 include "include/eventID";
 include ":attributes:attributes";
 include "include/sysEvent";
-include "include/randName";
-include "include/vetement";
+include ":npcs:randName";
+include ":npcs:garment";
 include "include/NPCUtil";
 include "include/objtype";
-include "include/dist";
 include "include/anchors";
 
 const HALT_THRESHOLD := 8; // how close before he attacks?
@@ -51,8 +50,11 @@ function main_AI_loop()
       repeat
         case(ev.type)
           SYSEVENT_ENTEREDAREA: if((!(ev.source).npctemplate) || (((ev.source).script == "employed") || ((ev.source).script == "tamed")))
-                                  Fight(ev.source);
-                                endif
+									if(CheckLineOfSight( me, ev.source ))
+										fight(ev.source);
+									endif
+								endif
+
           EVID_ALL_ATTACK_CMD:  Fight(ev.source);
           SYSEVENT_ENGAGED:
           SYSEVENT_DAMAGED:     if(ev.source)
@@ -70,14 +72,14 @@ function Fight(opponent)
     opponent := 0;
 	return;
   endif
-  var oldprio := set_priority(50);
+  set_priority(50);
   SetOpponent(opponent);
   prepare_for_fight(opponent);
   TurnToward(opponent);
   var loops := 0;
   var ev;
   var waittime := 0;
-  while((opponent) && (!opponent.dead) && (!opponent.hidden) && (!opponent.concealed) && (dist(me,opponent) < 20))
+  while((opponent) && (!opponent.dead) && (!opponent.hidden) && (!opponent.concealed) && (Distance(me,opponent) < 20))
 	if(!CloseDistance(opponent))
 	  loops := loops + 1;
 	  waittime := 0;
@@ -111,7 +113,7 @@ endfunction
 
 function in_combat_event_loop(opponent, loops)
   if(loops > 50)
-    if((dist(me, opponent) > 12) && (!CheckLineOfSight(me, opponent)))
+    if((Distance(me, opponent) > 12) && (!CheckLineOfSight(me, opponent)))
 	  RestartScript(me);
 	  return;
     endif
@@ -127,7 +129,7 @@ function post_combat()
   look_around();
 endfunction
 
-function prepare_for_fight(opponent)
+function prepare_for_fight(unused opponent)
   DisableMainEvents();
   EnableCombatEvents();
 endfunction
@@ -191,7 +193,7 @@ function sleepmode()
 endfunction
 
 function CloseDistance(opponent)
-  var sleepdelay := 400 - (CInt(GetDexterity(me)) * 1.5);
+  var sleepdelay := 400 - (CInt(AP_GetStat(me, DEXTERITY)) * 1.5);
   if(sleepdelay < 0)
     sleepdelay := 0;
   endif

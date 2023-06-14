@@ -1,6 +1,9 @@
 use uo;
 use os;
+
 include ":attributes:attributes";
+include ":damage:damage";
+
 /*
 program npcwipe(who)
   set_critical(0);
@@ -12,7 +15,7 @@ program npcwipe(who)
 	    if(!npc.ip)
 			if((npc.graphic == 0x190 || npc.graphic == 0x191))
 				SetObjProperty(npc, "guardkill", 1);
-				ApplyRawDamage(npc, GetHp(npc) + 100);
+				npc.Kill();
 			endif
 	    endif
 		SleepMS(20);
@@ -25,7 +28,7 @@ endprogram
 */
 program npcwipe(who)
   set_critical(0);
-  var x, y, z;
+  var x, y; //, z;
   for(x:=6144; x>16; x:=x -32)
     for(y:=16; y<4096; y:=y+32)
 //      for(z:=-100; z<=100; z:=z+10)
@@ -35,8 +38,8 @@ program npcwipe(who)
 			if(npc.graphic == 0x190 || npc.graphic == 0x191)
 				RevokePrivilege(npc, "invul" );
 				SetObjProperty(npc, "guardkill", 1);
-				ApplyRawDamage(npc, GetHp(npc) + 100);
-				SendSysMessage(who, "Wiped an NPC!" + npc.name, color :=33);
+				KillMobile(npc);
+				SendSysMessage(who, "Wiped an NPC!", color :=33);
 			endif
 	    endif
 		SleepMS(20);

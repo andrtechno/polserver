@@ -1,0 +1,41 @@
+use uo;
+use os;
+include ":boat:const";
+
+program controlScript( tiller )
+
+    var boat := tiller.multi;
+
+	while( 1 )
+		sleep(1);
+		if(boat)
+            var decay := tiller.GetDecay();
+            var decayNotify := decay - (REMOVE_DELAY / 2);
+            print("boat "+boat.mobiles);
+            if(ReadGameClock() >= decay)
+                //PrintTextAbove( tiller, "DELETE BOAT" );
+                Set_Critical(1);
+                foreach mobile in (boat.mobiles)
+                    MoveObjectToLocation( mobile, 1409, 1761, 2, mobile.realm, MOVEOBJECT_FORCELOCATION );
+
+                endforeach
+                foreach item in (boat.items)
+                    DestroyItem(item);
+                endforeach
+                Set_Critical(0);
+                var res := DestroyMulti (tiller.multi);
+                if (!res)
+                    print ("Can't delete: " + res.errortext);
+                    //return 0;
+                endif
+                //sleep(60);
+            elseif(ReadGameClock() >= decayNotify)
+                PrintTextAbove( tiller, "Arrrrrrgh! She's going down, Captain! Abandon ship!");
+                sleep(60);
+
+            endif
+        endif
+	endwhile
+
+	return 1;
+endprogram

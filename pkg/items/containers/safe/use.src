@@ -1,0 +1,75 @@
+use uo;
+use os;
+use unicode;
+use Math;
+
+include "include/client";
+
+program useSafe( mobile, container )
+
+    var pincode := CInt(GetObjProperty(container, "pincode"));
+    var fails := CInt(GetObjProperty(container, "fails"));
+    var failsExpire := CInt(GetObjProperty(container, "failsExpire"));
+    SetObjProperty(mobile, "#PincodePid", GetPid());
+    if(failsExpire)
+        if(failsExpire >= ReadGameClock())
+            var minutes := floor((failsExpire - ReadGameClock()) / 60);
+            SendSysMessageUC(mobile, "Попробуйте через "+minutes+" мин.", "RUS", 3, MESSAGE_COLOR_BAD);
+            EraseObjProperty(container, "fails");
+            return 0;
+        endif
+    endif
+    if(pincode)
+        var entry_pin := SendTextEntryGump( mobile, "Entry your pincode", cancel := TE_CANCEL_ENABLE, style := TE_STYLE_NORMAL, maximum := 4, line2 := "" );
+        if(!entry_pin)
+            SendSysMessageUC(mobile, "Отмена.", "RUS", 3, MESSAGE_COLOR_BAD);
+            return 0;
+        endif
+        if(!validatePin(mobile, entry_pin))
+            return 0;
+        endif
+        if(CInt(entry_pin) != pincode)
+
+            SetObjProperty(container, "fails", fails + 1);
+            var curFails := CInt(GetObjProperty(container, "fails"));
+            if(curFails >= 3)
+                SetObjProperty(container, "failsExpire", ReadGameClock() + 60 * 15);
+            endif
+            SendSysMessageUC(mobile, "Не верный пин-код. "+curFails+"/3 ", "RUS", 3, MESSAGE_COLOR_BAD);
+            return 0;
+        endif
+
+    endif
+    EraseObjProperty(container, "fails");
+    EraseObjProperty(container, "failsExpire");
+    SendViewContainer( mobile, container );
+
+    return 1;
+
+endprogram
+
+
+function validatePin(mobile, entry_pin)
+
+    if(Len(entry_pin) < 4)
+        SendSysMessageUC(mobile, "Минимальное кол. 4 символа.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return 0;
+    endif
+
+    return 1;
+endfunction
+
+function validateSetPin(mobile, entry_pin)
+
+    if(!CInt(entry_pin))
+        SendSysMessageUC(mobile, "Должны быть только цифры.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return 0;
+    elseif(Len(entry_pin) < 4)
+        SendSysMessageUC(mobile, "Минимальное кол. 4 символа.", "RUS", 3, MESSAGE_COLOR_BAD);
+        return 0;
+
+    endif
+    print("CInt "+CInt(entry_pin));
+    print("Len "+Len(entry_pin));
+    return 1;
+endfunction

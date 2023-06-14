@@ -424,10 +424,19 @@ endfunction
 // Returns: A structure...
 //	.lytidx = Layout-array index changed
 //
-function GFTilePic( x, y, tileid )
-	var line := "tilepic " + CStr(GFref.x + CInt(x)) + " " + CStr(GFref.y + CInt(y));
-	line := line + " " + CStr(CInt(tileid));
-	GFlayout.append( line );
+function GFTilePic( x, y, tileid, hue := 0 )
+
+    var text := CStr(GFref.x + CInt(x)) + " " + CStr(GFref.y + CInt(y)) + " " + CStr(CInt(tileid));
+	hue := CInt(hue);
+	if ( hue )
+		text := "TilePicHue "+text+" "+CStr(hue);
+	else
+		text := "TilePic "+text;
+	endif
+
+	//var line := "tilepic " + CStr(GFref.x + CInt(x)) + " " + CStr(GFref.y + CInt(y));
+//text := text + " " + CStr(CInt(tileid))+";
+	GFlayout.append( text );
 	return XGFRetVal( GFlayout.size() );
 endfunction
 
@@ -900,15 +909,15 @@ var aGFTlength := struct;
          "`',.;:::::::::"+ //  3
          "!!!!!!!!!!!!!!"+ //  4
          "il1[]]]]]]]]]\""+ //  5
-         "bcejot”(){}==="+ //  6
-         "adfpqrszI„~~~~"+ //  7
-         "ghnuvyЃ <>----"+ //  8
+         "bcejot�(){}==="+ //  6
+         "adfpqrszI�~~~~"+ //  7
+         "ghnuvy� <>----"+ //  8
          "xJ578$?+++++++"+ //  9
          "kCE2369^/*****"+ // 10
-         "mwABDFOPЋ™40%%"+ // 11
+         "mwABDFOP��40%%"+ // 11
          "GLNQSZ@#######"+ // 12
          "HRT&__________"+ // 13
-         "KљUYYYYYYYYYYY"+ // 14
+         "K�UYYYYYYYYYYY"+ // 14
          "XXXXXXXXXXXXXX"+ // 15
          "VVVVVVVVVVVVVV"+ // 16
          "MMMMMMMMMMMMMM"+ // 18

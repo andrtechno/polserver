@@ -2,7 +2,8 @@ use uo;
 use vitals;
 use attributes;
 
-include "include/spellRestrictions";
+include ":magery:spellRestrictions";
+//include ":magery:spells";
 
 Const TIME_RESTRICT := 300; // 300 sekund = 5 minut
 
@@ -10,14 +11,15 @@ program chrcast_voyage( parms )
 	var circle := 3;
 	var delivery := "notarget";
 	var noto := "heplful";
-	var result := maincast(parms, delivery, circle, noto, 613);
-	if(result == 0)
-		return 0;
-	endif
-	var caster := result[1];
+	//var result := maincast(parms, delivery, circle, noto, 613);
+	//if(result == 0)
+	//	return 0;
+	//endif
+	//var caster := result[1];
+	var caster := parms[1];
 	var dru := Cint(GetEffectiveSkill(caster, SPELLWEAVING));
 	var alore := Cint(GetEffectiveSkill(caster, SKILLID_ANIMALLORE));
-	var int := GetIntelligence(caster);
+	var int := AP_GetStat(caster, INTELLIGENCE);
 	var bonus := 0;
 	if(caster.ip)
 		bonus := int/5;
@@ -42,7 +44,7 @@ program chrcast_voyage( parms )
 		SendSysMessage(caster, "Nie mozesz uzywac tego czaru gdy przeciwnicy cie widza.",3,40);
 		return 0;
 	endif
-	
+
 	var duration := (dru + alore) / 10;
 	PlaySoundEffect(caster, 0x5C9);
 	SetObjProperty(caster, "#journey", ReadGameClock() + TIME_RESTRICT);
@@ -75,9 +77,9 @@ endfunction
 function HostileScripts(przeciwnik)
 	case(przeciwnik.script)
 		"firebreather":
-		"spellKillPCs":  
+		"spellKillPCs":
 		"spellFire":
-		"killPCs":  
+		"killPCs":
 		"nuksKillPCs":
 		"vampireKillPCs":
 			return 0;

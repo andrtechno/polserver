@@ -3,11 +3,12 @@ use cfgfile;
 use os;
 use util;
 
+include ":attributes:attributes";
+include ":crafting:crafting";
 include "include/client";
 include "include/objtype";
 include "include/utility";
-include "include/yesNo";
-include "include/crafting";
+include ":gumps:yesNo";
 
 const UACTION_CHOP := 0x0d;
 
@@ -77,11 +78,11 @@ program harvest (who, plant)
 		PlaySoundEffect(who, SFX_58);
 		PerformAction(who, ANIM_BOW);
 		sleep(2);
-				pts := CInt(GetAttribute(who, LUMBERJACKING) / 10) + 15;
-				if(pts > 35)
-					pts := 35;
-				endif
-				if(SkillCheck(who,LUMBERJACKING, -1, pts/3))
+        pts := CInt(GetAttribute(who, LUMBERJACKING) / 10) + 15;
+        if(pts > 35)
+            pts := 35;
+        endif
+				if(SkillCheck( who,LUMBERJACKING, -1, pts/3 ) > 0)
                     if (RandomInt(100) == 0)
                             SendSysMessage(who, "You have found some fertile dirt!", color :=66);
                             CreateItemInContainer(craftingbag, UOBJ_FERTILE_DIRT, 1);
@@ -126,7 +127,7 @@ function DestroyPlant(me, plant);
         0x0d9e:         //peach tree top
         0x0da4:         //pear tree
         0x0da6:         //pear tree top
-        
+
 		return;
 	default:
 		if (YesNo(me,"Destroy it?"))

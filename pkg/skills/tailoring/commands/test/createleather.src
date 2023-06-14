@@ -1,0 +1,189 @@
+use cfgfile;
+use uo;
+use os;
+
+include "include/client";
+include "include/objtype";
+include "include/canAccess";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+include ":attributes:attributes";
+
+var smith_cfg := ReadConfigFile("leather");
+var craftername;
+
+
+program textcmd_createleather(who)
+    craftername := who.name;
+
+    var x := 15;
+    var y := 15;
+    var material;
+    var flagLeather := 0;
+    var flagStudded := 0;
+    var temp;
+	var gump := GFCreateGump( 20, 50 );
+	GFPage( gump, 1 );
+	var widthGump := 300;
+    var heightGump := 400;
+	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+    GFTextLine(gump, 75, y, 33, "Admin Leather Menu" );
+
+    var ingots := {
+        0x1081,
+        0x26180,
+        0x26181,
+        0x26182,
+        0x26183,
+        0x26184,
+        0x26185,
+        0x26186,
+        0x26187,
+        0x26188,
+        0x26189,
+        0x2618A,
+        0x2618B,
+        0x2618C,
+        0x2618D,
+        0x2618E
+    };
+
+
+	GFSetRadioGroup(gump, 1);
+
+    y+=35;
+    var index := 1;
+    foreach ingot in ingots
+        var desc := GetItemDescriptor(ingot);
+        var name := desc.name;
+        name["Leather"]:="";
+        GFRadioButton( gump, x, y, 208, 209, 0, 100 + index );
+        GFTextLine(gump, x + 25, y, 2100, name );
+        y+=20;
+        index+=1;
+    endforeach
+
+    x := 150;
+    y := 50;
+    index := 300;
+    foreach iname in {"Leather", "Studded"}
+        //(byref gump, x, y, unc_id, che_id, status:=0, btn_value:=0)
+        GFCheckBox(gump, x, y, 210, 211, 0, index);
+        GFTextLine(gump, x + 25, y, 1153, iname);
+        y+=20;
+        index+=1;
+    endforeach
+
+    y+=15;
+    GFTextLine(gump, 150, y, 2100, "Crafted By:" );
+    GFResizePic(gump, 150, y +25, 2620, 130, 30);
+    var crafted := GFTextEntry(gump, 150 + 8, y + 30, 135, 20, 2100, craftername, 400);
+
+
+
+	GFAddButton(gump, (widthGump / 2) - 30, heightGump - 35, 247, 248, GF_CLOSE_BTN, 1);
+
+    var input := GFSendGump( who, gump );
+    foreach key in ( input.keys )
+        if( key >= 100 && key < 200 )
+            material := GetItemDescriptor(ingots[(key - 100)]);
+        elseif(key == 300)
+            flagLeather:=1;
+        elseif(key == 301)
+            flagStudded:=1;
+        elseif(key == 400)
+            craftername := GFExtractData(input, key);
+        endif
+        SleepMS(1);
+
+    endforeach
+
+
+    if(!material)
+        SendSysMessage(who, "no select material.");
+        return;
+    endif
+    if(!(flagLeather || flagStudded))
+        SendSysMessage(who, "no select any type.");
+        return;
+    endif
+
+
+    var backpack := CreateItemInContainer( who.backpack, 0x9b2, 1 );
+    backpack.color := material.color;
+
+    var armorsLeather := {
+        "LeatherGorget",
+        "LeatherSleeves",
+        "LeatherGloves",
+        "LeatherCap",
+        "LeatherLeggings",
+        "LeatherTunic",
+        "Boots",
+        "ThighBoots"
+    };
+    var armorsStudded := {
+        "StuddedCap",
+        "StuddedGorget",
+        "StuddedGloves",
+        "StuddedSleeves",
+        "StuddedLeggings",
+        "StuddedTunic",
+        "Boots",
+        "ThighBoots"
+    };
+
+    if(flagLeather)
+        foreach armor in armorsLeather
+            makeItem(material, armor, backpack);
+        endforeach
+    endif
+    if(flagStudded)
+        foreach armor in armorsStudded
+            makeItem(material, armor, backpack);
+        endforeach
+    endif
+
+endprogram
+
+
+function makeItem(material, obj, backpack)
+    var tname;
+    var nme;
+    var itemname;
+    var ar_mod := 0;
+    var dmg_mod := 0;
+    var maxhp_mod := 0;
+    var quality_mod := 0;
+
+    var theitem := CreateItemInContainer(backpack, obj, 1);
+    itemname := smith_cfg[theitem.objtype].name;
+    case(material.objtype)
+        0x1081:     nme := "" + itemname;
+        0x26180:    nme := "lizard " + itemname;                          quality_mod:=1;
+        0x26181:    nme := "terathan " + itemname;          ar_mod:=5;   quality_mod:=2;
+        0x26182:    nme := "orphidian " + itemname;         ar_mod:=10; quality_mod:=3;
+        0x26183:    nme := "drake " + itemname;             ar_mod:=15; quality_mod:=4;
+        0x26184:    nme := "dragon " + itemname;            ar_mod:=20; quality_mod:=5;
+        0x26185:    nme := "wyrm " + itemname;              ar_mod:=25; quality_mod:=6;
+        0x26186:    nme := "daemon " + itemname;            ar_mod:=30; quality_mod:=7;
+        0x26187:    nme := "storm " + itemname;             ar_mod:=35; quality_mod:=8;
+        0x26188:    nme := "snow " + itemname;              ar_mod:=40; quality_mod:=9;
+        0x26189:    nme := "necro " + itemname;             ar_mod:=45; quality_mod:=10;
+        0x2618A:    nme := "ice " + itemname;               ar_mod:=50; quality_mod:=11;
+        0x2618B:    nme := "fire " + itemname;              ar_mod:=55; quality_mod:=12;
+        0x2618C:    nme := "blackrock " + itemname;         ar_mod:=60; quality_mod:=13;
+        0x2618D:    nme := "bloodrock " + itemname;         ar_mod:=65; quality_mod:=14;
+        0x2618E:    nme := "star scream " + itemname;       ar_mod:=70; quality_mod:=15;
+    endcase
+    theitem.color       := material.color;
+    theitem.quality     := 0.34 * quality_mod;
+    theitem.hp          := theitem.maxhp;
+    theitem.ar_mod      := ar_mod;
+    tname               := "an exceptional " + nme;
+
+    SetObjProperty(theitem, "craftername", craftername);
+    SetName(theitem, tname);
+
+endfunction

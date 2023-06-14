@@ -1,0 +1,216 @@
+use uo;
+use os;
+use unicode;
+
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":tournamentTeam:stone_red";
+
+
+const RANGE := 8;
+const MAX_PLAYER_CAPTURED := 2;
+
+var captureTime;
+
+
+program controlItem(item)
+
+    var capture := 0;
+    var oppTeam := GetObjProperty(item, "OpponentStone");
+
+
+
+    removeCaptureAll(item);
+
+    var timer := 0;
+
+    var capturePlayer := 0;
+    var playersLen := 0;
+    var me_players;
+	while (item)
+	    captureTime := TT_GetGlobalTimer();
+        capturePlayer := 0;
+        var players_opponent := TT_Players(oppTeam);
+        var stone_opponent := TT_Stone(oppTeam);
+
+    if(oppTeam == "Red")
+        me_players := TT_Players("Blue");
+    else
+        me_players := TT_Players("Red");
+    endif
+
+
+        var mobilesList := ListMobilesNearLocationEx( item.x, item.y, item.z, RANGE, LISTEX_FLAG_NORMAL, item.realm);
+
+        playersLen := Len(mobilesList);
+        if(!playersLen)
+            removeCaptureAll(item);
+        endif
+
+        if(playersLen > MAX_PLAYER_CAPTURED)
+            playersLen := MAX_PLAYER_CAPTURED;
+        endif
+
+        var captureLeft;
+        //if(playersLen)
+
+            foreach mobile in mobilesList
+                if(mobile.serial in players_opponent)
+                    //var obj := SystemFindObjectBySerial(CInt(mm));
+                    addCapture(item, mobile);
+                    capturePlayer += 1;
+                endif
+            endforeach
+
+            if(capturePlayer)
+                timer := timer + 1;
+                addStoneCapture(item, capturePlayer);
+                captureLeft := CInt(GetObjProperty(item, "CaptureTime")) + capturePlayer;
+
+
+                if(timer == 10)
+                    var timerText := "(x"+capturePlayer+") "+captureLeft+" / "+captureTime+" ";
+
+                    BroadcastUC("Захват "+timerText, "RUS", 3, 45);
+
+                    foreach opp_p in me_players
+                        var obj := SystemFindObjectBySerial(CInt(opp_p));
+                        SendSysMessage(obj, "Вашу базу захватывают! " + timerText, color := 88);
+                    endforeach
+                    timer := 0;
+                endif
+            endif
+
+        //else
+
+        //endif
+        if(!capturePlayer)
+                    timer := 0;
+                    capturePlayer:=0;
+                    SetObjProperty(item, "CaptureTime", 0);
+                    removeCaptureAll(item);
+        endif
+        if(captureLeft)
+            if(captureLeft >= captureTime)
+                baseCapture(item);
+            endif
+        endif
+
+		sleep(1);
+
+	endwhile
+
+	return 1;
+endprogram
+
+
+function baseCapture(item)
+    BroadcastUC("Замок захвачен!", "RUS", 3, 45);
+
+    var stone_opponent := GetObjProperty(item,"OpponentStone");
+
+
+    var players_blue := TT_Players("Blue");
+    var players_red := TT_Players("Red");
+    var stone_opponent_blue := SystemFindObjectBySerial(CInt(TT_Stone("Blue")));
+    var stone_opponent_red := SystemFindObjectBySerial(CInt(TT_Stone("Red")));
+    var rint := RandomInt(1)+1;
+
+    foreach b_player in players_blue
+        var b := SystemFindObjectBySerial(CInt(b_player), SYSFIND_SEARCH_OFFLINE_MOBILES);
+        MoveObjectToLocation(b, stone_opponent_blue.x + rint, stone_opponent_blue.y + rint, stone_opponent_blue.z, stone_opponent_blue.realm,MOVEOBJECT_FORCELOCATION);
+    endforeach
+
+    foreach r_player in players_red
+        var r := SystemFindObjectBySerial(CInt(r_player), SYSFIND_SEARCH_OFFLINE_MOBILES);
+        MoveObjectToLocation(r, stone_opponent_red.x + rint, stone_opponent_red.y + rint, stone_opponent_red.z, stone_opponent_red.realm,MOVEOBJECT_FORCELOCATION);
+    endforeach
+    TT_SetScore(stone_opponent);
+    removeCaptureAll(item);
+endfunction
+
+function addCapture(item, mobile)
+    var mobilesList := GetObjProperty(item, "CaptureMobiles");
+    var isCapture := 0;
+    if( !mobilesList )
+        mobilesList := array;
+    endif
+
+    // todo пересмотреть этот функциона.. ошибка в том что пока не выйдут все их захвата не покащиться смс что вы покинули
+    if(!(mobile.serial in mobilesList))
+        mobilesList.append(mobile.serial);
+        SetObjProperty(mobile, "IsCapture", 1);
+        PrintTextAbovePrivateUC( mobile, "*Захват*", "RUS", mobile, 33);
+    endif
+
+
+
+    /*var index := 1;
+    foreach player in mobilesList
+        if(player != mobile.serial)
+            mobile := SystemFindObjectBySerial(CInt(player), SYSFIND_SEARCH_OFFLINE_MOBILES);
+            mobilesList.erase( index );
+            EraseObjProperty(mobile, "IsCapture");
+            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+        endif
+        index := index + 1;
+    endforeach*/
+
+
+    SetObjProperty(item, "CaptureMobiles", mobilesList);
+endfunction
+
+function addStoneCapture(item, scored)
+    if(!CInt(GetObjProperty(item, "CaptureTimeStart")))
+        SetObjProperty(item, "CaptureTimeStart", captureTime);
+    endif
+    var current_score := CInt(GetObjProperty(item,"CaptureTime"));
+    SetObjProperty(item, "CaptureTime", current_score + scored);
+
+endfunction
+
+/*
+function removeCapture(item, mobile)
+    var mobilesList := GetObjProperty(item, "CaptureMobiles");
+    if( !mobilesList )
+        mobilesList := array;
+    endif
+
+
+    var index := 1;
+    foreach player in mobilesList
+        if(player == mobile.serial)
+            mobilesList.erase( index );
+            EraseObjProperty(mobile, "IsCapture");
+            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+        endif
+        index := index + 1;
+    endforeach
+    SetObjProperty(item, "CaptureMobiles", mobilesList);
+
+endfunction*/
+
+
+
+
+function removeCaptureAll(item)
+
+    var mobilesList := GetObjProperty(item, "CaptureMobiles");
+
+    foreach player in mobilesList
+        var mobile := SystemFindObjectBySerial(CInt(player), SYSFIND_SEARCH_OFFLINE_MOBILES);
+        PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+        EraseObjProperty(mobile, "IsCapture");
+    endforeach
+
+    EraseObjProperty(item, "CaptureMobiles");
+    EraseObjProperty(item, "CaptureTimeStart");
+    EraseObjProperty(item, "CaptureTime");
+endfunction
+
+
+
+
+
+

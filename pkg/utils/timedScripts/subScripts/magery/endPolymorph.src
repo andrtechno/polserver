@@ -1,20 +1,27 @@
-/*
- * $Id: endPolymorph.src 1012 2007-03-05 20:12:44Z tekproxy $
- *
- */
- 
 use uo;
 use os;
 
 include ":attributes:attributes";
+include ":timedScripts:timedScripts";
 
 program TimedScript_EndPolymorph(params)
 	var mobile := params[1];
 
-	var orig_color := GetObjProperty(mobile, "Polymorph");
-	mobile.color := orig_color;
-	mobile.graphic := mobile.trueobjtype;
+	var cfg_elem := TS_GetCfgElem("Polymorph");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+
+	var points := struct;
+	points := GetObjProperty(mobile, "Polymorph");
+	AP_ModifyStatMod(mobile, DEXTERITY, -points.dex);
+	AP_ModifyStatMod(mobile, INTELLIGENCE, -points.int);
+	AP_ModifyStatMod(mobile, STRENGTH, -points.str);
+    mobile.ar_mod := mobile.ar_mod - points.ar_mod;
+
+    mobile.graphic := points.graphic;
+    mobile.color := points.color;
+
+	mobile.delbuff(buff_icon);
 	EraseObjProperty(mobile, "Polymorph");
-	
+
 	return 1;
 endprogram

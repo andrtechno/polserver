@@ -1,0 +1,98 @@
+use os;
+use uo;
+use util;
+use polsys;
+use unicode;
+
+include ":alchemy:drinkPotion";
+include "include/canAccess";
+include "include/client";
+include ":timedScripts:timedScripts";
+
+
+program drink_invisibility(who, potion)
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    var delay := (CInt(GetObjProperty(potion, "UseDelay"))) ? CInt(GetObjProperty(potion, "UseDelay")) : 3;
+    var duration := (CInt(GetObjProperty(potion, "Duration"))) ? CInt(GetObjProperty(potion, "Duration")) : 60;
+    if(!can_access(who, potion))
+        return;
+    endif
+    if(potion.movable == 0)
+        SendSysMessage(who, "You cannot drink that.");
+        return;
+    endif
+    if(!CheckToDrink(who, "invisibility"))
+        return;
+    endif
+	if ( GetObjProperty(who, "InvisibilityPotion") )
+		SendSysMessage(who, "You are already under the influence.");
+		return 0;
+	endif
+    if(potion.objtype == 0x2DC22)
+        empty_bottle(who, potion);
+
+
+
+        var i := delay;
+        for( i := delay; i>=1; i-=1 )
+            SendSysMessageUC(who, "Invisible: "+CStr(i), "RUS", 3, 110);
+            Sleep(1);
+        endfor
+
+        TS_StartTimer(who, "InvisibilityPotion", duration, 1, who);
+    endif
+
+    return 1;
+endprogram
+
+
+/*
+program drink_invisibility(who, potion)
+    var i := TIME;
+    var th := TIME_IN_HIDE;
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    if(!can_access(who, potion))
+        return;
+    endif
+    if(potion.movable == 0)
+        SendSysMessage(who, "You cannot drink that.");
+        return;
+    endif
+    if(!CheckToDrink(who, "invisibility"))
+        return;
+    endif
+	//if ( GetObjProperty(who, "InvisibilityPotionMod") )
+	//	SendSysMessage(who, "You are already under the influence.");
+	//	return 0;
+	//endif
+    case(potion.objtype)
+        0x2DC22:
+            empty_bottle(who, potion);
+
+            for( i:=TIME; i>=1; i-=1 )
+                SendSysMessageUC(who, "Invisible: "+CStr(i), "RUS", 3, 110);
+                Sleep(1);
+            endfor
+            who.hidden:=1;
+            PrintTextAbovePrivateUC(who, "Вы успешно спрятались!", "RUS", who, 3, MESSAGE_COLOR_GOOD);
+            var oldx := who.x;
+            var oldy := who.y;
+            for( th:=TIME_IN_HIDE; th>=1; th:= th - 1 )
+                if((oldx==who.x) && (oldy==who.y))
+                    if(th <= 3)
+                        SendSysMessageUC(who, "Вы будете обнаружены через: " + CStr(th)+" сек.","RUS",3,MESSAGE_COLOR_BAD);
+                    endif
+                    Sleep(1);
+                else
+                    break;
+                endif
+            endfor
+            who.hidden:=0;
+            //SendSysMessageUC(who, "Вы обнаружены!","RUS", 3, 0x25);
+            PrintTextAbovePrivateUC(who, "Вы обнаружены!", "RUS", who, 6, MESSAGE_COLOR_BAD, JOURNAL_UC_PRINT_NAME);
+           // TS_StartTimer(who, "InvisibilityPotion", 60, 30, who);
+
+    endcase
+endprogram*/

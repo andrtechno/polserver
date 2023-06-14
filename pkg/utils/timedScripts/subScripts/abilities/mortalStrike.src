@@ -1,0 +1,23 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_MortalStrike(params)
+	var defender := params[1];
+	var attacker := params[2];
+	var percent := params[3];
+	var duration := params[4];
+
+	var cfg_elem := TS_GetCfgElem("MortalStrike");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+
+	defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, {});
+	SetObjProperty(defender, "MortalStrike", 1);
+
+	return 1;
+endprogram
+

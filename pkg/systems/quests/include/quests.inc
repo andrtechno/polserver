@@ -16,7 +16,7 @@ function GetQuestListGump(who)
     var stepTop:=25;
     var i := 1;
     foreach questItem in (GetQuestList())
-        GFTextLine(gump, 15, paddingTop + stepTop * i, 500, questItem[1]);
+        GFTextLine(gump, 15, paddingTop + stepTop * i, 500, questItem);
         if(GetActiveQuest(who) == i)
             //GFAddButton(gump, 320, paddingTop + stepTop * i, 2074, 2075, GF_CLOSE_BTN, 0);
             GFTextLine(gump, 270, paddingTop + stepTop * i, 67, "Выполняется");
@@ -32,7 +32,7 @@ function GetQuestListGump(who)
         i:=i+1;
     endforeach
 
-    var input := GFSendGump ( who, gump, 2);
+    var input := GFSendGump ( who, gump); //, 2 arg
     input := CInt(input[0]);
 
     case(input)
@@ -92,10 +92,13 @@ endfunction
 
 
 function GetQuestList()
-    var test:={};
-    test.append({"Разговор по душам"});
-    test.append({"Дыхание дракона"});
-    return test;
+    var list:={
+"Разговор по душам",
+"Дыхание дракона"
+    };
+    //list.append({"Разговор по душам"});
+    //list.append({"Дыхание дракона"});
+    return list;
 endfunction
 
 
@@ -186,9 +189,7 @@ function QuestTalkNpc(who, npc)
 
     var	TalkNpc := GetObjProperty( who, "QuestLastTalk" );
 
-    //print(TalkNpc);
-    //print(CInt(talknpccc));
-    //print(npc.serial);
+
 
 
     if(CInt(TalkNpc) == npc.serial)
@@ -209,7 +210,7 @@ function QuestTalkNpc(who, npc)
         GFHTMLArea(gump, 50, 40, 335, 205, talkText, 0, 1);
         GFAddButton(gump, 160, 260, 247, 248, GF_CLOSE_BTN, 1);
 
-        var input := GFSendGump ( who, gump , 1);
+        var input := GFSendGump ( who, gump);
         input := CInt(input[0]);
         return input;
     endif
@@ -246,7 +247,8 @@ function AddQuestActions(who)
         var mission := ReadConfigFile(":quest_"+activeQuest+":action");
         var	missionElem := FindConfigElem( mission, GetObjProperty(who,"QuestMission") );
 
-        var	actionKills := GetConfigStringArray( missionElem, "ActionKill" );
+    var	actionKills := GetConfigStringArray( missionElem, "ActionKill" );
+    var	actionRange := GetConfigStringArray( missionElem, "ActionRange" );
         foreach kill in actionKills
             var killSplit := SplitWords(kill);
             list.append({killSplit[1],killSplit[2]});
@@ -257,7 +259,15 @@ function AddQuestActions(who)
             SetObjProperty(who, "QuestActionKill", list);
             SetObjProperty(who, "QuestCurrentActionKill", currentList);
         endif
-
+        if(actionRange)
+            var rangeSplit := SplitWords(actionRange);
+            var alist := {};
+alist.append(rangeSplit[1]);
+alist.append(rangeSplit[2]);
+alist.append(rangeSplit[3]);
+alist.append(rangeSplit[4]);
+            SetObjProperty(who, "QuestActionRange", alist);
+        endif
     endif
 endfunction
 

@@ -1,66 +1,80 @@
 use os;
 use uo;
 use util;
-use cliloc;
 
-include ":attributes:attributes";
 include ":magery:spells";
-include "include/fields";
-include "include/objtype";
-
+include ":magery:fields";
+include ":attributes:attributes";
+include ":charclasses:classes";
 
 program parafield( parms )
-  var caster := parms[1];
-  var info := parms[2];
-  var cast_on := MS_TargetCoordinates(caster, info.targ, "Select a target.");
+    var caster := parms[1];
+    var info := parms[2];
+    var cast_on := MS_TargetCoordinates(caster, info, "Select a target.");
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
     endif
     if (!cast_on)
-        //SendSysMessage (caster, "Cancelled.", color := 33);
-                SendSysMessageCL(caster, 1042023, color := 33); // Cancelled.
         return 0;
     endif
-  if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
+    if ( !CheckLosAt(caster, cast_on.x, cast_on.y, cast_on.z) )
         return 0;
-  endif
+    endif
     if (!CheckCastSpot(caster, info))
         return 0;
     endif
-  var fields := {};
-  var x := cast_on.x;
-  var y := cast_on.y;
-  var z := cast_on.z;
-  case(get_direction(caster))
-	"NS" : fields:= CreateNorthSouthField(caster, UOBJ_PARAFIELD_NS, x, y, z, 5);
-	"EW" : fields:= CreateEastWestField(caster, UOBJ_PARAFIELD_EW, x, y, z, 5);
-  endcase
+	MS_PlaySpellSFX(info.spell_id, cast_on);
+	MS_PlaySpellGFX(info.spell_id, cast_on, caster);
 
-  var duration := CInt((AP_GetSkill(caster, MAGERY) * 1.33) + 3);
-  if (duration < 20)
-    duration := 20;
-  endif
+	var objtype;
+	var direction := GetDirectionByFacing(caster);
+	case ( direction )
+		FIELD_SHAPE_HORIZONTAL: objtype := "ParaFieldEW"; break;
+		FIELD_SHAPE_VERTICAL: objtype := "ParaFieldNS"; break;
+	endcase
 
-  foreach fieldpart in fields
-    fieldpart.SetOwner(caster);
-    fieldpart.SetDuration(duration);
-  endforeach
+	// Duration: 33% Magery +3 seconds
+	//var duration := CInt((AP_GetSkill(caster, MAGERY) * 0.33) + 3);
+	// Paralyze Duration: ((caster Eval Int/10) - ((target Resist Magic/10)) * 3 seconds
+	// Note: On OSI the duration max is 42.6, but we use damage dice, so max is 42. :(
 
-  Detach();
+    var is_mage := GetObjProperty( caster, CLASSEID_MAGE );
+	var para_duration := CInt((AP_GetSkill(caster, EVALUATING_INTELLIGENCE) - (AP_GetSkill(cast_on, RESISTING_SPELLS) / 10)) * 3);
+
+	var area_size := GetConfigInt(info.spell_config, "AreaSize");
+
+	var coordinates := GetCoordinatesForField(cast_on.x, cast_on.y, direction, CInt(area_size/2));
+	foreach coord in ( coordinates )
+		/*var cast_on_z := cast_on.z;
+		var standing_z := struct;
+		standing_z := GetStandingHeight(coord.x, coord.y, cast_on.z, caster.realm);
+		if ( cast_on_z < standing_z )
+			cast_on_z := GetStandingHeight(coord.x, coord.y, cast_on.z, caster.realm);
+		endif
+
+		if ( CheckLosAt(caster, coord.x, coord.y, cast_on_z ) )
+			continue; // Only create a field piece if the caster has line of sight.
+		endif*/
+
+		var item := CreateItemAtLocation(coord.x, coord.y, cast_on.z, objtype, 1, caster.realm);
+		if ( item.errortext )
+			SendSysMessage(caster, "Error - "+item.errortext);
+			continue;
+		endif
 
 
-  //var i;
+        var duration := 30;
+        if(GetObjProperty(caster,"classid") == ID_MAGE)
+            var val := (info.classlevel * 10);
+            duration := duration + val;
+        endif
 
+		SetObjProperty(item, "SummonedField", caster.serial);
+		SetObjProperty(item, "ParaDuration", para_duration);
 
-  //for (i := 1; i <= 5; i := i + 1)
+		item.SetOwner(caster);
+		item.SetDuration(duration);
+	endforeach
 
-   // SetObjProperty(fields[i], "f", 1);
-    //PlaySoundEffect(fields[i], SFX_20C);
-	//sleep(duration/2);
-	//print("paralis dura: "+(duration/2));
-  //endfor
-  sleep(duration/2);
-  foreach fieldpart in fields
-    DestroyItem(fieldpart);
-  endforeach
+	return 1;
 endprogram

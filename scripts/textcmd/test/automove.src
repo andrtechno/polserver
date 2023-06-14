@@ -1,0 +1,60 @@
+use os;
+use uo;
+use polsys;
+
+
+program textcmd_automove(who)
+var points := GetMidpointCircleCoords(who.x, who.y, 5);
+
+Detach();
+foreach dot in points
+    var standing_z := GetStandingHeight(dot.x, dot.y, who.z, who.realm);
+    PlayStationaryEffect(dot.x, dot.y, standing_z.z, 0x3709, 0, 0x1e);
+    sleepms(20);
+endforeach
+
+foreach dot in points
+    //var standing_z := GetStandingHeight(dot.x, dot.y, who.z, who.realm);
+    //PlayStationaryEffect(dot.x + 2, dot.y - 2, standing_z.z, 0x3709, 0, 0x1e);
+   // sleepms(40);
+endforeach
+
+
+
+print(points);
+return;
+//var paquete := CreatePacket(0x6C, 19);
+//paquete.SetInt16(3, 00000000);
+//paquete.SetInt8(6, 3);
+//SendPacket(who, paquete);
+
+//var outp := CreatePacket(0x6C,19);
+//outp.SetInt8(1, 0x6C);
+//outp.SetInt8(1, 0);
+//outp.SetInt16(4, 1);
+//outp.SetInt8(1, 3);
+//outp.SendPacket(who);
+
+SendPacket(who, "6C000000000003000000000000000000000000");
+
+return 1;
+    /*var targ := Target(who);
+    if(!targ)
+        return;
+    endif
+    if(GetObjProperty(who, "#MOVERPID"))
+        EraseObjProperty(who, "#MOVERPID");
+        EraseObjProperty(who, "#MOVETARGET");
+        var pid := GetProcess(GetObjProperty(who, "#MOVERPID"));
+        print("KILL AMOE");
+        pid.kill();
+        return 1;
+    endif
+    SetObjProperty(who, "#MOVERPID", GetPid());
+    SetObjProperty(who, "#MOVETARGET", targ);
+    	while(1)
+    	MoveObjectToLocation(who, targ.x, targ.y, targ.z);
+    			Sleepms(100);
+
+        	endwhile*/
+endprogram

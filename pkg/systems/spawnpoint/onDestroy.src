@@ -1,14 +1,32 @@
+/*
+ * Yukiko 2020-03-26
+ *
+ */
+
 use uo;
-use os;
-use vitals;
 
-program DestroySpawnPoint(spawn_point)
+include ":damage:damage";
 
-	var children := GetObjProperty(spawn_point, "Children");
+program OnDestroySpawnPoint(SpawnPoint)
+
+	var children := {};
+	children := GetObjProperty(SpawnPoint, "Children");
+	var mobile;
+
+	if ( !children )
+		return 1;
+	endif
+
 	foreach child in children
-		var kid := SystemFindObjectBySerial(child);
-		SetObjProperty(kid, "guardkill", 1);
-		kid.kill();
+		mobile := SystemFindObjectBySerial(CInt(child));
+		if(!mobile)
+			continue;
+		endif
+		if(!mobile.master)
+			SetObjProperty(mobile, "guardkill", 1);
+			KillMobile(mobile, 1);
+		endif
 	endforeach
 
+	return 1;
 endprogram

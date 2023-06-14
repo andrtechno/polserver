@@ -1,0 +1,8 @@
+use uo;
+include ":damage:damage";
+
+program EnterRegionZone(mobile, region_name)
+    ApplyRawDamage(mobile, 10);
+    SendSysMessage(mobile, "You just died because you entered an area that makes you dead!");
+    return 1;
+endprogram

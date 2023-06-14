@@ -1,0 +1,14 @@
+use os;
+use uo;
+
+program canDestroy(  container )
+    Set_Critical(1);
+    var items := EnumerateItemsInContainer(container);
+    foreach item in items
+        destroyitem(item);
+        sleepms(2);
+    endforeach
+    Set_Critical(0);
+
+	return 1;
+endprogram
