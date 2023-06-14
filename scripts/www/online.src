@@ -3,47 +3,40 @@ use uo;
 use basic;
 use guilds;
 
-var players := {};
 
-  /*WriteHtml( "<html><head><title>POL On-Line Characters</title></head>" +
-             "<body>" +
-             "<div align=center>" +
-             "<table border=1 cellspacing=0 cellpadding=5>" +
-             "  <tr bgcolor=#99CCFF><td>Characters Currently On-Line</td></tr>"  );*/
+program players()
+    var players := {};
+    foreach chr in EnumerateOnlineCharacters()
 
+        var prop := struct;
 
+        prop.+name := chr.name;
+        prop.+serial := chr.serial;
+        prop.+cmdlevel := chr.cmdlevel;
+        prop.+criminal := chr.criminal;
+        prop.+dead := chr.dead;
+        prop.+x := chr.x;
+        prop.+y := chr.y;
+        prop.+z := chr.z;
 
-  foreach chr in EnumerateOnlineCharacters()
-
-        var prop := struct{};
-
-        prop.+"name" := chr.name;
-        prop.+"cmdlevel" := chr.cmdlevel;
-        prop.+"criminal" := chr.criminal;
-        prop.+"dead" := chr.dead;
-
-        prop.+"ip" := chr.ip;
-        prop.+"race" := chr.race;
-        prop.+"title_guild" := chr.title_guild;
-        prop.+"title_prefix" := chr.title_prefix;
-        prop.+"murderer" := chr.murderer;
-
-var guild := struct{};
-if(chr.guildid)
-    var g := FindGuild( chr.guildid );
-    if(g)
-        guild.+"name" := g.getprop("guildname");
-        guild.+"abv" := g.getprop("guildabv");
-    endif
-endif
-        prop.+"guild" := guild;
+        prop.+ip := chr.ip;
+        prop.+race := chr.race;
+        prop.+title_guild := chr.title_guild;
+        prop.+title_prefix := chr.title_prefix;
+        prop.+murderer := chr.murderer;
 
 
-  players.append(prop);
-   // if(chr.cmdlevel < 2)
-   //   WriteHtml( "<tr><td>" + chr.name + "</td></tr>" );
-   // endif
-  endforeach
+        if(chr.guildid)
+            var guild := struct;
+            var g := FindGuild( chr.guildid );
+            if(g)
+                guild.+"name" := g.GetProp("Name");
+                guild.+"abv" := g.GetProp("Abbr");
+            endif
+                prop.+"guild" := guild;
+        endif
+        players.append(prop);
+    endforeach
+
     WriteHtml( PackJSON(players) );
-  //WriteHtml( "</table></div>" );
-  //WriteHtml( "</BODY></HTML>" );
+endprogram
