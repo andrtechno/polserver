@@ -1,0 +1,7 @@
+use uo;
+use os;
+use util;
+
+program textcmd_auc(who)
+//no
+endprogram

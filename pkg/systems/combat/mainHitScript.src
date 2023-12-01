@@ -36,7 +36,11 @@ var weaponElement;
 var ammo_consumed := 0;
 
 program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
-    //print("MainHitScript");
+    SendSysMessage(attacker, "MainHitScript");
+    SendSysMessage(attacker, "Start rawdamage: "+rawdamage);
+    SendSysMessage(attacker, "Start basedamage: "+basedamage);
+    print("Start armor: "+armor);
+
     ability := CInt(GetObjProperty(attacker, "Ability"));
 
 	//
@@ -71,13 +75,14 @@ program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 
     basedamage := CalcBaseDamage(a_info);
     rawdamage := basedamage;
-    //print("CalcBaseDamage "+rawdamage);
-
+    SendSysMessage(attacker, "Start rawdamage2: "+rawdamage);
+    SendSysMessage(attacker, "Start basedamage2: "+basedamage);
 
 	if (defender.isA(POLCLASS_NPC))
 		basedamage := CInt(basedamage * 1.3);
 		rawdamage := rawdamage * 1.3;
 		rawdamage := CInt(rawdamage * ( AdjustDamageFactor(weapon, defender, attacker) ) );
+        SendSysMessage(attacker, "NPC: "+rawdamage);
 		if (rawdamage == 0)
 
 			return 0;
@@ -208,16 +213,16 @@ function CalcBaseDamage(byref a_info)
 
    // print("Base dmg: "+base_dmg);
 
-	        var xObject := a_info.mobile.weapon;
-            var weapondesc := GetItemDescriptor(xObject.objtype);
+    var xObject := a_info.mobile.weapon;
+    var weapondesc := GetItemDescriptor(xObject.objtype);
 
-            var damagefactor := (xObject.hp * xObject.quality) / xObject.maxhp;
-	        var minDamage := CINT((weapondesc.MinDamage + xObject.dmg_mod) * damagefactor);
-            var maxDamage := CINT((weapondesc.MaxDamage + xObject.dmg_mod) * damagefactor);
+    var damagefactor := (xObject.hp * xObject.quality) / xObject.maxhp;
+    var minDamage := CINT((weapondesc.MinDamage + xObject.dmg_mod) * damagefactor);
+    var maxDamage := CINT((weapondesc.MaxDamage + xObject.dmg_mod) * damagefactor);
 
 	//base_dmg += xObject.quality;
-	        base_dmg := base_dmg * damagefactor;
-	        //base_dmg += xObject.hp;
+    base_dmg := base_dmg * damagefactor;
+    //base_dmg += xObject.hp;
 
     //print("Base percent dmg: "+base_dmg);
 
@@ -237,7 +242,7 @@ function CalcBaseDamage(byref a_info)
     endif
 
     //print("Base dmg_mult: "+dmg_mult);
-    
+
 	base_dmg += CDbl(dmg_mult);
 
 	return CInt(base_dmg);
@@ -411,15 +416,16 @@ endfunction
 
 function ArmorChecks(byref d_info, armor_hit, byref raw_damage)
 	//var blocked := (CInt((d_info.mobile).ar) / 2) + CInt(armor_hit.ar);
-		var blocked := (CInt((d_info.mobile).ar) / 2);
+    var blocked := (CInt((d_info.mobile).ar) / 2);
+
 	//var blocked := CInt(armor_hit.ar);
 	if(raw_damage < blocked)
 		blocked := CInt(armor_hit.ar);
 
 
 	endif
-raw_damage -= blocked;
-//print("ArmorChecks with blocked "+blocked);
+    raw_damage -= blocked;
+    //print("ArmorChecks with blocked "+blocked);
 
 	var absorbed := blocked / 2;
 	//var absorbed := blocked;

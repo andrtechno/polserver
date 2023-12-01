@@ -26,15 +26,15 @@ program SetCraftBag (who)
 		EraseObjProperty (who, "craftingbagserial");
 		return;
 	endif
-	
+
 	if (!InInventory (who.backpack, bag) )
 		SendSysMessage (who, "That is not in your inventory.", color := 33);
 		return;
 	endif
 
 	if (!bag.isa (POLCLASS_CONTAINER) )
-				SendSysMessage (who, "You can't put anything in that!", color := 33);
-				return 0;
+        SendSysMessage (who, "You can't put anything in that!", color := 33);
+        return 0;
 	endif
 
 	SetObjProperty (who, "craftingbagserial", bag.serial);

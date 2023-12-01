@@ -29,6 +29,8 @@ program textcmd_restartserver(who)
 
     endforeach
 
+    GFTextCrop(gump, 25, y_pos, 330, 50, 2100, "Сейчас!");
+    GFAddButton( gump, 330, y_pos, 2117, 2118, GF_CLOSE_BTN, 100 );
 
 	var input := GFSendGump( who, gump );
 	input := input[0];
@@ -37,18 +39,19 @@ program textcmd_restartserver(who)
 		return 0;
 	endif
 
-	PresetDiscordMessage( "@everyone Рестрат сервера через **"+input+" мин.**", "default");
-
     var restartTimer := CInt(input);
+    if(restartTimer < 100)
+    	//PresetDiscordMessage( "@everyone Рестрат сервера через **"+input+" мин.**", "default");
+        while (restartTimer > 0)
+            BroadcastUC( "Рестарт сервера произойдет через " + restartTimer + " мин.", "RUS", 3, 33 );
+            sleep(60);
+            restartTimer := restartTimer -1;
+        endwhile
+    endif
 
-    while (restartTimer > 0)
-        BroadcastUC( "Рестарт сервера произойдет через " + restartTimer + " мин.", "RUS", 3, 33 );
-        sleep(60);
-        restartTimer := restartTimer -1;
-    endwhile
 
     BroadcastUC("Рестарт сервера...", "RUS", 3, 33);
-	PresetDiscordMessage( "Рестарт сервера...", "default");
+	//PresetDiscordMessage( "Рестарт сервера...", "default");
     sleep(1);
     SaveWorldState();
     sleep(1);

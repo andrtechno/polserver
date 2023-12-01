@@ -11,12 +11,16 @@ var g_ability_cfg := ReadConfigFile(":combatBook:abilities");
 var ability;
 
 program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
-    print("WrestlingHitScript");
+    SendSysMessage(attacker, "WrestlingHitScript");
+    SendSysMessage(attacker, "Start rawdamage: "+rawdamage);
+    SendSysMessage(attacker, "Start basedamage: "+basedamage);
+    print("Start armor: "+armor);
 	if(defender == attacker)
 		SendSysMessage(attacker, "No Cheating");
 		ApplyRawDamage(attacker, 1000);
 		return;
 	endif
+
 
 	if((attacker.npctemplate == "townguard") or (attacker.npctemplate == "playervendor"))
 		ApplyRawDamage(defender, 1000);
@@ -30,10 +34,12 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 		PerformAction(defender, 0xa);
 		basedamage := basedamage * 2;
 		rawdamage := rawdamage * 2;
+		SendSysMessage(attacker, "Player vs NPC");
 	else
 		if(attacker.acctname && defender.acctname)
-			basedamage := basedamage / 2;
-			rawdamage := rawdamage / 2;
+			//basedamage := basedamage / 2;
+			//rawdamage := rawdamage / 2;
+			SendSysMessage(attacker, "Player vs Player");
 		endif
 	endif
 	var shield := GetEquipmentByLayer(defender, 2);
@@ -56,15 +62,21 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 		armorhit := GetObjProperty(armor, "ArmorHit");
 	endif
 	var x;
-	var anat;
+	var anatomy;
+
 
     ability := CInt(GetObjProperty(attacker, "Ability"));
     var ab := AbilityChecks(attacker, defender, CInt(rawdamage));
     if(ab.damage)
         rawdamage := CInt(ab.damage);
+        SendSysMessage(attacker, "Ability: "+rawdamage);
     endif
 
-
+    var str := CInt(AP_GetStat(attacker, STRENGTH)) / 10;
+    var level := CInt(GetObjProperty(attacker, "classlevel"));
+    SendSysMessage(attacker, "Start ar: "+defender.ar);
+	var ar := CInt(defender.ar) / 2;
+    SendSysMessage(attacker, "End ar: "+ar);
 	if (!weaponhit)
 		if (!armorhit)
 
@@ -73,16 +85,32 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 			if(rawdamage < 1)
 				rawdamage := 1;
 			endif
-			anat := 0; //Cint(AP_GetSkill(attacker, WRESTLING)) / 20;
-			rawdamage := Cint(rawdamage + anat);
+			anatomy := CInt(AP_GetSkill(attacker, ANATOMY) / 20);
+			rawdamage := CInt(rawdamage + anatomy);
+
 			// This next line appears to increase that damage too high.
 			//rawdamage := rawdamage + RandomInt( CInt((AP_GetSkill(attacker, ANATOMY) ) / 20));
 
             SkillCheck(attacker, attacker.weapon.attribute, -1, "", 0x1);
             SkillCheck(attacker, TACTICS, -1, "", 0x1);
 
-        print("xxxxxxxxxxxxxxx"+rawdamage);
 
+
+            //rawdamage := rawdamage + RandomIntMinMax(level, level+str);
+            rawdamage := rawdamage * level;
+            //SendSysMessage(attacker, "str + lvl "+rawdamage);
+
+
+
+            var number := 100;
+            var percent := 30;
+            var number_percent := number / 100 * percent;
+            SendSysMessage(attacker, "number: "+CStr(number + number_percent));
+
+			rawdamage := rawdamage - RandomIntMinMax(ar/2,ar);
+
+
+            SendSysMessage(attacker, "finish dmg: "+rawdamage);
 			ApplyRawDamageEX(defender, rawdamage, DMG_PHYSICAL, attacker);
 			return;
 		else
@@ -99,8 +127,8 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 			if(rawdamage < 1)
 				rawdamage := 1;
 			endif
-			anat := Cint(AP_GetSkill(attacker, ANATOMY) / 20);
-			rawdamage := Cint(rawdamage + anat);
+			anatomy := Cint(AP_GetSkill(attacker, ANATOMY) / 20);
+			rawdamage := Cint(rawdamage + anatomy);
 			// This next line appears to increase that damage too high.
 			rawdamage := rawdamage + RandomInt( CInt((AP_GetSkill(attacker, ANATOMY) ) / 20));
 
@@ -130,8 +158,8 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 		if(rawdamage < 1)
 			rawdamage := 1;
 		endif
-		anat := Cint(GetEffectiveSkill(attacker, SKILLID_ANATOMY) / 20);
-		rawdamage := Cint(rawdamage + anat);
+		anatomy := Cint(GetEffectiveSkill(attacker, SKILLID_ANATOMY) / 20);
+		rawdamage := Cint(rawdamage + anatomy);
 		// This next line appears to increase that damage too high.
 		rawdamage := rawdamage + RandomInt( CInt((AP_GetSkill(attacker, ANATOMY) ) / 20));
 

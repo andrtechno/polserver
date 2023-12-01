@@ -1,6 +1,3 @@
-// auction  version 1.0
-// by Zulu (zulu@zuluhotel.com)   November 12, 2000
-
 use os;
 use uo;
 
@@ -17,8 +14,8 @@ const UOBJ_GOLDCOIN := 0xeed;
 
 program textcmd_online()
 
-    setglobalproperty("#auctionlock",0);
-    setglobalproperty("#aucnpc",0);
+    setGlobalProperty("#auctionlock",0);
+    setGlobalProperty("#aucnpc",0);
 
     while (1)
         anyitems();
@@ -32,7 +29,7 @@ function updateplayers(item)
 
     var bid:=GetObjProperty(item,"bid");
     foreach chr in EnumerateOnlineCharacters()
-        if (getobjproperty(chr,"auction") == "yes")
+        if (getObjProperty(chr,"auction") == "yes")
             if (bid == 0)
                 SendSysMessage(chr,item.desc+" did not sell.",FONT_NORMAL,34);
             else
@@ -45,17 +42,17 @@ endfunction
 
 
 function anyitems()
-  var backpack:=EnumerateItemsInContainer(inv_sell),timeleft;
+    var backpack := EnumerateItemsInContainer(inv_sell), timeleft;
 
-  foreach item in backpack
-    timeleft:=(GetObjProperty(item,"time")-ReadGameClock());
+    foreach item in backpack
+        timeleft := (GetObjProperty(item,"time")-ReadGameClock());
 
-    if ((!timeleft) or (timeleft == ""))
-    elseIf (timeleft<0)
-	updateplayers(item);
-	item_done(item);
-    endif
-  endforeach
+        if ((!timeleft) or (timeleft == ""))
+        elseIf (timeleft<0)
+            updateplayers(item);
+            item_done(item);
+        endif
+    endforeach
 
 endfunction
 
@@ -72,29 +69,29 @@ endfunction
 
 function item_done(item)
 
-var bid:=GetObjProperty(item,"bid");
-// var returnitem;
-var temp,bankbox;
+    var bid:=GetObjProperty(item,"bid");
+    // var returnitem;
+    var temp,bankbox;
 
-temp:=GetObjProperty(item,"seller");
-var seller:=SystemFindObjectBySerial(temp);
-if(!seller) seller:=SystemFindObjectBySerial(temp,SYSFIND_SEARCH_OFFLINE_MOBILES); endif
+    temp:=GetObjProperty(item,"seller");
+    var seller:=SystemFindObjectBySerial(temp);
+    if(!seller) seller:=SystemFindObjectBySerial(temp,SYSFIND_SEARCH_OFFLINE_MOBILES); endif
 
-temp:=GetObjProperty(item,"buyer");
-var buyer:=SystemFindObjectBySerial(temp);
-if(!buyer) buyer:=SystemFindObjectBySerial(temp,SYSFIND_SEARCH_OFFLINE_MOBILES); endif
+    temp:=GetObjProperty(item,"buyer");
+    var buyer:=SystemFindObjectBySerial(temp);
+    if(!buyer) buyer:=SystemFindObjectBySerial(temp,SYSFIND_SEARCH_OFFLINE_MOBILES); endif
 
    remove_properties(item);
 
    if(bid == 0) // no bids return item to bank
         bankbox:=FindBankBox(seller);
-	moveitemtocontainer(item,bankbox);
+	MoveItemToContainer(item,bankbox);
 	return;
    endif
 
    // move item to buyer's bank
    bankbox:=FindBankBox(buyer);
-   moveitemtocontainer(item,bankbox);
+   MoveItemToContainer(item,bankbox);
 
    pay_seller(bid,seller);
 

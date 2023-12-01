@@ -356,10 +356,15 @@ function Transfer()
         printTextAbove(me, "your pet refuses to accept that as a master.");
         return;
     endif
+
+    SendSysMessage(master, whom.followers + " pets " + whom.followers_max, color := 33);
+    SendSysMessage(master, master.followers + " master pets " + master.followers_max, color := 33);
     if(whom.followers >= whom.followers_max)
         SendSysMessage(master, whom.name + " pet limit exceeded", color := 33);
         return;
     endif
+
+
 
     if(whom == master)
         printTextAbove(me, "you are already my master.");

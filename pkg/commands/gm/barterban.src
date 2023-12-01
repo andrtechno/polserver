@@ -1,6 +1,3 @@
-// auction  version 1.0
-// by Zulu (zulu@zuluhotel.com)   November 12, 2000
-
 use uo;
 
 program change_cmdlevel( who )

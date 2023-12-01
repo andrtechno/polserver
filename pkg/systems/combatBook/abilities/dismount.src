@@ -11,6 +11,7 @@ program ability_dismount(params)
     if(!defender.isA(POLCLASS_NPC))
         var mount := GetEquipmentByLayer( defender, LAYER_MOUNT );
         if(mount)
+            SendSysMessageUC(attacker, "Вы успешно сбили наездника", "RUS", 3, MESSAGE_COLOR_GOOD);
             SendSysMessageUC(defender, "Вас сбили с седла.", "RUS", 3, MESSAGE_COLOR_BAD);
             MP_Unmount( defender );
             TS_StartTimer(defender, "Dismount", 5, {}, attacker);

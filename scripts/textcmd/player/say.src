@@ -11,6 +11,11 @@ const START_ACTIVE := 50000;
 
 program textcmd_say(who, text)
 
+    if(who.cmdlevel > 0 || who.IsPremium())
+        BroadcastUC("["+who.name + "]: " +text, "RUS", 3, 66);
+        return;
+    endif
+
     var isSay := GetObjProperty(who, "CmdSay");
     if(isSay)
         if(!isSay.enabled)
@@ -24,13 +29,11 @@ program textcmd_say(who, text)
         return;
     endif
 
-    if(who.cmdlevel > 0 || who.IsPremium())
-        BroadcastUC(who.name + ": " +text, "RUS", 3, 66);
-        return;
-    endif
 
-    if(SpendCoin(who, AMOUNT, FindBankBox(who), 0xEED))
-        BroadcastUC(who.name + ": " +text, "RUS", 3, 66);
+    var amount := AMOUNT*CInt(isSay.penalty);
+    if(SpendCoin(who, amount, FindBankBox(who), 0xEED))
+        SendSysMessageUC(who, "Списано: "+amount+" gp.", "RUS", color := 33);
+        BroadcastUC("["+who.name + "]: " +text, "RUS", 3, 66);
     else
         SendSysMessageUC(who, "У вас недостаточно денег в банке.", "RUS", color := 33);
     endif
@@ -46,15 +49,20 @@ function activeGump(who, isSay)
     var gump := GFCreateGump( 20, 50 );
     GFClosable(gump, 1);
     var widthGump := 250;
-    var heightGump := 140;
+    var heightGump := 100;
     GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
 
     GFAddButton(gump, 10, 20, 2117, 2118, GF_CLOSE_BTN, 100);
     var amount := START_ACTIVE;
     if(CInt(isSay.penalty))
-        amount := START_ACTIVE * CInt(isSay.penalty + 1);
+        amount := START_ACTIVE * (CInt(isSay.penalty) + 1);
     endif
-    GFTextLine(gump,  30, 17, 2100, "Цена активации "+AddCommas(amount)+" gp." );
+    GFTextLine(gump, 30, 17, 2100, "Цена активации "+AddCommas(amount)+" gp." );
+
+    if(isSay.penalty)
+        GFTextLine(gump, 15, 45, 2100, "Цана за сообщение будет умножена на: "+CInt(isSay.penalty));
+        GFTextLine(gump, 15, 65, 33, "Балы штафа: "+CInt(isSay.penalty));
+    endif
 
     var input := GFSendGump( who, gump );
     input := CInt(input[0]);

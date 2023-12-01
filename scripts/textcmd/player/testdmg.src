@@ -1,0 +1,47 @@
+use uo;
+use os;
+
+include ":damage:damage";
+
+program textcmd_testdmg(attacker)
+
+	SendSysMessage(attacker, "defender?", color := 88);
+	var defender := Target(attacker, TGTOPT_NOCHECK_LOS);
+	if (!defender)
+		SendSysMessage(attacker, "Canceled.", color := 33);
+		return;
+	endif
+
+
+    var rawdamage := 6;
+    var basedamage := 4; //RandomDiceRoll(1d3);
+
+    var str := CInt(AP_GetStat(attacker, STRENGTH)) / 10;
+    var level := CInt(GetObjProperty(attacker, "classlevel"));
+
+	var ar := CInt(defender.ar); //armor protivnika
+
+    SendSysMessage(attacker, "defender ar: "+ar, color := 88);
+
+
+    var anatomy := CInt(AP_GetSkill(attacker, ANATOMY) / 20);
+    rawdamage := CInt(rawdamage + anatomy);
+
+
+
+    var percent := CInt(level * 2);
+    SendSysMessage(attacker, "Add %: "+percent, color := 88);
+    SendSysMessage(attacker, "Add rawdamage: "+rawdamage, color := 88);
+
+    var number_percent := rawdamage / 100 * percent;
+    SendSysMessage(attacker, "Add % n_percent: "+CStr(number_percent), color := 88);
+
+    rawdamage := rawdamage + number_percent;
+    SendSysMessage(attacker, "Add % result: "+rawdamage, color := 88);
+
+    //rawdamage := rawdamage * level;
+    //rawdamage := rawdamage - RandomIntMinMax(ar/2,ar);
+
+
+    SendSysMessage(attacker, "finish dmg: "+rawdamage, color := 88);
+endprogram

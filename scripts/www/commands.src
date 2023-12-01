@@ -17,60 +17,55 @@ var cmdGm:={};
 var cmdAdmin:={};
 var cmdTest:={};
 
-	foreach package in ( ListTextCommands() )
-		//Print("Pkg:"+_package_iter);
-        //print(package);
+foreach package in ( ListTextCommands() )
+    //Print("Pkg:"+_package_iter);
+    //print(package);
 
 
-		foreach level in ( package )
-            //cmdLevel[_level_iter] := {};
-			//Print(" CmdLvl:"+_level_iter);
+    foreach level in ( package )
+        //cmdLevel[_level_iter] := {};
+        //Print(" CmdLvl:"+_level_iter);
 
 
-			foreach command in ( level )
-				//Print("     "+command);
-				var cmd := command.script;
-				cmd[".ecl"] := "";
+        foreach command in ( level )
+            //Print("     "+command);
+            var cmd := command.script;
+            cmd[".ecl"] := "";
 
 
-    var description:="";
-    var icp_cfg := ReadConfigFile(":"+_package_iter+":icp");
-    icp_cfg := icp_cfg["Register"];
-    if ( icp_cfg )
-
-        foreach line in  GetConfigStringArray(icp_cfg, "Command")
-            var split := SplitWords(line, "|");
-            if(split[1] == cmd)
-                description := split[2];
-                SleepMS(2);
+            var description:="";
+            var icp_cfg := ReadConfigFile(":"+_package_iter+":icp");
+            icp_cfg := icp_cfg["Register"];
+            if ( icp_cfg )
+                foreach line in  GetConfigStringArray(icp_cfg, "Command")
+                    var split := SplitWords(line, "|");
+                    if(split[1] == cmd)
+                        description := split[2];
+                        SleepMS(2);
+                    endif
+                endforeach
             endif
-        endforeach
-
-    endif
 
 
-
-
-
-				if(_level_iter == 0)
-				    var description:="";
-				    cmdPlayer.append(struct{cmd:=cmd,description:=description});
-				elseif(_level_iter == 1)
-				    var description:="";
-				    cmdHelper.append(struct{cmd:=cmd,description:=description});
-                elseif(_level_iter == 2)
-                    var description:="";
-				    cmdCoun.append(struct{cmd:=cmd,description:=description});
-                elseif(_level_iter == 3)
-                    var description:="";
-				    cmdSeer.append(struct{cmd:=cmd,description:=description});
-                elseif(_level_iter == 4)
-                    var description:="";
-				    cmdGm.append(struct{cmd:=cmd,description:=description});
-                elseif(_level_iter == 5)
-                    var description:="";
-				    cmdAdmin.append(struct{cmd:=cmd,description:=description});
-                elseif(_level_iter == 6)
+            if(_level_iter == 0)
+                var description:="";
+				cmdPlayer.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 1)
+                var description:="";
+                cmdHelper.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 2)
+                var description:="";
+                cmdCoun.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 3)
+                var description:="";
+                cmdSeer.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 4)
+                var description:="";
+                cmdGm.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 5)
+                var description:="";
+                cmdAdmin.append(struct{cmd:=cmd,description:=description});
+            elseif(_level_iter == 6)
 
 
 /*    var description:="";
@@ -88,19 +83,17 @@ print(ss);
     endif*/
 //print(description);
 
-				    cmdTest.append(struct{cmd:=cmd,description:=description});
-                endif
-				SleepMS(2);
-			endforeach
-			SleepMS(2);
-		endforeach
-		SleepMS(2);
-        //break;
-	endforeach
-	
+                cmdTest.append(struct{cmd:=cmd,description:=description});
+            endif
+            SleepMS(2);
+        endforeach
+        SleepMS(2);
+    endforeach
+    SleepMS(2);
+endforeach
 
-WriteHtml( "<html><head><meta charset=\"utf-8\"><title>Commands</title></head>" +
-    "<body>");
+
+WriteHtml( "<html><head><meta charset=\"utf-8\"><title>Commands1</title></head><body>");
 
 List("Player",cmdPlayer);
 
@@ -112,18 +105,17 @@ List("Admin",cmdAdmin);
 List("Test",cmdTest);
 
 
-WriteHtml( "</BODY></HTML>" );
 
 
+WriteHtml( "sadsadasdasdasdasd<table border=2 cellspacing=0 cellpadding=5><tr>" );
 function List(title, listed)
-WriteHtml( "<h1 name=\"title\">"+title+"</h1>" +
+WriteHtml( "<td>" );
+    WriteHtml( "<h1 name=\"title\">ddddd"+title+"</h1>" +
     "<table border=1 cellspacing=0 cellpadding=5>" +
     "<tr bgcolor=#99CCFF><th>Описание</th><th>CMD</th></tr>");
 
     var i := 1;
     foreach issue_key in (listed)
-
-
         WriteHtml("<tr>" +
                 "<td>"+i+"</td>" +
                 "<td>."+issue_key.cmd+" "+issue_key.description+"</td>" +
@@ -133,8 +125,10 @@ WriteHtml( "<h1 name=\"title\">"+title+"</h1>" +
     endforeach
 
 WriteHtml( "</table>" );
-
+WriteHtml( "</td>" );
 endfunction
+WriteHtml( "</tr></table>dsadsadsa" );
+WriteHtml( "</body></html>" );
 
 
 function GetCfgValue(byref cfg_elem, value)

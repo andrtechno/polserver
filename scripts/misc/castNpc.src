@@ -29,15 +29,16 @@ function CastMenu(who, me)
     var heightGump := 340;
 	GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
 
-
+    var cost := 0;
     var castlist := {
-        struct{name:="Bless", gump:=2256, cost:=1000},
-        struct{name:="Strength", gump:=2255, cost:=1000},
-        struct{name:="Agility", gump:=2248, cost:=1000},
-        struct{name:="Protection", gump:=2254, cost:=1000},
-        struct{name:="Cunning", gump:=2249, cost:=1000},
-        struct{name:="Dispel", gump:=2280, cost:=1000, disabled:=0},
-        struct{name:="Cure", gump:=2250, cost:=1000, disabled:=0}
+        struct{name:="Bless", gump:=2256, cost:=cost},
+        struct{name:="Strength", gump:=2255, cost:=cost},
+        struct{name:="Agility", gump:=2248, cost:=cost},
+        struct{name:="Protection", gump:=2254, cost:=cost},
+        struct{name:="Cunning", gump:=2249, cost:=cost},
+        struct{name:="Dispel", gump:=2280, cost:=cost, disabled:=0},
+        struct{name:="Cure", gump:=2250, cost:=cost, disabled:=0},
+        struct{name:="GreaterHeal", gump:=2268, cost:=cost}
     };
     var index := 1;
     var disabled := 1;

@@ -5,6 +5,7 @@ use uo;
 use os;
 use polsys;
 use util;
+
 include "include/client";
 
 function RemoveAbility(who)
