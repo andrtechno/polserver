@@ -11,13 +11,15 @@ program poison_strike( params )
 	var info := params[2]; // Struct containing additional info about the spell.
 	//var spellID := params[3];
 
-	SendSysMessage(caster, "Select your victim:", 1, 88);
+	SendSysMessage(caster, "Select your victim:", 3, 88);
 	var cast_on := Target(caster);
-//NECROMANCY
-	var necroskill := Cint(AP_GetSkill(caster, MAGERY));
-	var sspeak := Cint(AP_GetSkill(caster, SPIRIT_SPEAK));
-	var int := AP_GetStat(caster, INTELLIGENCE);
 
+    //NECROMANCY
+	var necroskill := CInt(AP_GetSkill(caster, MAGERY));
+	var sspeak := CInt(AP_GetSkill(caster, SPIRIT_SPEAK));
+	var int := AP_GetStat(caster, INTELLIGENCE);
+    var classLevel := CInt(GetObjProperty(caster,"classlevel"));
+    var dist := classLevel+3;
 	var bonus := 0;
 
 	if(caster.ip)
@@ -32,18 +34,21 @@ program poison_strike( params )
 	PlayObjectCenteredEffectEx( cast_on, 0x36B0, 1, 14, 9915, 7, 0, 7 );
 	var poziom := (necroskill / 33) + 1;
 	var plevel := Resisted(6, caster, cast_on, poziom);
-	var persons := Listmobilesnearlocationex(cast_on.x , cast_on.y , cast_on.z, 2, LISTEX_FLAG_NORMAL + LISTEX_FLAG_HIDDEN );
-
+	var persons := ListMobilesNearLocationEx(cast_on.x , cast_on.y , cast_on.z, dist, LISTEX_FLAG_NORMAL + LISTEX_FLAG_HIDDEN );
+    if(caster.cmdlevel > 5)
+        SendSysMessage(caster, "Distance: "+dist, 3, 88);
+        SendSysMessage(caster, "plevel: "+plevel, 3, 88);
+        SendSysMessage(caster, "poziom: "+poziom, 3, 88);
+    endif
 	foreach person in persons
 		var last_damage := GetObjProperty( person, "LastDamage" );
 		if(last_damage.serial != caster.serial)
 			// Set LastDamage info.
 			last_damage.+serial	:= caster.serial;
 			last_damage.+name := caster.name;
-
 		endif
 
-		var dmg := (necroskill + sspeak + bonus)/10;
+		var dmg := (necroskill + sspeak + bonus) / 10;
 		ApplyRawDamage(person, Resisted(CInt(info.circle), caster, person, dmg / (Distance(person, cast_on) + 1)), DMG_POISON, caster);
 		last_damage.+time	:= POLCore().systime;
 		last_damage.+amount	:= dmg;
@@ -54,8 +59,9 @@ program poison_strike( params )
 		SetObjProperty(person, "LastDamage", last_damage);
 
 
-		var passparms := { person, caster, "poison spell", cint(plevel / (Distance(person, cast_on) + 1))};
-		start_script(":spells:poisonDamage", passparms);
+		var params := { person, caster, "poison spell", CInt(plevel / (Distance(person, cast_on) + 1))};
+		print(params);
+		start_script(":spells:poisonDamage", params);
 		sleepms(2);
 	endforeach
 

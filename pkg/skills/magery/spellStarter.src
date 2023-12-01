@@ -28,6 +28,8 @@ program SpellStarter(params)
 		SendSysMessage(mobile, "You are already doing something.", color := MESSAGE_COLOR_BAD);
 		return 0;
 	endif
+
+
     //if(TS_GetTimerInfo(mobile, "TargetControl"))
 	//	SendSysMessage(mobile, "You have already done something.111111", color := MESSAGE_COLOR_BAD);
 	//	return 0;
@@ -161,10 +163,11 @@ program SpellStarter(params)
 	SetObjProperty(mobile, "#Casting", GetPid());
 
 
-
 	//mobile.frozen := 1;
 	mobile.hidden := 0;
 	EraseObjProperty(mobile, "#Medding");
+	//EraseObjProperty(mobile, "#ISMEDITATING");
+
 	SpeakPowerWords(mobile, spell_id);
 	var delay := spell_elem.Delay;
 	var classLevel := CInt(GetObjProperty(mobile,"classlevel"));

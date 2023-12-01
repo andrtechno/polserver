@@ -8,7 +8,7 @@ program Undress (me, text)
 	if (me.dead)
 		return;
 	endif
-
+                    SendSysMessage(me, "Undress", 3, MESSAGE_COLOR_GOOD);
 	foreach thing in ListEquippedItems(me)
 		case (lower(text))
 			"jewelry":
@@ -20,6 +20,8 @@ program Undress (me, text)
 				if (RemoveIt(me,thing,jewl))
 					MoveItemToContainer(thing, me.backpack);
 				endif
+			"armor":
+				MoveLayer(me, thing, {LAYER_HELM, LAYER_GLOVES, LAYER_LEGS});
 
 			default:
 				var jewl := 1;
@@ -31,6 +33,21 @@ program Undress (me, text)
 	endforeach
 
 endprogram
+
+function MoveLayer(me, thing, layers)
+
+
+    foreach layer in layers
+    	var item := GetEquipmentByLayer( me, layer );
+    	    var it := SystemFindObjectBySerial(item.serial);
+    		//if (item.serial == thing.serial)
+                MoveItemToContainer(it, me.backpack);
+                    SendSysMessage(me, "MoveLayer", 3, MESSAGE_COLOR_GOOD);
+    		//endif
+
+        sleepms(1);
+    endforeach
+endfunction
 
 function RemoveIt(me, it, jewl)
 	var ring := GetEquipmentByLayer( me, LAYER_RING );

@@ -27,6 +27,6 @@ program summon_familiar( params )
 	SetObjProperty(wisp, "familiar", 1);
 	SetObjProperty(wisp, "shadowwisp", 1);
 	SetObjProperty(caster, "familiar", wisp.serial);
-	wisp.script:= "familiar";
-	RestartScript(wisp);
+	//wisp.script:= "familiar";
+	//RestartScript(wisp);
 endprogram

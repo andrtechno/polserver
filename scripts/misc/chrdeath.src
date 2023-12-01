@@ -39,6 +39,9 @@ program chrdeath(corpse, ghost)
 	endforeach
 
 
+
+
+
 	if(last_damage != error)
 		AdjustNoto((SystemFindObjectBySerial(killer, SYSFIND_SEARCH_OFFLINE_MOBILES)), ghost);
 	endif
@@ -65,7 +68,20 @@ program chrdeath(corpse, ghost)
 
     var killerMobile := SystemFindObjectBySerial(killer);
 
+
+
+
+
     if( ghost.Guildid != killerMobile.Guildid )
+
+        //PVP count
+        var classLevelGhost := CInt(GetObjProperty(ghost, "classlevel"));
+        if(classLevelGhost > 0)
+            SetObjProperty(killerMobile, "PvPCount", CInt(GetObjProperty(killerMobile, "PvPCount")) + 1);
+            SetGlobalProperty("PvPCount", CInt(GetGlobalProperty("PvPCount")) + 1);
+            SendSysMessageUC(killerMobile, "Вы получили PvP point: 1", "RUS", 3, 33);
+        endif
+
         var myGuild := FindGuild( ghost.Guildid );
         var killerGuild := FindGuild( killerMobile.Guildid );
 

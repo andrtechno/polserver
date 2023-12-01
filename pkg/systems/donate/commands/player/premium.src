@@ -1,7 +1,7 @@
 use os;
-//use uo;
 use unicode;
 use polsys;
+
 
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
@@ -54,34 +54,29 @@ program textcmd_premium(who)
 
     var textlvl := "Уровень";
     var textlvlcolor := 2100;
-if(who.IsPremium() == _prem_iter)
+    if(who.IsPremium() == _prem_iter)
 
-    textlvl := "Активирован до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
-    textlvlcolor := 67;
+        textlvl := "Активирован до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+        textlvlcolor := 67;
 
-   // GFTextLine(gump, widthGump - 190, y_pos, textlvlcolor, "до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
+       // GFTextLine(gump, widthGump - 190, y_pos, textlvlcolor, "до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
 
-else
-
-
-    //var checked := (_prem_iter == 2) ? 1 : 0;
-    GFRadioButton( gump, 15, y_pos + 5, 210, 211, 0, CInt(300 + _prem_iter) );
+    else
 
 
+        //var checked := (_prem_iter == 2) ? 1 : 0;
+        GFRadioButton( gump, 15, y_pos + 5, 210, 211, 0, CInt(300 + _prem_iter) );
 
-    GFTilePic(gump, widthGump - 150, y_pos, 0x0A21);
-    GFTextLine(gump, widthGump - 130, y_pos - 2, 2100, elem.Cost+" dc./1 мес.");
-    //GFAddButton(gump, widthGump - 80, y_pos + rightY + 70, 5544, 5543, GF_CLOSE_BTN, CInt(100 + _prem_iter));
+        GFTilePic(gump, widthGump - 150, y_pos, 0x0A21);
+        GFTextLine(gump, widthGump - 130, y_pos - 2, 2100, elem.Cost+" dc./1 мес.");
+        //GFAddButton(gump, widthGump - 80, y_pos + rightY + 70, 5544, 5543, GF_CLOSE_BTN, CInt(100 + _prem_iter));
 
-endif
+    endif
         GFTextLine(gump, 15+30+30, y_pos +3, textlvlcolor, textlvl);
-
-
 
         y_pos := y_pos+170;
         counter += 1;
     endforeach
-
 
 
 
@@ -128,13 +123,16 @@ endif
     return 1;
 endprogram
 
-function SetPremium(who, prem, month)
-    var elem := FindConfigElem( cfg, prem );
+function SetPremium(who, premLevel, month)
+    var elem := FindConfigElem( cfg, premLevel );
     var cost := GetConfigInt( elem, "Cost" ) * CInt(month);
+    var expire := polcore().systime + (86400 * 30);
 
-    if(YesNo( who,"Купить премиум аккаунт "+prem+" ур. на "+month+" месяца?" ))
+    var text := "До: "+FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+
+    if(YesNo( who,"Купить премиум аккаунт "+premLevel+" ур. на "+month+" месяца?\n"+text ))
         if(SpendCoin(who, cost, who.backpack, 0x0A21) || SpendCoin(who, cost, FindBankBox(who), 0x0A21))
-            who.SetPremium( prem, month );
+            who.SetPremium( premLevel, 30 );
             SendSysMessage(who, "-"+cost+" Donate coin.", 3, 67);
             return 1;
         else

@@ -127,20 +127,22 @@ exported function IsPremium( mobile )
 	return 0;
 endfunction
 
-exported function SetPremium( mobile, level, month )
-    if(level && month)
+exported function SetPremium( mobile, level, days )
+    if(level && days)
         var acc := mobile.acct;
         acc.SetProp("Premium", level);
-        var expire := polcore().systime + (86400 * month * 30);
-        //var expire := polcore().systime + (month * 120); //for test
+        var expire := polcore().systime + (86400 * days);
 
+        print("days "+days);
+        print("expire 1 "+FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
+
+        acc.SetProp("PremiumExpire", expire);
 
         if(CInt(acc.GetProp("PremiumExpire")))
             expire := CInt(acc.GetProp("PremiumExpire")) - polcore().systime + expire;
         endif
-        acc.SetProp("PremiumExpire", expire);
 
-
+        print("expire 2 "+FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
         var date := FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
         SendSysMessageUC(mobile, "Вы активировали \"Премиум аккаует\" "+level+" ур. до "+date+".", "RUS", 3, 67);
         return 1;
@@ -151,12 +153,12 @@ endfunction
 exported function ErasePremium( mobile )
 
     var expire := CInt(mobile.acct.GetProp("PremiumExpire"));
-    if(expire < polcore().systime)
+    //if(expire < polcore().systime)
         mobile.acct.EraseProp("Premium");
         mobile.acct.EraseProp("PremiumExpire");
         SendSysMessageUC(mobile, "У вас закончился \"Премиум аккаует\".", "RUS", 3, 33);
         return 1;
-    endif
+    //endif
     return 0;
 endfunction
 
@@ -188,17 +190,17 @@ exported function QuestAction( mobile, action )
     var quest_action := GetObjProperty(mobile, "QuestAction");
 endfunction
 
-exported function AddPvMPoint( mobile, point )
-    var pvmPoint := CInt(GetObjProperty(mobile,"PvMPoint"));
-    SendSysMessage(mobile, "You have received PVM points", 3, MESSAGE_COLOR_GOOD);
-    SetObjProperty(mobile,"PvMPoint", pvmPoint + point);
+exported function AddPvEPoint( mobile, point )
+    var pvePoint := CInt(GetObjProperty(mobile,"PvEPoint"));
+    SendSysMessage(mobile, "You have received PvE "+point+" points", 3, MESSAGE_COLOR_GOOD);
+    SetObjProperty(mobile, "PvEPoint", pvePoint + point);
     return 1;
 endfunction
 
-exported function RemovePvMPoint( mobile, point )
-    var pvmPoint := CInt(GetObjProperty(mobile,"PvMPoint"));
-    SendSysMessage(mobile, "You have remove PVM points", 3, MESSAGE_COLOR_GOOD);
-    SetObjProperty(mobile,"PvMPoint", pvmPoint - point);
+exported function RemovePvEPoint( mobile, point )
+    var pvePoint := CInt(GetObjProperty(mobile,"PvEPoint"));
+    SendSysMessage(mobile, "You have remove PvE "+point+" points", 3, MESSAGE_COLOR_GOOD);
+    SetObjProperty(mobile, "PvEPoint", pvePoint - point);
     return 1;
 endfunction
 

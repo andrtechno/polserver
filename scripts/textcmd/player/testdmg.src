@@ -13,21 +13,24 @@ program textcmd_testdmg(attacker)
 	endif
 
 
-    var rawdamage := 6;
+    var rawdamage := 4;
     var basedamage := 4; //RandomDiceRoll(1d3);
+    SendSysMessage(attacker, "rawdamage: "+rawdamage, color := 88);
+
 
     var str := CInt(AP_GetStat(attacker, STRENGTH)) / 10;
     var level := CInt(GetObjProperty(attacker, "classlevel"));
 
 	var ar := CInt(defender.ar); //armor protivnika
 
-    SendSysMessage(attacker, "defender ar: "+ar, color := 88);
+
 
 
     var anatomy := CInt(AP_GetSkill(attacker, ANATOMY) / 20);
     rawdamage := CInt(rawdamage + anatomy);
 
-
+    rawdamage := rawdamage + RandomInt(CInt(AP_GetSkill(attacker, WRESTLING) / 20));
+    SendSysMessage(attacker, "+ wrestling: "+rawdamage, color := 88);
 
     var percent := CInt(level * 2);
     SendSysMessage(attacker, "Add %: "+percent, color := 88);
@@ -37,11 +40,14 @@ program textcmd_testdmg(attacker)
     SendSysMessage(attacker, "Add % n_percent: "+CStr(number_percent), color := 88);
 
     rawdamage := rawdamage + number_percent;
+
     SendSysMessage(attacker, "Add % result: "+rawdamage, color := 88);
+    SendSysMessage(attacker, "defender ar: "+ar, color := 88);
 
+    SendSysMessage(attacker, "Add before armor : "+rawdamage, color := 88);
     //rawdamage := rawdamage * level;
-    //rawdamage := rawdamage - RandomIntMinMax(ar/2,ar);
-
+    //rawdamage := rawdamage - ar / 10;
+    //SendSysMessage(attacker, "Add after armor : "+rawdamage, color := 88);
 
     SendSysMessage(attacker, "finish dmg: "+rawdamage, color := 88);
 endprogram

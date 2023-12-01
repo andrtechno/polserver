@@ -4,6 +4,7 @@ use util;
 use math;
 use cfgfile;
 use file;
+use unicode;
 
 include "include/eventID";
 include "include/utility";
@@ -17,7 +18,14 @@ include ":equipment:equipment";
 program onlogon(who)
 	TrackIP(who);
 	RestoreMods(who);
+    var prem := who.IsPremium();
 
+    if(prem)
+        var premium := CInt(who.acct.GetProp("Premium"));
+        var expire := CInt(who.acct.GetProp("PremiumExpire"));
+        SendSysMessageUC(who, "Премиум: " + premium, "RUS", 3, color := MESSAGE_COLOR_GOOD);
+        SendSysMessageUC(who, "Премиум: " + expire, "RUS", 3, color := MESSAGE_COLOR_GOOD);
+    endif
 	EraseObjProperty(who, "IsMeditating");
 	EraseObjProperty(who, "mover"); //Resend detected
 	SetObjProperty(who,"LoggedIn", 1);

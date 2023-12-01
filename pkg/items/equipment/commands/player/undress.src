@@ -1,8 +1,3 @@
-/*
-        Maintained by The POL Distro Team
-
-        2018-07-25
-*/
 use uo;
 use os;
 use basic;
@@ -35,18 +30,37 @@ program txtcommand_undress( mobile, text )
 				if( RemoveJewl( mobile, item ))
 					MoveItemToContainer( item, mobile.backpack );
 				endif
+
+			"armor":
+				MoveLayer(mobile, item, {LAYER_HELM, LAYER_GLOVES, LAYER_LEGS, LAYER_ARMS, LAYER_CHEST, LAYER_SHOES});
+
 			"nojewelry":
 				var jewl := 0;
 				if( RemoveIt( mobile, item, jewl ))
 					MoveItemToContainer( item, mobile.backpack );
 				endif
 		endcase
-  
-                SleepMS(5);
+
+        SleepMS(5);
 	endforeach
 
-        return 1;
+    return 1;
 endprogram
+
+function MoveLayer(me, thing, layers)
+
+    foreach layer in layers
+    	var item := GetEquipmentByLayer( me, layer );
+        //var it := SystemFindObjectBySerial(item.serial);
+        if (item.serial == thing.serial)
+        MoveItemToContainer(item, me.backpack);
+        SendSysMessage(me, "MoveLayer", 3, MESSAGE_COLOR_GOOD);
+        endif
+
+        sleepms(1);
+    endforeach
+
+endfunction
 
 function RemoveIt( mobile, item, jewl )
 
@@ -126,7 +140,7 @@ function RemoveJewl( mobile, item )
 			return 1;
 		endif
 	endif
- 
+
         return 1;
 endfunction
 

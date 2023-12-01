@@ -3,6 +3,7 @@ use uo;
 use os;
 use util;
 use cfgfile;
+use unicode;
 
 include "include/client";
 include ":attributes:attributes";
@@ -37,6 +38,8 @@ program npcdeath(corpse)
     var last_damage := GetObjProperty(corpse, "LastDamage");
     var killer := last_damage.serial;
     var killerMobile := SystemFindObjectBySerial(killer);
+
+
     /*if (killer != error)
         i := SystemFindObjectBySerial(killer);
 
@@ -80,10 +83,17 @@ program npcdeath(corpse)
     endif
     set_critical(1);
 
-    var pvppoint := CInt(npcdesc_cfg[elem]."PvMPointChance");
-    if(pvppoint)
-        if(pvppoint >= RandomInt(99)+1)
-            killerMobile.AddPvMPoint(1);
+    var pvePointChance := CInt(npcdesc_cfg[elem]."PvEPointChance");
+    if(pvePointChance)
+        if(pvePointChance >= RandomInt(99)+1)
+            var pvePoint := CInt(npcdesc_cfg[elem].PvEPoint);
+            if(pvePoint)
+                killerMobile.AddPvEPoint(pvePoint);
+                var globalPvePoint := CInt(GetGlobalProperty("PvEPoints"));
+                SetGlobalProperty("PvEPoints",globalPvePoint + 1);
+            else
+                killerMobile.AddPvEPoint(1);
+            endif
         endif
     endif
 

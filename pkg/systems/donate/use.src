@@ -3,10 +3,10 @@ use unicode;
 
 program use_premium(who, item)
 
-
     var prem := who.IsPremium();
 
     var level := 0;
+    var days := 30;
     case(item.objtype)
         0x21210: level := 1;
         0x21211: level := 2;
@@ -21,7 +21,7 @@ program use_premium(who, item)
     endif
 
     if(level)
-        who.SetPremium(level, 1);
+        who.SetPremium(level, days);
         if(!SubtractAmount(item, 1))
             DestroyItem(item);
         endif

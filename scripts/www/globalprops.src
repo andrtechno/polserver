@@ -1,0 +1,37 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+
+WriteHtml( "<html><head><title>POL Guilds</title></head>" +
+    "<body>");
+
+
+
+
+    WriteHtml( "<table border=1 cellspacing=0 cellpadding=5><tr bgcolor=#99CCFF><td>param</td><td>value</td></tr>");
+
+
+
+
+    var info := struct;
+    foreach prop in ( GetGlobalPropertyNames( ) )
+
+        WriteHtml("<tr>" +
+                "<td>"+prop+"</td>" +
+                "<td>"+GetGlobalProperty(prop)+"</td>" +
+        "</tr>");
+
+
+    endforeach
+
+
+    WriteHtml( "</table>" );
+
+
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+

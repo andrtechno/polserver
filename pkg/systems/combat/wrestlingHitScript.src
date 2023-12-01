@@ -64,7 +64,6 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 	var x;
 	var anatomy;
 
-
     ability := CInt(GetObjProperty(attacker, "Ability"));
     var ab := AbilityChecks(attacker, defender, CInt(rawdamage));
     if(ab.damage)
@@ -77,6 +76,7 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
     SendSysMessage(attacker, "Start ar: "+defender.ar);
 	var ar := CInt(defender.ar) / 2;
     SendSysMessage(attacker, "End ar: "+ar);
+    var wrestling := CInt(AP_GetSkill(attacker, WRESTLING));
 	if (!weaponhit)
 		if (!armorhit)
 
@@ -89,25 +89,15 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
 			rawdamage := CInt(rawdamage + anatomy);
 
 			// This next line appears to increase that damage too high.
-			//rawdamage := rawdamage + RandomInt( CInt((AP_GetSkill(attacker, ANATOMY) ) / 20));
+			rawdamage := rawdamage + RandomInt( wrestling / 20);
 
             SkillCheck(attacker, attacker.weapon.attribute, -1, "", 0x1);
             SkillCheck(attacker, TACTICS, -1, "", 0x1);
 
 
-
-            //rawdamage := rawdamage + RandomIntMinMax(level, level+str);
-            rawdamage := rawdamage * level;
-            //SendSysMessage(attacker, "str + lvl "+rawdamage);
-
-
-
-            var number := 100;
-            var percent := 30;
-            var number_percent := number / 100 * percent;
-            SendSysMessage(attacker, "number: "+CStr(number + number_percent));
-
-			rawdamage := rawdamage - RandomIntMinMax(ar/2,ar);
+            var percent := CInt(level * 2);
+            var number_percent := rawdamage / 100 * percent;
+            rawdamage := rawdamage + number_percent;
 
 
             SendSysMessage(attacker, "finish dmg: "+rawdamage);
@@ -135,7 +125,7 @@ program WrestlingHitScript(attacker, defender, weapon, armor, basedamage, rawdam
             SkillCheck(attacker, attacker.weapon.attribute, -1, "", 0x1);
             SkillCheck(attacker, TACTICS, -1, "", 0x1);
 
-        print("sssssssss22222222222ssssssss");
+            print("sssssssss22222222222ssssssss");
 			ApplyRawDamageEX(defender, rawdamage, DMG_PHYSICAL, attacker);
 
 			//SetObjProperty(defender, "LastHit", {attacker.name, attacker.serial, weapon });
