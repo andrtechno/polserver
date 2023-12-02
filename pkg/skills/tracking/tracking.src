@@ -14,10 +14,12 @@ program track(who)
 
     //  if(SkillCheck( who, TRACKING, -1, (AP_GetSkill(who, TRACKING) + 30) ) > 0)
     if(SkillCheck( who, TRACKING, -1, (AP_GetSkill(who, TRACKING)) ) > 0)
+
         var tracker := ReadGameClock();
         SetObjProperty(who, "TrackingCounter", tracker);
         var range := CInt((AP_GetSkill(who, TRACKING)/3));
-        var nearby := ListMobilesNearLocation(who.x,who.y, who.z, range, who.realm);
+                    SendSysMessage(who, "range: "+range);
+        var nearby := ListMobilesNearLocation(who.x,who.y, LIST_IGNORE_Z, range, who.realm);
         if(len(nearby) == 1)
             SendSysMessage(who, "There don't seem to be any creatures nearby");
             return;
@@ -42,7 +44,6 @@ program track(who)
             endif
             return 1;
         endif
-
 
 
         var track_list := CreateMenu("Select a category.");
@@ -104,20 +105,36 @@ program track(who)
             endif
             var critter := critter_ids[thetarget.index];
             SetObjProperty( who, "#trackingtimeout", ReadGameClock()+40 );
-
+                    SendSysMessage(who, "test" + Abs(-40));
             //Detach();
             var timer := 0;
-            TS_StartTimer(who, "QuestArrow", 10, critter.serial, critter);
-            /*while((Distance(who, critter) <= range) && (critter.dead == 0) && (timer <= 12)&& (tracker == GetObjProperty(who,"TrackingCounter")))
+
+            //TS_StartTimer(who, "QuestArrow", 10, critter.serial, critter);
+            while((Distance(who, critter) <= range) && (critter.dead == 0) && (timer <= 12)&& (tracker == GetObjProperty(who,"TrackingCounter")))
                 timer := timer + 1;
+
+                var x := critter.x;
+                var y := critter.y;
+                var z := critter.z;
+                if(z < 0)
+                    x += (z / 10);
+                    y += (z / 10);
+                elseif(z > 0)
+                    x -= (z / 10);
+                    y -= (z / 10);
+                endif
+                SendQuestArrow(who, x, y, "tracking");
+
                 var dir := Get_direction(who, critter);
                 if(dir == "nearby")
                     SendSysMessage(who, critter.name + " is " + dir);
                 else
                     SendSysMessage(who, critter.name + " is to the " + dir);
                 endif
-                sleep(5);
-            endwhile*/
+                sleepms(1000);
+
+            endwhile
+            SendQuestArrow(who, -1, -1, "tracking");
             SendSysMessage(who, "You have lost your quarry.");
             EraseObjProperty(who, "#trackingtimeout");
         endif
