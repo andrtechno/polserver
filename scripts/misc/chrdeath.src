@@ -69,8 +69,8 @@ program chrdeath(corpse, ghost)
     var killerMobile := SystemFindObjectBySerial(killer);
 
 
-
-
+    //tracking props
+    EraseObjProperty(killerMobile, "LastMyAttackOpponent");
 
     if( ghost.Guildid != killerMobile.Guildid )
 

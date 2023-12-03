@@ -70,8 +70,8 @@ program do_itemid( who )
 
                 itsname := the_item.desc;
                 if(itsname[1] == " ")
-                    if(Cint(itsname[2]) == 0)
-                        case(Cstr(itsname[2]))
+                    if(CInt(itsname[2]) == 0)
+                        case(CStr(itsname[2]))
                             "a": msg := msg + " an";
                             "e": msg := msg + " an";
                             "i": msg := msg + " an";
@@ -118,7 +118,7 @@ program do_itemid( who )
         if(GetObjProperty( the_item , "UnIDedMagicalItem" ))
             SendSysMessage( who, msg +" "+the_item.name);
         else
-            SendSysmessage( who, "This is a normal item." );
+            SendSysMessage( who, "This is a normal item." );
         endif
     endif
 endprogram

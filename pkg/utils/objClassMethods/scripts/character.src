@@ -133,16 +133,12 @@ exported function SetPremium( mobile, level, days )
         acc.SetProp("Premium", level);
         var expire := polcore().systime + (86400 * days);
 
-        print("days "+days);
-        print("expire 1 "+FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
-
         acc.SetProp("PremiumExpire", expire);
 
         if(CInt(acc.GetProp("PremiumExpire")))
             expire := CInt(acc.GetProp("PremiumExpire")) - polcore().systime + expire;
         endif
 
-        print("expire 2 "+FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
         var date := FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
         SendSysMessageUC(mobile, "Вы активировали \"Премиум аккаует\" "+level+" ур. до "+date+".", "RUS", 3, 67);
         return 1;
@@ -153,12 +149,12 @@ endfunction
 exported function ErasePremium( mobile )
 
     var expire := CInt(mobile.acct.GetProp("PremiumExpire"));
-    //if(expire < polcore().systime)
+    if(expire < polcore().systime)
         mobile.acct.EraseProp("Premium");
         mobile.acct.EraseProp("PremiumExpire");
         SendSysMessageUC(mobile, "У вас закончился \"Премиум аккаует\".", "RUS", 3, 33);
         return 1;
-    //endif
+    endif
     return 0;
 endfunction
 

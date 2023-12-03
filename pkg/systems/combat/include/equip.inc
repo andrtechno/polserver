@@ -46,6 +46,7 @@ function HandleMods(who, item)
             return 0;
         endif
     endif
+
     var who_classid := CInt(GetObjProperty(who,"classid"));
     if(classid && !who.isA(POLCLASS_NPC))
         if(IsRangerArmor (item))
@@ -91,6 +92,7 @@ function HandleMods(who, item)
     if(!who.ip)
         return 1;
     endif
+
     case(type)
         "accuracy":     val := accuracy(who,item);
         "cursed":       val := cursed(who,item);
@@ -106,35 +108,34 @@ function HandleMods(who, item)
     if(item.resist_physical)
         ModifyResistance(who, RES_PHYSICAL_MOD, item.resist_physical);
     endif
-  // if(item.resist_fire)
-    // ModifyResistance(who, RES_FIRE_MOD, item.resist_fire);
-  // endif
-  // if(item.resist_cold)
-    // ModifyResistance(who, RES_COLD_MOD, item.resist_cold);
-  // endif
-  // if(item.resist_poison)
-    // ModifyResistance(who, RES_POISON_MOD, item.resist_poison);
-  // endif
-  // if(item.resist_energy)
-    // ModifyResistance(who, RES_ENERGY_MOD, item.resist_energy);
-  // endif
+    if(item.resist_fire)
+        ModifyResistance(who, RES_FIRE_MOD, item.resist_fire);
+    endif
+    if(item.resist_cold)
+        ModifyResistance(who, RES_COLD_MOD, item.resist_cold);
+    endif
+    if(item.resist_poison)
+        ModifyResistance(who, RES_POISON_MOD, item.resist_poison);
+    endif
+    if(item.resist_energy)
+        ModifyResistance(who, RES_ENERGY_MOD, item.resist_energy);
+    endif
 
-  // if(item.damage_physical)
-    // ModifyDamage(who, DMG_PHYSICAL_MOD, item.damage_physical);
-    // SendSysMessage(who, CStr(item.damage_physical));
-  // endif
-  // if(item.damage_fire)
-    // ModifyDamage(who, DMG_FIRE_MOD, item.damage_fire);
-  // endif
-  // if(item.damage_cold)
-    // ModifyDamage(who, DMG_COLD_MOD, item.damage_cold);
-  // endif
-  // if(item.damage_poison)
-    // ModifyDamage(who, DMG_POISON_MOD, item.damage_poison);
-  // endif
-  // if(item.damage_energy)
-    // ModifyDamage(who, DMG_ENERGY_MOD, item.damage_energy);
-  // endif
+    if(item.damage_physical)
+        ModifyDamage(who, DMG_PHYSICAL_MOD, item.damage_physical);
+    endif
+    if(item.damage_fire)
+        ModifyDamage(who, DMG_FIRE_MOD, item.damage_fire);
+    endif
+    if(item.damage_cold)
+        ModifyDamage(who, DMG_COLD_MOD, item.damage_cold);
+    endif
+    if(item.damage_poison)
+        ModifyDamage(who, DMG_POISON_MOD, item.damage_poison);
+    endif
+    if(item.damage_energy)
+        ModifyDamage(who, DMG_ENERGY_MOD, item.damage_energy);
+    endif
 
     SetObjProperty( item, "EquippedAlready", 1 );
 

@@ -10,6 +10,8 @@ program TimedScript_EndTrackingArrow(params)
 	EraseObjProperty(mobile, "TrackingArrow");
 
     SendQuestArrow(mobile, -1, -1, track);
+    SendSysMessage(mobile, "You have lost your quarry.");
+    EraseObjProperty(mobile, "#trackingtimeout");
 	return 1;
 endprogram
 

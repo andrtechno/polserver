@@ -3,24 +3,37 @@ use unicode;
 
 include "include/client";
 
-program textcmd_freeze( who )
-    SendSysMessage( who, "Who do you wish to freeze?" );
-    var targ := Target( who, 0 );
+program textcmd_freeze( who, range )
 
-    if (targ.isA(POLCLASS_MOBILE))
-        if(targ.frozen)
-            targ.SetFrozen(0);
-            //PrintTextAbovePrivate( targ, res.name + " is now frozen", who );
-            PrintTextAbovePrivateUC(targ, "Размаморожен!", "RUS", who, 3, color := MESSAGE_COLOR_GOOD);
-        else
-            targ.SetFrozen(1);
-            //PrintTextAbovePrivate( targ, targ.name + " is now frozen", who );
-            PrintTextAbovePrivateUC(targ, "Заморожен!", "RUS", who, 3, color := MESSAGE_COLOR_BAD);
-        endif
+    var radius := CInt(range);
+
+    if(radius > 0)
+        print(radius);
+        var mobilesList := ListMobilesNearLocation( who.x, who.y, LIST_IGNORE_Z, ((radius > 20) ? 20 : radius), who.realm);
+        foreach mobile in mobilesList
+            if(!mobile.cmdlevel)
+                freeze(who, mobile);
+            endif
+        endforeach
     else
+        SendSysMessage(who, "Who do you wish to freeze?");
+        var targ := Target(who, 0);
 
-        if((who.cmdlevel > 3) && who.frozen)
-            who.SetFrozen(0);
+        if (targ.isA(POLCLASS_MOBILE))
+            if(!targ.frozen)
+                freeze(who, targ);
+            endif;
+        else
+            if((who.cmdlevel > 3) && who.frozen)
+                who.SetFrozen(0);
+            endif
         endif
-    endif
+    endif;
+
 endprogram
+
+function freeze(who, mobile)
+    PrintTextAbovePrivateUC(mobile, "Заморожен!", "RUS", who, 3, color := MESSAGE_COLOR_BAD);
+    mobile.SetFrozen(1);
+endfunction
+

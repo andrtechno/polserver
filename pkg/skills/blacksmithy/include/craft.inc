@@ -35,6 +35,7 @@ function makeItem(metal, weapon, backpack)
     theitem.quality := 0.20 * quality_mod;
     theitem.hp          := theitem.maxhp;
     theitem.ar_mod      := (ar_mod * 2);
+
     if(!theitem)
         //theitem.hit_chance := 5;
         //theitem.hit_chance_mod := 10;
@@ -46,6 +47,7 @@ function makeItem(metal, weapon, backpack)
 
     tname := "an exceptional " + nme;
     SetObjProperty(theitem, "craftername", craftername);
+    SetObjProperty(theitem, "type", "armor_"+nme);
     SetName(theitem, tname);
 
 endfunction

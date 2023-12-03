@@ -18,17 +18,18 @@ program skill_stealth( who )
     EraseObjProperty(who, "IsMeditating");
     EraseObjProperty(who, "HealTimer");
     if(GetAttribute(who, HIDING) < 80)
-        PrintTextAbovePrivateCL(who, who, 502726, color := 33); // You are not hidden well enough.  Become better at hiding.
+        who.hidden := 0;
+        PrintTextAbovePrivateCL(who, who, 502726, color := MESSAGE_COLOR_BAD); // You are not hidden well enough.  Become better at hiding.
         return;
     endif
     if(!who.hidden)
-        PrintTextAbovePrivateCL(who, who, 502725, color := 33); // You must hide first (вы должны быть под свойством hidden.)
+        PrintTextAbovePrivateCL(who, who, 502725, color := MESSAGE_COLOR_BAD); // You must hide first (вы должны быть под свойством hidden.)
         return;
     endif
     var mount := GetEquipmentByLayer(who, LAYER_MOUNT );
     if(mount)
         //who.hidden := 0;
-        //PrintTextAbovePrivateCL(who, who, 1061089, color := 33); // You must dismount first.
+        //PrintTextAbovePrivateCL(who, who, 1061089, color := MESSAGE_COLOR_BAD); // You must dismount first.
         //return;
 
         var animal := SystemFindObjectBySerial(CInt(GetObjProperty(mount, "serial")));
@@ -60,9 +61,9 @@ program skill_stealth( who )
 
         who.stealthsteps := skill;
         //PrintTextAbovePrivateCL(who, who, 502730, color := 66); // You begin to move quietly.
-        PrintTextAbovePrivate( who, "You are now moving "+who.stealthsteps+" steps", who );
+        PrintTextAbovePrivate( who, "You are now moving "+who.stealthsteps+" steps", who, color:=MESSAGE_COLOR_GOOD);
     else
         who.hidden := 0;
-        PrintTextAbovePrivateCL(who, who, 500814, color := 33); // You have been revealed!
+        PrintTextAbovePrivateCL(who, who, 500814, color := MESSAGE_COLOR_BAD); // You have been revealed!
   endif
 endprogram

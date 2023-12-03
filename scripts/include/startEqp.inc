@@ -1392,70 +1392,76 @@ endfunction
 
 
 function ApplyMagic(who, item, magicadjustment, canbemagic)
-//print("magicadjustment "+magicadjustment);
+    //print("magicadjustment "+magicadjustment);
     var enchant := (RandomInt(75)+26) * CInt(magicadjustment/2 + 1);
     if (magicadjustment == 5)
         enchant := enchant + 51;
     endif
-//print("enchant "+enchant);
-                    case (canbemagic)
-                        WEAPON:
-                            if(enchant < 75)
-                                ApplyHPMod( item );
-                            elseif(enchant < 150)
-                                ApplyWeapSkillMod( item );
-                            elseif(enchant < 350)
-                                ApplyDmgMod( item );
-                            else
-                                //ApplyWeapHitscript( who, item );
-                            endif
-                            AddName( item );
-                            break;
-                        ARMOR:
-                            if(enchant < 75)
-                                ApplyHPMod( item );
-                            elseif(enchant < 150)
-                                ApplyArSkillMod( item );
-                            elseif(enchant < 350)
-                                ApplyARMod( item );
-                            else
-                                //ApplyOnHitScript( who, item );
-                            endif
-                            AddName( item );
-                            break;
-                        SHIELD:
-                            if(enchant < 100)
-                                ApplyHPMod( item );
-                            elseif(enchant < 200)
-                                ApplyArSkillMod( item );
-                            else
-                                ApplyARMod( item );
-                            endif
-                            AddName( item );
-                            break;
-                        CLOTHING:
-                            if(enchant < 250)
-                                ApplyMiscSkillMod( item );
-                            else
-                                ApplyMiscArMod( item );
-                            endif
-                            AddName( item );
-                            AddRandomColor( item );
-                            break;
-                        MISC:
-                            if(enchant < 250)
-                                ApplyMiscSkillMod( item );
-                            elseif(enchant < 300 )
-                                ApplyEnchant( who, item );
-                            else
-                                ApplyMiscArMod( item );
-                            endif
-                            AddName( item );
-                            break;
-                        PROF:
-                            ApplyMiscSkillMod( item );
-                            AddName( item );
-                            break;
-                        default:
-                    endcase
+    //print("enchant "+enchant);
+
+    case (canbemagic)
+        WEAPON:
+            if(enchant < 75)
+                ApplyHPMod( item );
+            elseif(enchant < 150)
+                ApplyWeapSkillMod( item );
+            elseif(enchant < 350)
+                ApplyDmgMod( item );
+            else
+                //ApplyWeapHitscript( who, item );
+            endif
+            AddName( item );
+            break;
+
+        ARMOR:
+            if(enchant < 75)
+                ApplyHPMod( item );
+            elseif(enchant < 150)
+                ApplyArSkillMod( item );
+            elseif(enchant < 350)
+                ApplyARMod( item );
+            else
+                //ApplyOnHitScript( who, item );
+            endif
+            AddName( item );
+            break;
+
+        SHIELD:
+            if(enchant < 100)
+                ApplyHPMod( item );
+            elseif(enchant < 200)
+                ApplyArSkillMod( item );
+            else
+                ApplyARMod( item );
+            endif
+            AddName( item );
+            break;
+
+        CLOTHING:
+            if(enchant < 250)
+                ApplyMiscSkillMod( item );
+            else
+                ApplyMiscArMod( item );
+            endif
+            AddName( item );
+            AddRandomColor( item );
+            break;
+
+        MISC:
+            if(enchant < 250)
+                ApplyMiscSkillMod( item );
+            elseif(enchant < 300 )
+                ApplyEnchant( who, item );
+            else
+                ApplyMiscArMod( item );
+            endif
+            AddName( item );
+            break;
+
+        PROF:
+            ApplyMiscSkillMod( item );
+            AddName( item );
+            break;
+        default:
+    endcase
 endfunction

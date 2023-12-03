@@ -5,13 +5,14 @@ include ":damage:damage";
 
 program textcmd_testdmg(attacker)
 
+    var classlevel := CInt(GetObjProperty(attacker,"classlevel"));
+
 	SendSysMessage(attacker, "defender?", color := 88);
 	var defender := Target(attacker, TGTOPT_NOCHECK_LOS);
 	if (!defender)
 		SendSysMessage(attacker, "Canceled.", color := 33);
 		return;
 	endif
-
 
     var rawdamage := 4;
     var basedamage := 4; //RandomDiceRoll(1d3);

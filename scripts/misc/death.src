@@ -39,6 +39,8 @@ program npcdeath(corpse)
     var killer := last_damage.serial;
     var killerMobile := SystemFindObjectBySerial(killer);
 
+    //tracking props
+    EraseObjProperty(killerMobile, "LastMyAttackOpponent");
 
     /*if (killer != error)
         i := SystemFindObjectBySerial(killer);

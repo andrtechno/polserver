@@ -21,7 +21,7 @@ program harvest (who, plant)
 		return;
 	endif
 
-        if (Distance(who, plant) > 3)
+    if (Distance(who, plant) > 3)
 		SendSysMessage(who, "That is too far away!", color :=33);
 		return;
 	endif
@@ -82,28 +82,28 @@ program harvest (who, plant)
         if(pts > 35)
             pts := 35;
         endif
-				if(SkillCheck( who,LUMBERJACKING, -1, pts/3 ) > 0)
-                    if (RandomInt(100) == 0)
-                            SendSysMessage(who, "You have found some fertile dirt!", color :=66);
-                            CreateItemInContainer(craftingbag, UOBJ_FERTILE_DIRT, 1);
-                    endif
+        if(SkillCheck( who,LUMBERJACKING, -1, pts/3 ) > 0)
+            if (RandomInt(100) == 0)
+                SendSysMessage(who, "You have found some fertile dirt!", color :=66);
+                CreateItemInContainer(craftingbag, UOBJ_FERTILE_DIRT, 1);
+            endif
 
-                    CreateItemInContainer(craftingbag, product_type, 1);
-                    SendSysMessage(who, "You put the crops in your pack", color :=66);
-                    ChangePlantGraphic(plant);
+            CreateItemInContainer(craftingbag, product_type, 1);
+            SendSysMessage(who, "You put the crops in your pack", color :=66);
+            ChangePlantGraphic(plant);
 
-                    already_harvested_amount := CInt(GetObjProperty(plant, "#harvested"));
-                    if (!already_harvested_amount)
-                            SetObjProperty(plant, "#harvested", 1);
-                    else
-                            SetObjProperty(plant, "#harvested", CInt(already_harvested_amount + 1));
-                    endif
+            already_harvested_amount := CInt(GetObjProperty(plant, "#harvested"));
+            if (!already_harvested_amount)
+                SetObjProperty(plant, "#harvested", 1);
+            else
+                SetObjProperty(plant, "#harvested", CInt(already_harvested_amount + 1));
+            endif
 
-                    if (already_harvested_amount+1 >= max_harvest_amount)
-                            SendSysMessage(who, "There's nothing more here to harvest.", color :=33);
-                            return;
-                    endif
-				endif
+            if (already_harvested_amount+1 >= max_harvest_amount)
+                SendSysMessage(who, "There's nothing more here to harvest.", color :=33);
+                return;
+            endif
+        endif
 	until ( (who.x != who_x) || (who.y != who_y) );
 endprogram
 
@@ -120,15 +120,15 @@ function DestroyPlant(me, plant);
 	0x18e6:
 	0x18e9:
 	0x18ea:
-        0x0caa:         //banana tree
-        0x0d98:         //apple tree
-        0x0d9a:         //apple tree top
-        0x0d9c:         //peach tree
-        0x0d9e:         //peach tree top
-        0x0da4:         //pear tree
-        0x0da6:         //pear tree top
+    0x0caa:         //banana tree
+    0x0d98:         //apple tree
+    0x0d9a:         //apple tree top
+    0x0d9c:         //peach tree
+    0x0d9e:         //peach tree top
+    0x0da4:         //pear tree
+    0x0da6:         //pear tree top
 
-		return;
+    return;
 	default:
 		if (YesNo(me,"Destroy it?"))
 			var planttopserial := GetObjProperty(plant, "planttop");

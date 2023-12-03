@@ -8,8 +8,10 @@ include ":gumps:gumps_ex";
 include ":timeutils:time";
 include "util/bank";
 include "include/client";
-//include "include/string";
-    var cfg := ReadConfigFile(":donate:premium");
+
+var cfg := ReadConfigFile(":donate:premium");
+
+
 program textcmd_premium(who)
 
     var list := GetConfigIntKeys( cfg );
@@ -27,8 +29,6 @@ program textcmd_premium(who)
     var global := FindConfigElem( cfg, "Global" );
 
 	var time := StrFormatTime( "%m-%d-%Y %I:%M:%S %p", CInt( who.acct.getprop("PremiumExpire") ));
-
-
 
 
 	GFSetRadioGroup(gump, 1);
@@ -52,27 +52,26 @@ program textcmd_premium(who)
 
 
 
-    var textlvl := "Уровень";
-    var textlvlcolor := 2100;
-    if(who.IsPremium() == _prem_iter)
+        var textlvl := "Уровень";
+        var textlvlcolor := 2100;
+        var offsetLeft := 15+30;
+        if(who.IsPremium() == _prem_iter)
+            textlvl := "Активирован до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+            textlvlcolor := 67;
+            offsetLeft := 15+30+30;
+        else
+            if(!who.IsPremium())
+                //var checked := (_prem_iter == 2) ? 1 : 0;
+                GFRadioButton( gump, 15, y_pos + 5, 210, 211, 0, CInt(300 + _prem_iter) );
+            else
+                offsetLeft := 15;
+            endif
 
-        textlvl := "Активирован до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
-        textlvlcolor := 67;
-
-       // GFTextLine(gump, widthGump - 190, y_pos, textlvlcolor, "до: "+FormatTime(GetTimeStruct(who.acct.getprop("PremiumExpire")), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>"));
-
-    else
-
-
-        //var checked := (_prem_iter == 2) ? 1 : 0;
-        GFRadioButton( gump, 15, y_pos + 5, 210, 211, 0, CInt(300 + _prem_iter) );
-
-        GFTilePic(gump, widthGump - 150, y_pos, 0x0A21);
-        GFTextLine(gump, widthGump - 130, y_pos - 2, 2100, elem.Cost+" dc./1 мес.");
-        //GFAddButton(gump, widthGump - 80, y_pos + rightY + 70, 5544, 5543, GF_CLOSE_BTN, CInt(100 + _prem_iter));
-
-    endif
-        GFTextLine(gump, 15+30+30, y_pos +3, textlvlcolor, textlvl);
+            textlvl := textlvl +" "+ _prem_iter;
+            GFTilePic(gump, widthGump - 150, y_pos, 0x0A21);
+            GFTextLine(gump, widthGump - 130, y_pos - 2, 2100, elem.Cost+" dc./1 мес.");
+        endif
+        GFTextLine(gump, offsetLeft, y_pos +3, textlvlcolor, textlvl);
 
         y_pos := y_pos+170;
         counter += 1;
@@ -84,14 +83,12 @@ program textcmd_premium(who)
     GFTilePic(gump, 75, heightGump - 35, 0x0A21);
     GFTextLine(gump, 100, heightGump - 35, 2100, (coinInBank[1] + coinInPack[1])+" dc.");
 
-
-    GFTextLine(gump, widthGump - 190, heightGump - 35, 2100, "Months:");
-    GFGumpPic(gump, widthGump - 70 - 70, heightGump - 35, 2443);
-    GFTextEntry(gump, widthGump - 70 - 60, heightGump - 34, 135, 20, 2100, 1, 200);
-
-
-    GFAddButton(gump, widthGump - 70, heightGump - 35, 2128, 2129, GF_CLOSE_BTN, CInt(100));
-
+    if(!who.IsPremium())
+        GFTextLine(gump, widthGump - 190, heightGump - 35, 2100, "Months:");
+        GFGumpPic(gump, widthGump - 70 - 70, heightGump - 35, 2443);
+        GFTextEntry(gump, widthGump - 70 - 60, heightGump - 34, 135, 20, 2100, 1, 200);
+        GFAddButton(gump, widthGump - 70, heightGump - 35, 2128, 2129, GF_CLOSE_BTN, CInt(100));
+    endif
     var input := GFSendGump ( who, gump);
     print(input.keys);
 

@@ -1,0 +1,24 @@
+use uo;
+use os;
+use unicode;
+
+program script_use(mobile, item)
+    var hp := GetObjProperty(item, "hp");
+    var x := GetObjProperty(item, "x");
+    var y := GetObjProperty(item, "y");
+    var z := GetObjProperty(item, "z");
+
+    if(hp)
+        hp -= 1;
+        SetObjProperty(item, "hp", hp);
+        //MoveObjectToLocation(item, item.x, item.y, item.z - 2, item.realm, MOVEOBJECT_FORCELOCATION + MOVEITEM_IGNOREMOVABLE);
+        PerformAction(mobile, 0x09);
+    else
+        //var it := CreateItemAtLocation( x, y, z, 0x19BA, 1, mobile.realm );
+        //it.movable := 0;
+        DestroyItem(item);
+        SendSysMessageUC(mobile, "Вы разбили стену.", "RUS", 3, 33);
+    endif;
+    SleepMS(500);
+	return 1;
+endprogram

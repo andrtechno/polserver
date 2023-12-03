@@ -346,7 +346,7 @@ function MS_GetSpellDamage(mobile, targ, base_damage)
 
 
 	var total_damage := CInt(base_damage * eval_int_bonus * ((CDbl(damage_increase) / 100) + 1));
-	Broadcast("Spell damage " + CStr(total_damage), color := 88);
+    SendSysMessage(mobile, "Spell damage " + CDbl(total_damage), color := 88);
 	return CDbl(total_damage);
 endfunction
 

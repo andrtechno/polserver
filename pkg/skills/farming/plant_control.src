@@ -52,11 +52,11 @@ program control_plant (plant)
 				//hops
 				0x1a9e:	plant.graphic := 0x1a9e;
 				//lettuce
-				0x1708e:	plant.graphic := 0x0ca7;
-						plant.color := 270;
+				0x1708e: plant.graphic := 0x0ca7;
+                    plant.color := 270;
 				//cabbage
 				0x1708f:	plant.graphic := 0x0d04;
-						plant.color := 276;
+                    plant.color := 276;
 				//apple tree bottom
 				0x0d98:
 					var planttopserial := GetObjProperty(plant, "planttop");
@@ -151,7 +151,7 @@ endfunction
 ///////////////////
 
 function GrowPlant(byref plant)
-	SetObjProperty(plant, "#harvested", 10);
+	SetObjProperty(plant, "#harvested", 0);
 	sleep(NEW_PLANT_GROW_TIME);
 
 	if (CountPlantsInArea(plant, 1) > 5)
@@ -167,7 +167,7 @@ function GrowPlant(byref plant)
 	case (plant.objtype)
 		//wheat
 		0x0c56:	plant.graphic := 0x1ebe;
-				sleep(NEW_PLANT_GROW_TIME);
+                sleep(NEW_PLANT_GROW_TIME);
 				plant.graphic := 0x0c55;
 				sleep(NEW_PLANT_GROW_TIME);
 				plant.graphic := 0x0c57;
@@ -294,7 +294,7 @@ function GrowPlant(byref plant)
 	endif
 
 	EraseObjProperty(plant, "new");
-	SetObjProperty(plant, "#harvested", 10);
+	//SetObjProperty(plant, "#harvested", 0);
 endfunction
 
 
@@ -332,7 +332,7 @@ function IsAPlant(byref item)
 		0x1aa1:
 		0x1708e:
 		0x1708f:
-			return 1;
+        return 1;
 	endcase
 	return 0;
 endfunction

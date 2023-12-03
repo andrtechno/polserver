@@ -295,9 +295,8 @@ function CalcDamageAmount(mobile, amount, type)
 	if ( type == DMG_FORCED )
 		return amount;
 	endif
-
+//SendSysMessage(mobile, "resistance start: " + amount, color := 88);
 	var resistance := CDbl(GetResistance(mobile, type));
-
 	if ( resistance == error )
 		// Do nothing, there is no resistance.
 	else
@@ -308,8 +307,15 @@ function CalcDamageAmount(mobile, amount, type)
 		// [ Resistance = 100 so Resisted = 50, Amount = 0 ]
 		// [ Resistance = -100 so Resisted = -50, Amount = -50 ]
 		// [ Resistance = 47.3 so Resisted = 23.65, Amount = 26.35 ]
-		var resistd := (resistance * 0.010) * CDbl(amount);
-		amount := amount - resistd;
+		//var resistd := (resistance * 0.010) * CDbl(amount);
+
+
+//SendSysMessage(mobile, "resistance : " + resistance, color := 88);
+var resistd := amount / 100 * resistance;
+amount := amount - resistd;
+
+
+        //SendSysMessage(mobile, "resistance amount: " + CInt(amount), color := 88);
 	endif
 
 	return CInt(amount);
@@ -418,13 +424,17 @@ function GetResistance(mobile, type:=0)
     // We use the damage type to check if the mobile has a
     // corresponding resistance and return the amount of resistance.
     case(type)
-      DMG_COLD: amt := mobile.resist_cold + mobile.resist_cold_mod;
-      DMG_ENERGY: amt := mobile.resist_energy + mobile.resist_energy_mod;
-      DMG_FIRE: amt := mobile.resist_fire + mobile.resist_fire_mod;
-      DMG_PHYSICAL: amt := mobile.resist_physical + mobile.resist_physical_mod;
-      DMG_POISON: amt := mobile.resist_poison + mobile.resist_poison_mod;
+        DMG_COLD:
+            amt := mobile.resist_cold + mobile.resist_cold_mod;
+        DMG_ENERGY:
+            amt := mobile.resist_energy + mobile.resist_energy_mod;
+        DMG_FIRE:
+            amt := mobile.resist_fire + mobile.resist_fire_mod;
+        DMG_PHYSICAL:
+            amt := mobile.resist_physical + mobile.resist_physical_mod;
+        DMG_POISON:
+            amt := mobile.resist_poison + mobile.resist_poison_mod;
     endcase
-
     return amt;
 endfunction
 
@@ -520,11 +530,16 @@ endfunction
 function ModifyResistance(mobile, name, value)
     value := CInt(value);
     case(name)
-        RES_PHYSICAL_MOD: mobile.resist_physical_mod := mobile.resist_physical_mod + value;
-        RES_FIRE_MOD: mobile.resist_fire_mod := mobile.resist_fire_mod + value;
-        RES_COLD_MOD: mobile.resist_cold_mod := mobile.resist_cold_mod + value;
-        RES_POISON_MOD: mobile.resist_poison_mod := mobile.resist_poison_mod + value;
-        RES_ENERGY_MOD: mobile.resist_energy_mod := mobile.resist_energy_mod + value;
+        RES_PHYSICAL_MOD:
+            mobile.resist_physical_mod := mobile.resist_physical_mod + value;
+        RES_FIRE_MOD:
+            mobile.resist_fire_mod := mobile.resist_fire_mod + value;
+        RES_COLD_MOD:
+            mobile.resist_cold_mod := mobile.resist_cold_mod + value;
+        RES_POISON_MOD:
+            mobile.resist_poison_mod := mobile.resist_poison_mod + value;
+        RES_ENERGY_MOD:
+            mobile.resist_energy_mod := mobile.resist_energy_mod + value;
     endcase
     SendSysMessage(mobile, "Your " + name + " resistance has changed by " + CStr(value)+ ".", 0, 88);
 	return value;
@@ -534,11 +549,16 @@ endfunction
 function RemoveModifyResistance(mobile, name, value)
     value := CInt(value);
     case(name)
-        RES_PHYSICAL_MOD: mobile.resist_physical_mod := mobile.resist_physical_mod - value;
-        RES_FIRE_MOD: mobile.resist_fire_mod := mobile.resist_fire_mod - value;
-        RES_COLD_MOD: mobile.resist_cold_mod := mobile.resist_cold_mod - value;
-        RES_POISON_MOD: mobile.resist_poison_mod := mobile.resist_poison_mod - value;
-        RES_ENERGY_MOD: mobile.resist_energy_mod := mobile.resist_energy_mod - value;
+        RES_PHYSICAL_MOD:
+            mobile.resist_physical_mod := mobile.resist_physical_mod - value;
+        RES_FIRE_MOD:
+            mobile.resist_fire_mod := mobile.resist_fire_mod - value;
+        RES_COLD_MOD:
+            mobile.resist_cold_mod := mobile.resist_cold_mod - value;
+        RES_POISON_MOD:
+            mobile.resist_poison_mod := mobile.resist_poison_mod - value;
+        RES_ENERGY_MOD:
+            mobile.resist_energy_mod := mobile.resist_energy_mod - value;
     endcase
     SendSysMessage(mobile, "Your " + name + " resistance has changed by " + CStr(value)+ ".", 0, 88);
 	return value;

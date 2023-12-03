@@ -2,16 +2,26 @@ use uo;
 use os;
 
 include ":attributes:attributes";
-
+//NO USED!!!!!!!
 program TimedScript_trackingArrow(params)
 	var mobile := params[1];
 	var id := params[3];
     var critter := params[2];
 
+            var timer := 0;
 
+    var x := critter.x;
+    var y := critter.y;
+    var z := Abs(critter.z);
+
+    if(z > 0)
+        x -= (z / 10);
+        y -= (z / 10);
+    endif
 	SetObjProperty(mobile, "TrackingArrow", critter.serial);
-    SendQuestArrow(mobile, critter.x, critter.y, critter.serial);
-	
+    SendQuestArrow(mobile, x, y, critter.serial);
+
+
 	return 1;
 endprogram
 

@@ -10,7 +10,7 @@ include ":magery:fields";
 program stonewall( parms )
     var caster := parms[1];
     var info := parms[2];
-  
+
     var cast_on := MS_TargetCoordinates(caster, info, "Select a target.", ""); //TGTOPT_CHECK_LOS+TGTOPT_HARMFUL
     if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
         cast_on := parms[4];
@@ -73,6 +73,10 @@ program stonewall( parms )
 		endif
 
 		SetObjProperty(item, "SummonedField", caster.serial);
+		SetObjProperty(item, "hp", 5);
+		SetObjProperty(item, "x", item.x);
+		SetObjProperty(item, "y", item.y);
+		SetObjProperty(item, "z", item.z);
 		item.SetOwner(caster);
 		var duration := 30;
         if(GetObjProperty(caster,"classid") == ID_MAGE)

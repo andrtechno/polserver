@@ -1,0 +1,40 @@
+use uo;
+use unicode;
+
+include "include/client";
+
+program textcmd_unfreeze( who, range )
+
+    var radius := CInt(range);
+
+    if(radius > 0)
+        print(radius);
+        var mobilesList := ListMobilesNearLocation(who.x, who.y, LIST_IGNORE_Z, ((radius > 20) ? 20 : radius), who.realm);
+
+        foreach mobile in mobilesList
+            if(!mobile.cmdlevel)
+                unfreeze(who, mobile);
+            endif
+        endforeach
+    else
+        SendSysMessage(who, "Who do you wish to unfreeze?");
+        var targ := Target( who, 0 );
+
+        if (targ.isA(POLCLASS_MOBILE))
+            if(targ.frozen)
+                unfreeze(who, targ);
+            endif
+        else
+            if((who.cmdlevel > 3) && who.frozen)
+                who.SetFrozen(0);
+            endif
+        endif
+    endif;
+
+endprogram
+
+
+function unfreeze(who, mobile)
+    PrintTextAbovePrivateUC(mobile, "Размаморожен!", "RUS", who, 3, color := MESSAGE_COLOR_GOOD);
+    mobile.SetFrozen(0);
+endfunction

@@ -1,6 +1,4 @@
-/* $Id: goGumps.inc 375 2006-06-17 19:26:32Z austinheilman $
- *
- */
+
 // Gump backgrounds - Used in various functions - easier to use globally.
 var BKGND_SILVERTRIM := GFGetCfgConst("Defaults", "BackGround");
 var BKGND_DARK_STONE := GFGetCfgConst("Defaults", "ForeGround");
@@ -43,7 +41,7 @@ function Go_LocationIndex(who, gump_Type:="base_Distro")
 
 	var input := GFSendGump(who, gump);
 	input := input[0];
-        
+
 	case(input)
 		0:
 			SendSysMessage(who, "Closed");
@@ -61,7 +59,7 @@ function Go_LocationIndex(who, gump_Type:="base_Distro")
 			Go_CopyLocation(who, 0);
 			return 0;
 		EDIT_PUBLIC_ITEM:
-			print("Edit Public"); Go_EditSendLocation(who, 1);
+			Go_EditSendLocation(who, 1);
 			return 0;
 		EDIT_PRIVATE_ITEM:
 			Go_EditSendLocation(who, 0);
@@ -76,7 +74,7 @@ function Go_LocationIndex(who, gump_Type:="base_Distro")
 		default:
 			break;
 	endcase
-
+    //print("goGump: "+go_keys_base);
 	if( input )
 		var send_Location;
 		var moved := who;

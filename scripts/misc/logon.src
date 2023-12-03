@@ -23,8 +23,8 @@ program onlogon(who)
     if(prem)
         var premium := CInt(who.acct.GetProp("Premium"));
         var expire := CInt(who.acct.GetProp("PremiumExpire"));
-        SendSysMessageUC(who, "Премиум: " + premium, "RUS", 3, color := MESSAGE_COLOR_GOOD);
-        SendSysMessageUC(who, "Премиум: " + expire, "RUS", 3, color := MESSAGE_COLOR_GOOD);
+        var date := FormatTime(GetTimeStruct(expire), "<DAY>-<MON>-<YY> <HH>:<MM>:<SS>");
+        SendSysMessageUC(who, "Премиум: " + premium+" ур. до "+date+"", "RUS", 3, color := MESSAGE_COLOR_GOOD);
     endif
 	EraseObjProperty(who, "IsMeditating");
 	EraseObjProperty(who, "mover"); //Resend detected

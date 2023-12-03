@@ -1,6 +1,3 @@
-/*
-        POL Distro Team
-*/
 use uo;
 include ":attributes:attributes";
 

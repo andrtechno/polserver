@@ -1,6 +1,7 @@
 use uo;
 use os;
 use cfgfile;
+use util;
 
 include "include/eventID";
 include "include/utility";
@@ -75,6 +76,8 @@ program plant_seed(character, seed)
 	var plant := CreateItemAtLocation(location_x, location_y, location_z, plant_type, 1, character.realm);
 	plant.graphic := 1;
 	SetObjProperty(plant, "new", 1);
+    SetObjProperty(plant, "SeedOwner", character.acctname+"/"+character.name);
+    SetObjProperty(plant, "CreatedAt", StrFormatTime("%Y-%d-%m %H:%M:%S",polcore().systime));
 	if (sign)
 		SetObjProperty(plant, "lockeddown", sign.serial);
 		SetObjProperty(plant, "lockdowndestroy", 1);

@@ -1,8 +1,3 @@
-/* $Id: goText.inc 375 2006-06-17 19:26:32Z austinheilman $
- *
- */
-
-
 function Go_Parse_Text(who, text)
 	if ( !text )
 		return 0;

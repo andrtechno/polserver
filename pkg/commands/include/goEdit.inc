@@ -1,8 +1,3 @@
-/* $Id: goEdit.inc 375 2006-06-17 19:26:32Z austinheilman $
- *
- */
-
-
 function Go_EditSendLocation(who, public:=1)
 	var gump;
 	if( public )
@@ -14,34 +9,36 @@ function Go_EditSendLocation(who, public:=1)
 	endif
 
 	var input := GFSendGump(who, gump);
-        input := input[0];
+    input := input[0];
+    SendSysMessage(who, "input: "+input);
+    if(input)
+        var send_Location;
+        if( public )
+            send_Location := go_prop_base[go_keys_base[input]];
+        else
+            send_Location := go_prop[Lower(go_keys[input])];
+        endif
+        SendSysMessage(who, "send_Location: "+send_Location);
+        print(go_keys_base);
+        if ( send_Location )
+            var edit_gump;
+            if( public )
+                edit_gump := Go_EditLocationGump(send_Location);
+            else
+                edit_gump := Go_EditLocationGump(send_Location, 0);
+            endif
+            var edit_input := GFSendGump(who, edit_gump);
 
-        if(input)
-		var send_Location;
-		if( public )
-			send_Location := go_prop_base[Lower(go_keys_base[input])];
-		else
-			send_Location := go_prop[Lower(go_keys[input])];
-		endif
-                if ( send_Location )
-			var edit_gump;
-			if( public )
-				edit_gump := Go_EditLocationGump(send_Location);
-			else
-				edit_gump := Go_EditLocationGump(send_Location, 0);
-			endif
-                        var edit_input := GFSendGump(who, edit_gump);
+            if ( edit_input[edit_update] )
+                edit_name := GFExtractData(edit_input, edit_name);
+                xg_pos := CInt(GFExtractData(edit_input, xg_pos));
+                yg_pos := CInt(GFExtractData(edit_input, yg_pos));
+                zg_pos := CInt(GFExtractData(edit_input, zg_pos));
 
-                        if ( edit_input[edit_update] )
-                                edit_name := GFExtractData(edit_input, edit_name);
-                                xg_pos := CInt(GFExtractData(edit_input, xg_pos));
-                                yg_pos := CInt(GFExtractData(edit_input, yg_pos));
-                                zg_pos := CInt(GFExtractData(edit_input, zg_pos));
-
-                                if ( !edit_name )
-                                        GumpPrompt(who, "Cancelled - No name entered");
-                                        return 0;
-                                elseif ( Lower(edit_name) != send_Location.Name )
+                if ( !edit_name )
+                    GumpPrompt(who, "Cancelled - No name entered");
+                    return 0;
+                elseif ( Lower(edit_name) != send_Location.Name )
 					if( public )
 						if ( go_prop_base.Exists( Lower(edit_name) ) )
 							GumpPrompt(who, "Cancelled - location already exists with the name ["+edit_name+"]");
@@ -53,9 +50,9 @@ function Go_EditSendLocation(who, public:=1)
 							return 0;
 						endif
 					endif
-                                endif
+                endif
 
-                                var original_Realm := send_Location.Realm;
+                var original_Realm := send_Location.Realm;
 				if( public )
 					go_prop_base.Erase(Lower(send_Location.Name));
 					go_elem.SetProp("base_Distro", go_prop_base);
@@ -65,10 +62,10 @@ function Go_EditSendLocation(who, public:=1)
 					go_elem.SetProp(who.acctname, go_prop);
 					Go_SetLocation(who.acctname, who, edit_name, original_Realm, xg_pos, yg_pos, zg_pos);
 				endif
-                                SendSysMessage(who, "Updated ["+edit_name+"]");
-                                Go_RefreshMyGumps(who);
-                        elseif ( edit_input[edit_delete] )
-                                SendSysMessage(who, "Deleted ["+send_Location.Name+"]");
+                SendSysMessage(who, "Updated ["+edit_name+"]");
+                Go_RefreshMyGumps(who);
+            elseif ( edit_input[edit_delete] )
+                SendSysMessage(who, "Deleted ["+send_Location.Name+"]");
 				if( public )
 					go_prop_base.Erase(Lower(send_Location.Name));
 					go_elem.SetProp("base_Distro", go_prop_base);
@@ -76,20 +73,20 @@ function Go_EditSendLocation(who, public:=1)
 					go_prop.Erase(Lower(send_Location.Name));
 					go_elem.SetProp(who.acctname, go_prop);
 				endif
-                                Go_RefreshMyGumps(who);
-                        else
-                                SendSysMessage(who, "Cancelled");
-                        endif
-                else
-                        GumpPrompt(who, "Location ["+send_Location.Name+"] does not exist.");
-                        return 0;
-                endif
+                Go_RefreshMyGumps(who);
+            else
+                SendSysMessage(who, "Cancelled");
+            endif
         else
-                SendSysMessage(who, "Editing Cancelled");
-                return 0;
+            GumpPrompt(who, "Location ["+send_Location.Name+"] does not exist.222");
+            return 0;
         endif
-
+    else
+        SendSysMessage(who, "Editing Cancelled");
         return 0;
+    endif
+
+return 0;
 
 endfunction
 
@@ -150,7 +147,7 @@ function Go_SelectEditGump(public)
 		endforeach
 	endif
 
-        return gump;
+    return gump;
 
 endfunction
 

@@ -1,8 +1,3 @@
-/* $Id: goAdd.inc 375 2006-06-17 19:26:32Z austinheilman $
- *
- */
-
-
 function Go_AddNewLocation(who, public:=1)
 
 	SendSysMessage(who, "Click where you want the new Go Location to go to.");

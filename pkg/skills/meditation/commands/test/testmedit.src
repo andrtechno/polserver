@@ -1,0 +1,33 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":attributes:skills";
+
+program textcmd_testmedit(who, text)
+    SendSysMessage(who, "--------------", color:=30);
+    var classlevel := CInt(GetObjProperty(who,"classlevel"));
+
+
+    var textlevel:=CInt(lower(text));
+    if(classlevel != textlevel)
+        SetCMDClass(who, ID_MAGE, textlevel);
+        sleepms(500);
+    endif;
+    classlevel := textlevel;
+
+    var regenValue := 5 + (classlevel*3);
+    SendSysMessage(who, "rangeValue: "+classlevel+": "+regenValue+" MP", color:=30);
+
+    var wait := 4500;
+    wait := wait - (CInt(GetAttribute(who, MEDITATION))*2);
+
+    SendSysMessage(who, "start speed "+classlevel+": "+wait+"ms.", color:=30);
+    var percent2 := CInt(classlevel*10);
+    var number_percent2 := wait / 100 * percent2;
+    wait := wait - number_percent2;
+
+    SendSysMessage(who, "finish speed "+classlevel+": "+wait+"ms.", color:=30);
+    return 1;
+
+endprogram
