@@ -10,7 +10,8 @@ program textcmd_light(who, level)
     foreach mobile in mobilesList
         if(!mobile.isa(POLCLASS_NPC))
             mobile.setLightLevel (level, 10800);
-            PlayObjectCenteredEffect(mobile, 0x373a, 10,10);
+            //mobile.setLightLevel (0, 0);
+            PlayObjectCenteredEffect(mobile, 0x373a, 10, 10);
 	    endif
 
     endforeach

@@ -32,7 +32,6 @@ function KP_IsLockable( object )
 	if( object.IsA( POLCLASS_ITEM ))
 		object := object.objtype;
 	endif
-
 	return GetItemDescInfo( object ).Lockable;
 endfunction
 

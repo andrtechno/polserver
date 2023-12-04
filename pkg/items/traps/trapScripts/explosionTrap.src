@@ -16,9 +16,6 @@ program trapScript(params)
 	params := 0; // Not needed anymore.
 
 
-
-	Print(trap_info);
-
     PlaySoundEffect(mobile, SFX_208);
 	SendSysMessage(mobile, "You set off a explosion trap!", color := 33);
 	PlayObjectCenteredEffect(mobile, FX_EXPLODE_3, 10, 10);

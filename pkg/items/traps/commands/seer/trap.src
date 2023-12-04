@@ -11,10 +11,7 @@ include ":help:textcmds";
 
 program set_trap( who, text )
 
-	var res,
-		cont,
-		strngth,
-		trap_type;
+	var res, cont, dmg, trap_type;
 
 	if( (text == Lower( "help" )) || (text == Lower( "h" )) || (text == "?") )
 		SendCmdHelpWindow( who, ":commands:seer/trap.hlp" );
@@ -22,9 +19,9 @@ program set_trap( who, text )
 	endif
 
 	if( text )
-		strngth := CInt( strngth );
+		dmg := CInt( dmg );
 	else
-		strngth := 50;
+		dmg := 50;
 	endif
 	while( 1 )
 		res := trap_gump( who );
@@ -37,12 +34,13 @@ program set_trap( who, text )
 			1: trap_type := "Dart";
 			2: trap_type := "Explosion";
 			3: trap_type := "Gas";
+			4: trap_type := "MagicTrap";
 		endcase
-		Print(trap_type + "    " + strngth );
+
 		cont := Target( who );
 
 		if( cont.IsA(POLCLASS_CONTAINER) )
-			AddTrap( cont, trap_type, strngth, 1 );
+			AddTrap( cont, trap_type, dmg, 1 );
 		else
 			SendSysMessage( who, "You can only place traps on a container.", color := 33 );
 		endif
@@ -57,21 +55,28 @@ function trap_gump(who)
 
 	GFPage( gump, 0 );
 	// Background
-	GFResizePic( gump, 0, 0, 9250, 200, 187 );
+	GFResizePic( gump, 40, 40, 9250, 200, 187 );
 	// Tiled Fore
-	GFPicTiled( gump, 13, 13, 174, 161, 3004 );
+	GFPicTiled( gump, 53, 53, 174, 161, 3004 );
 	// Needle Button
-	GFAddButton( gump, 49, 61, 9792, 9793, GF_CLOSE_BTN, 1 );
+	GFAddButton( gump, 60, 60, 9792, 9793, GF_CLOSE_BTN, 1 );
 	// Explosion Button
-	GFAddButton( gump, 49, 95, 9792, 9793, GF_CLOSE_BTN, 2 );
+	GFAddButton( gump, 60, 95, 9792, 9793, GF_CLOSE_BTN, 2 );
 	// Gas Button
-	GFAddButton( gump, 49, 129, 9792, 9793, GF_CLOSE_BTN, 3 );
+	GFAddButton( gump, 60, 130, 9792, 9793, GF_CLOSE_BTN, 3 );
+
+	// MagicTrap Button
+	GFAddButton( gump, 60, 165, 9792, 9793, GF_CLOSE_BTN, 4 );
+
 	// Needle HTML
-	GFHTMLArea( gump, 75, 65, 100, 36, "Needle", 0, 0 );
+	GFHTMLArea( gump, 90, 60+3, 100, 36, "Needle", 0, 0 );
 	// Explosion HTML
-	GFHTMLArea( gump, 75, 99, 100, 36, "Explosion", 0, 0 );
+	GFHTMLArea( gump, 90, 95+3, 100, 36, "Explosion", 0, 0 );
 	// Gas HTML
-	GFHTMLArea( gump, 75, 133, 100, 36, "Gas", 0, 0 );
+	GFHTMLArea( gump, 90, 130+3, 100, 36, "Gas", 0, 0 );
+
+	// MagicTrap HTML
+	GFHTMLArea( gump, 90, 165+3, 100, 36, "MagicTrap", 0, 0 );
 	// Title HTML
 	GFHTMLArea( gump, 13, 13, 174, 36, "<center>Trap Types:</center>", 0, 0 );
 	return GFSendGump( who, gump );

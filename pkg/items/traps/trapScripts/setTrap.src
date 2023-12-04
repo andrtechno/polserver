@@ -32,7 +32,7 @@ program ApplyTrap(who, trap)
 			break;
 		endif
 	endwhile
-    print("ApplyTrap "+trap.name);
+    //print("ApplyTrap "+trap.name);
 	case (Lower(trap.name))
 		"dart trap":		trap_name := "Dart";
 		"gas trap":			trap_name := "Gas";

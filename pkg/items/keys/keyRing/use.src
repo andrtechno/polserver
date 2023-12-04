@@ -20,9 +20,9 @@ program UseKeyRing( mobile, keyring )
 	elseif( targ == keyring )
 		ShowKeyRingGump( mobile, keyring );
 		return 1;
-	elseif( !KP_IsLockable( targ ))
-		SendSysMessage( mobile, "That cannot be locked.", 0x3, 0x32 );
-		return 0;
+	//elseif( !KP_IsLockable( targ ))
+	//	SendSysMessage( mobile, "That cannot be locked. 222", 0x3, 0x32 );
+	//	return 0;
 	endif
 
 	if( targ.IsKey() )

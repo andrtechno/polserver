@@ -136,9 +136,9 @@ var teleporters := {
     {{5588,   631,   30, "britannia"},    {1297,  1081,    0,	"britannia"}},
     {{5588,   632,   30, "britannia"},    {1297,  1082,    0,	"britannia"}},
 //lvl1 - lvl2
-    {{5570,   628,   57, "britannia"},    {5504,   569,   46,	"britannia"}},
-    {{5570,   629,   57, "britannia"},    {5504,   570,   46,	"britannia"}},
-    {{5570,   630,   57, "britannia"},    {5504,   571,   46,	"britannia"}},
+    {{5570,   628,   50, "britannia"},    {5504,   569,   46,	"britannia"}},
+    {{5570,   629,   50, "britannia"},    {5504,   570,   46,	"britannia"}},
+    {{5570,   630,   50, "britannia"},    {5504,   571,   46,	"britannia"}},
     {{5505,   569,   41, "britannia"},    {5571,   628,   52,	"britannia"}},
     {{5505,   570,   41, "britannia"},    {5571,   629,   52,	"britannia"}},
     {{5505,   571,   41, "britannia"},    {5571,   630,   52,	"britannia"}},

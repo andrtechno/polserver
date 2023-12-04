@@ -81,13 +81,13 @@ function AddTrap(object, trap_name, strength, count:=0)
 	endif
 
 	// Check for random die string passed for trap strength.
-	if( TypeOf( strength == "String" ) )
+	/*if( TypeOf( strength == "String" ) )
 		tempstrength := RandomDiceRoll( strength );
 		if( tempstrength.errortext )
 			tempstrength := RandomDiceRoll( "4d5" );
 		endif
 		strength := tempstrength;
-	endif
+	endif*/
 
 	var trap := struct;
 	trap.+Name := trap_name;
