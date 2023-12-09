@@ -1,0 +1,20 @@
+use uo;
+use os;
+
+//Парализует всех окружающих противников
+
+program spell_calm(params)
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+    //PlayObjectCenteredEffect(caster, 0x0701, 0, loop := 25); //sleep
+
+
+
+    foreach mob in ListMobilesNearLocation(caster.x, caster.y, LIST_IGNORE_Z, 15, caster.realm)
+
+    endforeach;
+
+	return 1;
+endprogram

@@ -1,0 +1,18 @@
+use uo;
+use os;
+use guilds;
+include ":DiscordWebhook:outbound";
+program equipRobe( character, unused item )
+
+    var id := character.guildid;
+
+    if(!id)
+        print("no id guild ;(");
+                PresetDiscordMessage( "test", "default");
+        SendSysMessage(character, "you not a guild");
+        return 0;
+    endif
+
+    return 1;
+    set_critical(0);
+endprogram

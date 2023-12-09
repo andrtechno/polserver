@@ -27,8 +27,9 @@ endprogram
 // *****
 exported function GetHitsRegenRate(mobile)
 	var base_regen := CInt(AP_GetSettingsCfgElem("Regen").Hits) * 100;
-
-	return base_regen + AP_GetVitalRegenRateMod(mobile, HITS);
+    base_regen += AP_GetVitalRegenRateMod(mobile, HITS);
+	//print("base_regen: "+base_regen);
+	return base_regen;
 endfunction
 
 exported function GetHitsMaximumValue(mobile)

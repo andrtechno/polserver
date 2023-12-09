@@ -32,21 +32,24 @@ program KillPlayers()
     if (GetObjProperty(me, "frozen"))
         me.frozen := 1;
     endif
+
+
+
     SetWarMode( 0 );
     drop_anchor();
     main_AI_loop();
 endprogram
 
 function CloseDistance( opponent )
-  var sleepdelay := 400 - (CInt(GetDexterity(me)) * 1.5);
-  case (Distance(me, opponent))
-    1:
-    0:       return 1;
-    default: RunToward(opponent);
+    var sleepdelay := 400 - (CInt(GetDexterity(me)) * 1.5);
+    case (Distance(me, opponent))
+        1:
+        0: return 1;
+        default: RunToward(opponent);
 		     sleepms(sleepdelay);
 		     Opendoors(me);
              return 0;
-  endcase
+    endcase
 endfunction
 
 function Opendoors(me)

@@ -1,0 +1,10 @@
+use uo;
+use os;
+
+program InsertScript(unused item, container)
+    if(CInt(GetObjProperty(container, "noInsert")))
+        return 0;
+    endif
+    print("InsertScript");
+	return 1;
+endprogram

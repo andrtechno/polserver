@@ -16,11 +16,13 @@ program track(who)
     //  if(SkillCheck( who, TRACKING, -1, (AP_GetSkill(who, TRACKING) + 30) ) > 0)
     if(SkillCheck( who, TRACKING, -1, (AP_GetSkill(who, TRACKING)) ) > 0)
 
-        var tracker := ReadGameClock();
-        SetObjProperty(who, "TrackingCounter", tracker);
+        var current_time := ReadGameClock();
+        if(!CInt(GetObjProperty(who,"TrackingTimeout")))
+            SetObjProperty(who, "TrackingTimeout", CInt(current_time + (10 * classlevel + 1)));
+        endif;
         var range := CInt((AP_GetSkill(who, TRACKING)/8))*classlevel;
         SendSysMessage(who, "range: "+range);
-        var nearby := ListMobilesNearLocation(who.x,who.y, LIST_IGNORE_Z, range, who.realm);
+        var nearby := ListMobilesNearLocation(who.x, who.y, LIST_IGNORE_Z, range, who.realm);
         if(len(nearby) == 1)
             SendSysMessage(who, "There don't seem to be any creatures nearby");
             return;
@@ -30,20 +32,17 @@ program track(who)
         if(GetObjProperty(who, "LastMyAttackOpponent"))
             var critter := SystemFindObjectBySerial( CInt(GetObjProperty(who, "LastMyAttackOpponent")) );
             if(critter)
-
-                if((Distance(who, critter) <= range) && (critter.dead == 0))
-                    var dir := Get_direction(who, critter);
-                    if(dir == "nearby")
-                        SendSysMessage(who, critter.name + " is " + dir);
-                    else
-                        SendSysMessage(who, critter.name + " is to the " + dir);
-                    endif
-                    sleep(5);
+                if((Distance(who, critter) <= range) && (critter.dead == 0) && (current_time <= CInt(GetObjProperty(who,"TrackingTimeout"))))
+                    //TS_StartTimer(who, "TrackingArrow", 10, "TrackingArrow", critter);
+                    var script := Start_Script(":tracking:timer", {who, critter, range, current_time});
+                    return 1;
+                else
+                    EraseObjProperty(who, "LastMyAttackOpponent");
+                    EraseObjProperty(who, "TrackingTimeout");
+                    //SendSysMessage(who, "Timeout");
+                    //return 0;
                 endif
-
-                TS_StartTimer(who, "TrackingArrow", 10, "TrackingArrow", critter);
             endif
-            return 1;
         endif
 
 
@@ -123,11 +122,13 @@ program track(who)
                 return;
             endif
             var critter := critter_ids[thetarget.index];
-            SetObjProperty( who, "#trackingtimeout", ReadGameClock()+40 );
 
-            //Detach();
-            var script := Start_Script(":tracking:timer", {who, critter, range, tracker});
-
+                current_time := ReadGameClock();
+                if(!CInt(GetObjProperty(who,"TrackingTimeout")))
+                    SetObjProperty(who, "TrackingTimeout", CInt(current_time + (10 * classlevel + 1)));
+                endif;
+                //Detach();
+                var script := Start_Script(":tracking:timer", {who, critter, range, current_time});
         endif
     else
         SendSysMessage(who, "You fail to find any creatures nearby");

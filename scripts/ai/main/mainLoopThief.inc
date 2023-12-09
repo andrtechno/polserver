@@ -1,25 +1,34 @@
+use unicode;
+
 function main_AI_loop()
-  var ev;
-  var wanders := 60;
-  EnableMainEvents();
-  while(1)
-    //wander();
-    //wanders := wanders +1;
+    var ev;
+    var wanders := 60;
+    EnableMainEvents();
+    while(1)
+        wander();
+        wanders := wanders +1;
     //if(wanders > 60)
     //  wanders :=0;
     //  ev := sleepmode();
     //else
-      ev := os::wait_for_event(5);
+        ev := os::wait_for_event(5);
     //endif
-    if(ev)
-      repeat
-        case(ev.type)
-          SYSEVENT_DAMAGED: print("11"); //Fight(ev.source);
-          SYSEVENT_ENGAGED: print("11"); //Fight(ev.source);
-        endcase
-      until(!(ev := os::wait_for_event(5)));
-    endif
-   endwhile
+        if(ev)
+            repeat
+            case(ev.type)
+                SYSEVENT_ENTEREDAREA:
+                    if((!ev.source.npctemplate) && (!ev.source.dead) && (!ev.source.hidden) && (!ev.source.concealed))
+                        ThiefStealing(ev.source);
+                    endif
+if(!me.hidden)
+SayUC("ля ты крыса.");
+endif;
+                SYSEVENT_DAMAGED: print("SYSEVENT_DAMAGED"); //ThiefStealing(ev.source); SayUC("давай договоримся.");
+                SYSEVENT_ENGAGED: print("SYSEVENT_ENGAGED"); //ThiefStealing(ev.source);
+                endcase
+            until(!(ev := os::wait_for_event(5)));
+        endif
+    endwhile
 endfunction
 
 function RunLikeHell222(opponent)
@@ -40,12 +49,12 @@ endfunction
 
 function EnableMainEvents()
   EnableEvents(EVID_HERDING);
-  DisableEvents(SYSEVENT_ENTEREDAREA + SYSEVENT_SPEECH + SYSEVENT_LEFTAREA + SYSEVENT_DISENGAGED + SYSEVENT_OPPONENT_MOVED);
-  EnableEvents(SYSEVENT_ENGAGED + SYSEVENT_DAMAGED, HALT_THRESHOLD);
+  DisableEvents(SYSEVENT_SPEECH + SYSEVENT_LEFTAREA + SYSEVENT_DISENGAGED + SYSEVENT_OPPONENT_MOVED);
+  EnableEvents(SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA, HALT_THRESHOLD);
 endfunction
 
 function DisableMainEvents()
-  DisableEvents(SYSEVENT_SPEECH + SYSEVENT_ENGAGED + SYSEVENT_DAMAGED + SYSEVENT_ENTEREDAREA);
+  DisableEvents(SYSEVENT_SPEECH + SYSEVENT_ENGAGED + SYSEVENT_DAMAGED);
 endfunction
 
 function Herd(ev)

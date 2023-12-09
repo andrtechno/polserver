@@ -1,0 +1,22 @@
+use uo;
+use os;
+
+include ":damage:damage";
+
+//Повышает физическую защиту себя и всех окружающих союзников
+
+
+program spell_protection(params)
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+
+
+
+    foreach mob in ListMobilesNearLocation(caster.x, caster.y, LIST_IGNORE_Z, 15, caster.realm)
+
+    endforeach;
+
+	return 1;
+endprogram

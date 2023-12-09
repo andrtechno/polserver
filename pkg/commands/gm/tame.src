@@ -9,19 +9,16 @@ program tame( who )
 		return;
 	endif
 
-
-
-
-        //if(who.followers < who.followers_max)
-            SetObjProperty( npc, "happiness", 100);
-            SetObjProperty( npc, "master", who.serial );
-            SetObjProperty( npc, "script", npc.script );
-            npc.setmaster( who );
-            npc.script := "tamed";
-            RestartScript(npc);
-            who.followers += 1;
-        //else
-        //    SendSysMessage(who, "Pet limit exceeded.", color := 33);
-        //endif
+    //if(who.followers < who.followers_max)
+        SetObjProperty( npc, "happiness", 100);
+        SetObjProperty( npc, "master", who.serial );
+        SetObjProperty( npc, "script", npc.script );
+        npc.setmaster( who );
+        npc.script := "tamed";
+        RestartScript(npc);
+        who.followers += 1;
+    //else
+    //    SendSysMessage(who, "Pet limit exceeded.", color := 33);
+    //endif
 
 endprogram

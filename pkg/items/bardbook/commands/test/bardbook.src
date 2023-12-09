@@ -1,0 +1,29 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_bardbook( who )
+    //var book := CreateItemInBackpack(who, 0x225A, 1);
+    //var i;
+    //for (i := 0x574B; i <= 0x5750; i := i + 1)
+    //    CreateItemInContainer(book, i, 1);
+    //endfor
+
+    var book2 := CreateItemInBackpack(who, 0x225B, 1);
+
+
+    CreateItemInContainer(book2, "tribulationscroll", 1);
+    CreateItemInContainer(book2, "despairscroll", 1);
+    CreateItemInContainer(book2, "perseverancescroll", 1);
+    CreateItemInContainer(book2, "resiliencescroll", 1);
+    CreateItemInContainer(book2, "invigoratescroll", 1);
+    CreateItemInContainer(book2, "inspirescroll", 1);
+
+    var book3 := CreateItemInBackpack(who, 0xe76, 1);
+    CreateItemInContainer(book3, 0x574B, 1);
+    CreateItemInContainer(book3, 0x574C, 1);
+    CreateItemInContainer(book3, 0x574D, 1);
+    CreateItemInContainer(book3, 0x574E, 1);
+    CreateItemInContainer(book3, 0x574F, 1);
+    CreateItemInContainer(book3, 0x5750, 1);
+endprogram

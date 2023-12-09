@@ -10,12 +10,12 @@ include "include/NPCUtil";
 include "include/objtype";
 include "include/anchors";
 include "ai/main/mainLoopThief";
-include "ai/combat/fight";
+include "ai/combat/stealing";
 include "ai/combat/defaultCombatEvent";
 include "ai/setup/animalSetup";
 include "ai/main/sleepMode";
 
-const HALT_THRESHOLD := 5; // how close before he attacks?
+const HALT_THRESHOLD := 15; // how close before he attacks?
 var npccfgfile := ReadConfigFile("npcdesc");
 var idlesnd1 := CInt(npccfgfile[me.npctemplate].idlesound1);
 var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
@@ -23,10 +23,8 @@ var idlesnd2 := CInt(npccfgfile[me.npctemplate].idlesound2);
 
 program KillPlayers()
     SetWarMode( 0 );
-    if (!me.hidden)
-        me.hidden := 1;
-        print("hidden!!");
-    endif
+    me.hidden := 1;
+    me.stealthsteps := 1000;
     main_AI_loop();
 endprogram
 

@@ -1,12 +1,80 @@
 use uo;
 use os;
+use math;
+
+include ":gumps:gumps";
 
 program setcolor(who, color)
+
+	if(!CInt(color))
+        var gump := GFCreateGump(70, 70);
+        	var widthGump := 800;
+            var heightGump := 650;
+        //GFGumpPic( s_gump, 0, 0, 2200);
+        GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+        GFPage( gump, 0 );
+
+        var left := 20;
+        var top := 20;
+        var total := 2500;
+        var page_size := 119;
+        var pager := ceil(total / page_size);
+        var i:= 0;
+        var color_id;
+        print("---------------"+pager);
+        for page_id := 1 to pager
+            GFPage( gump, page_id );
+            i := 0;
+            left := 20;
+            top := 20;
+            print("---------------page id: "+page_id);
+
+
+
+            print("pager "+(page_size*page_id+1000)+"/"+(page_size*page_id+page_size+1000));
+            //for color_id := (page_size*page_id) to (page_size*page_id+page_size)
+
+            for(color_id:=(page_size*page_id+800); color_id <= (page_size*page_id+page_size+800); color_id:=color_id+1)
+                GFTilePic(gump, left, top, 7939, color_id);
+                if(color_id)
+                     //GFTextLine(gump, left+10, top+50, 0, CStr(color_id));
+                endif
+
+                i += 1;
+
+                if(i == 15)
+                    top+=75;
+                    left:=20;
+                    i:= 0;
+                else
+                    left+=50;
+                endif
+
+            endfor
+
+            if( page_id > 1 )
+                GFAddButton(gump, 40, 620, 5603, 5603, GF_PAGE_BTN, (page_id-1));
+            endif;
+            if( page_id != pager )
+                GFAddButton(gump, 356, 620, 5605, 5605, GF_PAGE_BTN, (page_id+1));
+            endif
+
+        endfor
+
+
+
+
+    var res2 := GFSendGump( who, gump );
+    return;
+
+	endif
+
 	SendSysMessage( who, "Select a target to color." );
 	var on := Target(who,TGTOPT_CHECK_LOS);
 	if (!on)
 		SendSysMessage(on, "Canceled.", 1, 33);
 		return;
 	endif
+
 	on.color := CInt(color);
 endprogram

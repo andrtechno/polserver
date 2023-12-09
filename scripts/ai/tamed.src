@@ -53,7 +53,7 @@ endif
 program TamedAI()
     Detach();
     var time := ReadGameClock();
-    SetObjProperty(me,"countercheck", time);
+    SetObjProperty(me, "countercheck", time);
     var parms := {};
     parms[1] := me;
     parms[2] := time;
@@ -115,14 +115,14 @@ function MainAILoop()
     nextwatch := ReadGameClock();
     var mhp;
     EnableMainEvents();
-    while(AP_GetVital(me, VITALID_LIFE)> 0)
-        if ( GetObjProperty(me, "totem") )
+    while(AP_GetVital(me, VITALID_LIFE) > 0)
+        if (GetObjProperty(me, "totem"))
             SetObjProperty(me, "happiness", 100);
         endif
         //if(master.cmdlevel)
         //    SetObjProperty(me, "happiness", 1000);
         //endif
-        happiness := GetObjProperty(me,"happiness");
+        happiness := GetObjProperty(me, "happiness");
         mhp := AP_GetVital(me, VITALID_LIFE);
         if(GetObjProperty(me, "onhold"))
             HoldLoop("onhold");
@@ -133,6 +133,7 @@ function MainAILoop()
         else
             if(happiness < 10)
                 if (GetObjProperty(me, "NeverRelease") != 1)
+                    SendSysMessage(master, "release 3", color := 33);
                     release();
                 endif
             endif
@@ -145,7 +146,7 @@ function MainAILoop()
                     Fight(ev.source);
 
                 SYSEVENT_DAMAGED:
-                    if(AP_GetVital(me, VITALID_LIFE)< mhp)
+                    if(AP_GetVital(me, VITALID_LIFE) < mhp)
                         if(ev.source)
                             Fight(ev.source);
                         endif
@@ -198,6 +199,7 @@ function HoldLoop(type)
             hl_happiness := GetObjProperty(me, "happiness");
             ev := os::wait_for_event(60);
             if(hl_happiness < 10)
+                SendSysMessage(master, "release 4", color := 33);
                 release();
             endif
         else
@@ -389,11 +391,13 @@ function Transfer()
             orneriness := 1;
         endif
         happiness := happiness - orneriness;
-
+        SendSysMessage(master, "happiness 1", color := 33);
         if(happiness < 10)
+            SendSysMessage(master, "release 5", color := 33);
             release();
         else
             print("happiness down555");
+                    SendSysMessage(master, "happiness 2", color := 33);
             SetObjProperty(me, "happiness", happiness);
             SendSysMessage(master, "That person has no chance of controlling this beast!");
             return;
@@ -418,8 +422,9 @@ function Transfer()
     if(tst < diff)
       PlaySoundEffect(me, dmgsound);
       happiness := happiness - orneriness;
-
+        SendSysMessage(master, "happiness 3", color := 33);
       if(happiness < 10)
+      SendSysMessage(master, "release 6", color := 33);
         release();
       else
         SetObjProperty(me, "happiness", happiness);
@@ -437,9 +442,11 @@ function Transfer()
   else
     PlaySoundEffect(me, dmgsound);
     happiness := happiness - orneriness;
+            SendSysMessage(master, "happiness 4", color := 33);
         print("happiness down3");
     SetObjProperty(me, "happiness", happiness);
     if(happiness < 10)
+    SendSysMessage(master, "release 7", color := 33);
       release();
     else
       SendSysMessage(master,"your pet refuses to listen to you");
@@ -495,9 +502,9 @@ function release()
             return;
         endif
         set_critical(0);
-    elseif(GetObjProperty(me,"summoned") == 1)
-        if(GetObjProperty(me,"mounted") == 1)
-            char := GetObjProperty(me,"mounted_on");
+    elseif(GetObjProperty(me, "summoned") == 1)
+        if(GetObjProperty(me, "mounted") == 1)
+            char := GetObjProperty(me, "mounted_on");
             foreach person in onchars
                 if(person.serial == CInt(char))
                     mounted_char := person;
@@ -510,8 +517,8 @@ function release()
         MoveObjectToLocation(me,5288, 1176, 0, "britannia_alt", MOVEOBJECT_FORCELOCATION);
         KillMobile(me);
     else
-        if(GetObjProperty(me,"mounted"))
-            char := GetObjProperty(me,"mounted_on");
+        if(GetObjProperty(me, "mounted"))
+            char := GetObjProperty(me, "mounted_on");
             foreach person in onchars
                 if(person.serial == CInt(char))
                     mounted_char := person;
@@ -958,15 +965,18 @@ function obediencecheck()
     elseif(finaldefiance > checkvalue)
         PlaySoundEffect(me, dmgsound);
         happiness := happiness - orneriness;
+                SendSysMessage(master, "happiness 5", color := 33);
                 print("happiness down4");
         SetObjProperty(me, "happiness",(happiness-1));
         if(happiness < 10)
+            SendSysMessage(master, "release 1", color := 33);
             release();
         endif
         return 0;
     else
         PlaySoundEffect(me,hit);
         if(happiness < 10)
+            SendSysMessage(master, "release 2", color := 33);
             release();
             return 0;
         endif
@@ -976,9 +986,9 @@ endfunction
 
 function petcount()
     var pets := 0;
-    var mobs := ListMobilesNearLocation(me.x,me.y,me.z,8, me.realm);
+    var mobs := ListMobilesNearLocation(me.x, me.y, me.z, 8, me.realm);
     foreach mob in mobs
-        if((mob.script == "tamed")&&(GetObjProperty(mob,"master") == masterserial))
+        if((mob.script == "tamed") && (GetObjProperty(mob,"master") == masterserial))
             if(GetObjProperty(mob, "summoned"))
                 pets := pets + 0;
             else

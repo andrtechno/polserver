@@ -1,0 +1,19 @@
+use uo;
+use os;
+use util;
+
+include ":songbook:include/castall";
+
+program spell_cloaking(params)
+    var caster := params[1];
+    var info := params[2];
+
+	var points := 10 + (RandomInt(info.classlevel)+1);
+	var duration := 10; // * info.classlevel;
+
+    CastAll(caster, "Invisibility", duration, points);
+    //CastAll(caster, "FishHitPointRegenBoost", 60*100, 500);
+
+
+	return 1;
+endprogram

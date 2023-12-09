@@ -355,9 +355,9 @@ function MP_RestoreMountToAnimal( mobile, mount_piece )
 		endif
 	endif
 
-	SetObjProperty( animal, "happiness", 100 );
-	SetObjProperty( animal, "master", mobile.serial );
-	SetObjProperty( animal, "script", animal.script );
+	SetObjProperty(animal, "happiness", 100);
+	SetObjProperty(animal, "master", mobile.serial);
+    SetObjProperty(animal, "script", animal.script);
     animal.setmaster( mobile );
     animal.script := "tamed";
     RestartScript(animal);

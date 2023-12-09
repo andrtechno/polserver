@@ -6,7 +6,7 @@ program textcmd_light(who, level)
     if(!level)
         level := 0;
     endif
-    var mobilesList := ListMobilesNearLocationEx( who.x, who.y, who.z, 15, LISTEX_FLAG_NORMAL, who.realm);
+    var mobilesList := ListMobilesNearLocationEx( who.x, who.y, LIST_IGNORE_Z, 15, LISTEX_FLAG_NORMAL, who.realm);
     foreach mobile in mobilesList
         if(!mobile.isa(POLCLASS_NPC))
             mobile.setLightLevel (level, 10800);
@@ -16,5 +16,98 @@ program textcmd_light(who, level)
 
     endforeach
 
+	return 1;
+//PlayObjectCenteredEffect(who, 0x0701, 0, loop := 25); //sleep
+
+//PlayObjectCenteredEffect(who, 0x1795, 0, loop := 25); //music
+//PlayObjectCenteredEffect(who, 0x18B6, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x18D4, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x18ED, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x19BC, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x1958, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x19FD, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x1A8C, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x1AEE, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x21F2, 0, loop := 25);
+
+//PlayObjectCenteredEffect(who, 0x2198, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x227D, 0, loop := 25);
+
+//PlayObjectCenteredEffect(who, 0x2298, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x2288, 0, loop := 25);
+
+//PlayObjectCenteredEffect(who, 0x22A7, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x22B4, 0, loop := 25);
+
+//PlayObjectCenteredEffect(who, 0x231A, 0, loop := 25);
+//PlayObjectCenteredEffect(who, 0x231D, 0, loop := 25);
+
+//PlayObjectCenteredEffect(who, 0x2379, 0, loop := 70);
+//PlayObjectCenteredEffect(who, 0x2400, 0, loop := 20);
+
+//PlayObjectCenteredEffect(who, 0x2636, 0, loop := 20);
+//PlayObjectCenteredEffect(who, 0x2693, 0, loop := 20);
+//PlayObjectCenteredEffect(who, 0x2B15, 0, loop := 20);
+
+
+//PlayObjectCenteredEffect(who, 0x2B1C, 0, loop := 35);
+//PlayObjectCenteredEffect(who, 0x2B28, 0, loop := 35);
+//PlayObjectCenteredEffect(who, 0x2B2D, 0, loop := 45);
+//PlayObjectCenteredEffect(who, 0x2BE9, 0, loop := 50);
+//PlayObjectCenteredEffect(who, 0x2BFB, 0, loop := 70);
+//PlayObjectCenteredEffect(who, 0x2C13, 0, loop := 28);
+
+//PlayObjectCenteredEffect(who, 0x2C7E, 0, loop := 40);
+//PlayObjectCenteredEffect(who, 0x2C8E, 0, loop := 60);
+//PlayObjectCenteredEffect(who, 0x2CA0, 0, loop := 60);
+
+//PlayObjectCenteredEffect(who, 0x2CB4, 0, loop := 60);
+//PlayObjectCenteredEffect(who, 0x2CC4, 0, loop := 60);
+//PlayObjectCenteredEffect(who, 0x2CD0, 0, loop := 50);
+
+
+//PlayObjectCenteredEffect(who, 0x31B0, 0, loop := 45);
+//PlayObjectCenteredEffect(who, 0x31C0, 0, loop := 45);
+//PlayObjectCenteredEffect(who, 0x31D0, 0, loop := 35);
+//PlayObjectCenteredEffect(who, 0x31DD, 0, loop := 50);
+
+//PlayObjectCenteredEffect(who, 0x32B2, 0, loop := 40);
+//PlayObjectCenteredEffect(who, 0x32F9, 0, loop := 50);
+//PlayObjectCenteredEffect(who, 0x3309, 0, loop := 20);
+//PlayObjectCenteredEffect(who, 0x3BD2, 0, loop := 43);
+
+//PlayObjectCenteredEffect(who, 0x3BF4, 0, loop := 23);
+
+//PlayObjectCenteredEffect(who, 0x3BEE, 0, loop := 23); //fire
+//PlayObjectCenteredEffect(who, 0x3BE8, 0, loop := 23); //fire
+
+//PlayObjectCenteredEffect(who, 0x3C00, 0, loop := 15);
+//PlayObjectCenteredEffect(who, 0x3C26, 0, loop := 50); //hands
+
+//PlayObjectCenteredEffect(who, 0x3C3E, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C4C, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C59, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C66, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C79, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C83, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C8D, 0, loop := 30);
+//PlayObjectCenteredEffect(who, 0x3C94, 0, loop := 30);
+//
+
+//PlayObjectCenteredEffect(who, 0x3C9C, 0, loop := 45);
+//PlayObjectCenteredEffect(who, 0x3CB1, 0, loop := 45);
+//PlayObjectCenteredEffect(who, 0x3CC7, 0, loop := 55);
+
+//PlayObjectCenteredEffect(who, 0x3CE1, 0, loop := 55);
+//PlayObjectCenteredEffect(who, 0x3CEB, 0, loop := 55);
+//PlayObjectCenteredEffect(who, 0x3CF5, 0, loop := 55);
+//PlayObjectCenteredEffect(who, 0x3CFF, 0, loop := 55);
+
+//PlayObjectCenteredEffect(who, 0x1532, 0, loop := 55);
+//PlayObjectCenteredEffect(who, 0x185F, 0, loop := 55);
+//PlayObjectCenteredEffect(who, 0x188C, 0, loop := 55);
+
     return 1;
+
+
 endprogram;

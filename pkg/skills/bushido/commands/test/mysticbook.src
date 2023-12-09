@@ -1,0 +1,11 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_mysticbook( who )
+    var book := CreateItemInBackpack(who, 0x2D9D, 1);
+    var i;
+    for (i := 0x2D9E; i <= 0x2DAD; i := i + 1)
+        CreateItemInContainer(book,  i, 1);
+    endfor
+endprogram

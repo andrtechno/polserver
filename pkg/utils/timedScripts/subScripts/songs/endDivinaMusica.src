@@ -1,0 +1,19 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_DivinaMusica(params)
+	var mobile := params[1];
+
+	var points := struct;
+	points := GetObjProperty(mobile, "Song_Divina_Musica");
+
+
+	EraseObjProperty(mobile, "Song_Divina_Musica");
+
+	return 1;
+endprogram
+

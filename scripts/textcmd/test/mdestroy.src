@@ -22,6 +22,6 @@ program textcmd_mdestroy(who, text)
             endif
         endforeach
 
-        SendSysMessageUC( who, "Удалено итемов: " +i, "RUS", 3, MESSAGE_COLOR_GOOD);
+        SendSysMessageUC( who, "Удалено итемов: " +i+" в радиусе "+range, "RUS", 3, MESSAGE_COLOR_GOOD);
     endif
 endprogram

@@ -13,11 +13,20 @@ include ":charclasses:classes";
 var mex;
 var mey;
 
+var storage := FindStorageArea("Snooping Storage");
+if(!storage)
+    storage := CreateStorageArea("Snooping Storage");
+endif
+
+
 program snooping(who)
+print("-----------------------");
+    var oldPID := CInt(GetObjProperty(who, "#SnoopingPID"));
+
     var newitem;
     mex := who.x;
     mey := who.y;
-    var time := CInt(GetObjProperty(who, "#Snoop"));
+    var time := CInt(GetObjProperty(who, "#SnoopingTime"));
     var classLevel := CInt(GetObjProperty(who, "classlevel"));
     var classId := CInt(GetObjProperty(who, "classid"));
     if(!classLevel || (classId != ID_THIEF))
@@ -34,7 +43,7 @@ program snooping(who)
         return;
 	endif
 
-    if((time + 10) > ReadGameClock())
+    if((time + containerTime) > ReadGameClock())
         SendSysMessage(who, "You must wait some time before snooping this victim again");
         return;
     endif;
@@ -80,31 +89,56 @@ program snooping(who)
         return;
     endif
 
+    //old
+    if(oldPID)
+        var old_container := FindRootItemInStorageArea(storage, "Snoop container by "+oldPID);
+        CloseWindow( who, 12, old_container );
+        DestroyRootItemInStorageArea( storage, "Snoop container by "+oldPID );
+        print("Destroy old storage");
+    endif
+
+
+
+    //new
+    SetObjProperty(who, "#SnoopingPID", victim.serial);
+    var newContainer := FindRootItemInStorageArea(storage, "Snoop container by "+victim.serial);
+    if(!newContainer)
+        newContainer := CreateRootItemInStorageArea(storage, "Snoop container by "+victim.serial, 0x1300c);
+        print("create newContainer");
+    endif
+
+
+
     PrintTextAbovePrivate( who, "*You attempt to peek into the container*", who);
 
     var pts := CInt(GetAttribute(who, SNOOPING)) + (classLevel * 10);
-    SetObjProperty(who, "#Snoop", ReadGameClock());
+    SetObjProperty(who, "#SnoopingTime", ReadGameClock());
     sleep(3);
 
     SendSysMessage(who, "pts: "+pts);
     var diff := GetDiff2(who, victim);
 
-
     if (SkillCheck(who, SNOOPING, diff, pts))
+        var newContainer := CreateItemAtLocation(victim.x, victim.y, victim.z, 0x1300c, 1, who.realm);
+        //var newContainer := CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x1300c, 1, who.realm); //0x0E75 //0x1300c
 
-        var newContainer := CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x0E75, 1, who.realm); //0x0E75 //0x1300c
         if(!newContainer)
             print("Error create container "+newContainer.errortext);
             return;
         endif;
-        var oldpack := SystemFindObjectBySerial(GetObjProperty(who,"#Snoop_pid"));
-        if(oldpack)
-            CloseWindow( who, 12, oldpack);
-            DestroyItem(oldpack);
+
+        var pid := CInt(GetObjProperty(who, "#SnoopingPID"));
+        if(pid)
+            var oldpack := SystemFindObjectBySerial(pid);
+            if(oldpack)
+                //CloseWindow( who, 12, oldpack);
+                DestroyItem(oldpack);
+                print("------DestroyItem OLD-----");
+            endif
         endif
 
 
-        SetObjProperty(who, "#Snoop_pid", newContainer.serial);
+        SetObjProperty(newContainer, "expire", ReadGameClock()+containerTime);
 
         var items := EnumerateItemsInContainer(victim.backpack, ENUMERATE_ROOT_ONLY);
         var copiesCount := 0;
@@ -112,7 +146,7 @@ program snooping(who)
         foreach item in items
             var tname := item.name;
             if(item.newbie == 0)
-                var newitem := CreateItemCopyAtLocation(newContainer.x, newContainer.y, newContainer.z, item);
+                var newitem := CreateItemCopyAtLocation(newContainer.x, newContainer.y, newContainer.z, item, who.realm);
                 if(victim.isa(POLCLASS_NPC))
                     newitem.name := "Fake Item";
                 endif
@@ -124,22 +158,33 @@ program snooping(who)
             else
                 copiesNoCount := copiesNoCount+1;
             endif
-
         endforeach
+
+        SetObjProperty(newContainer,"noInsert",1);
         if(who.cmdlevel > 2)
             SendSysMessage(who, copiesCount+ " items copied, "+copiesNoCount+" were not copied.");
         endif
 
-        SendOpenSpecialContainer( who, newContainer );
-        Detach();
-        sleep(containerTime);
+        //print("------SendViewContainer-----");
+        //SetObjProperty(who, "#SnoopingPID", newContainer.serial);
+        //SendViewContainer( who, newContainer );
+        //Detach();
 
-        CloseWindow( who, 12, newContainer );
 
-        DestroyItem(newContainer);
 
-        EraseObjProperty(who, "#Snoop");
-        EraseObjProperty(who, "#Snoop_pid");
+
+
+
+
+SendOpenSpecialContainer( who, newContainer );
+Detach();
+sleep(containerTime);
+CloseWindow( who, 12, newContainer );
+DestroyRootItemInStorageArea( storage, "Snoop container by "+victim.serial );
+
+        print("------DestroyItem-----");
+        EraseObjProperty(who, "#SnoopingTime");
+        EraseObjProperty(who, "#SnoopingPID");
 
         return;
     else
@@ -190,4 +235,3 @@ function GetDiff2(who, victim)
     SendSysMessage(who, "chance: "+chance);
     return chance;
 endfunction
-

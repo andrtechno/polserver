@@ -4,6 +4,7 @@ use cfgfile;
 use cliloc;
 use util;
 use os;
+use polsys;
 
 include "include/client";
 include ":attributes:attributes";
@@ -112,7 +113,8 @@ program do_poisoning( who )
 					PlaySoundEffect(who, 0x248);
 					SetObjProperty(the_item, "PoisonStrength", stren);
 					SetObjProperty(the_item, "Duration", duration);
-
+					the_item.damage_poison_mod := stren;
+						IncRevision( the_item );
 					SendSysMessageCL(who, 1010517, color := 66 ); // You apply the poison.
 					hitscripts := GetObjProperty(the_item, "HitScripts");
 					if (!hitscripts)
@@ -153,8 +155,8 @@ program do_poisoning( who )
 					obj := CreateItemInBackpack( who, "parrow", 10 );
 					SetObjProperty(obj, "PoisonStrength", stren);
 					SetObjProperty(obj, "Duration", duration);
-
-
+					obj.damage_poison_mod := stren;
+IncRevision( obj );
 
 
 					// There might be more elegant ways to solve that.
@@ -216,6 +218,8 @@ program do_poisoning( who )
 					PlaySoundEffect(who, 0x248);
 					SetObjProperty(the_item, "PoisonStrength", stren);
 					SetObjProperty(the_item, "duration", duration);
+					the_item.damage_poison_mod := stren;
+					IncRevision( the_item );
 					SendSysMessageCL(who, 1010517, color := 66 ); // You apply the poison
 					VirtueDrop(who, stren);
 					return 1;

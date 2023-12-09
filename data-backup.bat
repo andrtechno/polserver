@@ -4,8 +4,8 @@ TITLE DataFile Backup
 REM - $Id$
 
 set WINRAR_PATH=C:\Program Files\WinRAR\
-set SOURCE_PATH=D:\Games\pol100-modern\data\
-set SAVE_PATH=D:\Games\pol100-modern\backups
+set SOURCE_PATH=D:\Games\polserver\data\
+set SAVE_PATH=D:\Games\polserver\backups
 
 set FDATE=%date:~4,25%
 set FDATE=%FDATE:/=-%

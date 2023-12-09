@@ -1,0 +1,29 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_songbook( who )
+
+    var book := CreateItemInBackpack(who, 0x225Ba, 1);
+    CreateItemInContainer(book, 0x133a, 1);
+    CreateItemInContainer(book, 0x133b, 1);
+    CreateItemInContainer(book, 0x133c, 1);
+    CreateItemInContainer(book, 0x133d, 1);
+    CreateItemInContainer(book, 0x133e, 1);
+    CreateItemInContainer(book, 0x133f, 1);
+
+    CreateItemInContainer(book, 0x1331, 1);
+    CreateItemInContainer(book, 0x1332, 1);
+    CreateItemInContainer(book, 0x1333, 1);
+    CreateItemInContainer(book, 0x1334, 1);
+    CreateItemInContainer(book, 0x1335, 1);
+    CreateItemInContainer(book, 0x1336, 1);
+    CreateItemInContainer(book, 0x1337, 1);
+    CreateItemInContainer(book, 0x1338, 1);
+    CreateItemInContainer(book, 0x1339, 1);
+    CreateItemInContainer(book, 0x1340, 1);
+    CreateItemInContainer(book, 0x1341, 1);
+    CreateItemInContainer(book, 0x1342, 1);
+    CreateItemInContainer(book, 0x1343, 1);
+    CreateItemInContainer(book, 0x1344, 1);
+endprogram

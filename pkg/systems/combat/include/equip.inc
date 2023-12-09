@@ -1,3 +1,4 @@
+use guilds;
 
 include ":damage:damage";
 include ":itemUtils:itemtypes";
@@ -42,6 +43,7 @@ function HandleMods(who, item)
     var owner := CInt(GetObjProperty(item, "owner"));
     if(owner)
         if(owner != who.serial)
+            print("You are not owner this item.");
             SendSysMessage(who, "You are not owner this item.");
             return 0;
         endif
@@ -66,6 +68,30 @@ function HandleMods(who, item)
             endif
         endif
     endif
+
+
+
+
+/*    var id := who.guildid;
+    var guild := FindGuild( id );
+    if(id)
+
+        var master := guild.GetProp( "Master" );
+        var guildStoneSerial := guild.GetProp( "GuildStone" );
+        var guildStone;
+        var itemGuild := CInt(GetObjProperty(item, "guild"));
+        var name := "Guild";
+
+
+        if( guildStoneSerial )
+            print("guildStoneSerial");
+            guildStone := SystemFindObjectBySerial( guildStoneSerial );
+            item.color := guildStone.color;
+            print("guildStoneSerial"+guildStone.color);
+        endif
+        item.name := name + " robe of " + who.name + " ["+guild.GetProp( "Abbr" )+"]";
+        item.newbie := 1;
+    endif*/
 
     /*var iDed := CInt(GetObjProperty(item, "IDed"));
 

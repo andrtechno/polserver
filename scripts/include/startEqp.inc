@@ -47,7 +47,7 @@ function MakeLoot(corpse, lootgroup)
     else
         mprop := 1;
         if(corpse.objtype == 0x1A340)
-            case(CInt(GetObjProperty(corpse,"level")))
+            case(CInt(GetObjProperty(corpse, "level")))
                 1: madj := 0;
                 2: madj := 2;
                 3: madj := 4;

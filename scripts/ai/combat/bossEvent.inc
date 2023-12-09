@@ -22,10 +22,12 @@ function process_combat_event(opponent)
     else
         spellattack(opponent);
     endif
-    if(((AP_GetVital(me, VITALID_LIFE) * 100) / AP_GetVitalMaximumValue(me, VITALID_LIFE)) < flee_point)
-        EraseObjProperty(me,"#flees");
-        flee(opponent);
-    endif
+
+    //убегает
+    //if(((AP_GetVital(me, VITALID_LIFE) * 100) / AP_GetVitalMaximumValue(me, VITALID_LIFE)) < flee_point)
+    //    EraseObjProperty(me,"#flees");
+    //    flee(opponent);
+    //endif
 endfunction
 
 function process_flee_event(opponent)

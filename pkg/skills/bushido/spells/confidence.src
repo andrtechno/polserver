@@ -1,0 +1,19 @@
+use uo;
+use os;
+use util;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include ":magery:spells";
+include ":damage:damage";
+
+program cast_confidence( params )
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+    SendSysMessage (caster, "The spell in developed...", color := 33);
+
+    return 1;
+
+endprogram

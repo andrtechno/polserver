@@ -1,7 +1,7 @@
 use uo;
 use os;
 use guilds;
-
+include ":DiscordWebhook:outbound";
 
 program equipRobe( character, item )
 
@@ -13,18 +13,24 @@ program equipRobe( character, item )
     var owner := CInt(GetObjProperty(item, "owner"));
     var itemGuild := CInt(GetObjProperty(item, "guild"));
     if(!id)
+        print("no id guild ;(");
+        PresetDiscordMessage( "test", "AdminInfo");
         SendSysMessage(character, "you not a guild");
         return 0;
-    endif;
-    if(owner != character.serial)
-        SendSysMessage(character, "You are not owner this item.");
-        start_script(":guilds:guildRobeDestroy", item);
-        return 0;
     endif
-    if(id != itemGuild)
-        SendSysMessage(character, "this item does not belong to your guild.");
-        start_script(":guilds:guildRobeDestroy", item);
-        return 0;
+    if(owner)
+        if(owner != character.serial)
+            SendSysMessage(character, "You are not owner this item.");
+            //start_script(":guilds:guildRobeDestroy", item);
+            //return 0;
+        endif
+    endif
+    if(itemGuild)
+        if(id != itemGuild)
+            SendSysMessage(character, "this item does not belong to your guild.");
+            //start_script(":guilds:guildRobeDestroy", item);
+            //return 0;
+        endif
     endif
     var name := "Guild";
 
@@ -37,9 +43,8 @@ program equipRobe( character, item )
         item.color := guildStone.color;
     endif
     item.name := name + " robe of " + character.name + " ["+guild.GetProp( "Abbr" )+"]";
-
     item.newbie := 1;
 
     return 1;
-
+    set_critical(0);
 endprogram

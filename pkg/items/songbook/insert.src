@@ -1,0 +1,76 @@
+use uo;
+use os;
+use unicode;
+use polsys;
+
+include ":magery:spells";
+
+var item_cfg := ReadConfigFile(":*:itemdesc");
+
+program onInsert(character, container, movetype, inserttype, adding_item, existing_stack, amount_to_add)
+    var access := 0;
+    var accessList := {0x133a, 0x133b,0x133c,0x133d,0x133e,0x133f,0x1331,0x1332,0x1333,0x1334,0x1335,0x1336,0x1337,0x1338,0x1339,0x1340,0x1341,0x1342,0x1343,0x1344};
+print("======================");
+//print("container: "+container);
+//print("movetype: "+movetype);
+//print("inserttype: "+inserttype);
+print("adding_item: "+adding_item.objtype);
+print("existing_stack: "+existing_stack.objtype);
+//print("amount_to_add: "+amount_to_add);
+
+//if(existing_stack.objtype != 3636 && existing_stack.objtype != 0x1f2f)
+//SendSysMessage(character, "ne podhodit!!!");
+//return 0;
+//endif
+
+
+
+
+
+
+
+	item_cfg := item_cfg[adding_item.objtype];
+	var spell_id := item_cfg.SpellId;
+
+
+	///var spell_elem := MS_GetSpellsCfgElem(spell_id);
+	//print(spell_elem);
+//return 1;
+    foreach item_obj in (accessList)
+        if(adding_item.objtype == item_obj)
+            access := 1;
+        endif
+    endforeach
+
+    if(!access)
+        SendSysMessageUC(character,"Этот предмет не подходи.", "RUS", 3, color := 33);
+        return 0;
+    endif;
+
+
+    var spells := GetObjProperty(container, "spells");
+    if(!spells)
+        spells := array;
+    endif;
+
+    var spells2 := GetObjProperty(container, "spells2");
+    if(!spells2)
+        spells2 := dictionary;
+    endif;
+
+    var finder := FindObjtypeInContainer(container, adding_item.objtype, FINDOBJTYPE_RECURSIVE);
+    if(!finder)
+        spells.Append(adding_item.objtype);
+        SetObjProperty(container, "spells", spells);
+
+        spells2.insert(spell_id, adding_item.objtype);
+        SetObjProperty(container, "spells2", spells2);
+
+        SendSysMessageUC(character,"Вы успешно добавили", "RUS", 3, color := 67);
+    else
+        SendSysMessageUC(character,"Этот предмет уже есть.", "RUS", 3, color := 67);
+        return 0;
+    endif;
+
+	return 1;
+endprogram

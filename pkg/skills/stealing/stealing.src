@@ -58,13 +58,14 @@ program skill_stealing(who)
         return;
     endif
 
-    var realitem := SystemFindObjectBySerial(reali,0);
+    var realitem := SystemFindObjectBySerial(reali, 0);
 
     var pts := CInt(GetDexterity(who)/2);
     SendSysMessage(who, "pts: "+pts);
 
 	if (SkillCheck(who, STEALING, -1))
         victim.movable:= 1;
+        //who.setCriminal(1);
         MoveItemToContainer(realitem, who.backpack);
         DestroyItem(victim);
         SendSysMessage(who, "You have successfully stolen the item.");

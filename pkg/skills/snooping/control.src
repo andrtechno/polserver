@@ -1,0 +1,14 @@
+use uo;
+use os;
+
+program ControlScript(container)
+	while ( container )
+		Sleep(1);
+		if (ReadGameClock() > CInt(GetObjProperty(container,"expire")))
+			DestroyItem(container);
+		endif
+		print("contaolr");
+	endwhile
+print("contaolr");
+	return 1;
+endprogram

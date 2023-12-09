@@ -1,0 +1,11 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_ninjabook( who )
+    var book := CreateItemInBackpack(who, 0x23A0, 1);
+    var i;
+    for (i := 0x23A1; i <= 0x23A8; i := i + 1)
+        CreateItemInContainer(book,  i, 1);
+    endfor
+endprogram

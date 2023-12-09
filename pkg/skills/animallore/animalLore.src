@@ -9,64 +9,64 @@ include ":timedScripts:timedScripts";
 var cfg := ReadConfigFile("::npcdesc");
 
 program animal_lore(who)
-        var data := {};
-        data[1] := "animallore";
-        data[2] := ReadGameClock();
-        data[3] := 2;
-        SetObjProperty(who, "LastUsedSkill", data );
-        TrainingSkill(who, data[3]);
-  EraseObjProperty(who, "IsMeditating");
-  EraseObjProperty(who, "HealTimer");
-  var targ := Target(who);
-  if(!targ.isA(POLCLASS_NPC))
-	SendSysMessage(who, "You must target a creature", color := 33);
-	return;
-  endif
-  var elem := cfg[targ.npctemplate];
-  var tameskill := GetAttribute( who, TAMING );
-  //var lore :=      GetAttribute( who, ANIMAL_LORE );
-  var tamedif := elem.tameskill -20;
-  var phisical := "";
-  var health := "";
-  var tameinfo := "";
-  var poison := "";
-  var foodtype := elem.food;
-  var foodinfo := "";
-  if(!foodtype)
-    foodtype := "all";
-  endif
-  var pts := CInt(GetAttribute(who, ANIMAL_LORE)) + 15;
-  if(SkillCheck(who,ANIMAL_LORE, -1, pts/3) > 0)
-    phisical := GetStr(AP_GetStat(targ, STRENGTH)/20);
-    health := GetHealth(10*AP_GetVital(targ, VITALID_LIFE)/AP_GetVitalMaximumValue(targ, VITALID_LIFE));
-    if (TS_GetTimerNames(targ, "P").size() > 0 )
-      poison := ", but is poisoned";
+    var data := {};
+    data[1] := "animallore";
+    data[2] := ReadGameClock();
+    data[3] := 2;
+    SetObjProperty(who, "LastUsedSkill", data );
+    TrainingSkill(who, data[3]);
+    EraseObjProperty(who, "IsMeditating");
+    EraseObjProperty(who, "HealTimer");
+    var targ := Target(who);
+    if(!targ.isA(POLCLASS_NPC))
+        SendSysMessage(who, "You must target a creature", color := 33);
+        return;
     endif
-    foodinfo := FindFood(foodtype);
-    if(tamedif)
-      if(GetObjProperty(targ,"master"))
-        tameinfo := "The animal is tamed and " + GetHappy(CInt(GetObjProperty(targ, "happiness")));
-      elseif(GetObjProperty( targ, "prevtamed" ))
-        tameinfo := "The animal has been previosly tamed";
-      else
-        tameinfo := "The animal has never been tamed";
-      endif
-      if(tameskill < tamedif)
-        tameinfo := tameinfo + " but you have no change to do so";
-      elseif((tameskill >= tamedif) && (!GetObjProperty(targ,"master")))
-	    tameinfo := tameinfo + " and you may try do so";
-      endif
+    var elem := cfg[targ.npctemplate];
+    var tameskill := GetAttribute( who, TAMING );
+    //var lore :=      GetAttribute( who, ANIMAL_LORE );
+    var tamedif := elem.tameskill -20;
+    var phisical := "";
+    var health := "";
+    var tameinfo := "";
+    var poison := "";
+    var foodtype := elem.food;
+    var foodinfo := "";
+    if(!foodtype)
+        foodtype := "all";
+    endif
+    var pts := CInt(GetAttribute(who, ANIMAL_LORE)) + 15;
+    if(SkillCheck(who,ANIMAL_LORE, -1, pts/3) > 0)
+        phisical := GetStr(AP_GetStat(targ, STRENGTH)/20);
+        health := GetHealth(10*AP_GetVital(targ, VITALID_LIFE) / AP_GetVitalMaximumValue(targ, VITALID_LIFE));
+        if (TS_GetTimerNames(targ, "P").size() > 0 )
+            poison := ", but is poisoned";
+        endif
+        foodinfo := FindFood(foodtype);
+        if(tamedif)
+            if(GetObjProperty(targ, "master"))
+                tameinfo := "The animal is tamed and " + GetHappy(CInt(GetObjProperty(targ, "happiness")));
+            elseif(GetObjProperty( targ, "prevtamed" ))
+                tameinfo := "The animal has been previosly tamed";
+            else
+                tameinfo := "The animal has never been tamed";
+            endif
+            if(tameskill < tamedif)
+                tameinfo := tameinfo + " but you have no change to do so";
+            elseif((tameskill >= tamedif) && (!GetObjProperty(targ,"master")))
+                tameinfo := tameinfo + " and you may try do so";
+            endif
+        else
+            tameinfo := "The creature cannot be tamed";
+        endif
+        PrintTextAbovePrivate(targ, "" +targ.name+" looks "+ phisical+ " and " + health +poison + ".", who);
+        sleep(1);
+        PrintTextAbovePrivate(targ, foodinfo, who);
+        sleep(1);
+        PrintTextAbovePrivate(targ, tameinfo, who);
     else
-	  tameinfo := "The creature cannot be tamed";
+        PrintTextAbovePrivate(targ, "You fail to understand anything about the animal", who);
     endif
-    PrintTextAbovePrivate(targ, "" +targ.name+" looks "+ phisical+ " and " + health +poison + ".", who);
-    sleep(1);
-    PrintTextAbovePrivate(targ, foodinfo, who);
-    sleep(1);
-    PrintTextAbovePrivate(targ, tameinfo, who);
-  else
-	PrintTextAbovePrivate(targ, "You fail to understand anything about the animal", who);
-  endif
 endprogram
 
 function FindFood(foodtype)

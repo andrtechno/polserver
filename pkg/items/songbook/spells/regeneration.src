@@ -1,0 +1,24 @@
+use uo;
+use os;
+
+include ":damage:damage";
+
+//Создает пульсации, которые восстанавливают своё здоровье.
+
+
+program spell_regeneration(params)
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+
+
+
+    foreach mob in ListMobilesNearLocation(caster.x, caster.y, LIST_IGNORE_Z, 15, caster.realm)
+        PlayObjectCenteredEffect(mob, 0x1795, 0, loop := 25); //music
+        HealDamage(mob, 50);
+        sleepms(500);
+    endforeach;
+
+	return 1;
+endprogram

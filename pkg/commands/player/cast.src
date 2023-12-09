@@ -1,0 +1,21 @@
+use uo;
+use os;
+use unicode;
+
+include ":magery:spells";
+
+program textcmd_cast(mobile, text)
+
+    var spell_id := CInt(text);
+
+	var spell_elem := MS_GetSpellsCfgElem(spell_id);
+	if(spell_elem.errortext)
+        SendSysMessageUC(mobile, "Такой магии нет.", "RUS", 3, MESSAGE_COLOR_BAD);
+	    return 0;
+	endif
+
+	var script := Start_Script(":magery:spellStarter", {mobile, spell_id});
+
+    return 1;
+
+endprogram

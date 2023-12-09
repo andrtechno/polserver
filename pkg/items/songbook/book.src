@@ -1,0 +1,9 @@
+use uo;
+use os;
+include ":songbook:gump";
+
+program book(who, item)
+
+    GumpBook(who, item);
+	return 1;
+endprogram

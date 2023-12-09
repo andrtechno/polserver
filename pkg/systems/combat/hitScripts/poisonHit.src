@@ -15,6 +15,7 @@ program poisonhit(param)
 	//var armor := param[4];
 	//var basedamage := param[5];
 	var rawdamage := param[6];
+
 	var PoisonStrength := CInt(GetObjProperty(weapon, "PoisonStrength"));
     if(!PoisonStrength)
 		PoisonStrength := 1;
@@ -26,15 +27,14 @@ program poisonhit(param)
 	SetObjProperty(defender, "TempDamage", rawdamage);
 
     if(defender.isA(POLCLASS_NPC))
-        if(10 <= RandomInt(99)+1)
+        if(75 <= RandomInt(99)+1)
             PoisonStrength := 0;
         endif
     elseif(defender.isA(POLCLASS_MOBILE))
-        if(5 <= RandomInt(99)+1)
+        if(50 <= RandomInt(99)+1)
             PoisonStrength := 0;
         endif
     endif
-
 
 	if ( PoisonStrength )
 		TS_StartTimer(defender, "DefaultPoison", duration, PoisonStrength, attacker);

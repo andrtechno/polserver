@@ -73,7 +73,14 @@ program stonewall( parms )
 		endif
 
 		SetObjProperty(item, "SummonedField", caster.serial);
-		SetObjProperty(item, "hp", 5);
+
+		var hp := 100;
+        if(GetObjProperty(caster,"classid") == ID_MAGE)
+            hp := 100 * (info.classlevel + 1);
+        endif;
+
+        SetObjProperty(item, "hp", hp);
+
 		SetObjProperty(item, "x", item.x);
 		SetObjProperty(item, "y", item.y);
 		SetObjProperty(item, "z", item.z);

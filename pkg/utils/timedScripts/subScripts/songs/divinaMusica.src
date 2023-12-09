@@ -1,0 +1,30 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_DivinaMusica(params)
+	var defender := params[1];
+	var percent := params[3];
+	var duration := params[4];
+
+	params := {};
+
+    PlayObjectCenteredEffect(defender, 0x1795, 0, loop := 25);
+	var true_percent := CDbl(percent) / 100;
+	var points := struct;
+	//points.+ar_mod := CInt(percent);
+
+   // HealDamage(defender, 10);
+
+			//AP_SetVital(defender, VITALID_LIFE, 50);
+			//AP_SetVital(defender, VITALID_MANA, defender.intelligence);
+			//AP_SetVital(defender, VITALID_STAMINA, defender.dexterity);
+
+	SetObjProperty(defender, "Song_Divina_Musica", points);
+
+	return 1;
+endprogram
+

@@ -30,13 +30,13 @@ program textcmd_dicegame(who)
 //if((targ.x > who.x) && (targ.y > who.y))
     var item := CreateItemAtLocation( targ.x, targ.y, targ.z, arrays[rand][randObj], 1, who.realm);
     if(item)
-    item.desc:="DiceGame";
-    item.movable:=0;
+    item.desc := "DiceGame";
+    item.movable := 0;
     PrintTextAbove(item, who.name+": " + rand);
     endif
-Detach();
-sleep(3);
-DestroyItem(item);
+    Detach();
+    sleep(3);
+    DestroyItem(item);
 //else
 //SendSysMessage( who, "size x Y");
 //endif

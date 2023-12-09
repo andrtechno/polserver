@@ -1,0 +1,29 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_weavingbook( who )
+    var book := CreateItemInBackpack(who,0x2D50, 1);
+
+    CreateItemInContainer(book, 0x2D51, 1);
+    CreateItemInContainer(book, 0x2D52, 1);
+    CreateItemInContainer(book, 0x2D53, 1);
+    CreateItemInContainer(book, 0x2D54, 1);
+    CreateItemInContainer(book, 0x2D55, 1);
+    CreateItemInContainer(book, 0x2D56, 1);
+    CreateItemInContainer(book, 0x2D57, 1);
+    CreateItemInContainer(book, 0x2D58, 1);
+    CreateItemInContainer(book, 0x2D59, 1);
+
+    CreateItemInContainer(book, 0x2D5A, 1);
+    CreateItemInContainer(book, 0x2D5B, 1);
+    CreateItemInContainer(book, 0x2D5C, 1);
+    CreateItemInContainer(book, 0x2D5D, 1);
+    CreateItemInContainer(book, 0x2D5E, 1);
+    CreateItemInContainer(book, 0x2D5F, 1);
+
+    CreateItemInContainer(book, 0x2D60, 1);
+    CreateItemInContainer(book, 0x3155, 1);
+
+
+endprogram

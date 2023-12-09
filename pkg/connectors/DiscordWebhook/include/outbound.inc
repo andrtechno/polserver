@@ -30,9 +30,9 @@ use file;
  * Failure - Returns error message.
  *
  */
-function PresetDiscordMessage( content, presetType:= "Default", embeds := {}, voice:=0 )
+function PresetDiscordMessage( content, presetType:= "Default", unused embeds := {}, unused voice:=0)
 
-	var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
+var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
 	if( settings_cfg.errortext )
 		SysLog("Error::PresetDiscordMessage() - Unable to open [:DiscordWebhook:settings.cfg] ->"+settings_cfg.errortext);
 		return error{"errortext" := "Unable to open [:DiscordWebhook:settings.cfg]"};
@@ -46,7 +46,8 @@ function PresetDiscordMessage( content, presetType:= "Default", embeds := {}, vo
 	var username := CheckAndGetConfig( cfg_elem, default_cfg_elem, "username" );
 	var avatar_url := CheckAndGetConfig( cfg_elem, default_cfg_elem, "avatar_url" );
 
-	PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice);
+PackAndSendMessageOld(channel_id, token, content, username, avatar_url);
+//PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice);
 	return 1;
 
 endfunction
@@ -91,7 +92,7 @@ function PackAndSendMessage(channel_id, token, content, username, avatar_url, em
 
 endfunction
 
-function PackAndSendMessage2(channel_id, token, content, username, avatar_url)
+function PackAndSendMessageOld(channel_id, token, content, username, avatar_url)
 
 	HTTPRequest(
   	"https://discord.com/api/webhooks/"+channel_id+"/"+token,

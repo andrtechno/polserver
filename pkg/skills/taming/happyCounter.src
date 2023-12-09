@@ -1,21 +1,27 @@
 use uo;
 use os;
 
-
 include ":attributes:attributes";
 
 program happycounter(parms)
     var me := parms[1];
     var timer := parms[2];
     var happiness;
-    //SetObjProperty(me, "#HappyCounterPID", GetPid());
+
+    print("timer "+timer);
+    print("ReadGameClock "+ReadGameClock());
+
+
     while((AP_GetVital(me, VITALID_LIFE) > 0) && (me.script == "tamed"))
-        if(GetObjProperty(me,"countercheck") != timer)
+        if(GetObjProperty(me, "countercheck") != timer)
             break;
         endif
-        if(GetObjProperty(me,"stabled"))
-            while(GetObjProperty(me,"stabled"))
-                if(GetObjProperty(me,"countercheck") != timer)
+        if(CInt(GetObjProperty(me, "countercheck")) >= ReadGameClock())
+        //    break;
+        endif
+        if(GetObjProperty(me, "stabled"))
+            while(GetObjProperty(me, "stabled"))
+                if(GetObjProperty(me, "countercheck") != timer)
                     break;
                 endif
                 sleep(600);
@@ -29,22 +35,21 @@ program happycounter(parms)
             endwhile
         else
             while((!GetObjProperty(me, "stabled")) && (!GetObjProperty(me, "onhold")))
-                if(GetObjProperty(me,"countercheck") != timer)
+                if(GetObjProperty(me, "countercheck") != timer)
                     break;
                 endif
-                happiness := GetObjProperty(me,"happiness");
+                happiness := GetObjProperty(me, "happiness");
                 happiness := happiness - 1;
-                //print("zzzzzzzzzz " + happiness);
-
-                SetObjProperty(me,"happiness", happiness);
-                                if(!happiness)
-                                    break;
-                                endif
-                sleep(2);
-            endwhile
-        endif
+                print("happiness - 1");
+                SetObjProperty(me, "happiness", happiness);
                 if(!happiness)
                     break;
                 endif
+                sleep(2);
+            endwhile
+        endif
+        if(!happiness)
+            break;
+        endif
     endwhile
 endprogram

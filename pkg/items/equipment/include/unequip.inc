@@ -15,16 +15,16 @@ include ":security:itemReport";
 function UnEquipEffect( mobile, item )
 
 
-        RemoveEquipmentMods( mobile, item, EQUIP_BOTH_MODS );
-        RemoveArMod( mobile, item );
-        RemoveProtMod( mobile, item );
+    RemoveEquipmentMods( mobile, item, EQUIP_BOTH_MODS );
+    RemoveArMod( mobile, item );
+    RemoveProtMod( mobile, item );
 
  	if( GetObjProperty( item, "OfBlackrock" ))
 		AP_SetVital( mobile, MANA, 0 );
 	endif
 
-        if( item.IsStaffRobe() )
-                unEquip_StaffRobe( item );
+    if( item.IsStaffRobe() )
+        unEquip_StaffRobe( item );
 	elseif( item.objtype == 0x8260 ) //Tazz Longbow
 		mobile.Disable( "firewhilemoving" );
 		RevokePrivilege( mobile, "firewhilemoving" );
@@ -36,9 +36,9 @@ function UnEquipEffect( mobile, item )
 	endif
 
 	EraseObjProperty( item, "EquippedOn" );
-        ITEM_ReportText( mobile, "Unequip Desc: "+desc+" Serial: "+item.serial+" X,T,Z,Realm: "+mobile.x+","+mobile.y+","+mobile.z+","+mobile.realm, ITEM_REPORT_SYSLOG );
+    ITEM_ReportText( mobile, "Unequip Desc: "+desc+" Serial: "+item.serial+" X,T,Z,Realm: "+mobile.x+","+mobile.y+","+mobile.z+","+mobile.realm, ITEM_REPORT_SYSLOG );
 
-        return 1;
+    return 1;
 endfunction
 
 function RemoveProtMod( mobile, item )

@@ -50,6 +50,7 @@ program itemdata(xObject)
 		allprops.append (prop);
 	endif
 
+
 	if ( xObject.insured )
 		prop.clilocid := 1061682; // <b>insured</b>
 		prop.values := array {};
@@ -232,6 +233,7 @@ program itemdata(xObject)
 					prop.values := array {xObject.damage_poison};
 					allprops.append (prop);
 				endif
+
 				if (xObject.damage_energy > 0)
 					prop.clilocid := 1060407; // energy damage ~1_val~%
 					prop.values := array {xObject.damage_energy};

@@ -1,0 +1,11 @@
+use uo;
+
+include "include/objtype";
+
+program textcmd_bushidobook( who )
+    var book := CreateItemInBackpack(who, 0x238C, 1);
+    var i;
+    for (i := 0x238D; i <= 0x2392; i := i + 1)
+        CreateItemInContainer(book,  i, 1);
+    endfor
+endprogram

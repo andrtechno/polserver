@@ -1,0 +1,22 @@
+use uo;
+use os;
+
+include ":damage:damage";
+
+//Создает барьер себе и ближайшим союзникам, который поглощает часть урона
+
+
+program spell_musicalshield(params)
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+
+
+
+    foreach mob in ListMobilesNearLocation(caster.x, caster.y, LIST_IGNORE_Z, 15, caster.realm)
+
+    endforeach;
+
+	return 1;
+endprogram

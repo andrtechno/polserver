@@ -4,6 +4,7 @@ use basic;
 use math;
 
 include "include/direction";
+include "include/client";
 
 program timer(params)
     var who := params[1];
@@ -11,9 +12,15 @@ program timer(params)
     var range := params[3];
     var tracker := params[4];
     var timer := 0;
+    SendSysMessage(who, "Distance "+Distance(who, critter));
+    SendSysMessage(who, "range "+range);
 
-    while((Distance(who, critter) <= range) && (critter.dead == 0) && (timer <= 12)&& (tracker == GetObjProperty(who,"TrackingCounter")))
-        timer := timer + 1;
+    SendSysMessage(who, "tracker "+tracker);
+    SendSysMessage(who, "TrackingTimeout "+CInt(GetObjProperty(who, "TrackingTimeout")));
+    var lost := 0;
+    //(Distance(who, critter) <= range) &&
+    // && (ReadGameClock() <= CInt(GetObjProperty(who, "TrackingTimeout")))
+    while((Distance(who, critter) <= range) && (critter.dead == 0) && (timer <= 12) && (tracker >= CInt(GetObjProperty(who, "TrackingTimeout"))))
 
         var x := critter.x;
         var y := critter.y;
@@ -24,7 +31,6 @@ program timer(params)
             y -= (z / 10);
         endif
 
-
         SendQuestArrow(who, x, y, "tracking");
 
         var dir := Get_direction(who, critter);
@@ -34,10 +40,18 @@ program timer(params)
             SendSysMessage(who, critter.name + " is to the " + dir);
         endif
         sleepms(1000);
-
+        timer := timer + 1;
+        if(Distance(who, critter) <= 5)
+            lost := 1;
+            break;
+        endif;
     endwhile;
     SendQuestArrow(who, -1, -1, "tracking");
-    SendSysMessage(who, "You have lost your quarry.");
-    EraseObjProperty(who, "#trackingtimeout");
+    if(!lost)
+        SendSysMessage(who, "You have lost your quarry.", 3, MESSAGE_COLOR_BAD);
+    else
+        SendSysMessage(who, "You have found "+critter.name, 3, MESSAGE_COLOR_GOOD);
+    endif
+
     return 1;
 endprogram

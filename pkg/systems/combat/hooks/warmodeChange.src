@@ -12,6 +12,6 @@ exported function warmodeChange(mobile, byref packet)
     if(flag)
     	return 0;
     else
-        EraseObjProperty(mobile, "LastMyAttackOpponent");
+        //EraseObjProperty(mobile, "LastMyAttackOpponent");
     endif
 endfunction

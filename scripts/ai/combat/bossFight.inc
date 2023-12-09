@@ -5,15 +5,28 @@ function Fight(opponent)
         opponent := 0;
         return;
     endif
+
+
     /*var oldprio :=*/ set_priority(50); // 'oldprio' unnecessary unless we're going to restore it
     SetOpponent(opponent);
     prepare_for_fight(opponent);
+
+//var pather := FindPath( me.x, me.y, me.z, opponent.x,opponent.y,opponent.z, me.realm, flags := FP_IGNORE_MOBILES+FP_IGNORE_DOORS, searchskirt := 5000, movemode := "L" );
+//while(1)
+    //foreach p in (pather)
+    //    RunTowardLocation(p.x, p.y);
+    //endforeach;
+    //break;
+//endwhile;
     TurnToward(opponent);
 
     SetObjProperty(me, "opponent", opponent.serial);
     var loops := 0;
     var f_ev;
     var fwaittime := 0;
+
+
+
 
     SetObjProperty(me, "time_attack", ReadGameClock() + 30); // && (opponent.cmdlevel<1)
     while((opponent) && (!opponent.dead) && (opponent.cmdlevel<1) && (!opponent.hidden) && (!opponent.concealed) && (Distance(me,opponent) < 20))
@@ -30,7 +43,7 @@ function Fight(opponent)
         var anch := GetObjProperty(me,"Anchor");
 
 
-        if(CoordinateDistance(me.x, me.y, CInt(anch[1]), CInt(anch[2])) > 15)
+        if(CoordinateDistance(me.x, me.y, CInt(anch[1]), CInt(anch[2])) > 30)
                 //MoveObjectToLocation(me, anch[1], anch[2], anch[3],me.realm, MOVEOBJECT_FORCELOCATION);
             //TurnTowardLocation( anch[1], anch[2] );
             //Detach();
@@ -141,14 +154,20 @@ endfunction
 
 function GoAnchor(anch)
 
+    var i := 0;
+
     while(1)
+        EraseObjProperty(me, "opponent");
         RunTowardLocation(CInt(anch[1]),CInt(anch[2]));
-        print("while GoAnchor "+CoordinateDistance(me.x, me.y, anch[1], anch[2]));
+
+sleepms(20);
+
 
         if(CoordinateDistance(me.x, me.y, anch[1], anch[2]) <= 0)
             RestartScript(me);
             break;
         endif
+        i++;
     endwhile
 
 endfunction

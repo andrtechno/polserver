@@ -1,0 +1,21 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndDefense(params)
+	var mobile := params[1];
+
+	var cfg_elem := TS_GetCfgElem("Song_Defense");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+	var points := struct;
+	points := GetObjProperty(mobile, "Song_Defense");
+    mobile.ar_mod := mobile.ar_mod - points.ar_mod;
+	//mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Song_Defense");
+    SendSysMessageUC( mobile, "Вы получили -" +points.ar_mod+" физической брони.", "RUS", 3, MESSAGE_COLOR_BAD);
+	return 1;
+endprogram
+

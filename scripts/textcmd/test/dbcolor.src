@@ -1,0 +1,95 @@
+use uo;
+use os;
+use math;
+
+include ":gumps:gumps";
+
+program setcolor(who, off)
+
+
+    var gump := GFCreateGump(70, 70);
+    var widthGump := 800;
+    var heightGump := 650;
+    GFResizePic( gump, 0, 0, GFGetCfgConst("Defaults", "ForeGround"), widthGump, heightGump);
+    GFPage( gump, 0 );
+
+    var offset:=0;
+    if(CInt(off))
+     offset:=1000 * CInt(off);
+    endif
+        var left := 15;
+        var top := 15;
+
+        var total := 1000;
+        var limit := 100;
+        var pager := ceil(total / limit);
+        var i:= 0;
+        var color_id;
+
+//2103 2104
+        var current;
+        var test;
+        print("---------------"+pager);
+        for page_id := 1 to pager
+            GFPage( gump, page_id );
+            i := 0;
+            left := 15;
+            top := 15;
+            print("---------------page id: "+page_id);
+
+
+
+
+            test := limit * ((page_id-1) + 1) + offset;
+            current := limit*(page_id-1) + offset;
+
+            print("pager "+current+"/"+(test));
+
+            for(color_id:=current+1; color_id <= test; color_id:=color_id+1)
+
+                GFTilePic(gump, left, top, 7939, color_id);
+                //GFAddButton(gump, left, top, 2103, 2104, GF_PAGE_BTN, color_id);
+                if(color_id)
+                     GFTextLine(gump, left+10, top+50, 0, CStr(color_id));
+                endif
+
+                i += 1;
+
+                if(i == 14)
+                    top+=75;
+                    left:=20;
+                    i:= 0;
+                else
+                    left+=55;
+                endif
+
+            endfor
+
+            if( page_id > 1 )
+                GFAddButton(gump, 680, 600, 4508, 4509, GF_PAGE_BTN, (page_id-1));
+            endif;
+            if( page_id != pager )
+                GFAddButton(gump, 730, 600, 4502, 4502, GF_PAGE_BTN, (page_id+1));
+            endif
+            GFTextLine(gump, 760, 590, 0, CStr(page_id));
+            GFTextLine(gump, 770, 590, 0, "/"+CStr(pager));
+
+        endfor
+
+
+
+
+    var res2 := GFSendGump( who, gump );
+    return;
+
+
+
+	SendSysMessage( who, "Select a target to color." );
+	var on := Target(who,TGTOPT_CHECK_LOS);
+	if (!on)
+		SendSysMessage(on, "Canceled.", 1, 33);
+		return;
+	endif
+
+
+endprogram

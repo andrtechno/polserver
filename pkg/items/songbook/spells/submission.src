@@ -1,0 +1,36 @@
+use uo;
+use os;
+//use cliloc;
+
+include ":mounts:mounts";
+include ":magery:spells";
+
+program spell_submission(params)
+    var caster := params[1];
+    var info := params[2];
+    var cast_on;
+
+    cast_on := MS_Target(caster, info, "Select a target.", TGTOPT_CHECK_LOS+TGTOPT_HELPFUL);
+    if (!cast_on) // If no cast_on then get cast_on from parms[4]. Used mostly for NPC casting.
+        cast_on := params[4];
+    endif
+
+
+	if ( Distance(caster, cast_on) > 10 )
+		//SendSysMessageCL(caster, 501043, color := 33); // Target is not close enough.
+		SendSysMessage(caster, "Target is not close enough.", color := 33); // Target is not close enough.
+		return 0;
+	elseif ( cast_on.hidden )
+		SendSysMessage(caster, "Target cannot be seen.", color := 33); // Target cannot be seen.
+		return 0;
+    endif
+
+	var mount := GetEquipmentByLayer(cast_on, 25);
+	if(mount)
+		MP_Unmount(cast_on);
+	endif
+
+
+
+	return 1;
+endprogram

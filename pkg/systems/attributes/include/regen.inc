@@ -101,7 +101,9 @@ function AP_GetVitalRegenRateMod( mobile, vital_name )
 	vital_name := Lower( vital_name );
 
 	var regen_prop := AP_LoadVitalRegenRateProp( mobile );
-	return CInt( regen_prop[vital_name] );
+//print(vital_name+ "AP_GetVitalRegenRateMod "+regen_prop[vital_name]);
+return CInt( regen_prop[vital_name] );
+
 endfunction
 
 /*

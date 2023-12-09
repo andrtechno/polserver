@@ -1,0 +1,72 @@
+use uo;
+use os;
+use util;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+//Восстанавливает все характеристики себе и всем окружающим союзникам
+
+program spell_glory(params)
+    var caster := params[1];
+    var info := params[2];
+    var song := "Song_Divina_Musica";
+    var party := GetObjProperty(caster, "#Party");
+
+	var points := 50 + (RandomInt(info.classlevel)+1);
+	var duration := 10; // * info.classlevel;
+
+
+
+	if ( GetObjProperty(caster, song) )
+        SendSysMessage(caster, "Already under the influence!");
+    else
+        //TS_StartTimer(caster, song, duration, points, caster);
+        setVitals(caster, points);
+	endif
+
+
+
+    //Guilds
+    foreach mob in ListMobilesNearLocation(caster.x, caster.y, LIST_IGNORE_Z, 15, caster.realm)
+        if(caster.guildid)
+            if(mob.acctname && (mob.guildid == caster.guildid) && (mob.serial != caster.serial))
+                if (!CInt(GetObjProperty(mob, song)))
+                    //TS_StartTimer(mob, song, duration, points, caster);
+                    setVitals(mob, points);
+                endif
+            endif
+        endif
+    endforeach
+
+
+    //Party
+    foreach prt in party
+        var enemy := SystemFindObjectBySerial(prt);
+        if( Distance( caster, enemy ) < 15 && !GetObjProperty(enemy, song) && (enemy.serial != caster.serial))
+            //TS_StartTimer(enemy, song, duration, points, caster);
+            print(enemy.name);
+            setVitals(enemy, points);
+        endif
+    endforeach
+
+    return 1;
+endprogram
+
+
+function setVitals(mobile, points)
+        if(AP_GetVital(mobile, VITALID_LIFE) < AP_GetVitalMaximumValue(mobile, VITALID_LIFE))
+            SendSysMessage(mobile, "LIFE");
+            AP_SetVital(mobile, VITALID_LIFE, AP_GetVital(mobile, VITALID_LIFE) + points);
+        endif
+
+        if(AP_GetVital(mobile, VITALID_MANA) < AP_GetVitalMaximumValue(mobile, VITALID_MANA))
+            SendSysMessage(mobile, "MANA");
+            AP_SetVital(mobile, VITALID_MANA, AP_GetVital(mobile, VITALID_MANA) + points);
+        endif
+        if(AP_GetVital(mobile, VITALID_STAMINA) < AP_GetVitalMaximumValue(mobile, VITALID_STAMINA))
+            SendSysMessage(mobile, "STAMINA");
+            AP_SetVital(mobile, VITALID_STAMINA, AP_GetVital(mobile, VITALID_STAMINA) + points);
+        endif
+
+endfunction

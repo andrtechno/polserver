@@ -90,7 +90,6 @@ program MainHitScript(attacker, defender, weapon, armor, basedamage, rawdamage)
 	endif
 
 
-
 	//FacingChecks(attacker, defender);
 	PlayHitSounds(defender);
 	SkillChecks(attacker, defender, weapon, rawdamage);
@@ -327,9 +326,6 @@ function WeaponHitScripts(attacker, defender, weapon, armor, basedamage, rawdama
 		endif
 		SleepMS(2);
 	endforeach
-
-
-
 
 	return 1;
 endfunction

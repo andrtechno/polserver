@@ -41,7 +41,7 @@ program textcmd_restartserver(who)
 
     var restartTimer := CInt(input);
     if(restartTimer < 100)
-    	//PresetDiscordMessage( "@everyone Рестрат сервера через **"+input+" мин.**", "default");
+    	PresetDiscordMessage( "@everyone Рестрат сервера через **"+input+" мин.**", "default");
         while (restartTimer > 0)
             BroadcastUC( "Рестарт сервера произойдет через " + restartTimer + " мин.", "RUS", 3, 33 );
             sleep(60);
@@ -51,7 +51,7 @@ program textcmd_restartserver(who)
 
 
     BroadcastUC("Рестарт сервера...", "RUS", 3, 33);
-	//PresetDiscordMessage( "Рестарт сервера...", "default");
+	PresetDiscordMessage( "Рестарт сервера...", "default");
     sleep(1);
     SaveWorldState();
     sleep(1);

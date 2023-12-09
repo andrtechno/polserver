@@ -1,18 +1,68 @@
 use uo;
 use os;
 use unicode;
+//use PolSys;
+
+include ":attributes:attributes";
+include "include/itemdesc";
+include "include/math";
 
 program script_use(mobile, item)
-    var hp := GetObjProperty(item, "hp");
-    var x := GetObjProperty(item, "x");
-    var y := GetObjProperty(item, "y");
-    var z := GetObjProperty(item, "z");
+    var hp := CInt(GetObjProperty(item, "hp"));
+    var x := CInt(GetObjProperty(item, "x"));
+    var y := CInt(GetObjProperty(item, "y"));
+    var z := CInt(GetObjProperty(item, "z"));
 
-    if(hp)
-        hp -= 1;
+    var str := AP_GetStat(mobile, STRENGTH);
+    var dmg := 0;
+    var dmg_weapon := GetItemDescInfo( mobile.weapon.objtype ).Damage;
+    dmg := CInt(dmg + (str/4) + RandomDiceRoll(dmg_weapon));
+
+//SendSysMessageUC(mobile, "RandomDiceRoll "+RandomDiceRoll(dmg_weapon), "RUS", 3, 33);
+
+
+    var change := 60;
+    var hit_change := add_percent(change, mobile.hit_chance);
+
+
+   // SendSysMessageUC(mobile, "ddd "+hit_change, "RUS", 3, 33);
+    //SendSysMessageUC(mobile, "RandomInt "+RandomInt(change), "RUS", 3, 33);
+
+    if(hit_change <= RandomInt(99)+1)
+        SendSysMessageUC(mobile, "hit miss...", "RUS", 3, 33);
+        return 1;
+    endif;
+
+
+
+    if(hp > 0)
+        hp := hp - dmg;
         SetObjProperty(item, "hp", hp);
+
         //MoveObjectToLocation(item, item.x, item.y, item.z - 2, item.realm, MOVEOBJECT_FORCELOCATION + MOVEITEM_IGNOREMOVABLE);
         PerformAction(mobile, 0x09);
+
+        PrintTextAbovePrivate(item, "-"+dmg, mobile, 3, 33);
+
+
+
+//SendSysMessageUC(mobile, "hit_chance; "+mobile.hit_chance, "RUS", 3, 33);
+//SendSysMessageUC(mobile, "damage; "+dmg_weapon, "RUS", 3, 33);
+//SendSysMessageUC(mobile, "damage; "+RandomDiceRoll(dmg_weapon), "RUS", 3, 33);
+
+
+	/*var dmg_packet := CreatePacket(0x0B, 0x07);
+
+	//if( amount <= 255 )
+	//	dmg_packet.SetInt8(0x06, 123);
+	//else
+		dmg_packet.SetInt16(0x05, CInt(dmg));
+	//endif
+	dmg_packet.SetInt32(0x01, mobile.serial);
+    dmg_packet.SendPacket(mobile);*/
+
+
+
     else
         //var it := CreateItemAtLocation( x, y, z, 0x19BA, 1, mobile.realm );
         //it.movable := 0;

@@ -1,0 +1,166 @@
+use uo;
+use os;
+
+include ":DiscordWebhook:outbound";
+include ":snooping:thief";
+
+use storage;
+    var storage := FindStorageArea("Snooping Storage");
+    if(!storage)
+        storage := CreateStorageArea("Snooping Storage");
+    endif
+
+program textcmd_snooptest( who )
+    //PresetDiscordMessage( "test", "admin");
+    PresetDiscordMessage( "test", "Default");
+
+    var oldPID := CInt(GetObjProperty(who, "#SnoopingPID"));
+    SendSysMessage(who, "Select target.");
+	var victim  := Target(who);
+
+    if (!victim)
+		SendSysMessage(who, "Cancelled.");
+		return;
+	endif
+
+PlayMovingEffect(who, victim, 0x0e97, 11, 1, 0);
+//PlayMovingEffectEx(who, victim, 0x0e97, 11, 1, 0,1156);
+
+return;
+    //old
+    if(oldPID)
+        var old_container := FindRootItemInStorageArea(storage, "Snoop container by "+oldPID);
+        CloseWindow( who, 12, old_container );
+        DestroyRootItemInStorageArea( storage, "Snoop container by "+oldPID );
+        print("Destroy old storage");
+    endif
+
+
+
+    //new
+    SetObjProperty(who, "#SnoopingPID", victim.serial);
+    var newContainer := FindRootItemInStorageArea(storage, "Snoop container by "+victim.serial);
+    if(!newContainer)
+        newContainer := CreateRootItemInStorageArea(storage, "Snoop container by "+victim.serial, 0x1300c);
+        print("create newContainer");
+    endif
+
+
+
+
+
+
+
+        var items := EnumerateItemsInContainer(victim.backpack, ENUMERATE_ROOT_ONLY);
+        var copiesCount := 0;
+        var copiesNoCount := 0;
+        foreach item in items
+            var tname := item.name;
+            if(item.newbie == 0)
+
+
+                var newitem := CreateItemCopyAtLocation(newContainer.x, newContainer.y, newContainer.z, item, who.realm);
+                if(who.isa(POLCLASS_NPC))
+                    newitem.name := "Fake Item";
+                endif
+                SetObjProperty(newitem, "realitem", item.serial);
+                MoveItemToContainer(newitem, newContainer, item.x, item.y);
+                RecursiveCopy(victim, item, newitem, copiesCount);
+                newitem.movable := 0;
+                copiesCount := copiesCount+1;
+            else
+                copiesNoCount := copiesNoCount+1;
+            endif
+        endforeach
+        SetObjProperty(newContainer,"noInsert",1);
+
+SendOpenSpecialContainer( who, newContainer );
+sleep(60);
+CloseWindow( who, 12, newContainer );
+DestroyRootItemInStorageArea( storage, "Snoop container by "+victim.serial );
+
+print(newContainer);
+    return;
+//var newContainer := CreateItemAtLocation(5858, 1158, 0, 0x9B2, 1, who.realm);
+//var newContainer := CreateItemAtLocation(who.x, who.y, who.z, 0x1300c, 1, who.realm);
+
+
+        //var items := EnumerateItemsInContainer(who.backpack, ENUMERATE_ROOT_ONLY);
+        //var copiesCount := 0;
+        //var copiesNoCount := 0;
+        foreach item in items
+            var tname := item.name;
+            if(item.newbie == 0)
+                var newitem := CreateItemCopyAtLocation(who.x, who.y, who.z, item, who.realm);
+                //if(who.isa(POLCLASS_NPC))
+                    newitem.name := "Fake Item";
+                //endif
+                SetObjProperty(newitem, "realitem", item.serial);
+                MoveItemToContainer(newitem, newContainer, item.x, item.y);
+                RecursiveCopy(who, item, newitem, copiesCount);
+                newitem.movable := 0;
+                copiesCount := copiesCount+1;
+            else
+                copiesNoCount := copiesNoCount+1;
+            endif
+
+        endforeach
+        SetObjProperty(newContainer,"noInsert",1);
+
+print(newContainer.x+" "+newContainer.y);
+//SendOpenSpecialContainer( who, newContainer );
+SendViewContainer( who, newContainer );
+
+sleep(20);
+CloseWindow( who, 12, newContainer );
+print(newContainer.x+" "+newContainer.y);
+//MoveObjectToLocation(5858, 1158, 0,who.realm);
+//sleep(1);
+DestroyItem(newContainer);
+return 1;
+
+        var pid := CInt(GetObjProperty(who, "#SnoopingPID"));
+        if(pid)
+                var oldpack := SystemFindObjectBySerial(pid);
+                if(oldpack)
+                    print("oldpack: "+oldpack.x+" "+oldpack.y);
+                    //CloseWindow( who, 12, oldpack);
+                    //sleep(1);
+                    //DestroyItem(oldpack);
+                endif
+        endif
+
+        //var newContainer := CreateItemAtLocation(COPY_BACKPACK_X, COPY_BACKPACK_Y, COPY_BACKPACK_Z, 0x1300c, 1, who.realm);
+        if(!newContainer)
+            print("Error create container "+newContainer.errortext);
+            return;
+        endif;
+
+        SetObjProperty(newContainer, "expire", ReadGameClock() + 5);
+
+        SetObjProperty(who, "#SnoopingPID", newContainer.serial);
+        //SendOpenSpecialContainer( who, newContainer );
+        sleep(5);
+        //CloseWindow( who, 12, newContainer );
+        //print("newContainer: "+newContainer.x+" "+newContainer.y);
+        //DestroyItem(newContainer);
+
+        return 1;
+endprogram
+
+
+function RecursiveCopy(who, originalItem, copy, byref copiesCount)
+    Set_Critical(1);
+    if (originalItem.isA(POLCLASS_CONTAINER))
+        var items := EnumerateItemsInContainer(originalItem, ENUMERATE_ROOT_ONLY);
+        foreach item in items
+            var newitem := CreateItemCopyAtLocation(who.x,who.y,who.z,item);
+            SetObjProperty(newitem, "realitem", item.serial);
+            MoveItemToContainer(newitem, copy, item.x, item.y);
+            newitem.movable := 0;
+            copiesCount := copiesCount + 1;
+            RecursiveCopy(who, item, newitem, copiesCount);
+        endforeach
+    endif
+    Set_Critical(0);
+endfunction

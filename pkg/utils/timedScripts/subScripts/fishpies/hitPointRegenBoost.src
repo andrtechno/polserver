@@ -19,11 +19,13 @@ program TimedScript_hitPointRegenBoost(params)
 	var timers := TS_GetTimerNames(mobile);
 	foreach timer in timers
 		if(timer[1,4] == "Fish")
-			Run_Script(":timedScripts/subScripts/fishpies/end" + timer, {mobile});
-			break;
+			//Run_Script(":timedScripts/subScripts/fishpies/end" + timer, {mobile});
+			//break;
 		endif
 	endforeach
+	points:=30;
 	AP_SetVitalRegenRateMod( mobile, "Hits", AP_GetVitalRegenRateMod( mobile, "Hits" ) + points);
+
 	SetObjProperty(mobile, "FishHitPointRegenBoost", points);
 	// This is not yet implemented.
 

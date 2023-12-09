@@ -39,25 +39,34 @@ program use_bandages(who, item)
 	endif
     var patient := who;
 	SendSysMessage(who, "Who would you like to heal?", color := 88);
-	if(!CInt(GetObjProperty(who, "Targetting")))
-        var patient := Target(who, TGTOPT_HELPFUL + TGTOPT_CHECK_LOS);
+	//if(!CInt(GetObjProperty(who, "Targetting")))
+        patient := Target(who, TGTOPT_HELPFUL + TGTOPT_CHECK_LOS);
         if(!patient)
             SendSysMessage(who, "Cancelled.", color := 33);
             return;
         endif
-	endif
+	//endif
+
+
+
+
     EraseObjProperty(who, "Targetting");
 	var poisons := TS_GetTimerNames(patient, "P");
+
 	if(Distance(who, patient) > 1)
 		SendSysMessage(who, "Your patient is too far away.", color := 33);
 		return;
-	elseif(!CheckLineOfSight(who,patient))
+	elseif(!CheckLineOfSight(who, patient))
 		SendSysMessage(who,"You can't see your patient.", color := 33);
 		return;
-	elseif((AP_GetVital(patient, VITALID_LIFE) >= AP_GetVitalMaximumValue(patient, VITALID_LIFE)) and (poisons.size() == 0))
+	elseif((AP_GetVital(patient, VITALID_LIFE) >= AP_GetVitalMaximumValue(patient, VITALID_LIFE)))
 		SendSysMessage(who,"Your patient is at full heath", color := 88);
 		return;
 	endif
+
+
+
+
 	detach();
 	SetObjProperty(who, "HealTimer", clock);
 

@@ -1,0 +1,21 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_EndHaste(params)
+	var mobile := params[1];
+
+	var cfg_elem := TS_GetCfgElem("Song_Haste");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+	var points := struct;
+	points := GetObjProperty(mobile, "Song_Haste");
+	AP_ModifyStatMod(mobile, DEXTERITY, -points.dex);
+	//mobile.delbuff(buff_icon);
+	EraseObjProperty(mobile, "Song_Haste");
+    SendSysMessageUC( mobile, "Эффект Song Haste закончен.", "RUS", 3, MESSAGE_COLOR_BAD);
+	return 1;
+endprogram
+

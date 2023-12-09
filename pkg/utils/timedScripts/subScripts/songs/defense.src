@@ -1,0 +1,31 @@
+use uo;
+use os;
+use unicode;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+
+program TimedScript_Defense(params)
+	var defender := params[1];
+	var percent := params[3];
+	var duration := params[4];
+
+	var cfg_elem := TS_GetCfgElem("Song_Defense");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+	params := {};
+
+    PlayObjectCenteredEffect(defender, 0x1795, 0, loop := 25);
+	var true_percent := CDbl(percent) / 100;
+	var points := struct;
+	points.+ar_mod := CInt(percent);
+
+    defender.ar_mod := defender.ar_mod + points.ar_mod;
+
+	//defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, CStr(percent));
+	SetObjProperty(defender, "Song_Defense", points);
+    SendSysMessageUC( defender, "Вы получили +" +points.ar_mod+" физической брони.", "RUS", 3, MESSAGE_COLOR_GOOD);
+	return 1;
+endprogram
+

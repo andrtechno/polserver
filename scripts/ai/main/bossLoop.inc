@@ -1,3 +1,4 @@
+include "ai/setup/main_ai";
 
 function main_AI_loop()
     var ev := os::wait_for_event(0);
@@ -5,7 +6,6 @@ function main_AI_loop()
     var next_loot := ReadGameClock() + 20;
     EnableMainEvents();
     var rint := 0;
-
 
     while(1)
         look_around();
@@ -30,9 +30,36 @@ function main_AI_loop()
         if(ev)
             case(ev.type)
                 SYSEVENT_ENTEREDAREA:
-                    if(CheckLineOfSight( me, ev.source ) && ((!ev.source.npctemplate) or (ev.source.script == "employed") || (ev.source.script == "tamed")))
+//CheckLineOfSight( me, ev.source ) &&
+if(((!ev.source.npctemplate) or (ev.source.script == "employed") || (ev.source.script == "tamed")))
+
+//var pather := FindPath( 1436, 1636, 20, 1426,1648,10, me.realm, flags := FP_IGNORE_MOBILES, searchskirt := 500, movemode := "L" );
+//print(pather);
+//foreach p in (pather)
+//print("pather2");
+//RunTowardLocation(p.x, p.y);
+//sleepms(100);
+//endforeach;
+//endif;
+
+
                         Fight(ev.source);
 print("SYSEVENT_ENTEREDAREA 1");
+/*
+var desc := struct{
+Color    := 0,
+Graphic  := 0x122d,
+Movable  := 1,
+ObjClass := "Item",
+ObjType  := 0x122d
+};
+var item := CreateItemAtLocation(
+ev.source.x+ConvertDirectionToLocX(ev.source.facing),
+ev.source.y+ConvertDirectionToLocY(ev.source.facing),
+ev.source.z, desc, 1, ev.source.realm
+);*/
+
+
                     endif
                 SYSEVENT_ENGAGED:       Fight(ev.source); print("SYSEVENT_ENGAGED 1");
                 EVID_ALL_ATTACK_CMD:    Fight(ev.source); print("EVID_ALL_ATTACK_CMD 1");
@@ -44,6 +71,11 @@ endfunction
 
 function look_around()
     Say("look_around");
+    if(AP_GetVital(me, VITALID_LIFE) < AP_GetVitalMaximumValue(me, VITALID_LIFE))
+        CastSpell(me, me, "greaterHeal");
+        print("look_around heal");
+    endif
+
 
     var anch := GetObjProperty(me, "Anchor");
     if(CoordinateDistance(me.x, me.y, anch[1], anch[2]) > HALT_THRESHOLD)
@@ -77,4 +109,4 @@ function CloseIn(me, lx, ly)
     default: WalkTowardLocation(lx, ly);
              return 0;
   endcase
-endfunction  
+endfunction
