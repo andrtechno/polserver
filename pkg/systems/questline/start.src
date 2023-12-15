@@ -1,0 +1,20 @@
+use os;
+use uo;
+
+print("Initializing Quest Line");
+
+var enabled := CInt(GetGlobalProperty("QuestLineEnabled"));
+var start := CInt(GetGlobalProperty("questline_start"));
+var config := CInt(GetGlobalProperty("QuestLineConfig"));
+
+if(enabled)
+    if(start)
+        var ended := start_script("ended");
+        print("Questline run script: "+ended.name);
+        SetGlobalProperty( "#QuestLinePID", ended.pid );
+    else
+        var starter := start_script("starter", {config.timer, config.expire});
+        print("Questline run script: "+starter.name);
+        SetGlobalProperty( "#QuestLineStarterPID", starter.pid );
+    endif
+endif

@@ -1,0 +1,63 @@
+use os;
+use unicode;
+use uo;
+
+include ":DiscordWebhook:outbound";
+include ":datafile:datafile";
+
+var npcdesc := ReadConfigFile(":*:npcdesc");
+var data_file := DFOpenDataFile(":questline:members");
+
+program questline_starter(params)
+    var time := params[1];
+    var expire := params[2];
+    var pid := getprocess(GetGlobalProperty("#QuestLineStarterPID"));
+    var start := ReadGameClock() + (time * 60);
+    CleanupMembers();
+
+
+    var config := GetGlobalProperty("QuestLineConfig");
+
+
+    var dataQuest := GetGlobalProperty("questline");
+    if(!dataQuest)
+        dataQuest := array;
+    endif;
+
+    //wait for start
+    //if(start > ReadGameClock() || pid)
+    if(start > ReadGameClock() && CInt(GetGlobalProperty("QuestLineEnabled")))
+
+        /*var discordText := "## Квестлайн стартанет через "+GetGlobalProperty("questline_timer")+" мин. \n";
+        foreach questElem in (dataQuest)
+            var npc2 := FindConfigElem(npcdesc, questElem.npctemplate);
+            discordText += "- "+_questElem_iter+") "+npc2.Name+" ["+questElem.npctemplate+"] **x"+questElem.amount+"** - награда: **"+AddCommas(questElem.cost)+"** gp.\n";
+        endforeach
+        var discord := PresetDiscordMessage(discordText, "admin");*/
+
+        BroadcastUC("Квестлайн стартанет через "+config.timer+" мин. ", "RUS", 3, 1456);
+        while (start > ReadGameClock())
+            sleep(1);
+            print("starter "+ (start - ReadGameClock()));
+        endwhile
+        BroadcastUC("Квестлайн стартовал время прохождения "+config.expire+" мин. ", "RUS", 3, 1456);
+        SetGlobalProperty("questline_start", start);
+
+        //var discordstart := PresetDiscordMessage("Квестлайн стартовал время прохождения "+config.expire+" мин. ", "admin");
+
+    endif
+
+    var ended := start_script(":questline:ended");
+    SetGlobalProperty( "#QuestLinePID", ended.pid );
+
+    return 1;
+endprogram
+
+function CleanupMembers()
+	foreach elem_name in ( DFGetElemNames(data_file) )
+		data_file.DeleteElement(elem_name);
+		SleepMS(2);
+	endforeach
+
+	return 1;
+endfunction

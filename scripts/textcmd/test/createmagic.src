@@ -97,7 +97,7 @@ program textcmd_createmagic(who, text)
     //var item := CreateItemInInventory( who.backpack, it, 1 );
 
 
-    //ApplyEnchant(who, item);
+    ApplyEnchant(who, item);
 
     //ApplyARMod(item);
     //ApplyMiscSkillMod(item);

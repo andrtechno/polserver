@@ -21,7 +21,7 @@ program textcmd_wipeitem(who)
 
     var list := {};
             var test := RecursiveFind(targ, 0x13d4, list);
-            print(test);
+            print("wipeitem "+test);
 
 
 endprogram

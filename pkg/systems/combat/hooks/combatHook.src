@@ -164,7 +164,7 @@ exported function Attack(attacker, defender)
     var maxDamage := CINT((weapondesc.MaxDamage + xObject.dmg_mod) * damagefactor);
 
     print("damagefactor: "+damagefactor);
-    print(weapondesc.MaxDamage);
+    print("MaxDamage "+weapondesc.MaxDamage);
 
     if(raw_damage > maxDamage)
         raw_damage := maxDamage;

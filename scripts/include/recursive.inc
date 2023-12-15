@@ -2,6 +2,7 @@ use os;
 use util;
 
 function RecursiveCopy(who, item, copy)
+//    var level := 1;
     Set_Critical(1);
     if (item.isA(POLCLASS_CONTAINER))
         var items := EnumerateItemsInContainer(item, ENUMERATE_ROOT_ONLY);
@@ -10,7 +11,7 @@ function RecursiveCopy(who, item, copy)
                 var newitem := CreateItemCopyAtLocation(who.x, who.y, who.z, item);
                 MoveItemToContainer(newitem, copy, item.x, item.y);
                 RecursiveCopy(who, item, newitem);
-                LogStaff(who, ".dupe > sub", newitem);
+                LogStaff(who, "dupe/sub", newitem, newitem.amount);
                 if(!newitem.stackable)
                     SetObjProperty(newitem, "Dupe", who.acctname+"/"+who.name);
                     SetObjProperty(newitem, "DupeAt", StrFormatTime("%Y-%d-%m %H:%M:%S",polcore().systime));
@@ -21,10 +22,12 @@ function RecursiveCopy(who, item, copy)
                         SetObjProperty(newitem, "CreatedAt", "None");
                     endif
                 endif
-            endif
 
+            endif
+//level+=1;
         endforeach
     endif
+//print(level);
     Set_Critical(0);
 endfunction
 

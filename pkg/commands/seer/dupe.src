@@ -13,7 +13,7 @@ program textcmd_dupe( who )
     var what := Target( who, TGTOPT_NOCHECK_LOS );
 
     if (what.isA(POLCLASS_ITEM))
-        LogStaff(who, ".dupe", what);
+        LogStaff(who, "dupe", what, what.amount);
         var copyitem := CreateItemCopyAtLocation(who.x, who.y, who.z, what);
         if(!copyitem.stackable)
             SetObjProperty(copyitem, "Dupe", who.acctname+"/"+who.name);

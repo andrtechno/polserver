@@ -40,22 +40,22 @@ program magicwands(who, item)
 endprogram
 
 function StartEffect(who, spellid, item)
-  SendSysMessage(who, "Select a target.");
-  var trg := Target(who);
-  if(!trg)
-    SendSysMessage(who, "Canceled.");
-    return;
-  endif
-  var charges := CInt(GetObjProperty(item, "charges"));
-  charges := charges - 1;
-  SetObjProperty(item, "charges", charges);
-  if(charges == 0)
-    PrintTextAbovePrivate(item, "That is out of charges", who);
-  endif
-  if(!CheckLineOfSight(who, trg))
-    SendSysMessage(who, "You cant see that");
-    return;
-  endif
+    SendSysMessage(who, "Select a target.");
+    var trg := Target(who);
+    if(!trg)
+        SendSysMessage(who, "Canceled.");
+        return;
+    endif
+    var charges := CInt(GetObjProperty(item, "charges"));
+    charges := charges - 1;
+    SetObjProperty(item, "charges", charges);
+    if(charges == 0)
+        PrintTextAbovePrivate(item, "That is out of charges", who);
+    endif
+    if(!CheckLineOfSight(who, trg))
+        SendSysMessage(who, "You cant see that");
+        return;
+    endif
   if(!AP_GetVital(trg, VITALID_LIFE))
     SendSysMessage(who, "You can only use that on living things.");
     return;
@@ -175,20 +175,20 @@ function cast_greatheal(caster, cast_on)
 endfunction
 
 function cast_lightning(caster, cast_on)
-  var bdmg := RandomDiceRoll("4d4");
-  var dmg := MWresisted(40, cast_on, bdmg);
-  if (dmg < 1)
-    dmg := 1;
-  endif
-  if(MWReflected(cast_on))
-    cast_on := caster;
-  endif
-  PlaySoundEffect(cast_on, SFX_SPELL_LIGHTNING);
-  PlayLightningBoltEffect(cast_on);
-  if(cast_on.isA(POLCLASS_NPC))
-    dmg := dmg * 2;
-  endif
-  ApplySpellDamageEX(cast_on, dmg, DMG_ENERGY, caster, 4, "Lightning");
+    var bdmg := RandomDiceRoll("4d4");
+    var dmg := MWresisted(40, cast_on, bdmg);
+    if (dmg < 1)
+        dmg := 1;
+    endif
+    if(MWReflected(cast_on))
+        cast_on := caster;
+    endif
+    PlaySoundEffect(cast_on, SFX_SPELL_LIGHTNING);
+    PlayLightningBoltEffect(cast_on);
+    if(cast_on.isA(POLCLASS_NPC))
+        dmg := dmg * 2;
+    endif
+    ApplySpellDamageEX(cast_on, dmg, DMG_ENERGY, caster, 4, "Lightning");
 endfunction
 
 function cast_manadrain(caster, cast_on)

@@ -30,7 +30,7 @@ endif
     endforeach
 
     WriteHtml( "</table>" );
-print(list);
+//print(list);
 
 
 

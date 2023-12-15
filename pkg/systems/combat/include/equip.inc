@@ -104,12 +104,16 @@ function HandleMods(who, item)
         endif
     endif*/
 
+
+
+
     DoStatMods(who, item);
     DoSkillAdvance(who, item);
     DoProt( who, item );
     DoArMods( who, item );
     DoImmunity( who, item );
-    //DoHitChance( who, item );
+    DoHitChance( who, item );
+
     var type := GetObjProperty(item, "type");
     if(!type)
         return 1;
@@ -405,7 +409,7 @@ endfunction
 
 
 function DoHitChance(who, item)
-who.hit_chance_mod := 100;
+    who.hit_chance_mod := 100;
 endfunction
 
 

@@ -1,0 +1,19 @@
+use uo;
+use cfgfile;
+
+include ":itemid:itemid";
+
+
+program textcmd_itemid( who )
+
+    SendSysMessage( who, "Select a item." );
+    var targ := Target( who, TGTOPT_CHECK_LOS );
+
+    if (!targ)
+        SendSysMessage(who, "Targetting cancelled.");
+        return;
+    endif
+
+    itemd_id(who, targ);
+
+endprogram

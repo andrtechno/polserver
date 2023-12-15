@@ -14,7 +14,7 @@ function TS_ReportText(report_text:="?", flags:=TS_REPORT_DISABLE)
 	endif
 
 	if ( flags & TS_REPORT_CONSOLE )
-		Print(""+report_text);
+		Print("TS_REPORT_CONSOLE: "+report_text);
 	endif
 
 	if ( flags & TS_REPORT_SYSLOG )

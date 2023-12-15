@@ -6,8 +6,8 @@ program checkVersion(who)
     if(who.clientversion != "7.0.15.1")
     	SendSySMessage(who, "Your client version must be 7.0.15.1", color := 33);
     	SendSySMessage(who, "You will be disconnected in 5 seconds.", color := 33);
-        sleep(5);
-        DisconnectClient(who);
+        //sleep(5);
+        //DisconnectClient(who);
     endif
 	return 1;
 endprogram

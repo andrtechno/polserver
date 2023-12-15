@@ -5,6 +5,7 @@ use cfgfile;
 include ":gumps:gumps";
 include ":gumps:gumps_ex";
 include "util/bank";
+include "include/client";
 include "include/string";
 
 
@@ -98,13 +99,14 @@ program textcmd_premium(who)
         endif
 
         if(YesNo( who, "Купить "+elem.Name+" за "+currency_amount+" donate coin.?" ))
-                if(SpendCoin(who, currency_amount, who.backpack, currency) || SpendCoin(who, currency_amount, FindBankBox(who), currency))
+            if(SpendCoin(who, currency_amount, who.backpack, currency) || SpendCoin(who, currency_amount, FindBankBox(who), currency))
                 var item := CreateItemInBackpack(who, elem.Object, elem.Amount);
                 if(!item)
                     CreateItemAtLocation( who.x, who.y, who.z, elem.Object, elem.Amount, who.realm);
                 endif
+                SendSysMessage(who, "You have successfully purchased "+item.name, color := MESSAGE_COLOR_GOOD);
             else
-                SendSysMessage(who, "no gold coin ", color := 88);
+                SendSysMessage(who, "You don't have enough funds", color := MESSAGE_COLOR_BAD);
             endif
         else
             SendSysMessage(who, "Cancelled.", 3, 37);

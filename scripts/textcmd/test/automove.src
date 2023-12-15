@@ -21,7 +21,7 @@ endforeach
 
 
 
-print(points);
+//print(points);
 return;
 //var paquete := CreatePacket(0x6C, 19);
 //paquete.SetInt16(3, 00000000);

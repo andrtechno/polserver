@@ -86,7 +86,7 @@ function CheckAmmunition(who, weapon);
 	var ammoType := CInt(GetObjProperty(weapon, "AmmoType"));
 	if (!ammoType)
 		ammoType := weaponElement.ProjectileType;
-		print(ammoType);
+		print("ammoType "+ammoType);
 		if (!ConsumeSubstance(who.backpack, ammoType, 1) )
 			SendSysMessage(who, "You are out of ammunition.", color := 33);
 			return 0;

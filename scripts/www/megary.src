@@ -29,7 +29,7 @@ WriteHtml( "<h1 name=\"title\">magery</h1>" +
         "</tr>");
 
 	endforeach
-	
+
 WriteHtml( "</table>" );
 
 
@@ -42,7 +42,7 @@ function reags(regs)
     var result := "";
 	foreach reg in ( regs )
 	    var regsp := SplitWords(reg);
-	    print(regsp);
+	    //print(regsp);
 	    result += regsp[1]+" - "+regsp[2]+"<br>";
 	endforeach
 	return result;

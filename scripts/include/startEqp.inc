@@ -508,8 +508,6 @@ function ClothTable(item)
         SkillMod(item);
         SetObjProperty(item, "type", "skill");
     else
-
-
         if(val >= 14)
             var charges := RandomDiceRoll("1d30") + 10;
             SetObjProperty(item, "charges", charges);

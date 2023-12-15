@@ -1,6 +1,17 @@
 use file;
+use uo;
+use polsys;
+use util;
 
-function LogStaff(who, text, targ, bcast := 0)
+include ":timeutils:time";
+
+var dmy := FormatTime(GetTimeStruct(GetTime()), "<DAY>-<MON>-<YY>");
+var hms := FormatTime(GetTimeStruct(GetTime()), "<HH>:<MM>:<SS>");
+var month := FormatTime(GetTimeStruct(GetTime()), "<MON>-<YY>");
+
+function LogStaff(who, text, targ, amount := 1, bcast := 0)
+
+
 
     var objText := "";
     if(targ.isA(POLCLASS_MOBILE))
@@ -11,10 +22,10 @@ function LogStaff(who, text, targ, bcast := 0)
         endif
 
     elseif(targ.isA(POLCLASS_ITEM))
-        objText := "["+targ.serial+"/"+targ.name+"]";
+        objText := Hex(targ.objtype)+" - "+FormatItemDescription(targ.name, amount)+" ["+targ.serial+"]";
     endif
 
-    LogToFile("::log/acc_"+who.acctname+".log", "["+who.name+"]: "+ text + " > "+ objText, LOG_DATETIME);
+    LogToFile("::log/acc_"+who.acctname+"-"+month+".log", "["+who.name+"]: "+ text + ": "+ objText, LOG_DATETIME);
 
     if(bcast)
         foreach character in EnumerateOnlineCharacters()

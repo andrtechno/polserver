@@ -3,7 +3,7 @@ use os;
 use guilds;
 include ":DiscordWebhook:outbound";
 
-program equipRobe( character, item )
+program equipRobe( character, item, startup )
 
     var id := character.guildid;
     var guild := FindGuild( id );
@@ -12,24 +12,29 @@ program equipRobe( character, item )
     var guildStone;
     var owner := CInt(GetObjProperty(item, "owner"));
     var itemGuild := CInt(GetObjProperty(item, "guild"));
+
+    if(startup)
+        return 1;
+    endif
+
     if(!id)
         print("no id guild ;(");
-        PresetDiscordMessage( "test", "AdminInfo");
+        //PresetDiscordMessage( "test", "AdminInfo");
         SendSysMessage(character, "you not a guild");
         return 0;
     endif
     if(owner)
         if(owner != character.serial)
-            SendSysMessage(character, "You are not owner this item.");
-            //start_script(":guilds:guildRobeDestroy", item);
-            //return 0;
+            SendSysMessage(character, "You are not owner this item.", 3, 33);
+            start_script(":guilds:destroyForm", item);
+            return 0;
         endif
     endif
     if(itemGuild)
         if(id != itemGuild)
-            SendSysMessage(character, "this item does not belong to your guild.");
-            //start_script(":guilds:guildRobeDestroy", item);
-            //return 0;
+            SendSysMessage(character, "this item does not belong to your guild.", 3, 33);
+            start_script(":guilds:destroyForm", item);
+            return 0;
         endif
     endif
     var name := "Guild";

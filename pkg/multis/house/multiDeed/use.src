@@ -14,114 +14,127 @@ include ":multihousing:multihouse_settings";
 const UOBJECT_TENT_CHEST:=0xe43;
 
 program usehousedeed(who, deed)
-  if(!ReserveItem(deed))
-    return;
-  endif
-  if(!can_access(who, deed))
-    return;
-  endif
-  EraseObjProperty(who, "IsMeditating");
-  if(deed.movable == 0)
-    SendSysMessageCL(who, 1010515, color := 33); // You cannot use that while it is locked down.
-    return;
-  endif
-  if(!IsInContainer(who.backpack, deed))
-    SendSysMessageCL(who, 1045156, color := 33); // You must have the deed in your backpack to use it.
-    return;
-  endif
-  if(DeedAlreadyBuiltFrom(deed))
-    PrintTextAbovePrivate(deed, "That house has already been built.", who);
-  else
-    Buildhouse(who, deed);
-  endif
+    if(!ReserveItem(deed))
+        return;
+    endif
+    if(!can_access(who, deed))
+        return;
+    endif
+    EraseObjProperty(who, "IsMeditating");
+    if(deed.movable == 0)
+        SendSysMessageCL(who, 1010515, color := 33); // You cannot use that while it is locked down.
+        return;
+    endif
+    if(!IsInContainer(who.backpack, deed))
+        SendSysMessageCL(who, 1045156, color := 33); // You must have the deed in your backpack to use it.
+        return;
+    endif
+    if(DeedAlreadyBuiltFrom(deed))
+        PrintTextAbovePrivate(deed, "That house has already been built.", who);
+    else
+        Buildhouse(who, deed);
+    endif
 endprogram
 
 function Buildhouse(who, deed)
-  if(!ReserveItem(deed))
-    return;
-  endif
-  var housetype := GetHouseObjtype(deed);
-  if(housetype == error)
-    PrintTextAbovePrivate(deed, "That house deed appears to be broken.", who);
-    syslog("Deed " + deed.serial + " had no housetype property!");
-    return;
-  endif
-  SendSysMessageCL(who, 501274, color := 88); // Where do you wish to build the house?
-  var where := TargetMultiPlacement(who, housetype);
-  if(!where)
-	SendSysMessageCL(who, 1042023, color := 33); // Cancelled.
-    return;
-  endif
-  if((FindCity(who) != "no city") || (FindCity(where) != "no city"))
-	SendSysMessageCL(who, 500269, color := 33); // You cannot build that there.
-    PrintTextAbovePrivate(deed, "You can't build in cities.", who, color := 33);
-    return;
-  endif
-  if (Distance(who,where) > 50)
-    PrintTextAbovePrivate(deed, "You are too far from where you are trying to build.", who);
-    return;
-  endif
-  if(!isValidLoc(where.x, where.y) && (who.cmdlevel < 2))
-    PrintTextAbovePrivate(deed, "You may not build in Green Acres.", who);
-    return;
-  endif
-  set_critical(1);
-  var created:=CreatehouseKeysAndBuiltDeed2(who, housetype, where, deed);
-  if(!created)
-    return;
-  endif
+    if(!ReserveItem(deed))
+        return;
+    endif
+    var housetype := GetHouseObjtype(deed);
+    if(housetype == error)
+        PrintTextAbovePrivate(deed, "That house deed appears to be broken.", who);
+        syslog("Deed " + deed.serial + " had no housetype property!");
+        return;
+    endif
+    SendSysMessageCL(who, 501274, color := 88); // Where do you wish to build the house?
+    var where := TargetMultiPlacement(who, housetype);
+    if(!where)
+        SendSysMessageCL(who, 1042023, color := 33); // Cancelled.
+        return;
+    endif
+    if((FindCity(who) != "no city") || (FindCity(where) != "no city"))
+        SendSysMessageCL(who, 500269, color := 33); // You cannot build that there.
+        PrintTextAbovePrivate(deed, "You can't build in cities.", who, color := 33);
+        return;
+    endif
+    if (Distance(who,where) > 50)
+        PrintTextAbovePrivate(deed, "You are too far from where you are trying to build.", who);
+        return;
+    endif
+    if(!isValidLoc(where.x, where.y) && (who.cmdlevel < 2))
+        PrintTextAbovePrivate(deed, "You may not build in Green Acres.", who);
+        return;
+    endif
+    set_critical(1);
+    var created:=CreatehouseKeysAndBuiltDeed2(who, housetype, where, deed);
+    if(!created)
+        return;
+    endif
 
-  var lock := GetObjProperty(deed, "numlockdowns");
-  var sec  := GetObjProperty(deed, "numsecure");
-  if(DestroyItem(deed))
-    var LockID := AllocateLockID();
-	// CProps for deed in bank box.
-    SetObjProperty(created.builtdeed,		"builtserial",  created.house.serial);
-    SetObjProperty(created.builtdeed,		"RemainingLockdowns", lock);
-    SetObjProperty(created.builtdeed,		"RemainingSecures",    sec);
-	///////////////////////////////
-    SetObjProperty(created.packkey,			"LockID",       LockID);
-    SetObjProperty(created.bankkey,			"LockID",       LockID);
-    SetObjProperty(created.house,			"RemainingLockdowns", lock);
-    SetObjProperty(created.house,			"RemainingSecures",    sec);
-    SetObjProperty(created.house,			"footage",      created.footage);
-    foreach item in(created.house.components)
-		if(item.IsA(POLCLASS_DOOR))
-			item.locked := 1;
-			SetObjProperty(item,			"LockID", LockID);
-			SetObjProperty(item,			"houseserial", created.house.serial);
-		elseif((item.objtype == 0xBD0) || (item.objtype == 0xBD2))
-			SetObjProperty(item,			"LockID", LockID);
-			SetObjProperty(item,			"houseserial", created.house.serial);
-			SetObjProperty(item,			"signserial", item.serial);
-			SetObjProperty(item,			"RemainingLockdowns", lock);
-			SetObjProperty(item,			"MaxLockdowns", lock);
-			SetObjProperty(item,			"RemainingSecures", sec);
-			SetObjProperty(item,			"MaxSecures", sec);
-			SetObjProperty(item,			"footage", created.footage);
-			SetObjProperty(item,			"ownerserial", who.serial);
-			SetObjProperty(item,			"owneracct", who.acctname);
-			SetObjProperty(item,			"builtdeed", created.builtdeed.serial);
-			SetObjProperty(item,			"decay", (ReadGameClock() + get_abandon_time()));
-			SetObjProperty(created.builtdeed, "signserial", item.serial);
-		endif
-    endforeach
-    SetObjProperty( created.house, "signserial", GetObjProperty(created.builtdeed, "signserial") );
-  else
-    DestroyItem(created.builtdeed);
-    DestroyItem(created.packkey);
-    DestroyItem(created.bankkey);
-    foreach item in(created.house.components)
-      DestroyItem(item);
-    endforeach
-    DestroyMulti(created.house);
-  endif
+    var lock := GetObjProperty(deed, "numlockdowns");
+    var sec  := GetObjProperty(deed, "numsecure");
+    if(DestroyItem(deed))
+        var LockID := AllocateLockID();
+        // CProps for deed in bank box.
+        SetObjProperty(created.builtdeed, "builtserial", created.house.serial);
+        SetObjProperty(created.builtdeed, "RemainingLockdowns", lock);
+        SetObjProperty(created.builtdeed, "RemainingSecures", sec);
+        ///////////////////////////////
+        SetObjProperty(created.packkey, "LockID", LockID);
+        SetObjProperty(created.bankkey, "LockID", LockID);
+        SetObjProperty(created.house, "RemainingLockdowns", lock);
+        SetObjProperty(created.house, "RemainingSecures", sec);
+        SetObjProperty(created.house, "footage", created.footage);
+        foreach item in(created.house.components)
+            if(item.IsA(POLCLASS_DOOR))
+                item.locked := 1;
+                SetObjProperty(item,			"LockID", LockID);
+                SetObjProperty(item,			"houseserial", created.house.serial);
+            elseif((item.objtype == 0xBD0) || (item.objtype == 0xBD2))
+                SetObjProperty(item,			"LockID", LockID);
+                SetObjProperty(item,			"houseserial", created.house.serial);
+                SetObjProperty(item,			"signserial", item.serial);
+                SetObjProperty(item,			"RemainingLockdowns", lock);
+                SetObjProperty(item,			"MaxLockdowns", lock);
+                SetObjProperty(item,			"RemainingSecures", sec);
+                SetObjProperty(item,			"MaxSecures", sec);
+                SetObjProperty(item,			"footage", created.footage);
+                SetObjProperty(item,			"ownerserial", who.serial);
+                SetObjProperty(item,			"owneracct", who.acctname);
+                SetObjProperty(item,			"builtdeed", created.builtdeed.serial);
+                SetObjProperty(item,			"decay", (ReadGameClock() + get_abandon_time()));
+                SetObjProperty(created.builtdeed, "signserial", item.serial);
+            endif
+        endforeach
+        SetObjProperty( created.house, "signserial", GetObjProperty(created.builtdeed, "signserial") );
+    else
+        DestroyItem(created.builtdeed);
+        DestroyItem(created.packkey);
+        DestroyItem(created.bankkey);
+        foreach item in(created.house.components)
+            DestroyItem(item);
+        endforeach
+        DestroyMulti(created.house);
+    endif
 endfunction
 
 function CreatehouseKeysAndBuiltDeed2(character, housetype, where, deed)
+	var x := where.x, y := where.y, z := where.z, map := where.realm;
+	var house;
+		if( character.cmdlevel > 2)
+    		house := CreateMultiAtLocation(x, y, z, housetype, CRMULTI_IGNORE_ALL, map);
+    	else
+    		house := CreateMultiAtLocation(x, y, z, housetype, 0, map);
+    	endif
+    		if( !house)
+    		        SendSysMessageCL(character, 500269, color := 33); // You cannot build that there.
+        	    return 0;
+        		//house :=CreateMultiAtLocation(x + 10, y, z, housetype, 0, map);
+        	endif
+
 	var bank_region := CP_DEFAULT_AREA;
 	var bankbox	:= CP_GetStorageContainerForMobile( character, bank_region, CP_CREATE );
-	var x := where.x, y := where.y, z := where.z, map := where.realm;
+
 	var packkey := CreateItemInBackpack(character, UOBJ_GOLD_KEY);
 	if(!packkey)
 		PrintTextAbovePrivate(character, "Your backpack is too full!", character);
@@ -141,15 +154,11 @@ function CreatehouseKeysAndBuiltDeed2(character, housetype, where, deed)
 		DestroyItem(bankkey);
 		return 0;
 	endif
-	var house;
-	if( character.cmdlevel > 2)
-		house := CreateMultiAtLocation(x, y, z, housetype, CRMULTI_IGNORE_ALL, map);
-	else
-		house := CreateMultiAtLocation(x, y, z, housetype, 0, map);
-	endif
-	if( !house)
-		house :=CreateMultiAtLocation(x + 10, y, z, housetype, 0, map);
-	endif
+
+
+    /*if( !house)
+        house :=CreateMultiAtLocation(x + 10, y, z, housetype, 0, map);
+    endif
 	if( !house)
 		house :=CreateMultiAtLocation(x, y+10, z, housetype, 0, map);
 	endif
@@ -164,15 +173,17 @@ function CreatehouseKeysAndBuiltDeed2(character, housetype, where, deed)
 	endif
 	if( !house)
 		house :=CreateMultiAtLocation(x - 10, y - 10, z, housetype, 0, map);
-	endif
+	endif*/
 
 	var ftage := FindBoxArray(housetype, house);
-	SetObjProperty(house,"RemainingLockdowns",GetObjProperty(deed,"RemainingLockdowns"));
-	SetObjProperty(house,"RemainingSecures",GetObjProperty(deed,"RemainingSecures"));
-	SetObjProperty(house,"ownerserial",character.serial);
-	SetObjProperty(house,"owneracct",character.acctname);
-	SetObjProperty(house,"builtdeed",builtdeed.serial);
-	SetObjProperty(house,"decay", (ReadGameClock() + get_abandon_time()));
+	SetObjProperty(house, "RemainingLockdowns",GetObjProperty(deed,"RemainingLockdowns"));
+	SetObjProperty(house, "RemainingSecures",GetObjProperty(deed,"RemainingSecures"));
+	SetObjProperty(house, "ownerserial",character.serial);
+	SetObjProperty(house, "owneracct",character.acctname);
+	SetObjProperty(house, "builtdeed",builtdeed.serial);
+	SetObjProperty(house, "decay", (ReadGameClock() + get_abandon_time()));
+	//SetObjProperty(house, "lastownername", character.name); //panix add
+	print(house.items);
 	if(housetype==0x6bb8 || housetype==0x16070 || housetype==0x16072)
 		house.movable:=0;
 		house.visible:=1;
@@ -195,11 +206,11 @@ function CreatehouseKeysAndBuiltDeed2(character, housetype, where, deed)
 endfunction
 
 function DeedAlreadyBuiltFrom(deed)
-  if(GetObjProperty(deed, "builtserial"))
-    return 1;
-  else
-    return 0;
-  endif
+    if(GetObjProperty(deed, "builtserial"))
+        return 1;
+    else
+        return 0;
+    endif
 endfunction
 
 function GetHouseObjtype(deed)

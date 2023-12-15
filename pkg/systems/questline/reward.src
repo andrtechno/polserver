@@ -1,0 +1,49 @@
+use uo;
+use os;
+use unicode;
+include "util/bank";
+include ":datafile:datafile";
+include "include/string";
+
+var data_file := DFOpenDataFile(":questline:members");
+
+program questline_reward()
+
+	foreach char in ( DFGetElemNames(data_file) )
+	    var mem := DFFindElement(data_file, char);
+		if(mem.GetProp("active") == 1)
+		    var mobile := SystemFindObjectBySerial(CInt(char), SYSFIND_SEARCH_OFFLINE_MOBILES);
+		    var total := CInt(mem.GetProp("total"));
+		    var sum := total;
+		    if(total > 0)
+		        print("Reward "+ mobile.name);
+
+                var bankbox := FindBankBox( mobile );
+                while(sum >= 60000)
+                  sum := sum - 60000;
+                  CreateItemInContainer(bankbox, 0xeed, 60000);
+                endwhile
+                CreateItemInContainer(bankbox, 0xeed, sum);
+                EraseObjProperty(mobile, "QuestLinePID");
+                EraseObjProperty(mobile, "questline_npcs");
+                mem.SetProp("reward", 1);
+                mem.SetProp("active", 0);
+
+                SendSysMessageUC(mobile, "Вам начислена награда "+AddCommas(total)+" gp.", "RUS", 3, 55);
+		    endif
+		endif
+		SleepMS(3);
+	endforeach
+
+    //CleanupMembers();
+    return 1;
+endprogram
+
+function CleanupMembers()
+	foreach elem_name in ( DFGetElemNames(data_file) )
+		data_file.DeleteElement(elem_name);
+		SleepMS(2);
+	endforeach
+
+	return 1;
+endfunction

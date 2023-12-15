@@ -38,7 +38,6 @@ program summon_player(who, whom)
 
 	SendSysMessage(who, "The player could not be summoned.", color := 33);
 	SendSysMessage(who, "The player name might be misspelled.", color := 33);
-
 endprogram
 
 // Removes a character from the array of online characters.

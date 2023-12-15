@@ -1,0 +1,54 @@
+use os;
+use unicode;
+use uo;
+
+include ":datafile:datafile";
+include ":DiscordWebhook:outbound";
+
+//var data_file := DFOpenDataFile(":questline:members", DF_CREATE);
+
+program questline_ended()
+    var pid := GetProcess(GetGlobalProperty("#QuestLinePID"));
+    //var pid_starter := GetProcess(GetGlobalProperty("#QuestLineStarterPID"));
+
+    var config := GetGlobalProperty("QuestLineConfig");
+
+    var timer := CInt(GetGlobalProperty("questline_start")) + (CInt(config.expire) * 60);
+    while (ReadGameClock() < timer)
+        sleep(1);
+        print("ended "+ (timer - ReadGameClock()));
+    endwhile
+
+    EraseGlobalProperty("questline_start");
+    EraseGlobalProperty("QuestLineEnabled");
+    EraseGlobalProperty("#QuestLinePID");
+    BroadcastUC( "Квест лайн завершен", "RUS", 3, 33 );
+    //var discord := PresetDiscordMessage("Квест лайн завершен", "admin");
+
+
+    var reward := start_script(":questline:reward");
+    SetGlobalProperty( "#QuestLineRewardPID", reward.pid );
+
+    //pid.kill();
+    return 1;
+endprogram
+
+
+
+/*
+program questline_ended__OLD()
+    var timer := CInt(GetGlobalProperty("questline_start")) + (CInt(GetGlobalProperty("questline_expire"))*60);
+    while (ReadGameClock() < timer)
+        sleep(1);
+    endwhile
+    EraseGlobalProperty("questline_start");
+    EraseGlobalProperty("QuestLineEnabled");
+    BroadcastUC( "Квест лайн завершен", "RUS", 3, 33 );
+    EraseGlobalProperty("#QuestLinePID");
+
+    CleanupMembers();
+    return 1;
+endprogram*/
+
+
+

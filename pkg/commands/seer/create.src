@@ -7,6 +7,11 @@ use cfgfile;
 include ":gumps:gumps";
 include ":gumps:requestGump";
 include "include/log";
+include ":DiscordWebhook:outbound";
+
+//include "include/client";
+include "include/string";
+
 
 //1114057 1114778 1114779 1150340
 program textcmd_Create( mobile, text )
@@ -14,13 +19,13 @@ program textcmd_Create( mobile, text )
 	text := SplitWords( text );
 	var item := text[1],
 		amount := CInt( text[2] );
-	
+
 	if ( item.Length() < 1 )
 		BuildSearchGump ( mobile );
 		return 1;
 	endif
 
-	if ( !CInt ( item ) ) 
+	if ( !CInt ( item ) )
 		item := GetObjtypeByName ( item );
 		if ( !item )
 			BuildSearchGump ( mobile, text[1] );
@@ -28,11 +33,11 @@ program textcmd_Create( mobile, text )
 		endif
 		item := CInt ( item );
 	endif
-	
+
 	if ( amount < 1 )
 		amount := 1;
 	endif
-	
+
 	var create_item := CreateItem ( mobile, item, amount );
 	if ( !create_item )
 		BuildSearchGump ( mobile, item );
@@ -53,7 +58,7 @@ function StrCompare ( text )
 			if ( Find ( Lower ( item_descriptor.Name ), Lower ( text ), 1 ) )
 				item_struct.+Objtype := key;
 				item_struct.+Name := item_descriptor.name;
-			
+
 				master_array.Append ( item_struct );
 				item_struct := Struct;
 			endif
@@ -79,10 +84,10 @@ function BuildSearchGump ( mobile, text := "" )
 		else
 			search_results := StrCompare ( text );
 			if ( search_results.Size() < 1 )
-				explicitSearch := "Nothing matched your search terms."; 
+				explicitSearch := "Nothing matched your search terms.";
 			endif
 		endif
-		
+
 		GFPage ( gump, 0 );
 		GFClosable ( gump, 0 );
 		GFDisposable ( gump, 0 );
@@ -93,7 +98,7 @@ function BuildSearchGump ( mobile, text := "" )
 		GFPicTiled ( gump, 44, 14, 182, 18, 2624 ); // Black background of search box
 		GFAddAlphaRegion ( gump, 44, 14, 182, 18 ); // Transparency of black background of search box
 		GFAddButton ( gump, 13, 12, 4011, 4013, GF_CLOSE_BTN, 0xFF8 ); // Initiate Search string button
-		
+
 		search_string := GFTextEntry ( gump, 46, 12, 180, 20, 0x480, text, 0 );
 
 		GFAddHTMLLocalized ( gump, 232, 13, 100, 20, 3010005, 0, 0, 0x7FFF ); // Color 0x7FFF
@@ -102,7 +107,7 @@ function BuildSearchGump ( mobile, text := "" )
 		GFPicTiled ( gump, 13, 253, 400, 20, 2624 );
 		GFAddAlphaRegion ( gump, 13, 253, 400, 20 );
 		GFAddButton ( gump, 383, 252, 4017, 4019, GF_CLOSE_BTN, 0xFF9 );
-		
+
 		GFPage ( gump, 1 );
 		var i := 1, pageCount := 0, index;
 		if ( search_results.Size() > 0 )
@@ -121,11 +126,11 @@ function BuildSearchGump ( mobile, text := "" )
 				  pageCount := 0;
 				endif
 				SleepMS ( 3 );
-			endfor 
+			endfor
 		else
 			GFAddHTMLLocalized ( gump, 18, 44, 396, 40, 1114057, 0, 0, 0x7FFF, explicitSearch );
 		endif
-		
+
 		var result := GFSendGump ( mobile, gump );
 			text := GFExtractData( result, search_string );
 			result := result[0];
@@ -134,11 +139,11 @@ function BuildSearchGump ( mobile, text := "" )
 			SendSysMessageCL ( mobile, 1071555, array, 0x3, 0x22 );
 			return 0;
 		endif
-		
+
 		if ( result == 0xFF8 )
 			continue;
 		endif
-		
+
 		// Add createitem stuff here.
 		if ( result <= search_results.Size() )
 			var amount := RequestGump ( mobile, "How many do you wish to create?", "Non stackable items will create 10 items at most.", "1", CANCEL_BTN_ON, 5 );
@@ -151,7 +156,7 @@ function BuildSearchGump ( mobile, text := "" )
 			elseif ( CInt ( amount ) > 60000 )
 				amount := 60000;
 			endif
-		
+
 			CreateItem ( mobile, search_results[result].Objtype, CInt ( amount ) );
 		endif
 	endwhile
@@ -169,7 +174,7 @@ function CreateItem ( mobile, item, amount )
 				SendSysMessage ( mobile, "Item is not stackable. No more than 10 will be created at a time.", 0x3, 0x22 );
 				amount := 10;
 			endif
-		
+
 			for ( amount; amount > 0; amount -= 1 )
 				created := CreateItemAtLocation ( mobile.x, mobile.y, mobile.z, item, 1, mobile.realm );
                 if(!created.stackable)
@@ -192,7 +197,7 @@ function CreateItem ( mobile, item, amount )
 				SendSysMessage ( mobile, "Item is not stackable. No more than 10 will be created at a time.", 0x3, 0x22 );
 				amount := 10;
 			endif
-		
+
 			for ( amount; amount > 0; amount -= 1 )
 				created := CreateItemAtLocation ( targ.x, targ.y, targ.z, item, 1, targ.realm );
                 if(!created.stackable)
@@ -209,7 +214,7 @@ function CreateItem ( mobile, item, amount )
 			endfor
 		endif
 	endif
-	
+
 	if ( !created )
 		SendSysMessage ( mobile, "Error: Could not create "+Hex( item ), 0x3, 0x22 );
 		return 0;
@@ -224,8 +229,12 @@ function CreateItem ( mobile, item, amount )
             SetObjProperty(created, "DupeAt", "None");
         endif
     endif
-    LogStaff(mobile, ".create amount ["+amount+"]", created);
+    //var discord := PresetDiscordMessage("["+mobile.acctname+"/"+mobile.name+"]: создал "+Hex(created.objtype)+" - "+FormatItemDescription(created.name, amount), "Admin");
+    //if(discord == error)
+    //    SendsysMessage( mobile, discord.errortext );
+    //endif
 
+    LogStaff(mobile, "create", created, amount, 0);
 	return 1;
 endfunction
 /*

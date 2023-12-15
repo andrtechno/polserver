@@ -55,7 +55,7 @@ program Gump_YesNo( params )
 
 
 	var y_pos := 20;
-	foreach line in ( GFWordWrap( prompt, 420 ))
+	foreach line in ( GFWordWrap( prompt, 120 ))
 		GFTextLine( yn_gump, 30, y_pos, 1153, line );
 		y_pos += 20;
 		SleepMS(2);

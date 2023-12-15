@@ -6,6 +6,7 @@ include ":gumps:gumps";
 include ":gumps:gumps_ex";
 include ":gumps:gumpCaching";
 include ":virtue:noto";
+include ":karmafame:karmafame";
 
 const LONG_COUNT_DECAY_TIME := 144000; // 40 hours
 const SHORT_COUNT_DECAY_TIME := 28800; // 8 hours
@@ -76,6 +77,7 @@ function SendReportGump( mobile )
 			AdjustNoto( source, mobile );
 			AdjustMurderCounts( source );
 		endif
+        //AwardKarma(holder, -5000);
 		SleepMS( 2 );
 	endforeach
 
@@ -99,7 +101,7 @@ function AdjustMurderCounts( source )
 	endif
 
 	SetObjProperty( source, "longmurders", longcount+1 );
-	if( longcount>4 )
+	if( longcount > 4 )
 		source.SetMurderer( 1 );
 		SendSysMessageCL( source, 502134, Array, 0x3, 0x22 ); // You are now known as a murderer!
 	endif

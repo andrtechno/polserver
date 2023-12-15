@@ -13,7 +13,6 @@ include ":mounts:mounts";
 include "include/utility";
 include ":insurance:insurance";
 
-
 var allmyjunk := {};
 var stackstuff := 0;
 
@@ -25,6 +24,7 @@ program chrdeath(corpse, ghost)
     EraseObjProperty(ghost, "mover"); //check resend
     var last_damage := GetObjProperty(corpse, "LastDamage");
     var killer := last_damage.serial;
+    var killerMobile := SystemFindObjectBySerial(killer);
 
 	ghost.SetPoisoned(0);
 	while(TS_GetTimerNames(ghost, "P").size() > 0)
@@ -60,36 +60,46 @@ program chrdeath(corpse, ghost)
 	for (x := 4; x <= corpsenamearraylen; x := x + 1)
 		corpsename := corpsename + " " + corpsenamearray[x];
 	endfor
-	//if(len(ghost.reportables)>0)
-        //SendReportGump(ghost);
-	//endif
+
+	print("killerMobile reportables "+killerMobile.reportables);
+    print("ghost "+ghost.reportables);
+    //if(!ghost.criminal && !ghost.murderer)
+    //    var mur := CInt(GetObjProperty(killerMobile,"murderer"));
+    //    SetObjProperty(killerMobile, "murderer", mur + 1);
+    //endif
+	if(len(ghost.reportables) > 0)
+        SendReportGump(ghost);
+	endif
     AdjustMurderCounts(SystemFindObjectBySerial(killer, SYSFIND_SEARCH_OFFLINE_MOBILES));
     //start_script("::/misc/wipecast", {ghost, ghost});
 
-    var killerMobile := SystemFindObjectBySerial(killer);
+
+
 
 
     //tracking props
     EraseObjProperty(killerMobile, "LastMyAttackOpponent");
 
-    if( ghost.Guildid != killerMobile.Guildid )
+    if(ghost.Guildid && killerMobile.Guildid)
+        if( ghost.Guildid != killerMobile.Guildid )
 
-        //PVP count
-        var classLevelGhost := CInt(GetObjProperty(ghost, "classlevel"));
-        if(classLevelGhost > 0)
-            SetObjProperty(killerMobile, "PvPCount", CInt(GetObjProperty(killerMobile, "PvPCount")) + 1);
-            SetGlobalProperty("PvPCount", CInt(GetGlobalProperty("PvPCount")) + 1);
-            SendSysMessageUC(killerMobile, "Вы получили PvP point: 1", "RUS", 3, 33);
+            //PVP count
+            var classLevelGhost := CInt(GetObjProperty(ghost, "classlevel"));
+            if(classLevelGhost > 0)
+                SetObjProperty(killerMobile, "PvPCount", CInt(GetObjProperty(killerMobile, "PvPCount")) + 1);
+                SetGlobalProperty("PvPCount", CInt(GetGlobalProperty("PvPCount")) + 1);
+                SendSysMessageUC(killerMobile, "Вы получили PvP point: 1", "RUS", 3, 33);
+            endif
+
+            var myGuild := FindGuild( ghost.Guildid );
+            var killerGuild := FindGuild( killerMobile.Guildid );
+
+            killerGuild.setProp("point", CInt(killerGuild.getProp("point")) + 1);
+            myGuild.setProp("point", CInt(myGuild.getProp("point")) - 1);
+
+            SendSysMessageUC(ghost, "Вы потеряли гильд очки","RUS",3,33);
+            SendSysMessageUC(killerMobile, "Вы получили гильд "+killerGuild.getProp("point")+" очки","RUS",3,67);
         endif
-
-        var myGuild := FindGuild( ghost.Guildid );
-        var killerGuild := FindGuild( killerMobile.Guildid );
-
-        killerGuild.setProp("point", CInt(killerGuild.getProp("point")) + 1);
-        myGuild.setProp("point", CInt(myGuild.getProp("point")) - 1);
-
-        SendSysMessageUC(ghost, "Вы потеряли гильд очки","RUS",3,33);
-        SendSysMessageUC(killerMobile, "Вы получили гильд "+killerGuild.getProp("point")+" очки","RUS",3,67);
     endif
 endprogram
 

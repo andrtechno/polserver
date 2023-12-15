@@ -17,7 +17,7 @@ program ability_whirlwindAttack(params)
     var defender := params[2];
 
     var mobiles2 := ListHostiles( attacker, 2, LH_FLAG_LOS );
-    print(mobiles2);
+    //print(mobiles2);
     var mobiles := ListMobilesNearLocation( attacker.x, attacker.y, LIST_IGNORE_Z, 2, attacker.realm );
 
     var counter := mobiles.size() - 1; //1 it self

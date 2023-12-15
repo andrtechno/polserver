@@ -39,6 +39,42 @@ program npcdeath(corpse)
     var killer := last_damage.serial;
     var killerMobile := SystemFindObjectBySerial(killer);
 
+
+    //QUEST LINE
+
+    if(CInt(GetObjProperty(killerMobile, "QuestLinePID")) == CInt(GetGlobalProperty("#QuestLinePID")) && CInt(GetGlobalProperty("questline_start")))
+
+        var data_file := DFOpenDataFile(":questline:members");
+
+        var config := GetGlobalProperty("QuestLineConfig");
+
+        if(killerMobile.isa(POLCLASS_NPC))
+            killerMobile := SystemFindObjectBySerial(CInt(GetObjProperty(killerMobile, "master")), SYSFIND_SEARCH_OFFLINE_MOBILES);
+        endif
+        var mem := DFFindElement(data_file, killerMobile.serial);
+        var getTotal := CInt(mem.GetProp("total"));
+
+        var quests := GetObjProperty(killerMobile, "questline_npcs");
+        var cost_total := CInt(GetObjProperty(killerMobile, "questline_costs"));
+
+        if(config.npcs && quests)
+            foreach questLineElem in (config.npcs)
+                if(questLineElem.npc == elem)
+                    var value := quests[_questLineElem_iter] + 1;
+                    if(value <= CInt(config.npcs[_questLineElem_iter].amount))
+                        quests[_questLineElem_iter] := value;
+                        mem.SetProp("total", getTotal + CInt(config.npcs[_questLineElem_iter].cost));
+                        SetObjProperty(killerMobile, "questline_npcs", quests);
+                        SendSysMessageUC(killerMobile, "вы убили "+elem+"  "+value+"/"+config.npcs[_questLineElem_iter].amount, "RUS",3, 37);
+                    else
+                        SendSysMessageUC(killerMobile, "вы уже достигли лимита "+elem+"  ", "RUS",3, 37);
+                    endif
+                    break;
+                endif
+            endforeach
+        endif
+    endif
+
     //tracking props
     EraseObjProperty(killerMobile, "LastMyAttackOpponent");
 
@@ -206,7 +242,7 @@ function dismount(corpse)
 		0x3ea4:	critter := "frenziedostard";
 		0x3ea5:	critter := "forestostard";
 	endcase
-	if (mount.color == 1109)
+	if (mount.color == 1079)
 		critter := "nightmare";
 	endif
 	DestroyItem( mount );

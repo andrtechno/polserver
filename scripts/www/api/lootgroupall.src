@@ -20,7 +20,7 @@ program players()
 
         var stacks := GetConfigStringArray(elem, "Stack");
         foreach stackItem in (stacks)
-            print(stackItem);
+            print("stak2 "+stackItem);
         endforeach
 
         var randoms := GetConfigStringArray(elem, "Random");

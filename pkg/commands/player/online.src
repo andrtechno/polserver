@@ -11,7 +11,9 @@ program textcommand_online(who)
 	endforeach
 	SelectionGump( who, "Online Players:", online_players_names, BTN_NOTYPE );*/
 
-    SendSysMessage (who, Len(EnumerateOnlineCharacters())+" Players online.", font := 4, color := 2100);
-    SendSysMessage (who, "System load: "+PolCore().sysload+"%", font := 4, color := 2100);
+    SendSysMessage (who, Len(EnumerateOnlineCharacters())+" Players online.", 4, 1456);
+    SendSysMessage (who, "System load: "+PolCore().sysload+"%", 4, 1456);
+
+    return 1;
 endprogram
 

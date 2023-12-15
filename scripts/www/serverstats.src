@@ -9,7 +9,7 @@ ENUM SERVER_STATS
 	OS		:= "",
 	CONNECTION	:= "",
 	LOCATION	:= "",
-	TIMEZONE	:= ""
+	TIMEZONE	:= "Europe/Kiev"
 ENDENUM
 
 

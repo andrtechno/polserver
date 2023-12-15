@@ -68,16 +68,16 @@ function GetBountyAmount(who, mygold, name)
 endfunction
 
 function FindMyGold(box)
-  var amt := 0;
-  var piles := array;
-  foreach item in EnumerateItemsInContainer(box)
-    if(item.objtype == 0xeed)
-      amt := amt + item.amount;
-      piles.append(item);
-    endif
-  endforeach
-  var holder := array;
-  holder.append(amt);
-  holder.append(piles);
-  return holder;
+    var amt := 0;
+    var piles := array;
+    foreach item in EnumerateItemsInContainer(box)
+        if(item.objtype == 0xeed)
+            amt := amt + item.amount;
+            piles.append(item);
+        endif
+    endforeach
+    var holder := array;
+    holder.append(amt);
+    holder.append(piles);
+    return holder;
 endfunction

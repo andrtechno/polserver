@@ -8,6 +8,8 @@
 //
 use uo;
 
+include "include/log";
+
 program textcmd_createat( who, text )
     if (text)
         var params := SplitWords( text );
@@ -23,14 +25,28 @@ program textcmd_createat( who, text )
         endif
 
         // print( "objtype=" + Hex(objtype) + ", amount=" + amount );
-       
+
         var i;
         for( i := 1; i <= amount; i := i + 1 )
             SendSysMessage( who, "Now select a location on the ground, where you want the item to appear." );
             var place := TargetCoordinates( who );
             var item := CreateItemAtLocation( place.x, place.y, place.z, objtype, 1, who.realm );
             item.decayAt := 0;
+            if(!item.stackable)
+                SetObjProperty(item, "Created", who.acctname+"/"+who.name);
+                SetObjProperty(item, "CreatedAt", StrFormatTime("%Y-%d-%m %H:%M:%S",polcore().systime));
+                if(!GetObjProperty(item, "Dupe"))
+                    SetObjProperty(item, "Dupe", "None");
+                endif
+                if(!GetObjProperty(item, "DupeAt"))
+                    SetObjProperty(item, "DupeAt", "None");
+                endif
+            endif
+            if(item)
+                LogStaff(who, "createat", item, amount, 1);
+            endif
         endfor
+
     else
 /*        var selection := SelectMenuItem2( who, "ItemCreation" );
         if (selection)

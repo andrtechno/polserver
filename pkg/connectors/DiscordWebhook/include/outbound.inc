@@ -32,7 +32,7 @@ use file;
  */
 function PresetDiscordMessage( content, presetType:= "Default", unused embeds := {}, unused voice:=0)
 
-var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
+    var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
 	if( settings_cfg.errortext )
 		SysLog("Error::PresetDiscordMessage() - Unable to open [:DiscordWebhook:settings.cfg] ->"+settings_cfg.errortext);
 		return error{"errortext" := "Unable to open [:DiscordWebhook:settings.cfg]"};
@@ -45,9 +45,8 @@ var settings_cfg := ReadConfigFile(":DiscordWebhook:settings");
 	var token := CheckAndGetConfig( cfg_elem, default_cfg_elem, "token" );
 	var username := CheckAndGetConfig( cfg_elem, default_cfg_elem, "username" );
 	var avatar_url := CheckAndGetConfig( cfg_elem, default_cfg_elem, "avatar_url" );
-
-PackAndSendMessageOld(channel_id, token, content, username, avatar_url);
-//PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice);
+//, embeds, voice
+PackAndSendMessage(channel_id, token, content, username, avatar_url);
 	return 1;
 
 endfunction
@@ -65,21 +64,21 @@ function CheckAndGetConfig( cfg, default_cfg, elem )
 	return res;
 endfunction
 
-function PackAndSendMessage(channel_id, token, content, username, avatar_url, embeds, voice)
+function PackAndSendMessage(channel_id, token, content, username, avatar_url)
     var data := struct;
     data.+content := content;
     data.+username := username;
     data.+avatar_url := avatar_url;
-    if(voice)
-        data.+tts := Boolean(1);
-    endif
+    //if(voice)
+        //data.+tts := Boolean(1);
+    //endif
 
 
 
 
-    if(embeds.size() > 0)
-        data.+embeds := {embeds};
-    endif
+    //if(embeds.size() > 0)
+        //data.+embeds := {embeds};
+    //endif
 
 	HTTPRequest(
         "https://discord.com/api/webhooks/"+channel_id+"/"+token,

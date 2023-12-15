@@ -1,0 +1,24 @@
+use uo;
+use os;
+use polsys;
+
+
+program double_click()
+
+	Print("INSTALLING: Double Click..." );
+
+	return 1;
+endprogram
+
+exported function DoubleClick( mobile, byref packet )
+
+
+       // var newpacket := CreatePacket( 0x28, 5 );
+       // newpacket.SetInt32( 1, item.serial );
+       // newpacket.SendPacket( mobile );
+
+      //print("DoubleClick"+packet);
+        return 1;
+
+
+endfunction

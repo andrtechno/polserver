@@ -75,9 +75,9 @@ foreach package in ( ListTextCommands() )
     if ( cfg )
         var elem :=FindConfigElem(cfg, cmd);
 var ss := cfg.""+cmd;
-print(ss);
+//print(ss);
         if(elem)
-            print(elem);
+            //print(elem);
             description := GetConfigString(elem, "text");
         endif
     endif*/

@@ -1,13 +1,13 @@
 use os;
 use uo;
 
-//if(CInt(GetGlobalProperty("discordAnons")) < ReadGameClock())
-//    SetGlobalProperty("discordAnons", ReadGameClock() + 86400);
-//    start_script("starter");
-//endif
+if(CInt(GetGlobalProperty("discordAnons")) < ReadGameClock())
+    SetGlobalProperty("discordAnons", ReadGameClock() + 86400);
+    //start_script("starter");
+endif
 
 if(CInt(GetGlobalProperty("discordAnons")) < Polcore().systime)
-    //SetGlobalProperty("discordAnons", Polcore().systime + 86400);
+    SetGlobalProperty("discordAnons", Polcore().systime + 86400);
     //start_script("starter");
 endif
 

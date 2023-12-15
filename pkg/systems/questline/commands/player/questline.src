@@ -1,0 +1,27 @@
+use uo;
+use os;
+use unicode;
+
+include ":questline:questline";
+include ":DiscordWebhook:outbound";
+
+include ":datafile:datafile";
+
+
+include "include/captcha";
+
+program textcmd_questline(who)
+
+
+
+    //Broadcast( "Quest line finish.",  4, 1456 );
+    //Broadcast( "Quest line Winner: Admin.",  4, 1456 );
+
+captcha_v2Demo(who);
+return 1;
+    if(who.cmdlevel > 1)
+        QuestGumpSelect(who);
+    else
+        QuestGumpPlayer(who);
+    endif
+endprogram

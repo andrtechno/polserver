@@ -1,7 +1,6 @@
 use uo;
 use os;
 
-include ":DiscordWebhook:outbound";
 include ":snooping:thief";
 
 use storage;
@@ -11,8 +10,6 @@ use storage;
     endif
 
 program textcmd_snooptest( who )
-    //PresetDiscordMessage( "test", "admin");
-    PresetDiscordMessage( "test", "Default");
 
     var oldPID := CInt(GetObjProperty(who, "#SnoopingPID"));
     SendSysMessage(who, "Select target.");
@@ -23,10 +20,11 @@ program textcmd_snooptest( who )
 		return;
 	endif
 
-PlayMovingEffect(who, victim, 0x0e97, 11, 1, 0);
-//PlayMovingEffectEx(who, victim, 0x0e97, 11, 1, 0,1156);
+    PlayMovingEffectEx(who, victim, 0x0e97, 11, 1, 0,1169);
+    sleepms(30);
+    PlayMovingEffectEx(who, victim, 0x0e97, 11, 1, 0,1156);
 
-return;
+    return;
     //old
     if(oldPID)
         var old_container := FindRootItemInStorageArea(storage, "Snoop container by "+oldPID);

@@ -7,12 +7,12 @@ use os;
 include ":gumps:gumps";
 include ":virtue:virtue";
 
-		program gump_virtue_gump(who)
+program gump_virtue_gump(who)
 
-			var params := {who};
-			Start_Script(":virtue:virtueGump", params);
+    var params := {who};
+    Start_Script(":virtue:virtueGump", params);
 
-		endprogram
+endprogram
 //	var virtues :=	{"Valor", "Honor", "Compassion", "Justice", "Honesty", "Spirituality", "Sacrifice", "Humility"};
 
 /*	var valorAmount := 0;
