@@ -87,15 +87,15 @@ endfunction
  */
 function AP_SetTrueStat( mobile, attributeid, points )
 
-        var result;
+    var result;
 	if( points >= 0 )
 		result := SetAttributeBaseValue( mobile, attributeid, CInt( CDbl( points ) * 10 + 0.1 ));
 	else
 		result := SetAttributeBaseValue( mobile, attributeid, CInt( CDbl( points ) * 10 ));
 	endif
- 
+
 	RecalcVitals( mobile );
-        return result;
+    return result;
 endfunction
 
 /*

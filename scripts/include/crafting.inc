@@ -1,5 +1,5 @@
 
-include "include/noto";
+include ":virtue:noto";
 include ":gumps:requestGump";
 include "util/bank"; // Used in FindCraftingBag function
 include "include/itemdesc";

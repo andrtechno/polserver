@@ -95,6 +95,11 @@ function CheckStatAdvancement( mobile, stat_name, stat_mult )
         var temp := CDbl( stat_value + advance );
 
         AP_SetTrueStat( mobile, stat_name, temp );
+
+        //add by panic
+        if(stat_name == "Life" && (temp == Ceil(temp)))
+            SendSysMessage(mobile, "Your life has changed by "+temp+". It is now "+AP_GetTrueStat(mobile, stat_name)+".", 3, 67);
+        endif
 	endif
 
 	return 1;

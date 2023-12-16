@@ -19,13 +19,13 @@ include ":spawnsystem:regions";
 
 program SpawnSystem()
 
-        var system_pid := GetGlobalProperty( "#SpawnSystemPid" );
-        if ( system_pid )
-            if ( GetProcess( system_pid ))
+    var system_pid := GetGlobalProperty( "#SpawnSystemPid" );
+    if ( system_pid )
+        if ( GetProcess( system_pid ))
             //Old spawn system is already running.
-		return 0;
-            endif
+            return 0;
         endif
+    endif
 
 	SetGlobalProperty( "#SpawnSystemPid", GetPid() );
 

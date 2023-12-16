@@ -54,7 +54,7 @@ enum DAMAGE_MOD_MEMBERS
   DMG_COLD_MOD              := "Cold",
   DMG_ENERGY_MOD            := "Energy",
   DMG_FIRE_MOD              := "Fire",
-  DMG_PHYSICAL_MOD              := "Physical",
+  DMG_PHYSICAL_MOD          := "Physical",
   DMG_POISON_MOD            := "Poison"
 endenum
 
@@ -146,9 +146,8 @@ function ApplyRawDamageEX(mobile, amount, type:=DMG_FORCED, source:=0)
 		if(GetObjProperty(source , "cursed_weapon"))
 			LifeDrain(source, amount, 50);
 		endif
-        //todo for testing
-        //DisplayDamage(mobile, amount, source);
 
+        TS_LowerDuration(mobile, "Paralysis", -1);
         ApplyRawDamage(mobile, amount, DAMAGE_USE_REPSYS, DAMAGE_USE_DEFAULT);
 		//ApplyRawDamage(mobile, amount);
 	endif
@@ -192,12 +191,17 @@ function ApplySpellDamageEX(mobile, amount, type:=DMG_FORCED, source:=0, circle 
 
     //by panic
     if(type in {DMG_FIRE})
+print("FIRE DMG_FIRE");
         amount += source.spell_damage_increase_mod;
     endif
-    //if(mobile.damage_fire_mod)
-    //    amount -= mobile.damage_fire_mod;
-    //endif
-
+    if(mobile.damage_fire_mod)
+        print("FIRE damage_fire_mod "+mobile.damage_fire_mod);
+        amount += mobile.damage_fire_mod;
+    endif
+    if(mobile.resist_fire_mod)
+        print("FIRE resist_fire_mod "+mobile.resist_fire_mod);
+        amount -= mobile.resist_fire_mod;
+    endif
 	if ( amount == error )
 	    return 0;
 	endif
@@ -209,7 +213,7 @@ function ApplySpellDamageEX(mobile, amount, type:=DMG_FORCED, source:=0, circle 
           SetLastDamageInfo(mobile, amount, type, source, circle, spell);
           SetScriptController(source);
         endif
-
+        TS_LowerDuration(mobile, "Paralysis", -1);
 	    //ApplyDamage(mobile, amount, DAMAGE_USE_REPSYS, DAMAGE_SHOW);
         ApplyRawDamage(mobile, amount, DAMAGE_USE_REPSYS, send_damage);
 	endif

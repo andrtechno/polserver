@@ -121,7 +121,7 @@ program SpawnerCMD( who )
 
 	SendSysMessage( who, "Done." );
 
-        return 1;
+    return 1;
 endprogram
 
 function BuildGumpTemplate( realm_name:="" )

@@ -9,7 +9,7 @@ include "include/objtype";
 include "include/canAccess";
 include "include/dist";
 include ":itemutils:toolWear";
-include "include/noto";
+include ":virtue:noto";
 include "include/crafting";
 include ":gumps:requestGump";
 include "include/bowcraft";

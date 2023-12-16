@@ -36,11 +36,20 @@ program cast_meteor( parms )
 	if(targs.size() > 1)
 		base_damage := base_damage * 2;
 	endif
-
+      var newtarg;
+      var x, y;
 	foreach vtarg in targs
 		damage := MS_GetSpellDamage(caster, vtarg, base_damage) / targs.Size();
-		MS_PlaySpellGFX(info.spell_id, vtarg, caster);
+		//MS_PlaySpellGFX(info.spell_id, vtarg, caster);
+
+        x := vtarg.x + RandomInt(15) - 7;
+        y := vtarg.y + RandomInt(15) - 7;
+        newtarg := CreateItemAtLocation(x, y, vtarg.z, 0xeed, 1, vtarg.realm);
+        newtarg.graphic := 1;
+
+        PlayMovingEffectXYZ( vtarg.x, vtarg.y,(vtarg.z + 80), vtarg.x, vtarg.y, vtarg.z, 0x36d4, 0x18, 0x30, 0, vtarg.realm);
 		ApplySpellDamageEX(vtarg, damage, info.damage_type, caster, info.circle, "Meteor Storm");
+        DestroyItem(newtarg);
 	endforeach
 
 	return 1;

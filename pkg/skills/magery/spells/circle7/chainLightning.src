@@ -27,7 +27,7 @@ program cast_chainlightning( parms )
 	var party_members := caster.party.members;
 	var excludes := {};
 	if ( party_members == error )
-			excludes := array{caster.serial};
+        excludes := array{caster.serial};
 	else
 		foreach member in party_members
 			excludes.Append(member.serial);
@@ -39,9 +39,10 @@ program cast_chainlightning( parms )
 		base_damage := base_damage * 2;
 	endif
 
+    var delay := 600;
 	foreach vtarg in targs
-				// uoguide.com does not mention LOS needed for damage to target. That is why this if is commented out.
-                //if((CheckLineOfSight(vtarg, caster)) and (vtarg.cmdlevel < 2))
+            // uoguide.com does not mention LOS needed for damage to target. That is why this if is commented out.
+                if((CheckLineOfSight(vtarg, caster)) && !vtarg.isa(POLCLASS_NPC)) // && (vtarg.cmdlevel < 2)
 
                         //vtarg := Reflected(vtarg, caster, info);
                         //if(Reflected(vtarg))
@@ -54,8 +55,9 @@ program cast_chainlightning( parms )
                     PlayLightningBoltEffect( vtarg );
                     PlaySoundEffect(vtarg, SFX_SPELL_LIGHTNING);
                     ApplySpellDamageEX(vtarg, damage, info.damage_type, caster, info.circle, "Chain Lightning");
-                    sleepms(600);
-                //endif
+                    delay -= (info.classLevel*10);
+                    sleepms(delay);
+                endif
 	endforeach
 
 	return 1;

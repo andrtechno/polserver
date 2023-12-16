@@ -1,0 +1,7 @@
+use uo;
+
+include ":spawnpoint:spawn";
+
+program textcnd_createvendors(unused who)
+    CreateNpcSpawn();
+endprogram

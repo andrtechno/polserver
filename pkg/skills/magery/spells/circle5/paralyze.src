@@ -47,7 +47,7 @@ program cast_paralyze( parms )
 
     duration := Resisted(info.circle, caster, cast_on, duration);
 
-SendSysMessage( caster, "duration: "+duration );
+    SendSysMessage( caster, "duration: "+duration );
 
 	TS_StartTimer(cast_on, "Paralysis", duration);
 

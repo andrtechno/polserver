@@ -1,8 +1,3 @@
-/*
- * $Id: control.src 1162 2008-02-03 22:30:41Z AustinHeilman $
- *
- */
-
 use uo;
 use os;
 use util;
@@ -59,6 +54,7 @@ function ParalyzeNearbyMobiles(field, duration)
 endfunction
 
 function ParalyzeMobile(mobile, duration)
+
 	TS_StartTimer(mobile, "Paralysis", duration);
 
 	return 1;

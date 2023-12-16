@@ -1,7 +1,3 @@
-/* $Id: methods.src 373 2006-06-17 18:27:33Z austinheilman $
- * 
- */
- 
 use uo;
 
 
@@ -15,13 +11,13 @@ endfunction
 
 exported function SetDuration(field, seconds)
 	seconds := CInt(seconds);
-	
+
 	return SetObjProperty(field, "Duration", ReadGameClock()+seconds);
 endfunction
 
 exported function GetDuration(field)
 	var duration := CInt(GetObjProperty(field, "Duration"));
-	
+
 	return duration;
 endfunction
 
@@ -30,7 +26,7 @@ exported function IsExpired(field)
 	if ( !duration )
 		return 0;
 	endif
-	
+
 	return ( duration < ReadGameClock() );
 endfunction
 
@@ -38,7 +34,7 @@ exported function SetOwner(field, serial)
 	if ( serial.IsA(POLCLASS_UOBJECT) )
 		serial := serial.serial;
 	endif
-	
+
 	return SetObjProperty(field, "Owner", serial);
 endfunction
 
@@ -47,6 +43,6 @@ exported function GetOwner(field)
 	if ( owner )
 		owner := SystemFindObjectBySerial(owner);
 	endif
-	
+
 	return owner;
 endfunction

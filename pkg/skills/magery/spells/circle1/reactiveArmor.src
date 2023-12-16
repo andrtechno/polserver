@@ -51,7 +51,7 @@ function ApplyReactiveArmor(mobile, elemental_penalty, points)
 	ModifyResistance(mobile, DMG_POISON, -elemental_penalty);
 	ModifyResistance(mobile, DMG_ENERGY, -elemental_penalty);
 
-	mods.+Physical := points;
+	mods.+Physical := CInt(points);
 	mods.+Fire := elemental_penalty;
 	mods.+Cold := elemental_penalty;
 	mods.+Poison := elemental_penalty;

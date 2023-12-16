@@ -1,0 +1,41 @@
+use uo;
+use os;
+use cfgfile;
+
+program textcnd_createnpode(who)
+	var x := 0;
+
+
+    foreach thing in ListItemsInBoxOfObjType( 0x1887A, 0, 0, -100, 6143, 4095, 100, who.realm )
+
+        var type := GetObjProperty(thing, "Type");
+
+        var template := CInt(GetObjProperty(thing, "Template"));
+        var data := array;
+        var holder := array;
+
+        holder.+pname  := "Coord";
+        holder.+pvalue := thing.x + " " +thing.y+ " "+thing.z;
+        data.append(holder);
+        // Hopefully I got this right :)
+        holder.pname  := "realm";
+        holder.pvalue := thing.realm;
+        data.append(holder);
+        if(template == 2)
+            holder.pname  := "Template";
+            holder.pvalue := template;
+            data.append(holder);
+        endif
+        if(type)
+            foreach npc in (type)
+                holder.pname  := "Merchant";
+                holder.pvalue := npc[1]+" " + npc[2][1] + " " + npc[2][2] + " " + npc[2][3];
+                data.append(holder);
+            endforeach
+        endif
+
+        AppendConfigFileElem(":spawnpoint:settings_britannia", "Spawn", x, data);
+        x := x + 1;
+    endforeach
+
+endprogram

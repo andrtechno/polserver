@@ -1,6 +1,21 @@
 use uo;
 use os;
+use vitals;
+include ":attributes:attributes";
 
 program textcmd_crim(who)
   SendSysMessage(who, "Time is now: " + ReadGameClock());
+
+
+    var trgt := Target(who);
+AP_SetVital(trgt, VITALID_LIFE, 300);
+print(AP_GetVitalMaximumValue(trgt, VITALID_LIFE));
+    var vitals := GetObjProperty(trgt, "%NPC_Vitals%");
+    vitals["HITS"] := CInt(vitals["HITS"])*3;
+    print(vitals);
+
+    SetObjProperty(trgt, "%NPC_Vitals%", vitals);
+
+    RecalcVitals( trgt );
+    AP_SetVital(trgt, "Hits", AP_GetVitalMaximumValue(trgt, VITALID_LIFE));
 endprogram

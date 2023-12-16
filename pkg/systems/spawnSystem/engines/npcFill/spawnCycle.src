@@ -10,12 +10,16 @@
 */
 use uo;
 use os;
+use cfgfile;
+use vitals;
 
 include ":attributes:attributes";
 include ":spawnsystem:groups";
 include ":spawnsystem:regions";
 include ":spawnsystem:settings";
 include ":spawnsystem:spawnerUtil";
+
+var npcdesc_cfg := ReadConfigFile( ":*:npcdesc" );
 
 program SpawnCycle( params )
 
@@ -74,6 +78,7 @@ program SpawnCycle( params )
 	// Do not spawn an NPC with unconcealed, hidden or ghost players nearby. Only spawn if a player is concealed.
 	var near := ListMobilesNearLocationEx( spawn_coords.x, spawn_coords.y, spawn_coords.z, 3, LISTEX_FLAG_NORMAL + LISTEX_FLAG_HIDDEN + LISTEX_FLAG_GHOST, realm_name );
 	if( !near.Size() )
+
 		var created := CreateNPCFromTemplate( spawn_object, spawn_coords.x, spawn_coords.y, spawn_coords.z, 0, realm_name );
 		if( created.errortext )
 			// The following line was probably left in for debugging. I am commenting it
@@ -81,7 +86,24 @@ program SpawnCycle( params )
 			// SysLog( "Error: Unable to create " + spawn_object + " from group " + group_name + " in region " + region_name + ". ->"+created.errortext );
 			return 0;
 		endif
+		if(RandomInt(99)+1 >= 50)
+            var exp := npcdesc_cfg[spawn_object].Exp;
+            print("exp "+exp);
+            print("created.npctemplate "+spawn_object);
+            print("npcdesc_cfg "+npcdesc_cfg[spawn_object]);
+            if(exp)
+                created.name := created.name + " [champion]";
 
+                SetObjProperty(created, "exp", RandomDiceRoll(exp)*5);
+                print("chempion "+created.x+" "+created.y+" "+created.z+" ");
+
+                var vitals := GetObjProperty(created, "%NPC_Vitals%");
+                vitals["HITS"] := CInt(vitals["HITS"]) * 3;
+                SetObjProperty(created, "%NPC_Vitals%", vitals);
+                RecalcVitals( created );
+                AP_SetVital(created, "Hits", AP_GetVitalMaximumValue(created, VITALID_LIFE));
+            endif
+        endif
 		SS_AddSpawnToRegion( region_name, group_name, created );
 		AlterNPCModification( region_name, created );
 	endif

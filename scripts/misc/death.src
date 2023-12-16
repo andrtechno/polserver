@@ -135,7 +135,14 @@ program npcdeath(corpse)
         endif
     endif
 
-
+    //Exp
+    var exp := npcdesc_cfg[elem]."Exp";
+    if(exp)
+        var experience := RandomDiceRoll(exp);
+        var expProperty := CInt(GetObjProperty(corpse, "exp"));
+        experience += expProperty;
+        killerMobile.addExp(experience);
+    endif
 
     	//MP_DeathUnmount(corpse);
     dismount(corpse);

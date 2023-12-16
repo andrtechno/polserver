@@ -200,6 +200,12 @@ exported function RemovePvEPoint( mobile, point )
     return 1;
 endfunction
 
+exported function AddExp( mobile, experience )
+    SendSysMessage(mobile, "You have received experience "+experience, 3, MESSAGE_COLOR_GOOD);
+    SetObjProperty(mobile, "exp", CInt(GetObjProperty(mobile,"exp")) + experience);
+    return 1;
+endfunction
+
 exported function SetFrozen(mobile, value := 0)
     value := CInt(value);
     mobile.frozen := value;

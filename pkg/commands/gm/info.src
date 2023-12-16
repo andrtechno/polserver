@@ -575,11 +575,11 @@ function MethodEdit(who, targ, input_info)
 			break;
 		"warmode":
 			targ.SetWarMode(CInt(change));
-    LogStaff(who, "Change set '"+input_info.name+"' form '"+value+"' to '"+CInt(change)+"'", targ);
+            LogStaff(who, "Change set '"+input_info.name+"' form '"+value+"' to '"+CInt(change)+"'", targ);
 			break;
 		"squelched":
 			targ.Squelch(CInt(change));
-    LogStaff(who, "Change set '"+input_info.name+"' form '"+value+"' to '"+CInt(change)+"'", targ);
+            LogStaff(who, "Change set '"+input_info.name+"' form '"+value+"' to '"+CInt(change)+"'", targ);
 			break;
 		default:
 			GumpPrompt(who, "Dont know how to handle method '"+input_info.name+"'");
