@@ -20,7 +20,7 @@ function CreateRunebookGump( who, book )
 	var book_gump := GFCreateGump(150, 200);
 
 	GFGumpPic( book_gump, 100, 10, 2200);
-    print(Len(rune_list));
+
     var g, h, xOffset;
     for ( g:=0; g<2; g+=1 )
         xOffset := 125 + ( g * 165 );
@@ -115,8 +115,6 @@ endfor
             else
                 mapcolor := 0;
             endif
-
-            print(rune_entry);
 
 			GFPage( book_gump, 1 );
 			GFTextCrop( book_gump, pOX,  pOY, 115, 17, mapcolor, rune_entry.name );

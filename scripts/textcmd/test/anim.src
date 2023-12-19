@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+
+program textcmd_anim(who)
+
+
+        PlayObjectCenteredEffect(who, 0x1795, 0, loop := 45); //music
+    return 1;
+
+endprogram

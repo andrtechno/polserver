@@ -14,7 +14,6 @@ include ":crafting:crafting";
 include ":gumps:requestGump";
 include ":equipment:equip";
 include ":itemutils:itemUtil";
-include "include/client";
 include "include/math";
 
 var bowcraftconfigfile := ReadConfigFile("::bowcraft");

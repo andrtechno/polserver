@@ -25,7 +25,7 @@ program on_insert( who, book, movetype, inserttype, item, existing_stack, amt );
 		return addRune( who, book, item );
 	endif
 
-        MoveItemToContainer( item, who.backpack );
+    MoveItemToContainer( item, who.backpack );
 
 	return 0;
 endprogram

@@ -33,18 +33,18 @@ exported function GetHitsRegenRate(mobile)
 endfunction
 
 exported function GetHitsMaximumValue(mobile)
-    print("------------------ start "+mobile.name);
+    //print("------------------ start "+mobile.name);
 	var vital_points := GetNPCVitalSetting(mobile, "HITS");
 	if ( !vital_points )
 		vital_points := GetAttribute(mobile, "Strength") * 100;
 	endif
         var life := GetAttribute(mobile, "Life") * 100;
         if(life)
-            print("life "+life);
+            //print("life "+life);
             vital_points := life;
         endif
-    print("vital_points "+vital_points);
-    print("------------------ end "+mobile.name);
+    //print("vital_points "+vital_points);
+    //print("------------------ end "+mobile.name);
 	return vital_points;
 endfunction
 
