@@ -14,22 +14,28 @@ var BKGND_DARK_STONE := GFGetCfgConst("Defaults", "ForeGround");
 
 program textcmd_tournamentTeam(who)
 
+print(who.clientinfo);
+    //var gump := execGump(who);
+    return 1;
+endprogram
+
+
+
+function execGump(who)
+
     var players_blue := TT_Players("Blue");
     var players_red := TT_Players("Red");
     var stone_opponent_blue := TT_Stone("Blue");
     var stone_opponent_red := TT_Stone("Red");
-
+    var active := TT_GetGlobalActive();
+    //var active := CInt(GetGlobalProperty("TTActive"));
 	var gump := GFCreateGump( 20, 50 );
 	GFPage( gump, 1 );
 	var widthGump := 600;
     var heightGump := 500;
 	GFResizePic( gump, 0, 0, BKGND_SILVERTRIM, widthGump, heightGump);
-
 	GFResizePic(gump, 15, 15, BKGND_DARK_STONE, widthGump - 30, 50);
-
-
 	GFResizePic(gump, 15, 75, BKGND_DARK_STONE, (widthGump / 2) - 20, (heightGump - 50 - 40));
-
 	GFResizePic(gump, (widthGump / 2) + 5, 75, BKGND_DARK_STONE, (widthGump / 2) - 20, (heightGump - 50 - 40));
 
 
@@ -50,6 +56,16 @@ program textcmd_tournamentTeam(who)
     GFAddButton(gump, 25, 20, 2117, 2118, GF_CLOSE_BTN, CInt(402)); //timer
     GFTextLine(gump,  25 + 20, 17, 2100, "Время захвата "+(scoreTimer / 60)+" мин." );
 
+    GFAddButton(gump, 25, 40, 2117, 2118, GF_CLOSE_BTN, CInt(999));
+    if(active)
+        GFTextLine(gump,  25 + 25, 40, 33, "Деактивировать" );
+    else
+        GFTextLine(gump,  25 + 25, 40, 67, "Активировать" );
+    endif
+
+    GFAddButton(gump, 25, 65, 2117, 2118, GF_CLOSE_BTN, CInt(998));
+    GFTextLine(gump,  25 + 25, 65, 33, "Frozen all" );
+
 //	newsline := SendTextEntryGump( me, "NEWS: ", TE_CANCEL_DISABLE,TE_STYLE_NORMAL, 80);
 
     GFTextLine(gump, startLeftBlue + 100, startTopBlue, 4, "Blue Team (score: "+TT_GetScore("Blue")+")");
@@ -66,6 +82,9 @@ program textcmd_tournamentTeam(who)
     GFAddButton(gump, startLeftBlue, startTopBlue, 2117, 2118, GF_CLOSE_BTN, CInt(300)); //add blue player
     GFTextLine(gump,  startLeftBlue + 20, startTopBlue - 3, 67, "Добавить игрока" );
 
+startTopBlue+=20;
+    GFAddButton(gump, startLeftBlue, startTopBlue, 2117, 2118, GF_CLOSE_BTN, CInt(600)); //summon all blue player
+    GFTextLine(gump,  startLeftBlue + 20, startTopBlue - 3, 67, "Summon All" );
 
 
 
@@ -84,8 +103,11 @@ program textcmd_tournamentTeam(who)
     GFAddButton(gump, startLeftRed, startTopRed, 2117, 2118, GF_CLOSE_BTN, CInt(301)); //add red player
     GFTextLine(gump,  startLeftRed+20, startTopRed - 3, 67, "Добавить игрока" );
 
+startTopRed+=20;
+    GFAddButton(gump, startLeftRed, startTopRed, 2117, 2118, GF_CLOSE_BTN, CInt(601)); //summon all red player
+    GFTextLine(gump,  startLeftRed+20, startTopRed - 3, 67, "Summon All" );
     var adminText := "";
-    var onlineColor;
+    //var onlineColor;
 
 
 
@@ -96,57 +118,127 @@ program textcmd_tournamentTeam(who)
     GFGumpListPlayers(who, gump, startLeftRed, startTopRed, players_red, 1000);
 
 
+    		var input := GFSendGump( who, gump );
+            input := CInt(input[0]);
 
-		var input := GFSendGump( who, gump );
-        input := CInt(input[0]);
+    			if ( input == 100)
+                    addStone(who, "Blue");
+    		    elseif(input == 101)
+                    addStone(who, "Red");
+    		    elseif(input >= 200 && input < 300)
+                    //SendSysMessage(who, "333 "+CStr(input), color := 88);
+    		    elseif(input == 300)
+                    addPlayer(who, "Blue");
+                    return execGump(who);
+    		    elseif(input == 301)
+                    addPlayer(who, "Red");
+                    return execGump(who);
+                elseif(input == 400)
+                    ClearSettings(who, "Blue");
+                    ClearSettings(who, "Red");
+                    return execGump(who);
+                elseif(input == 401)
+                    var score := CInt(SendTextEntryGump(who, "Set Max Score:", 1, 1, 3));
+                    TT_SetGlobalScore(score);
+                    return execGump(who);
+                elseif(input == 402)
+                    var timer := CInt(SendTextEntryGump(who, "Set Timer Capture:", 1, 1, 3));
+                    TT_SetGlobalTimer(timer);
+                    return execGump(who);
+                elseif(input == 500)
+                    var oldscore := TT_GetScore("Blue");
+                    var score := CInt(SendTextEntryGump(who, "Score of Blue team:", 1, 1, 3));
+                    if(!score)
+                        score := 0;
+                    endif
+                    if(score == oldscore)
+                        score := oldscore;
+                    endif
+                    TT_SetScoreBlue(score);
+                    return execGump(who);
+                elseif(input == 501)
+                    var oldscore := TT_GetScore("Blue");
+                    var score := CInt(SendTextEntryGump(who, "Score of Red team:", 1, 1, 3));
+                    if(!score)
+                        score := 0; //TT_GetScore("Red");
+                    endif
+                    if(score == oldscore)
+                        score := oldscore;
+                    endif
+                    TT_SetScoreRed(score);
+                    return execGump(who);
+                elseif(input == 600)
+                    var stone := SystemFindObjectBySerial(CInt(TT_Stone("Blue")));
+                    foreach mobile in (TT_Players("Blue"))
+                        var b := SystemFindObjectBySerial(CInt(mobile), SYSFIND_SEARCH_OFFLINE_MOBILES);
+                        print(stone);
+                        MoveObjectToLocation(b, stone.x, stone.y, stone.z, stone.realm, MOVEOBJECT_FORCELOCATION);
+                        print(mobile);
+                    endforeach
+                    return execGump(who);
+                elseif(input == 601)
+                    var stone := SystemFindObjectBySerial(CInt(TT_Stone("Red")));
 
-			if ( input == 100)
-                addStone(who, "Blue");
-		    elseif(input == 101)
-                addStone(who, "Red");
-		    elseif(input >= 200 && input < 300)
-                //SendSysMessage(who, "333 "+CStr(input), color := 88);
-		    elseif(input == 300)
-                addPlayer(who, "Blue");
-		    elseif(input == 301)
-                addPlayer(who, "Red");
-            elseif(input == 400)
-                ClearSettings(who, "Blue");
-                ClearSettings(who, "Red");
-            elseif(input == 401)
-                var score := CInt(SendTextEntryGump(who, "Set Max Score:", 1, 1, 3));
-                TT_SetGlobalScore(score);
-            elseif(input == 402)
-                var timer := CInt(SendTextEntryGump(who, "Set Timer Capture:", 1, 1, 3));
-                TT_SetGlobalTimer(timer);
-            elseif(input == 500)
-                var oldscore := TT_GetScore("Blue");
-                var score := CInt(SendTextEntryGump(who, "Score of Blue team:", 1, 1, 3));
-                if(!score)
-                    score := 0;
-                endif
-                if(score == oldscore)
-                    score := oldscore;
-                endif
-                TT_SetScoreBlue(score);
-            elseif(input == 501)
-                var oldscore := TT_GetScore("Blue");
-                var score := CInt(SendTextEntryGump(who, "Score of Red team:", 1, 1, 3));
-                if(!score)
-                    score := TT_GetScore("Red");
-                endif
-                if(score == oldscore)
-                    score := oldscore;
-                endif
-                TT_SetScoreRed(score);
-            elseif(input >= 2000)
-                removePlayer((input - 2000), "Blue");
-            elseif(input >= 1000)
-                removePlayer((input - 1000), "Red");
-			endif
+                    foreach mobile in (TT_Players("Red"))
+                        var b := SystemFindObjectBySerial(CInt(mobile), SYSFIND_SEARCH_OFFLINE_MOBILES);
+                        MoveObjectToLocation(b, stone.x, stone.y, stone.z, stone.realm, MOVEOBJECT_FORCELOCATION);
+                    endforeach
+                    return execGump(who);
+                elseif(input == 999)
+
+                    var active := TT_GetGlobalActive();
+                    if(active)
+                        TT_SetGlobalActive(0);
+                    else
+                        TT_SetGlobalActive(1);
+                        BroadcastUC("[SERVER]: Турнир начался", "RUS", 3, MESSAGE_COLOR_GOOD);
+                    endif
+                    return execGump(who);
+                elseif(input == 998)
 
 
-    	return 1;
-endprogram
+                    if(TT_GetGlobalFrozen())
+                        TT_SetGlobalFrozen(0);
+                        SendSysMessageUC(who, "Все команды разморожены!", "RUS", color := MESSAGE_COLOR_GOOD);
+                    else
+                        TT_SetGlobalFrozen(1);
+                        SendSysMessageUC(who, "Все команды заморожены!", "RUS", color := MESSAGE_COLOR_BAD);
+                    endif
+                    foreach mobile in (TT_Players("Red"))
+                        var b := SystemFindObjectBySerial(CInt(mobile), SYSFIND_SEARCH_OFFLINE_MOBILES);
+                        if(b.cmdlevel < 1)
+                            if(b.frozen)
+                                PrintTextAbovePrivateUC(mobile, "Разморожен!", "RUS", who, 3, color := MESSAGE_COLOR_BAD);
+                                b.SetFrozen(0);
+                            else
+                                PrintTextAbovePrivateUC(mobile, "Заморожен!", "RUS", who, 3, color := MESSAGE_COLOR_GOOD);
+                                b.SetFrozen(1);
+                            endif
+                        endif
+                    endforeach
+                    foreach mobile in (TT_Players("Blue"))
+                        var b := SystemFindObjectBySerial(CInt(mobile), SYSFIND_SEARCH_OFFLINE_MOBILES);
+                        if(b.cmdlevel < 1)
+                            if(b.frozen)
+                                PrintTextAbovePrivateUC(mobile, "Разморожен!", "RUS", who, 3, color := MESSAGE_COLOR_BAD);
+                                b.SetFrozen(0);
+                            else
+                                PrintTextAbovePrivateUC(mobile, "Заморожен!", "RUS", who, 3, color := MESSAGE_COLOR_GOOD);
+                                b.SetFrozen(1);
+                            endif
+                        endif
+                    endforeach
+                    return execGump(who);
+                elseif(input >= 2000)
+                    removePlayer((input - 2000), "Blue");
+                    return execGump(who);
+                elseif(input >= 1000)
+                    removePlayer((input - 1000), "Red");
+                    return execGump(who);
+    			endif
 
+
+
+    return gump;
+endfunction
 

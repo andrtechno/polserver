@@ -1,0 +1,32 @@
+use uo;
+
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+
+program gump_script(params)
+    var who := params[1];
+    var text := params[2];
+    var pid := CInt(GetObjProperty(who, "GumpPID"));
+
+    if(pid)
+        GFCloseGump ( who, pid, 0 );
+    endif
+
+    SetObjProperty(who, "GumpPID", GetPid());
+
+    var gump := GFCreateGump( 20, 50 );
+    var widthGump := 400;
+    var heightGump := 50;
+    GFResizePic(gump, 0, 0, GFGetCfgConst("Defaults", "BackGround"), widthGump, heightGump);
+    //GFClosable(gump, 0);
+    //GFDisposable(gump, 0);
+    GFTextLine(gump,  20, 17, 2100, text );
+
+    var input := GFSendGump( who, gump );
+    input := CInt(input);
+    if(!input)
+
+    endif
+
+    return 1;
+endprogram

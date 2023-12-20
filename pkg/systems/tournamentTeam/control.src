@@ -23,22 +23,26 @@ program controlItem(item)
 
     removeCaptureAll(item);
 
-    var timer := 0;
+    var mobilesList := ListMobilesNearLocationEx( item.x, item.y, item.z, RANGE, LISTEX_FLAG_NORMAL, item.realm);
 
+    var timer := 0;
+    print(CInt(TT_GetGlobalActive()));
+    print(mobilesList);
     var capturePlayer := 0;
     var playersLen := 0;
     var me_players;
 	while (item)
+	if(TT_GetGlobalActive())
 	    captureTime := TT_GetGlobalTimer();
         capturePlayer := 0;
         var players_opponent := TT_Players(oppTeam);
         var stone_opponent := TT_Stone(oppTeam);
 
-    if(oppTeam == "Red")
-        me_players := TT_Players("Blue");
-    else
-        me_players := TT_Players("Red");
-    endif
+        if(oppTeam == "Red")
+            me_players := TT_Players("Blue");
+        else
+            me_players := TT_Players("Red");
+        endif
 
 
         var mobilesList := ListMobilesNearLocationEx( item.x, item.y, item.z, RANGE, LISTEX_FLAG_NORMAL, item.realm);
@@ -60,43 +64,63 @@ program controlItem(item)
                     //var obj := SystemFindObjectBySerial(CInt(mm));
                     addCapture(item, mobile);
                     capturePlayer += 1;
+                                            var lastdamage := GetObjProperty(mobile, "LastDamage");
+                                            //SendSysMessage(mobile, "lt " + lastdamage.time, color := 88);
+                                            //SendSysMessage(mobile, "st " + POLCore().systime, color := 88);
+                                            if(POLCore().systime <= CInt(lastdamage.time)+1)
+                                                SendSysMessage(mobile, "restart time ", color := 33);
+                                                timer := 0;
+                                                EraseObjProperty(item, "CaptureTime");
+                                            endif
+
                 endif
             endforeach
 
             if(capturePlayer)
-                timer := timer + 1;
-                addStoneCapture(item, capturePlayer);
+                timer += 1;
                 captureLeft := CInt(GetObjProperty(item, "CaptureTime")) + capturePlayer;
+                addStoneCapture(item, capturePlayer);
 
 
-                if(timer == 10)
-                    var timerText := "(x"+capturePlayer+") "+captureLeft+" / "+captureTime+" ";
+                var timerText := "(x"+capturePlayer+") "+captureLeft+" / "+captureTime+" ";
 
-                    BroadcastUC("Захват "+timerText, "RUS", 3, 45);
 
+
+                foreach mobile in mobilesList
+                    if(mobile.serial in players_opponent)
+                        PrintTextAbovePrivateUC( item, timerText, "RUS", mobile, color := MESSAGE_COLOR_GOOD);
+                    endif
+                endforeach
+
+
+
+
+                //if(timer == 10)
+                    //BroadcastUC("Захват "+timerText, "RUS", 3, 45);
                     foreach opp_p in me_players
                         var obj := SystemFindObjectBySerial(CInt(opp_p));
                         SendSysMessage(obj, "Вашу базу захватывают! " + timerText, color := 88);
+                        start_script("gump_script",{obj,"Вашу базу захватывают! " + timerText});
                     endforeach
-                    timer := 0;
-                endif
+                //    timer := 0;
+                //endif
             endif
 
         //else
 
         //endif
         if(!capturePlayer)
-                    timer := 0;
-                    capturePlayer:=0;
-                    SetObjProperty(item, "CaptureTime", 0);
-                    removeCaptureAll(item);
+            timer := 0;
+            capturePlayer:=0;
+            SetObjProperty(item, "CaptureTime", 0);
+            removeCaptureAll(item);
         endif
         if(captureLeft)
             if(captureLeft >= captureTime)
                 baseCapture(item);
             endif
         endif
-
+endif
 		sleep(1);
 
 	endwhile
@@ -106,9 +130,9 @@ endprogram
 
 
 function baseCapture(item)
-    BroadcastUC("Замок захвачен!", "RUS", 3, 45);
+    BroadcastUC("Замок захвачен!", "RUS", 3, 88);
 
-    var stone_opponent := GetObjProperty(item,"OpponentStone");
+    var stone_opponent := GetObjProperty(item, "OpponentStone");
 
 
     var players_blue := TT_Players("Blue");
@@ -119,12 +143,12 @@ function baseCapture(item)
 
     foreach b_player in players_blue
         var b := SystemFindObjectBySerial(CInt(b_player), SYSFIND_SEARCH_OFFLINE_MOBILES);
-        MoveObjectToLocation(b, stone_opponent_blue.x + rint, stone_opponent_blue.y + rint, stone_opponent_blue.z, stone_opponent_blue.realm,MOVEOBJECT_FORCELOCATION);
+        MoveObjectToLocation(b, stone_opponent_blue.x, stone_opponent_blue.y, stone_opponent_blue.z, stone_opponent_blue.realm, MOVEOBJECT_FORCELOCATION);
     endforeach
 
     foreach r_player in players_red
         var r := SystemFindObjectBySerial(CInt(r_player), SYSFIND_SEARCH_OFFLINE_MOBILES);
-        MoveObjectToLocation(r, stone_opponent_red.x + rint, stone_opponent_red.y + rint, stone_opponent_red.z, stone_opponent_red.realm,MOVEOBJECT_FORCELOCATION);
+        MoveObjectToLocation(r, stone_opponent_red.x, stone_opponent_red.y, stone_opponent_red.z, stone_opponent_red.realm, MOVEOBJECT_FORCELOCATION);
     endforeach
     TT_SetScore(stone_opponent);
     removeCaptureAll(item);
@@ -141,7 +165,7 @@ function addCapture(item, mobile)
     if(!(mobile.serial in mobilesList))
         mobilesList.append(mobile.serial);
         SetObjProperty(mobile, "IsCapture", 1);
-        PrintTextAbovePrivateUC( mobile, "*Захват*", "RUS", mobile, 33);
+        PrintTextAbovePrivateUC( mobile, "*Захват*", "RUS", mobile, color := MESSAGE_COLOR_GOOD);
     endif
 
 
@@ -152,7 +176,7 @@ function addCapture(item, mobile)
             mobile := SystemFindObjectBySerial(CInt(player), SYSFIND_SEARCH_OFFLINE_MOBILES);
             mobilesList.erase( index );
             EraseObjProperty(mobile, "IsCapture");
-            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, color := MESSAGE_COLOR_BAD);
         endif
         index := index + 1;
     endforeach*/
@@ -183,7 +207,8 @@ function removeCapture(item, mobile)
         if(player == mobile.serial)
             mobilesList.erase( index );
             EraseObjProperty(mobile, "IsCapture");
-            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+            PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, color := MESSAGE_COLOR_BAD);
+
         endif
         index := index + 1;
     endforeach
@@ -198,9 +223,20 @@ function removeCaptureAll(item)
 
     var mobilesList := GetObjProperty(item, "CaptureMobiles");
 
+    var oppTeam := GetObjProperty(item, "OpponentStone");
+    foreach serial in (TT_Players(oppTeam))
+        var mobile := SystemFindObjectBySerial(CInt(serial), SYSFIND_SEARCH_OFFLINE_MOBILES);
+        var pid := CInt(GetObjProperty(mobile, "GumpPID"));
+        if(pid)
+            GFCloseGump ( mobile, pid, 0 );
+            pid.kill();
+        endif
+    endforeach
+
+
     foreach player in mobilesList
         var mobile := SystemFindObjectBySerial(CInt(player), SYSFIND_SEARCH_OFFLINE_MOBILES);
-        PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, 33);
+        PrintTextAbovePrivateUC( mobile, "*Вы покинули зону захвата*", "RUS", mobile, color := MESSAGE_COLOR_BAD);
         EraseObjProperty(mobile, "IsCapture");
     endforeach
 

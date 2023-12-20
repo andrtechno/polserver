@@ -79,6 +79,33 @@ function TT_SetGlobalTimer(value)
     data_elem.SetProp( "Timer", value * 60);
 endfunction
 
+function TT_GetGlobalActive()
+    var data_elem := TT_ElemGlobal();
+    var active := data_elem.GetProp( "Active" );
+    if(!active)
+        data_elem.SetProp( "Active", 0);
+    endif
+    return CInt(active);
+endfunction
+
+function TT_SetGlobalActive(value)
+    var data_elem := TT_ElemGlobal();
+    data_elem.SetProp( "Active", value);
+endfunction
+
+function TT_GetGlobalFrozen()
+    var data_elem := TT_ElemGlobal();
+    var active := data_elem.GetProp( "Frozen" );
+    if(!active)
+        data_elem.SetProp( "Frozen", 0);
+    endif
+    return CInt(active);
+endfunction
+
+function TT_SetGlobalFrozen(value)
+    var data_elem := TT_ElemGlobal();
+    data_elem.SetProp( "Frozen", value);
+endfunction
 
 function addPlayer(who, team)
     SendSysMessage(who, "add player", color := 88);
@@ -100,6 +127,7 @@ function addPlayer(who, team)
         if(YesNo(targ, "Участвовать в турнире за "+team+" team? ", "Да", "Нет", 30))
             type_list.Append( targ.serial );
             SendSysMessageUC(targ, "Вы были добавлены в команду", "RUS", color := MESSAGE_COLOR_GOOD);
+            SendSysMessageUC(who, targ.name+" Вступиль в команду", "RUS", color := MESSAGE_COLOR_GOOD);
         endif
     endif
 
@@ -119,6 +147,7 @@ function removePlayer(who, team)
         if(player == who)
             type_list.erase( index );
             SendSysMessageUC(who, "Вы бели удалены из команды.", "RUS", color := MESSAGE_COLOR_BAD);
+
         endif
         index += 1;
     endforeach
@@ -176,7 +205,7 @@ function TT_SetScore(team)
     var scoreBlue := CInt(_blue.GetProp( "Score" ));
     var scoreRed := CInt(_red.GetProp( "Score" ));
 
-    BroadcastUC("Счет BlueTeam ("+scoreBlue+" - "+scoreRed+") RedTeam", "RUS", 3, 45);
+    BroadcastUC("Счет BlueTeam ("+scoreBlue+" - "+scoreRed+") RedTeam", "RUS", 3, 88);
 
 endfunction
 
@@ -198,9 +227,9 @@ endfunction
 
 function isOnline(mobile);
     if(mobile.connected)
-        return "Online";
+        return 2361; //Online
     else
-        return "Offline";
+        return 2360; //Offline
     endif
 endfunction
 
@@ -216,14 +245,15 @@ function GFGumpListPlayers(who, byref gump, x, y, list, index);
             var obj := SystemFindObjectBySerial(CInt(player));
 
             adminText:="/"+obj.acctname+"";
-            if((isOnline(obj) == "Online"))
+            if((isOnline(obj) == 2361))
                 onlineColor := MESSAGE_COLOR_GOOD;
             else
                 onlineColor := MESSAGE_COLOR_BAD;
             endif
 
-            GFTextCrop(gump, x, y, 50, 20, onlineColor, "("+isOnline(obj)+")");
-            GFTextLine(gump, x + 50, y, 2100, obj.name+""+adminText );
+            //GFTextCrop(gump, x, y, 50, 20, onlineColor, "("+isOnline(obj)+")");
+            GFGumpPic( gump, x, y+5, isOnline(obj) );
+            GFTextLine(gump, x + 15, y, onlineColor, obj.name+""+adminText );
 
 
             if(who.cmdlevel > 0)

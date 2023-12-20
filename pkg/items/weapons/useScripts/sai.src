@@ -45,8 +45,8 @@ program use_item(who, item)
 
 
 	        PerformAction( who , 0x09 );
-            sleepms(400);
-            SendSysMessage(who, "----------");
+            SleepMS(500);
+            //SendSysMessage(who, "----------");
             PlayMovingEffect(who, defender, 0x0E97, 12, 10, 0);
             //SendSysMessage(who, "facing "+defender.facing);
             //SendSysMessage(who, "me facing "+who.facing);
