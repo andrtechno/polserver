@@ -15,7 +15,7 @@ include "include/findCity";
 include "include/dist";
 include "include/begging";
 include ":attributes:attributes";
-include "include/trainSkill";
+include ":npcs:trainSkill";
 include "include/objtype";
 
 const MAX_SKILLS      := 48;
@@ -206,7 +206,7 @@ function BuyBag (byref you)
 		PrintTextAbovePrivate (me, "But that's not even a bag!", you);
 		return;
 	endif
-	
+
 	if (bag != you.backpack)
 		if (!InInventory (you.backpack, bag) )
 			PrintTextAbovePrivate (me, "That bag isn't in your inventory.", you);

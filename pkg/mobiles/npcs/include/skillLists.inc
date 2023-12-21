@@ -1,50 +1,41 @@
 function getskilllist(me)
-  var mytemplate := lower(GetObjProperty(me, "MerchantType"));
-  case(mytemplate)
-    "healer":           return { "spiritspeaking", "healing", "anatomy", "camping", "fishing", "forensic evaluation" };
-    "stable":           return { "animal lore", "animal taming", "veterinary" };
-    "shipWright":       return { "wrestling", "tactics" };
-    "fisherman":        return { "fishing", "fencing" };
-    "innkeeper":        return { "fencing", "tactics" };
-    "farmer":           return { "swordsmanship", "animal lore", "herding", "veterinary" };
-    "weaponsmith":      return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
-    "blacksmith":       return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
-    "Armorer":          return { "mace fighting", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
-    "barkeep":          return { "mace fighting", "tactics" };
-    "barmaid":          return { "fencing", "tactics" };
-    "baker":            return { "wrestling", "cooking" };
-    "tinker":           return { "fencing", "alchemy", "lockpicking", "tinkering" };
-    "bard":             return { "fencing", "discordance", "musicianship", "provocation", "peacemaking" };
-    "butcher":          return { "mace fighting", "cooking", "taste identification" };
-    "cobbler":          return { "swordsmanship", "tailoring" };
-    "jeweler":          return { "fencing", "item identification" };
-    "mage":             return { "mace fighting", "resisting spells", "inscription", "magery", "meditation", "wrestling" };
-    "wizard":           return { "mace fighting", "resisting spells", "inscription", "wizardry", "meditation", "wrestling" };
-    "necromance":       return { "mace fighting", "resisting spells", "inscription", "necromancy", "meditation", "wrestling" };
-    "Alchemist":        return { "resisting spells", "taste identification", "alchemy", "wrestling" };
-    "herbalist":        return { "resisting spells", "alchemy", "cooking", "taste identification", "wrestling" };
-    "tailor":           return { "tailoring", "fencing" };
-    "weaver":           return { "tailoring", "fencing" };
-    "leatherworker":    return { "parrying", "mace fighting" };
-    "provisioner":      return { "tactics", "parrying", "fencing" };
-    "carpenter":        return { "carpentry", "lumberjacking", "swordsmanship" };
-    "bowyer":           return { "archery", "bowcraft", "mace fighting" };
-    "architect":        return { "resisting spells", "wrestling" };
-    "scribe":           return { "resisting spells", "inscription", "evaluating intelligence", "wrestling" };
-    "mapmaker":         return { "cartography", "wrestling" };
-    "vetrinarian":      return { "animal lore", "wrestling", "veterinary" };
-    "townguard":        return { "anatomy", "tactics", "swordsmanship", "detect hidden", "arms lore" };
-    "thief":            return { "snooping", "stealing", "remove trap", "stealth", "fencing", "poisoning", "lockpicking", "hiding" };
-    "beggar":           return { "begging", "wrestling", "cooking", "fishing" };
-    "fighter1":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
-    "fighter2":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
-    "fighter3":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
-    "fighter4":         return { "anatomy", "tactics", "swordsmanship", "arms lore" };
-    "paladin":          return { "anatomy", "tactics", "swordsmanship", "detect hidden", "arms lore" };
-    "assassin":          return { "poisoning", "hiding", "stealth" };
-    "artist":           return {"tailoring", "fencing", "item identification"};
-  endcase
+    var mytemplate := lower(GetObjProperty(me, "MerchantType"));
+    case(mytemplate)
+        "healer":           return { "spiritspeaking", "healing", "anatomy", "camping", "fishing", "forensic evaluation" };
+        "stable":           return { "animal lore", "animal taming", "veterinary" };
+        "shipWright":       return { "wrestling", "tactics" };
+        "fisherman":        return { "fishing", "fencing" };
+        "innkeeper":        return { "fencing", "tactics" };
+        "farmer":           return { "swordsmanship", "animal lore", "herding", "veterinary" };
+        "weaponsmith":      return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
+        "blacksmith":       return { "swordsmanship", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
+        "armorer":          return { "mace fighting", "arms lore", "blacksmithy", "mining", "parrying", "tactics" };
+        "barkeep":          return { "mace fighting", "tactics" };
+        "barmaid":          return { "fencing", "tactics" };
+        "baker":            return { "wrestling", "cooking" };
+        "tinker":           return { "fencing", "alchemy", "lockpicking", "tinkering" };
+        "bard":             return { "fencing", "discordance", "musicianship", "provocation", "peacemaking" };
+        "butcher":          return { "mace fighting", "cooking", "taste identification" };
+        "cobbler":          return { "swordsmanship", "tailoring" };
+        "jeweler":          return { "fencing", "item identification" };
+        "mage":             return { "mace fighting", "resisting spells", "inscription", "magery", "meditation", "wrestling" };
+        "alchemist":        return { "resisting spells", "taste identification", "alchemy", "wrestling" };
+        "herbalist":        return { "resisting spells", "alchemy", "cooking", "taste identification", "wrestling" };
+        "tailor":           return { "tailoring", "fencing" };
+        "weaver":           return { "tailoring", "fencing" };
+        "leatherworker":    return { "parrying", "mace fighting" };
+        "provisioner":      return { "tactics", "parrying", "fencing" };
+        "carpenter":        return { "carpentry", "lumberjacking", "swordsmanship" };
+        "bowyer":           return { "archery", "bowcraft", "mace fighting" };
+        "architect":        return { "resisting spells", "wrestling" };
+        "scribe":           return { "resisting spells", "inscription", "evaluating intelligence", "wrestling" };
+        "mapmaker":         return { "cartography", "wrestling" };
+        "townguard":        return { "anatomy", "tactics", "swordsmanship", "detect hidden", "arms lore" };
+        "thief":            return { "snooping", "stealing", "remove trap", "stealth", "fencing", "poisoning", "lockpicking", "hiding" };
+        "paladin":          return { "anatomy", "tactics", "swordsmanship", "detect hidden", "arms lore" };
+    endcase
 endfunction
+
 
 function FindSkillId(name)
   case(name)
@@ -56,14 +47,14 @@ function FindSkillId(name)
     "parrying":                 return  5;
     "begging":                  return  6;
     "blacksmithy":              return  7;
-    "bowcraftFletching":                 return  8;
+    "bowcraftFletching":        return  8;
     "peacemaking":              return  9;
     "camping":                  return 10;
     "carpentry":                return 11;
     "cartography":              return 12;
     "cooking":                  return 13;
     "detect hidden":            return 14;
-    "discordance":               return 15;
+    "discordance":              return 15;
     "evaluating intelligence":  return 16;
     "healing":                  return 17;
     "fishing":                  return 18;

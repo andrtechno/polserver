@@ -10,6 +10,7 @@ Const CM_KILL			:= "Attack";
 Const CM_RELEASE		:= "Release";
 Const CM_STOP			:= "Stop";
 Const CM_STAY			:= "Stay";
+Const CM_TRAINSKILL		:= "Vendor Train";
 Const CM_TRANSFER		:= "Transfer";
 Const CM_JOIN			:= "Join";
 Const CM_RESIGN			:= "Resign";

@@ -1,0 +1,152 @@
+use os;
+use unicode;
+use npc;
+
+include ":npcs:skillLists";
+include ":gumps:gumps";
+include ":gumps:gumps_ex";
+include ":npcs:trainSkill";
+include ":attributes:attributes_ex";
+include "util/bank";
+
+program train_gump(params)
+    var me := params[1];
+    var who := params[2];
+    var skill_list := getskilllist(me);
+    var gump := GFCreateGump( 20, 50 );
+
+    var widthGump := 200;
+    var heightGump := 25 * Len(skill_list) + 35;
+    GFResizePic(gump, 0, 0, GFGetCfgConst("Defaults", "BackGround"), widthGump, heightGump);
+    GFCloseGumpOnMoved ( who, who.x, who.y, GetPid());
+    var y:=20;
+    foreach thing in skill_list
+        GFAddButton(gump, 20, y+3, 2117, 2118, GF_CLOSE_BTN, FindSkillId(thing)+100);
+        GFTextLine(gump,  40, y, 2100, thing);
+        y+=25;
+    endforeach
+
+    var input := GFSendGump( who, gump );
+
+
+    foreach skill in ( input.keys )
+        if(skill >= 100)
+            skill := skill - 100;
+
+            var attributeid := AP_SkillIdToAttributeName(skill);
+            if(GetAttributeBaseValue(who, attributeid) >= 300);
+                //Say("Вы уже достаточно обучены");
+                PrintTextAbove( me, "Вы уже достаточно обучены");
+                return;
+            endif
+            foreach attrib_name in getskilllist(me)
+                if( FindSkillId(attrib_name) == skill )
+                    // All values are in "tenths" unless noted otherwise.
+                    // This simplifies things because the amount of gold to buy training is
+                    // the same as the training level in tenths.
+
+                    // max_skill_to_train is the maximum points a vendor can train a player, in tenths.
+                    var max_skill_to_train := 300;
+                    var player_skill_cap := who.skillcap * 10;
+
+                    // player_total_skill_pts is the total of all of the player's earned skill points.
+                    var player_total_skill_pts := AP_GetPlayerTotalSkillPoints( who );
+
+                    // available_point_pool is the unused points available for gains.
+                    var available_point_pool := player_skill_cap - player_total_skill_pts;
+
+                    if( player_skill_cap - player_total_skill_pts <= 0 )
+                        // No room for training any skill points.
+                        //Say( "I could try to train you in " + attrib_name + ", but you would be wasting your coin." );
+                        //SayUC( "Я мог бы попытаться обучить вас " + attrib_name + ", но вы зря потратите свои монеты.", langcode := "RUS");
+                        PrintTextAbove( me, "Я мог бы попытаться обучить вас " + attrib_name + ", но вы зря потратите свои монеты.");
+                        return;
+                    endif
+                    // Here we check to see if the player can be trained the max_skill_to_train amount.
+                    var variance := available_point_pool - max_skill_to_train;
+                    if( variance < 0 )
+                        // Nope. Train to the variance level.
+                        max_skill_to_train := Abs( variance );
+                    endif
+                    //PrintTextAbovePrivate(me, "I will train the in " + attrib_name + " for " + max_skill_to_train + ".", who );
+                    //PrintTextAbovePrivateUC(me, "Я обучу " + attrib_name + " на " + (max_skill_to_train/10) + ".", "RUS", who );
+                    //PrintTextAbove( me, "Я обучу " + attrib_name + " на " + (max_skill_to_train/10) + ".");
+                    SetObjProperty(who, "TrainMaxCost", max_skill_to_train);
+                    SetObjProperty(who, "TrainSkillID", skill);
+                    TrainSkillNew(me, who);
+
+                    return;
+                endif
+            endforeach
+        endif
+    endforeach
+endprogram
+
+
+function TrainSkillNew(me, who)
+
+
+    var variance := 0;
+    var npc_level := 0;
+    var pc_level := 0;
+    var goldreceived := 0;
+    var new_level := 0;
+    var currentnpccost := 0;
+
+
+
+    var skillid := GetObjProperty(who, "TrainSkillID");
+    var trainmaxcost := GetObjProperty(who, "TrainMaxCost");
+    var attributeid := AP_SkillIdToAttributeName(GetObjProperty(who, "TrainSkillID"));
+
+    npc_level    := GetAttribute(me, attributeid);
+    pc_level     := AP_GetTrueSkill(who, attributeid);
+    pc_level     := GetAttributeBaseValue(who, attributeid) / 10;
+
+    variance     := npc_level - pc_level;
+    currentnpccost := GoldForSkillGain(npc_level, pc_level);
+    if(pc_level < npc_level)
+        if(currentnpccost != trainmaxcost)
+            if(currentnpccost > trainmaxcost)
+                npc_level := SkillGainForGold(pc_level, trainmaxcost);
+                variance  := npc_level - pc_level;
+            else
+                if(goldreceived > currentnpccost)
+                    PrintTextAbove( me, "I can not train thee to that level.");
+                    return;
+                else
+                    trainmaxcost := currentnpccost;
+                endif
+            endif
+        endif
+            if(trainmaxcost <= goldreceived)
+                new_level := (npc_level * 10);
+                EraseObjProperty( who, "TrainMaxCost" );
+                EraseObjProperty( who, "TrainSkillID" );
+                //return;
+            else
+                new_level := ((pc_level + CInt((CDbl(variance) * (CDbl(goldreceived) / CDbl(trainmaxcost))))) * 10);
+                SetObjProperty( who, "TrainMaxCost", trainmaxcost-goldreceived );
+            endif
+        if(SpendCoin(who, 300, who.backpack, 0xEED))
+            //PrintTextAbovePrivateUC(me, "Позвольте мне показать вам, как это делается.", "RUS", who );
+            var pid := GetProcess(GetObjProperty(who, "cap_pid"));
+            var k := struct;
+            k.+skid   := attributeid;
+            k.+type   := EVID_SKILLCAP;
+            k.+base   := new_level;
+            pid.sendevent(k);
+
+            SetAttributeBaseValue(who, attributeid, new_level);
+            DoRecalcVitals(who);
+            SendSysMessage(who, "Your skill increases.");
+            EraseObjProperty( who, "TrainMaxCost" );
+            EraseObjProperty( who, "TrainSkillID" );
+        else
+            PrintTextAbovePrivateUC(me, "У Вас не хватает монет.", "RUS", who );
+        endif
+    else
+        PrintTextAbove( me, "213321321");
+    endif
+
+endfunction

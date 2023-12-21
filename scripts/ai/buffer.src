@@ -17,7 +17,7 @@ var npccfg        := ReadConfigFile("npcdesc");
 
 set_priority(50);
 
-program merchant()
+program buffer()
     if(!merchant_type)
         SetObjProperty(me, "MerchantType", "Mage");
         merchant_type := "Mage";

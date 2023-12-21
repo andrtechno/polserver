@@ -97,6 +97,7 @@ exported function GetContextMenuEntries( npc, player )
 	elseif( TypeOfInt( mrcspawn_cfg[template_info.Template] ) == OT_CONFIGELEMREF )
 		list.Append( Struct{ "cliloc":=3006103, "disabled":=disabled } );
 		list.Append( Struct{ "cliloc":=3006104, "disabled":=disabled } );
+		list.Append( Struct{ "cliloc":=3006163, "disabled":=disabled } ); // vendor train
 	elseif( npc.master == player )
 		if( npc.objtype == 0x123 || npc.objtype == 0x124 )
 			list.Append( Struct{ "cliloc":=3006145, "disabled":=disabled } );

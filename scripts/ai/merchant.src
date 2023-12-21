@@ -276,7 +276,7 @@ function PayForJobCompleted (byref ev)
 	endif
 
 	var jobattribute := AP_SkillIdToAttributeName (GetObjProperty (bag, "jobtype"));
-
+    print("PayForJobCompleted");
 	var goldamount := count * CINT(GetAttribute (player, jobattribute)/5);
 	if (!goldamount)
 		goldamount := count;

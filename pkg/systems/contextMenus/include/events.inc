@@ -33,8 +33,9 @@ include ":insurance:insurance";
  *
  */
 function ContextMenu_SendNPCEvent( byref mobile, byref npc, byref str )
-
-	var event := SendEvent( npc, Struct{ "source":=mobile, "text":=npc.name+" "+str, "type":=EVID_SPEECH } );
+//print(npc.name+" "+str);
+var event := SendEvent( npc, Struct{ "source":=mobile, "text":=str, "type":=EVID_SPEECH } );
+// var event := SendEvent( npc, Struct{ "source":=mobile, "text":=npc.name+" "+str, "type":=EVID_SPEECH } );
 	if( event.errortext )
 		Print( "ERROR::ContextMenu_SendNPCEvent -> "+event.errortext );
 	endif
@@ -50,7 +51,12 @@ function ContextMenu_SendMerchantNodeEvent( byref mobile, byref npc, byref str )
     //print(Struct{ "source":=mobile, "npc":=npc, "text":=npc.name+" "+str, "type":=SYSEVENT_SPEECH });
     var node := SystemFindObjectBySerial( node_serial );
     var process := GetProcess( GetObjProperty( node, "#Pid" ) );
-    var event := process.SendEvent( Struct{ "source":=mobile, "npc":=npc, "text":=str, "type":=SYSEVENT_SPEECH } );
+
+    //old
+    //var event := process.SendEvent( Struct{ "source":=mobile, "npc":=npc, "text":=str, "type":=SYSEVENT_SPEECH } );
+
+    //by panix
+    var event := SendEvent( npc, Struct{ "source":=mobile, "text":=str, "type":=EVID_SPEECH } );
     if( event.errortext )
         Print( "ERROR::ContextMenu_SendMerchantNodeEvent -> "+event.errortext );
     endif

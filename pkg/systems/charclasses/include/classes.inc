@@ -1,8 +1,5 @@
 use uo;
 
-//include "include/spelldata";
-//include "include/attributes";
-//include "include/itemutil";
 include "include/client";
 include ":attributes:caps";
 

@@ -56,7 +56,7 @@ exported function HandlePlayerMoved( mobile, byref packet )
                         SendSysMessageUC( mobile, "[Anti-Cheat] Привышение скорости передвижение. ["+distanced+"]", "RUS", color := MESSAGE_COLOR_BAD);
                         foreach member in EnumerateOnlineCharacters()
                             if (member.cmdlevel )
-                                SendSysMessageUC(member, "[Anti-Cheat] " + member.name+" Привысел скорость ["+distanced+"]", "RUS", color := 88);
+                                SendSysMessageUC(member, "[Anti-Cheat] " + mobile.name+" Привысел скорость ["+distanced+"]", "RUS", color := 88);
                             endif
                         endforeach
                     endif

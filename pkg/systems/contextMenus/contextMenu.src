@@ -51,6 +51,7 @@ program context_menu( parameters )
 		3006112:	ContextMenu_SendNPCEvent( mobile, obj, CM_STOP );
 		3006113:	ContextMenu_SendNPCEvent( mobile, obj, CM_TRANSFER );
 		3006114:	ContextMenu_SendNPCEvent( mobile, obj, CM_STAY );
+		3006163:	ContextMenu_SendNPCEvent( mobile, obj, CM_TRAINSKILL );
 		3006115:	ContextMenu_HandleResignEvent( mobile, obj );
 		3006116:	ContextMenu_HandleJoinEvent( mobile, obj );
 		3006118:	ContextMenu_SendNPCEvent( mobile, obj, CM_RELEASE );

@@ -52,7 +52,6 @@ function createSpawn(realm_elem, elem)
     SetObjProperty(node, "Restock", 30);
     realm_elem.SetProp("serial", node.serial);
     foreach merch in merchants
-
         var split := SplitWords(merch);
         node.Insert(split[1], struct{x:=CInt(split[2]), y:=CInt(split[3]), z:=CInt(split[4])});
     endforeach

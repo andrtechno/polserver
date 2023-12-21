@@ -11,6 +11,9 @@ $RECYCLE.BIN/
 #ide
 .idea
 
+#vscode
+.vscode
+
 # Windows Installer files
 *.cab
 *.msi
