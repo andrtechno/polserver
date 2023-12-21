@@ -2,19 +2,22 @@
 
 use uo;
 use vitals;
+use unicode;
 
 include ":attributes:attributes";
-include ":damage:damage";
+include ":timedScripts:timedScripts";
 
 program pain_spike( params )
 	var caster := params[1];
 	var info := params[2]; // Struct containing additional info about the spell.
 	//var spellID := params[3];
 	var circle := info.circle;
-    //SendSysMessageUC(who, "Отмена.", "RUS", color := 33);
+
 	SendSysMessage(caster, "Select your victim:", 3, 88);
 	var cast_on := Target(caster);
-
+    if(!cast_on)
+        SendSysMessageUC(caster, "Отмена.", "RUS", color := 33);
+    endif
 	var dmg := 0;
 
 	var cast_onrs := CInt(AP_GetSkill(caster, RESISTING_SPELLS));
@@ -32,13 +35,17 @@ program pain_spike( params )
 		return 0;
 	endif
 
-	SetObjProperty(caster, "#pspike", 1);
-	PlaySoundEffect(cast_on, 0x210);
+	//SetObjProperty(caster, "#pspike", 1);
+	/*PlaySoundEffect(cast_on, 0x210);
 	PlayObjectCenteredEffectEx( cast_on, 0x37C4, 1, 8, 9916, 39, 0, 3 );
 	SleepMS(60);
 	PlayObjectCenteredEffectEx( cast_on, 0x37C4, 1, 8, 9916, 39, 0, 4 );
-	ApplySpellDamageEX(cast_on, dmg, DMG_PHYSICAL, caster, circle, "Pain Spike");
-	Detach();
+	ApplySpellDamageEX(cast_on, dmg, DMG_PHYSICAL, caster, circle, "Pain Spike");*/
+
+	//cast_on.addBuff(1018, 10, 1060517, 1075668, CStr(dmg));
+	TS_StartTimer(cast_on, "PainSpike", 10, dmg, caster);
+
+	/*Detach();
 	sleep(3);
 
 	if(!cast_on.dead && cast_on.ip)
@@ -50,4 +57,5 @@ program pain_spike( params )
 	endif
 
 	EraseObjProperty(caster, "#pspike");
+    cast_on.delbuff(1018);*/
 endprogram

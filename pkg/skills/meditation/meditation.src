@@ -24,6 +24,8 @@ program meditation(who)
 		return 0;
 	endif
 
+
+
 	var lastmed := CInt( GetObjProperty(who, "LastMeditation") );
 	/*if (lastmed > ReadGameClock() )
 		EraseObjProperty(who, "#ISMEDITATING");

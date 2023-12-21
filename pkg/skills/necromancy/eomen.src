@@ -10,7 +10,7 @@ program evil_omen( params )
 
 	SendSysMessage(caster, "Select your victim:", 1, 88);
 	var cast_on := Target(caster);
-	
+
 
 	var duration := 20;
 	info := info;
@@ -27,7 +27,7 @@ program evil_omen( params )
 	var cast_onrs := GetAttribute(cast_on, RESISTING_SPELLS);
 	var modrs := cast_onrs / 50 * -1;
 	modrs := modrs * 10;
-	
+	    cast_on.addBuff(1007, CInt(duration), 1060513, 1060513, {});
 	detach();
 	PlayObjectCenteredEffectEx( cast_on, 0x3779, 1, 15, 9502, 67, 0, 7 );
 	PlaySoundEffect(cast_on, 0xFC);
@@ -36,9 +36,9 @@ program evil_omen( params )
 	Setobjproperty(cast_on, "evilomen", 1);
 	ModifyResistance(cast_on, DMG_PHYSICAL, -20);
 	SetAttributeTemporaryMod( cast_on, RESISTING_SPELLS, GetAttributeTemporaryMod(cast_on, RESISTING_SPELLS) + modrs );
-	
+
 	Sleep(duration);
-	
+
 	PlayObjectCenteredEffectEx( cast_on, 0x3779, 1, 15, 9502, 67, 0, 7 );
 	PlaySoundEffect(cast_on, 0xFC);
 	Sleep(1);
@@ -46,7 +46,7 @@ program evil_omen( params )
 	Eraseobjproperty(cast_on, "evilomen");
 	ModifyResistance(cast_on, DMG_PHYSICAL, 20);
 	SetAttributeTemporaryMod( cast_on, RESISTING_SPELLS, GetAttributeTemporaryMod(cast_on, RESISTING_SPELLS) - modrs );
-	
+	    cast_on.delbuff(1007);
 endprogram
 
 /*

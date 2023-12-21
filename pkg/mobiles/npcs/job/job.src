@@ -298,8 +298,7 @@ function GetItemTypeByJobType (jobtype)
 				5: return 0x0DCC;	//fishing weight
 			endcase
 
-		default:
-			return 0;
+		default: return 0;
 	endcase
 
 endfunction

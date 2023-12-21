@@ -1,0 +1,38 @@
+use uo;
+use os;
+
+include ":attributes:attributes";
+include ":timedScripts:timedScripts";
+include ":damage:damage";
+
+program TimedScript_PainSpike(params)
+	var defender := params[1];
+	var name := params[2]; //PainSpike
+	var duration := params[3];
+	var dmg := params[4];
+	var caster := params[5];
+
+	var cfg_elem := TS_GetCfgElem("PainSpike");
+    var buff_icon := CInt( cfg_elem.BuffIcon );
+    var cliloc_name :=  CInt(cfg_elem.cliloc_name);
+    var cliloc_desc :=  CInt(cfg_elem.cliloc_desc);
+	params := {};
+
+
+	var points := struct;
+
+	defender.addBuff(buff_icon, duration, cliloc_name, cliloc_desc, CStr(dmg));
+	SetObjProperty(defender, "PainSpike", points);
+
+	while(1)
+        PlaySoundEffect(defender, 0x210);
+        PlayObjectCenteredEffectEx( defender, 0x37C4, 1, 8, 9916, 39, 0, 3 );
+        SleepMS(60);
+        PlayObjectCenteredEffectEx( defender, 0x37C4, 1, 8, 9916, 39, 0, 4 );
+        ApplySpellDamageEX(defender, dmg, DMG_PHYSICAL, caster, 8, "Pain Spike");
+        Sleep(5);
+	endwhile
+
+	return 1;
+endprogram
+

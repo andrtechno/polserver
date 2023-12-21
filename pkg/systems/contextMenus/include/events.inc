@@ -33,7 +33,7 @@ include ":insurance:insurance";
  *
  */
 function ContextMenu_SendNPCEvent( byref mobile, byref npc, byref str )
-//print(npc.name+" "+str);
+print(npc.name+" "+str);
 var event := SendEvent( npc, Struct{ "source":=mobile, "text":=str, "type":=EVID_SPEECH } );
 // var event := SendEvent( npc, Struct{ "source":=mobile, "text":=npc.name+" "+str, "type":=EVID_SPEECH } );
 	if( event.errortext )

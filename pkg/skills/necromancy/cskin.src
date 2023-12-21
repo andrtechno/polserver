@@ -3,13 +3,14 @@ use vitals;
 
 include ":attributes:attributes";
 include ":damage:damage";
+include ":timedScripts:timedScripts";
 
 program corpse_skin( params )
 	var caster := params[1];
 	//var info := params[2]; // Struct containing additional info about the spell.
 	//var spellID := params[3];
 
-	SendSysMessage(caster, "Select your victim:", 1, 88);
+	SendSysMessage(caster, "Select your victim:", 3, 88);
 	var cast_on := Target(caster);
 	var targrs := Cint(GetAttribute(cast_on, RESISTING_SPELLS));
 	var sspeak := Cint(GetAttribute(caster, SPIRIT_SPEAK));
@@ -20,22 +21,24 @@ program corpse_skin( params )
 		return 0;
 	endif
 
+    cast_on.addBuff(1016, 10, 1060511, 1075664, {});
 	detach();
 	PlaySoundEffect(cast_on, 0x1BB);
 	PlayObjectCenteredEffectEx( cast_on, 0x373A, 1, 15, 9913, 0, 0, 7 );
 	SetObjProperty(cast_on, "corpse_skin", 1);
-	ModifyResistance(caster, "Fire", -15);
-	ModifyResistance(caster, "Poison", -15);
-	ModifyResistance(caster, "Cold", 10);
-	ModifyResistance(caster, "Physical", 10);
+	ModifyResistance(cast_on, "Fire", -15);
+	ModifyResistance(cast_on, "Poison", -15);
+	ModifyResistance(cast_on, "Cold", 10);
+	ModifyResistance(cast_on, "Physical", 10);
 
-	Sleep(duration);
+	Sleep(10);
 
 	PlaySoundEffect(cast_on, 0x205);
 	PlayObjectCenteredEffectEx( cast_on, 0x373A, 1, 15, 9913, 0, 0, 7 );
 	EraseObjProperty(cast_on, "corpse_skin");
-	ModifyResistance(caster, "Fire", 15);
-	ModifyResistance(caster, "Poison", 15);
-	ModifyResistance(caster, "Cold", 1-0);
-	ModifyResistance(caster, "Physical", -10);
+	ModifyResistance(cast_on, "Fire", 15);
+	ModifyResistance(cast_on, "Poison", 15);
+	ModifyResistance(cast_on, "Cold", -10);
+	ModifyResistance(cast_on, "Physical", -10);
+    cast_on.delbuff(1016);
 endprogram

@@ -23,7 +23,10 @@ program blood_oath( params )
 	if(caster.ip)
 		bonus := int/5;
 	endif
-
+		var duration := (sspeak + bonus) / 4;
+		print(CInt(duration));
+    cast_on.addBuff(1015, CInt(duration), 1074810, 1074810, {});
+    caster.addBuff(1014, CInt(duration), 1074810, 1074810, {});
 	PlaySoundEffect(caster, 0x175);
 	PlaySoundEffect(cast_on, 0x175);
 	PlayObjectCenteredEffectEx( caster, 0x375A, 1, 17, 9919, 33, 3, 7 );
@@ -32,10 +35,12 @@ program blood_oath( params )
 	PlayObjectCenteredEffectEx( caster, 0x3728, 1, 13, 9502, 33, 255, 7 );
 	PlayObjectCenteredEffectEx( cast_on, 0x3728, 1, 13, 9502, 33, 255, 7 );
 
-	var duration := (necroskill + sspeak + bonus) / 4;
+
 
 	SetObjProperty(cast_on, "bloodoath", caster.serial);
 	Detach();
 	sleep(duration);
 	Eraseobjproperty(cast_on, "bloodoath");
+	    cast_on.delbuff(1015);
+	    caster.delbuff(1014);
 endprogram

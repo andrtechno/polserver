@@ -7,12 +7,15 @@ include ":timedScripts:timedScripts";
 include ":magery:spells";
 include ":damage:damage";
 
-program cast_confidence( params )
+program cast_enemyOne( params )
     var caster := params[1];
     var info := params[2];
-    var cast_on;
 
-    SendSysMessage (caster, "The spell in developed...cast_confidence", color := 33);
+	var cast_on := Target(caster);
+ cast_on.addBuff(1011, 30, 1060590, 1060590, {});
+    SendSysMessage (caster, "The spell in developed...cast_enemyOne", color := 33);
+sleep(5);
+    cast_on.delbuff(1011);
 
     return 1;
 

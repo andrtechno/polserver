@@ -53,6 +53,9 @@ program strangle( params )
 	var rounds := cint(AP_GetSkill(caster, SPIRIT_SPEAK) / 30);
 	var x := 1, dmg2;
 
+
+    cast_on.addBuff(1019, 20, 1060519, 1060519, {});
+
 	Detach();
 	SetObjProperty(cast_on, "strangle", 1);
 	var damaged_sound;
@@ -83,4 +86,5 @@ program strangle( params )
 
 	endfor
 	EraseObjProperty(cast_on, "strangle");
+    cast_on.delbuff(1019);
 endprogram

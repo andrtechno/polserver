@@ -105,15 +105,7 @@ function HandleMods(who, item)
     endif*/
 
 
-
-
-    DoStatMods(who, item);
-    DoSkillAdvance(who, item);
-    DoProt( who, item );
-    DoArMods( who, item );
-    DoImmunity( who, item );
-    DoHitChance( who, item );
-
+    //@todo: type возможно можно удалить!! зачем он!! изза него моды не работаеют если нету проперти
     var type := GetObjProperty(item, "type");
     if(!type)
         return 1;
@@ -122,6 +114,15 @@ function HandleMods(who, item)
     if(!who.ip)
         return 1;
     endif
+
+    DoStatMods(who, item);
+    DoSkillAdvance(who, item);
+    DoProt( who, item );
+    DoArMods( who, item );
+    DoImmunity( who, item );
+    DoHitChance( who, item );
+
+
 
     case(type)
         "accuracy":     val := accuracy(who,item);

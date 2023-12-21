@@ -31,6 +31,7 @@ program mind_rot( params )
 	endif
 
 	var duration :=  (sspeak  - AP_GetSkill(cast_on, RESISTING_SPELLS)) / 5 + 20;
+    cast_on.addBuff(1017, CInt(duration), 1060516, 1060516, {});
 	detach();
 	PlaySoundEffect(cast_on, 0x1FB);
 	PlaySoundEffect(cast_on, 0x258);
@@ -40,6 +41,7 @@ program mind_rot( params )
 	EraseObjProperty (spell_caster, "casting");
 	sleep(duration);
 	Eraseobjproperty(cast_on, "#mindrot");
+    cast_on.delbuff(1017);
 endprogram
 
 /*

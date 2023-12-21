@@ -119,8 +119,16 @@ program merchant()
                     else
                         if(txt["buy"])
                             TurnToward(ev.source);
-                            var res := SendBuyWindow(ev.source, inv_fs, me, inv_pb);
+                            var res := SendBuyWindow(ev.source, inv_fs, me, inv_pb,VENDOR_SEND_AOS_TOOLTIP);
+                            print(GetObjPropertyNames(inv_rs));
+                            print(GetObjPropertyNames(inv_fs));
+                            print(GetObjPropertyNames(inv_pb));
+                            print(GetObjPropertyNames(inv_1c));
                         elseif(txt["sell"])
+                            print(GetObjPropertyNames(inv_rs));
+                            print(GetObjPropertyNames(inv_fs));
+                            print(GetObjPropertyNames(inv_pb));
+                            print(GetObjPropertyNames(inv_1c));
                             if(GetObjProperty(inv_rs, "MyGold") >= 1000)
                                 TurnToward(ev.source);
                                 var count := ModifyPCSellList(merchant_type, (ev.source));
@@ -132,11 +140,11 @@ program merchant()
                             else
                                 PrintTextAbovePrivate(me, "I cannot afford any more of that", ev.source );
                             endif
-                        elseif (txt ["job"])
-                            var parms := { };
-                            parms[1] := ev.source;
-                            parms[2] := me;
-                            start_script (":job:job", parms);
+                        elseif (txt["job"])
+                            var params := { };
+                            params[1] := ev.source;
+                            params[2] := me;
+                            start_script (":job:job", params);
                         elseif (txt["sell all"])
                             BuyAll(ev.source);
 						//elseif (txt["quest"])
@@ -144,7 +152,7 @@ program merchant()
 						//	GetMission(ev.source, {me});
                         elseif (txt["sell bag"])
                             BuyBag(ev.source);
-                        elseif((txt["vendor train"]) || (txt["vendor teach"]) || (txt["merchant train"]) || (txt["merchant teach"]))
+                        elseif(txt["vendor train"])
                             TurnToward(ev.source);
                             MerchantTrain(me, ev.source, ev.text);
                         endif

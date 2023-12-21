@@ -20,8 +20,8 @@ program timer(params)
     var regenValue := 5 + (classlevel*3);
 
     SendSysMessage(who, "rangeValue: "+classlevel+": "+regenValue+" MP", color:=88);
-        var wait := 4500;
-        wait := wait - (CInt(GetAttribute(who, MEDITATION))*2);
+    var wait := 4500;
+    wait := wait - (CInt(GetAttribute(who, MEDITATION))*2);
     SendSysMessage(who, "start speed "+classlevel+": "+wait+"ms.", color:=88);
     var percent2 := CInt(classlevel * 10);
     var number_percent2 := wait / 100 * percent2;
@@ -30,7 +30,7 @@ program timer(params)
     SendSysMessage(who, "finish speed "+classlevel+": "+wait+"ms.", color:=88);
 
 
-
+    who.addBuff(1013, 0, 1049580, 1079410, {});
 
     while(
         (oldstamina <= AP_GetVital(who, STAMINA)) &&
@@ -38,15 +38,15 @@ program timer(params)
         (!poisoned) && (!who.warmode) &&
         (!IsThingOnHand(who)) && (!who.hidden)
     )
-			SleepMS(wait/2);
+        SleepMS(wait/2);
 
-			loss := manaloss(who);
-			if(loss == "nomed")
-				SendSysMessage(who,"Regenerative forces cannot penetrate your armor.", color := 33);
-				EraseObjProperty(who, "#ISMEDITATING");
-				EraseObjProperty(who, "LastMeditation");
-		        return 0;
-			endif
+        loss := manaloss(who);
+        if(loss == "nomed")
+            SendSysMessage(who,"Regenerative forces cannot penetrate your armor.", color := 33);
+            EraseObjProperty(who, "#ISMEDITATING");
+            EraseObjProperty(who, "LastMeditation");
+            return 0;
+        endif
 			if(AP_GetVital(who, MANA) >= AP_GetVitalMaximumValue(who, MANA))
 				SendSysMessage(who, "Your mana has recharged.", color := 66);
 				EraseObjProperty(who, "#ISMEDITATING");
@@ -69,11 +69,12 @@ program timer(params)
 			poisoned := who.poisoned;
             SleepMS(wait/2);
     endwhile
-		SendSysMessage(who, "You lose your concentration.", color := 33);
-		EraseObjProperty(who, "#ISMEDITATING");
-		EraseObjProperty(who, "LastMeditation"); //by panic
+    who.delbuff(1013);
+    SendSysMessage(who, "You lose your concentration.", color := 33);
+    EraseObjProperty(who, "#ISMEDITATING");
+    EraseObjProperty(who, "LastMeditation"); //by panic
 
-return 1;
+    return 1;
 
 endprogram
 
