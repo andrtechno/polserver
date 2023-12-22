@@ -1,0 +1,87 @@
+use http;
+use uo;
+use basic;
+use cfgfile;
+
+var npccfgfile := ReadConfigFile("::npcdesc");
+var list := GetConfigStringKeys( npccfgfile );
+var idQuery := QueryParam("id");
+var taxonomyQuery := QueryParam("taxonomy");
+var data := struct{};
+var taxonomyList := {
+"anura",
+"arachnida",
+"aves",
+"chiroptera",
+"beholder",
+"bovidae",
+"boss",
+"camelidae",
+"canidae",
+"cervidae",
+"cretacea",
+"crustacean",
+"daemonium",
+"delphinidae",
+"draco",
+"elementum",
+"equus",
+"felidae",
+"fey",
+"homo_sapiens",
+"immortuos",
+"limus",
+"movens_ligno",
+"odobenidae",
+"orcus",
+"phasianidae",
+"primatomorpha",
+"reptilia",
+"rodentia",
+"scarabaeidae",
+"serpentes",
+"suidae",
+"unknown",
+"ursidae",
+"vinae"
+};
+
+WriteHtml( "<html><head><title>POL Guilds</title></head>" +
+    "<body>");
+
+        WriteHtml( Len(list) );
+
+    var json := struct;
+
+
+    var info := {};
+    foreach npc in ( list )
+        var prop := struct;
+        var elem := FindConfigElem( npccfgfile, npc );
+        var tameskill := GetConfigInt( elem, "tameskill" );
+        var herdskill := GetConfigInt( elem, "herdskill" );
+
+        prop.+npctemplate := npc;
+        prop.+name := GetConfigString( elem, "Name" );
+        prop.+script := GetConfigString( elem, "script" );
+        prop.+taxonomy := GetConfigString( elem, "Taxonomy" );
+        if(tameskill)
+            prop.+tameskill := tameskill;
+        endif
+        if(herdskill)
+            prop.+herdskill := herdskill;
+        endif
+        info.append(prop);
+    endforeach
+    json.+success := Boolean(1);
+    json.+data := info;
+
+
+    WriteHtml( PackJSON(json) );
+
+
+
+WriteHtml( "</BODY></HTML>" );
+
+
+
