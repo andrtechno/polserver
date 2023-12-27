@@ -1,0 +1,75 @@
+use http;
+use uo;
+use os;
+use basic;
+use guilds;
+use util;
+use PolSys;
+
+include "include/client";
+include ":weapons:weaponInfo";
+
+var idQuery := QueryParam("id");
+var tiles := ReadConfigFile( "tiles" );
+program players()
+    var data := struct{};
+    data.+success := Boolean(0);
+    var player := SystemFindObjectBySerial(CInt(idQuery), SYSFIND_SEARCH_OFFLINE_MOBILES);
+    if(player)
+
+        if(player.acctname)
+            data.success := Boolean(1);
+
+            data.+acctname := player.acctname;
+            data.+name := player.name;
+            data.+race := "Human";
+            data.+gender := player.gender;
+            data.+color := player.color;
+            data.+graphic := player.graphic;
+            data.+title := player.title_prefix;
+
+            var layersArray := array;
+
+            /*foreach item in ListEquippedItems( player )
+                var elem := FindConfigElem(tiles, item.graphic);
+                var anim := GetConfigInt(elem, "AnimID");
+
+                var layers := struct;
+                layers.+color := item.color;
+                layers.+layer_id := item.tile_layer;
+                layers.+layer := anim + 50000;
+                layersArray.append(layers);
+
+                SleepMS(5);
+            endforeach*/
+
+
+            foreach layer_id in {LAYER_PANTS, LAYER_CHEST, LAYER_SHOES, LAYER_NECK, LAYER_HAIR, LAYER_GLOVES, LAYER_LEGS, LAYER_ARMS, LAYER_BEARD, LAYER_HELM, LAYER_HAND1, LAYER_HAND2, LAYER_RING, LAYER_CAPE, LAYER_ROBE, LAYER_PACK}
+                var item := GetEquipmentByLayer(player, layer_id);
+                if(item)
+                    var elem := FindConfigElem(tiles, item.graphic);
+                    var anim := GetConfigInt(elem, "AnimID");
+if(LAYER_ROBE == layer_id)
+
+endif
+                    var layers := struct;
+                    layers.+color := item.color;
+                    layers.+layer_id := item.tile_layer;
+                    layers.+layer := anim + 50000;
+                    layersArray.append(layers);
+//female gump += 10000;
+                    SleepMS(5);
+                endif
+            endforeach
+
+            data.+layers := layersArray;
+        else
+            data.+message := "No find player";
+        endif
+    else
+        data.+message := "No player";
+    endif
+    WriteHtml( PackJSON(data) );
+endprogram
+
+

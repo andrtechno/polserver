@@ -1,14 +1,19 @@
-/* 
- * $Id$
- *
- */
-
 use uo;
 use os;
 
-program ControlScript(unused cuthair)
-	//Sleep(90);
-	//DestroyItem(cuthair);
-	
+include "include/client";
+
+program ControlScript(cuthair)
+    var owner := cuthair.character_owner;
+
+    if(owner)
+        foreach layer_id in {LAYER_HAIR, LAYER_BEARD}
+            var item := GetEquipmentByLayer(owner, layer_id);
+            if(item)
+                DestroyItem(item);
+            endif
+        endforeach
+        DestroyItem(cuthair);
+    endif
 	return 1;
 endprogram
