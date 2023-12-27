@@ -22,7 +22,7 @@ program create_account()
 	var password2    := QueryParam("acc_pass2");
 	var email        := QueryParam("email");
 
-    data.+"success" := Boolean(0);
+    data.+success := Boolean(0);
 
 
 	if( TypeOf(account_name) != "String" || account_name == "" )
@@ -49,7 +49,7 @@ program create_account()
         data.+"message" := "Пароль совпадает с аккаунтом.";
 		data.+"attribute" := "password";
 	else
-		
+
         var account := CreateAccount(account_name, password1, 1 );
        // var account := CreateNewAccount(account_name, password1, 0, );
 
@@ -65,7 +65,7 @@ program create_account()
             account.set_uo_expansion("AOS");
             account.setProp("Email", email);
             account.setProp("DateReg", ReadGameClock());
-            data.+"success" := Boolean(1);
+            data.success := Boolean(1);
             data.+"message" := "Аккаунт успешно создан.";
         endif
 	endif
@@ -96,9 +96,9 @@ function IsValidEmail( byref adress )
 			endcase
 		endif
 	endif
-	
+
 	return ret;
-	
+
 endfunction
 
 
@@ -110,7 +110,7 @@ function RegisterEmail( byref adress )
 		registered := dictionary;
 		SetGlobalProperty("RegisteredEmailAdresses", registered);
 	endif
-	
+
 	if( registered.exists(adress) )
 		ret := error;
 		ret.+errortype := ERRORTYPE_FREE_SERVER;
@@ -119,7 +119,7 @@ else
 		SetGlobalProperty("RegisteredEmailAdresses", registered);
 		ret := 1;
 	endif
-	
+
 	return ret;
 
 endfunction
@@ -132,7 +132,7 @@ function RegisterIP( byref adress )
 		registered := dictionary;
 		SetGlobalProperty("RegIP", registered);
 	endif
-	
+
 	if( registered.exists(adress) )
 		ret := error;
 		ret.+errortype := ERRORTYPE_EXISTING_IP;
@@ -141,7 +141,7 @@ function RegisterIP( byref adress )
 		SetGlobalProperty("RegIP", registered);
 		ret := 1;
 	endif
-	
+
 	return ret;
 
 endfunction
